@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320" role="img" aria-labelledby="t-fishbone"><title id="t-fishbone">특성요인도 (4M1E) — 범프 높이 산포 증가 예시</title><defs><style>
+text{font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',system-ui,-apple-system,'Segoe UI',sans-serif}
+.bg{fill:var(--fig-bg,#fcfcfb)}
+.pn{fill:var(--fig-panel,#f1f2f4)}
+.ink{fill:var(--fig-ink,#1c2230)}
+.sub{fill:var(--fig-sub,#52514e)}
+.mut{fill:var(--fig-mut,#898781)}
+.ax{stroke:var(--fig-axis,#c3c2b7);fill:none}
+.gr{stroke:var(--fig-grid,#e1e0d9);fill:none}
+.ed{stroke:var(--fig-edge,#7d8797);fill:none}
+.ah{fill:var(--fig-edge,#7d8797)}
+.ring{stroke:var(--fig-bg,#fcfcfb)}
+.f0{fill:var(--fig-0w,#eef0f3)} .s0{stroke:var(--fig-0,#8a94a6)} .k0{fill:var(--fig-0,#8a94a6)} .l0{stroke:var(--fig-0,#8a94a6);fill:none}
+.f1{fill:var(--fig-1w,#dbe8fa)} .s1{stroke:var(--fig-1,#2a78d6)} .k1{fill:var(--fig-1,#2a78d6)} .l1{stroke:var(--fig-1,#2a78d6);fill:none}
+.f2{fill:var(--fig-2w,#fbe1d5)} .s2{stroke:var(--fig-2,#eb6834)} .k2{fill:var(--fig-2,#eb6834)} .l2{stroke:var(--fig-2,#eb6834);fill:none}
+.f3{fill:var(--fig-3w,#d3f1e5)} .s3{stroke:var(--fig-3,#1baf7a)} .k3{fill:var(--fig-3,#1baf7a)} .l3{stroke:var(--fig-3,#1baf7a);fill:none}
+.f4{fill:var(--fig-4w,#fcefcc)} .s4{stroke:var(--fig-4,#eda100)} .k4{fill:var(--fig-4,#eda100)} .l4{stroke:var(--fig-4,#eda100);fill:none}
+.f5{fill:var(--fig-5w,#e3dff7)} .s5{stroke:var(--fig-5,#4a3aa7)} .k5{fill:var(--fig-5,#4a3aa7)} .l5{stroke:var(--fig-5,#4a3aa7);fill:none}
+.q1{fill:var(--fig-q1,#cde2fb)} .q2{fill:var(--fig-q2,#9ec5f4)} .q3{fill:var(--fig-q3,#6da7ec)}
+.good{fill:#0ca30c} .crit{fill:#d03b3b} .critl{stroke:#d03b3b;fill:none} .critw{fill:#d03b3b;fill-opacity:.28}
+.m-si{fill:var(--m-si,#c7ccd6)} .m-ox{fill:var(--m-ox,#cfe3f4)} .m-pr{fill:var(--m-pr,#cbbbe9)}
+.m-cu{fill:var(--m-cu,#e09a5f)} .m-ni{fill:var(--m-ni,#a9b1bd)} .m-sn{fill:var(--m-sn,#dfe5ec)}
+.m-imc{fill:var(--m-imc,#8f7b66)} .m-al{fill:var(--m-al,#b7c4d6)} .m-emc{fill:var(--m-emc,#4c5363)}
+.m-sub{fill:var(--m-sub,#7f9c78)} .m-n{fill:var(--m-n,#9fc3f0)} .m-p{fill:var(--m-p,#f2d2c2)} .m-gate{fill:var(--m-gate,#8b93a7)}
+.m-bath{fill:var(--m-bath,#e7f1fb)}
+.nterm{fill:var(--n-term-fill,#e8f6ee);stroke:var(--n-term-stroke,#2e9e5b)}
+.nproc{fill:var(--n-process-fill,#ffffff);stroke:var(--n-process-stroke,#8a94a6)}
+.ndec{fill:var(--n-decision-fill,#fff6e3);stroke:var(--n-decision-stroke,#d9921a)}
+.nio{fill:var(--n-io-fill,#edf2ff);stroke:var(--n-io-stroke,#5b7bd5)}
+.mono{font-family:ui-monospace,'D2Coding',Consolas,monospace}
+</style><marker id="ah-fishbone" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs><rect class="bg" x="0" y="0" width="720" height="320" rx="12"/><line class="ed" x1="40" y1="162" x2="566" y2="162" stroke-width="2.2" marker-end="url(#ah-fishbone)"/><rect class="f2 s2" x="572" y="124" width="132" height="76" rx="10" stroke-width="1.5"/><text class="ink" x="638" y="156" font-size="14" text-anchor="middle" font-weight="700">범프 높이</text><text class="ink" x="638" y="174.9" font-size="14" text-anchor="middle" font-weight="700">산포 증가</text><line class="ed" x1="100" y1="52" x2="164" y2="162" stroke-width="1.6"/><text class="ink" x="100" y="42" font-size="13" text-anchor="middle" font-weight="700">Man 사람</text><line class="ed" x1="116.3" y1="93.8" x2="124.3" y2="93.8" stroke-width="1.2"/><text class="sub" x="112.3" y="97.8" font-size="12" text-anchor="end">신규 작업자</text><line class="ed" x1="136.8" y1="129" x2="144.8" y2="129" stroke-width="1.2"/><text class="sub" x="132.8" y="133" font-size="12" text-anchor="end">레시피 입력 실수</text><line class="ed" x1="270" y1="52" x2="334" y2="162" stroke-width="1.6"/><text class="ink" x="270" y="42" font-size="13" text-anchor="middle" font-weight="700">Machine 설비</text><line class="ed" x1="286.3" y1="93.8" x2="294.3" y2="93.8" stroke-width="1.2"/><text class="sub" x="282.3" y="97.8" font-size="12" text-anchor="end">립씰 수명</text><line class="ed" x1="306.8" y1="129" x2="314.8" y2="129" stroke-width="1.2"/><text class="sub" x="302.8" y="133" font-size="12" text-anchor="end">애노드 소모</text><line class="ed" x1="440" y1="52" x2="504" y2="162" stroke-width="1.6"/><text class="ink" x="440" y="42" font-size="13" text-anchor="middle" font-weight="700">Environment 환경</text><line class="ed" x1="456.3" y1="93.8" x2="464.3" y2="93.8" stroke-width="1.2"/><text class="sub" x="452.3" y="97.8" font-size="12" text-anchor="end">순수 온도</text><line class="ed" x1="476.8" y1="129" x2="484.8" y2="129" stroke-width="1.2"/><text class="sub" x="472.8" y="133" font-size="12" text-anchor="end">배기 변동</text><line class="ed" x1="180" y1="272" x2="244" y2="162" stroke-width="1.6"/><text class="ink" x="180" y="294" font-size="13" text-anchor="middle" font-weight="700">Material 자재</text><line class="ed" x1="196.3" y1="230.2" x2="204.3" y2="230.2" stroke-width="1.2"/><text class="sub" x="192.3" y="234.2" font-size="12" text-anchor="end">약품 lot 변경</text><line class="ed" x1="216.8" y1="195" x2="224.8" y2="195" stroke-width="1.2"/><text class="sub" x="212.8" y="199" font-size="12" text-anchor="end">첨가제 분해</text><line class="ed" x1="350" y1="272" x2="414" y2="162" stroke-width="1.6"/><text class="ink" x="350" y="294" font-size="13" text-anchor="middle" font-weight="700">Method 방법</text><line class="ed" x1="366.3" y1="230.2" x2="374.3" y2="230.2" stroke-width="1.2"/><text class="sub" x="362.3" y="234.2" font-size="12" text-anchor="end">전류밀도 조건</text><line class="ed" x1="386.8" y1="195" x2="394.8" y2="195" stroke-width="1.2"/><text class="sub" x="382.8" y="199" font-size="12" text-anchor="end">측정 위치(site)</text></svg>

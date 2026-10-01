@@ -9,6 +9,7 @@ const ROOT = path.resolve(__dirname, '..');
 const FILE = 'file://' + path.join(ROOT, 'dist', 'engr-edu.html');
 const OUT = process.env.SHOT_DIR || fs.mkdtempSync(path.join(os.tmpdir(), 'engr-edu-'));
 let failed = 0;
+const setRange = (loc, v) => loc.evaluate((el, val) => { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); }, v);
 const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if (!cond) failed++; };
 
 (async () => {
@@ -24,16 +25,47 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   console.log('교육과정');
   const toc = await page.$$eval('.toc-item', els => els.map(e => e.textContent));
   ok(toc.length === 7, `목차 7개 (${toc.length})`);
-  let flowTotal = 0;
+  let flowTotal = 0, figTotal = 0, brokenTotal = 0; const widgetNames = [];
   for (let i = 0; i < toc.length; i++) {
     await page.click(`.toc-item >> nth=${i}`);
     const n = await page.$$eval('.flowblock svg .node', els => els.length);
     const blocks = await page.$$eval('.flowblock', els => els.length);
     flowTotal += blocks;
     const tables = await page.$$eval('#edu-doc table', els => els.length);
-    console.log(`    ${toc[i]}: 흐름도 ${blocks}개 (노드 ${n}), 표 ${tables}개`);
+    const figs = await page.$$eval('#edu-doc figure.fig svg', els => els.length);
+    const widgets = await page.$$eval('#edu-doc .widget', els => els.map(e => e.dataset.widget));
+    const broken = await page.$$eval('#edu-doc .hint', els => els.filter(e => /그림 없음|알 수 없는 도구|그리지 못했습니다/.test(e.textContent)).length);
+    figTotal += figs; widgetNames.push(...widgets); brokenTotal += broken;
+    console.log(`    ${toc[i]}: 그림 ${figs}개, 도구 ${widgets.length}개, 흐름도 ${blocks}개 (노드 ${n}), 표 ${tables}개`);
   }
   ok(flowTotal >= 10, `흐름도 렌더링 ${flowTotal}개`);
+  ok(figTotal >= 37, `그림 렌더링 ${figTotal}개`);
+  ok(['cpk', 'control', 'cte', 'diffusion', 'faraday', 'yield'].every(w => widgetNames.includes(w)), '직접 해 보기 도구 6종: ' + widgetNames.join(', '));
+  ok(brokenTotal === 0, '깨진 그림·도구 없음');
+
+  console.log('직접 해 보기 도구');
+  await page.click('.toc-item >> nth=3');
+  const cpkBox = page.locator('.widget[data-widget="cpk"]');
+  const cpkBefore = await cpkBox.locator('.w-tile .v').nth(1).textContent();
+  await setRange(cpkBox.locator('input[type=range]').first(), '10.0');
+  const cpkAfter = await cpkBox.locator('.w-tile .v').nth(1).textContent();
+  ok(cpkBefore !== cpkAfter && cpkAfter === '1.33', `Cpk 슬라이더 반영 (${cpkBefore} → ${cpkAfter})`);
+  const fdy = page.locator('.widget[data-widget="faraday"]');
+  await setRange(fdy.locator('input[type=range]').nth(0), '1');
+  await setRange(fdy.locator('input[type=range]').nth(1), '1');
+  await setRange(fdy.locator('input[type=range]').nth(2), '100');
+  const rate = await fdy.locator('.w-tile .v').nth(1).textContent();
+  ok(/^0\.22\d µm\/분$/.test(rate), `Cu 1 ASD 도금 속도 ≈ 0.22 µm/분 (${rate})`);
+  const ctl = page.locator('.widget[data-widget="control"]');
+  await ctl.getByRole('button', { name: '평균 이동' }).click();
+  ok(/✗/.test(await ctl.locator('.w-list').textContent()), '관리도: 평균 이동 시 규칙 위반 표시');
+  await ctl.locator('.pt').nth(20).hover();
+  ok(await ctl.locator('.w-tip').isVisible(), '관리도 점에 마우스 → 값 표시');
+  await page.click('.toc-item >> nth=4');
+  const yw = page.locator('.widget[data-widget="yield"]');
+  await setRange(yw.locator('input[type=range]').nth(0), '99');
+  await setRange(yw.locator('input[type=range]').nth(1), '12');
+  ok((await yw.locator('.w-tile .v').first().textContent()) === '88.6%', '적층 수율 99%^12 = 88.6%');
   await page.click('.toc-item >> nth=1');
   await page.screenshot({ path: path.join(OUT, '01-edu.png') });
 
@@ -62,7 +94,9 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   ok(pf.edges.includes('계측기 점검>기록:'), '→ 끝 이 끝 노드로 연결');
   ok(pf.edges.includes('재측정 동일한가>3. 추세 확인:예') || pf.edges.includes('재측정 동일한가>추세 확인:예'), '예 → 3 번호 참조');
   ok(pf.edges.includes('추세 하락인가>단발 원인:아니오') && pf.edges.includes('추세 하락인가>단발 원인:아니오'), '분기 1개일 때 다음 단계 연결');
-  ok(pf.d5 && pf.d5.detail === '상세' && pf.d5.caution === '주의', '상세 > / 주의 ! 파싱');
+  ok(pf.d5 && pf.d5.detail === '상세\n⚠ 주의', '글 > / 주의 ! 파싱 (' + JSON.stringify(pf.d5 && pf.d5.detail) + ')');
+  const legacy = await page.evaluate(() => window.EngrEdu.normalizeMap({nodes: [{id: 'a', title: 't', summary: '요약', detail: '설명', caution: '조심', tags: ['x']}], edges: []}).nodes[0]);
+  ok(legacy.detail === '요약\n설명\n⚠ 조심' && !('tags' in legacy) && !('summary' in legacy), '예전 형식(요약·주의점) → 글로 합침');
   ok(!pf.edges.some(e => e.startsWith('기록>')), '끝 노드에서 자동 연결 없음');
 
   console.log('알고리즘 맵');
@@ -96,6 +130,56 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   await page.waitForTimeout(300);
   const imgs = await page.evaluate(() => { const S = window.EngrEdu.state; return S.cur.nodes.find(n => n.id === S.sel.id).images.length; });
   ok(imgs === 1, '노드에 이미지 첨부');
+  const panelLabels = await page.$$eval('#panel-props .field > label', els => els.map(e => e.textContent.split(' ')[0]));
+  ok(panelLabels.join(',') === '종류,제목,글,사진', '노드 패널 = 종류·제목·글·사진 (' + panelLabels.join(',') + ')');
+
+  // 마우스를 올리면 사진이 뜬다
+  const imgNodeId = await page.evaluate(() => window.EngrEdu.state.sel.id);
+  await page.mouse.move(5, 5);
+  await page.locator(`#canvas [data-node="${imgNodeId}"]`).hover();
+  await page.waitForSelector('#hovercard.show img.hc-main', { timeout: 2000 }).catch(() => {});
+  ok(await page.isVisible('#hovercard.show img.hc-main'), '노드에 마우스 → 사진 미리보기');
+  await page.screenshot({ path: path.join(OUT, '02b-hover.png') });
+  await page.mouse.move(5, 5);
+  await page.waitForTimeout(100);
+  ok(!(await page.isVisible('#hovercard.show')), '마우스를 떼면 미리보기 닫힘');
+
+  // 아무것도 선택하지 않고 붙여넣기 → 사진이 든 새 단계
+  const pngB64 = fs.readFileSync(png).toString('base64');
+  await page.keyboard.press('Escape');
+  const beforePaste = await page.evaluate(() => window.EngrEdu.state.cur.nodes.length);
+  await page.evaluate(async (b64) => {
+    const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const dt = new DataTransfer(); dt.items.add(new File([bin], 'p.png', { type: 'image/png' }));
+    document.body.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true }));
+  }, pngB64);
+  await page.waitForTimeout(400);
+  const pasted = await page.evaluate(() => { const S = window.EngrEdu.state; const n = S.cur.nodes[S.cur.nodes.length - 1]; return { count: S.cur.nodes.length, imgs: n.images.length, title: n.title, sel: S.sel && S.sel.id === n.id }; });
+  ok(pasted.count === beforePaste + 1 && pasted.imgs === 1 && pasted.sel, `선택 없이 붙여넣기 → 사진 든 새 단계 (${JSON.stringify(pasted)})`);
+  // 선택한 노드에 붙여넣기
+  await page.evaluate(async (b64) => {
+    const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const dt = new DataTransfer(); dt.items.add(new File([bin], 'p.png', { type: 'image/png' }));
+    document.body.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true }));
+  }, pngB64);
+  await page.waitForTimeout(400);
+  const pasted2 = await page.evaluate(() => { const S = window.EngrEdu.state; return { count: S.cur.nodes.length, imgs: S.cur.nodes.find(n => n.id === S.sel.id).images.length }; });
+  ok(pasted2.count === pasted.count && pasted2.imgs === 2, `선택한 노드에 붙여넣기 (${JSON.stringify(pasted2)})`);
+  // 노드 위로 끌어다 놓기
+  const dropTarget = await page.evaluate(() => window.EngrEdu.state.cur.nodes.find(n => n.type === 'end').id);
+  const box = await page.locator(`#canvas [data-node="${dropTarget}"]`).boundingBox();
+  await page.evaluate(async ({ b64, x, y }) => {
+    const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const dt = new DataTransfer(); dt.items.add(new File([bin], 'd.png', { type: 'image/png' }));
+    const wrap = document.getElementById('canvas-wrap');
+    wrap.dispatchEvent(new DragEvent('dragover', { dataTransfer: dt, clientX: x, clientY: y, bubbles: true }));
+    wrap.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, clientX: x, clientY: y, bubbles: true, cancelable: true }));
+  }, { b64: pngB64, x: box.x + box.width / 2, y: box.y + box.height / 2 });
+  await page.waitForTimeout(400);
+  ok(await page.evaluate(id => window.EngrEdu.state.cur.nodes.find(n => n.id === id).images.length === 1, dropTarget), '노드 위로 사진 끌어다 놓기');
+  // 테스트용으로 늘어난 노드를 지워 이후 단계 기준을 맞춘다
+  await page.evaluate(() => { const S = window.EngrEdu.state; const extra = S.cur.nodes[S.cur.nodes.length - 1]; S.cur.nodes = S.cur.nodes.filter(n => n !== extra); S.cur.nodes.find(n => n.type === 'end').images = []; });
+  await page.locator(`#canvas [data-node="${imgNodeId}"]`).click();
   ok(await page.$$eval('#canvas .badge', els => els.some(e => e.textContent.includes('📷1'))), '이미지 배지 표시');
 
   // 삭제 → 되돌리기
@@ -121,9 +205,9 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   await page.route('https://api.anthropic.com/v1/messages', async route => {
     sent = { headers: route.request().headers(), body: JSON.parse(route.request().postData()) };
     const result = { title: '모의 결과', nodes: [
-      { id: 'n1', type: 'start', title: '시작', summary: '', detail: '', caution: '' },
-      { id: 'n2', type: 'decision', title: '두께가 기준 안인가', summary: '', detail: '[확인 필요] 판단 기준이 원문에 없음', caution: '' },
-      { id: 'n3', type: 'end', title: '끝', summary: '', detail: '', caution: '' }],
+      { id: 'n1', type: 'start', title: '시작', text: '' },
+      { id: 'n2', type: 'decision', title: '두께가 기준 안인가', text: '[확인 필요] 판단 기준이 원문에 없음' },
+      { id: 'n3', type: 'end', title: '끝', text: '' }],
       edges: [{ from: 'n1', to: 'n2', label: '' }, { from: 'n2', to: 'n3', label: '예' }, { from: 'n2', to: 'zz', label: '아니오' }] };
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
       id: 'msg_test', type: 'message', role: 'assistant', model: 'claude-opus-5-5', stop_reason: 'end_turn', stop_details: null,
@@ -141,6 +225,8 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   ok(sent && sent.headers['anthropic-dangerous-direct-browser-access'] === 'true' && sent.headers['anthropic-version'] === '2023-06-01', '필수 헤더');
   const llmMap = await page.evaluate(() => ({ n: window.EngrEdu.state.cur.nodes.length, e: window.EngrEdu.state.cur.edges.length }));
   ok(llmMap.n === 3 && llmMap.e === 2, `LLM 결과 적용, 잘못된 간선 제거 (${llmMap.n}/${llmMap.e})`);
+  ok(await page.evaluate(() => window.EngrEdu.state.cur.nodes[1].detail.startsWith('[확인 필요]')), 'LLM text → 노드 글');
+  ok(JSON.stringify(sent.body.output_config.format.schema.properties.nodes.items.required) === '["id","type","title","text"]', 'LLM 스키마 = 종류·제목·글');
 
   // 거절 응답 처리
   await page.unroute('https://api.anthropic.com/v1/messages');

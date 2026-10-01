@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-labelledby="t-five-why"><title id="t-five-why">5 Why — 왜를 다섯 번, 답마다 데이터로 확인</title><defs><style>
+text{font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',system-ui,-apple-system,'Segoe UI',sans-serif}
+.bg{fill:var(--fig-bg,#fcfcfb)}
+.pn{fill:var(--fig-panel,#f1f2f4)}
+.ink{fill:var(--fig-ink,#1c2230)}
+.sub{fill:var(--fig-sub,#52514e)}
+.mut{fill:var(--fig-mut,#898781)}
+.ax{stroke:var(--fig-axis,#c3c2b7);fill:none}
+.gr{stroke:var(--fig-grid,#e1e0d9);fill:none}
+.ed{stroke:var(--fig-edge,#7d8797);fill:none}
+.ah{fill:var(--fig-edge,#7d8797)}
+.ring{stroke:var(--fig-bg,#fcfcfb)}
+.f0{fill:var(--fig-0w,#eef0f3)} .s0{stroke:var(--fig-0,#8a94a6)} .k0{fill:var(--fig-0,#8a94a6)} .l0{stroke:var(--fig-0,#8a94a6);fill:none}
+.f1{fill:var(--fig-1w,#dbe8fa)} .s1{stroke:var(--fig-1,#2a78d6)} .k1{fill:var(--fig-1,#2a78d6)} .l1{stroke:var(--fig-1,#2a78d6);fill:none}
+.f2{fill:var(--fig-2w,#fbe1d5)} .s2{stroke:var(--fig-2,#eb6834)} .k2{fill:var(--fig-2,#eb6834)} .l2{stroke:var(--fig-2,#eb6834);fill:none}
+.f3{fill:var(--fig-3w,#d3f1e5)} .s3{stroke:var(--fig-3,#1baf7a)} .k3{fill:var(--fig-3,#1baf7a)} .l3{stroke:var(--fig-3,#1baf7a);fill:none}
+.f4{fill:var(--fig-4w,#fcefcc)} .s4{stroke:var(--fig-4,#eda100)} .k4{fill:var(--fig-4,#eda100)} .l4{stroke:var(--fig-4,#eda100);fill:none}
+.f5{fill:var(--fig-5w,#e3dff7)} .s5{stroke:var(--fig-5,#4a3aa7)} .k5{fill:var(--fig-5,#4a3aa7)} .l5{stroke:var(--fig-5,#4a3aa7);fill:none}
+.q1{fill:var(--fig-q1,#cde2fb)} .q2{fill:var(--fig-q2,#9ec5f4)} .q3{fill:var(--fig-q3,#6da7ec)}
+.good{fill:#0ca30c} .crit{fill:#d03b3b} .critl{stroke:#d03b3b;fill:none} .critw{fill:#d03b3b;fill-opacity:.28}
+.m-si{fill:var(--m-si,#c7ccd6)} .m-ox{fill:var(--m-ox,#cfe3f4)} .m-pr{fill:var(--m-pr,#cbbbe9)}
+.m-cu{fill:var(--m-cu,#e09a5f)} .m-ni{fill:var(--m-ni,#a9b1bd)} .m-sn{fill:var(--m-sn,#dfe5ec)}
+.m-imc{fill:var(--m-imc,#8f7b66)} .m-al{fill:var(--m-al,#b7c4d6)} .m-emc{fill:var(--m-emc,#4c5363)}
+.m-sub{fill:var(--m-sub,#7f9c78)} .m-n{fill:var(--m-n,#9fc3f0)} .m-p{fill:var(--m-p,#f2d2c2)} .m-gate{fill:var(--m-gate,#8b93a7)}
+.m-bath{fill:var(--m-bath,#e7f1fb)}
+.nterm{fill:var(--n-term-fill,#e8f6ee);stroke:var(--n-term-stroke,#2e9e5b)}
+.nproc{fill:var(--n-process-fill,#ffffff);stroke:var(--n-process-stroke,#8a94a6)}
+.ndec{fill:var(--n-decision-fill,#fff6e3);stroke:var(--n-decision-stroke,#d9921a)}
+.nio{fill:var(--n-io-fill,#edf2ff);stroke:var(--n-io-stroke,#5b7bd5)}
+.mono{font-family:ui-monospace,'D2Coding',Consolas,monospace}
+</style><marker id="ah-five-why" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs><rect class="bg" x="0" y="0" width="720" height="380" rx="12"/><rect class="f2 s2" x="150" y="18" width="420" height="40" rx="8" stroke-width="1.5"/><text class="ink" x="360" y="43" font-size="13.5" text-anchor="middle" font-weight="600">특정 위치 범프가 찢어진다</text><text class="ink" x="136" y="43" font-size="12.5" text-anchor="end" font-weight="700">현상</text><line class="ed" x1="360" y1="58" x2="400" y2="76" stroke-width="1.6" marker-end="url(#ah-five-why)"/><text class="mut" x="626" y="43" font-size="11.5" text-anchor="start">✔ 데이터 확인</text><rect class="f0 s0" x="190" y="76" width="420" height="40" rx="8" stroke-width="1"/><text class="ink" x="400" y="101" font-size="13.5" text-anchor="middle" font-weight="600">그 위치 범프에 응력이 몰린다</text><text class="sub" x="176" y="101" font-size="12.5" text-anchor="end" font-weight="700">왜?</text><line class="ed" x1="400" y1="116" x2="360" y2="134" stroke-width="1.6" marker-end="url(#ah-five-why)"/><text class="mut" x="626" y="101" font-size="11.5" text-anchor="start">✔ 데이터 확인</text><rect class="f0 s0" x="150" y="134" width="420" height="40" rx="8" stroke-width="1"/><text class="ink" x="360" y="159" font-size="13.5" text-anchor="middle" font-weight="600">높이가 낮은 범프가 늘어나며 버틴다</text><text class="sub" x="136" y="159" font-size="12.5" text-anchor="end" font-weight="700">왜?</text><line class="ed" x1="360" y1="174" x2="400" y2="192" stroke-width="1.6" marker-end="url(#ah-five-why)"/><text class="mut" x="626" y="159" font-size="11.5" text-anchor="start">✔ 데이터 확인</text><rect class="f0 s0" x="190" y="192" width="420" height="40" rx="8" stroke-width="1"/><text class="ink" x="400" y="217" font-size="13.5" text-anchor="middle" font-weight="600">웨이퍼 가장자리 도금 두께가 얇다</text><text class="sub" x="176" y="217" font-size="12.5" text-anchor="end" font-weight="700">왜?</text><line class="ed" x1="400" y1="232" x2="360" y2="250" stroke-width="1.6" marker-end="url(#ah-five-why)"/><text class="mut" x="626" y="217" font-size="11.5" text-anchor="start">✔ 데이터 확인</text><rect class="f0 s0" x="150" y="250" width="420" height="40" rx="8" stroke-width="1"/><text class="ink" x="360" y="275" font-size="13.5" text-anchor="middle" font-weight="600">가장자리 전류 분포가 바뀌었다</text><text class="sub" x="136" y="275" font-size="12.5" text-anchor="end" font-weight="700">왜?</text><line class="ed" x1="360" y1="290" x2="400" y2="308" stroke-width="1.6" marker-end="url(#ah-five-why)"/><text class="mut" x="626" y="275" font-size="11.5" text-anchor="start">✔ 데이터 확인</text><rect class="f3 s3" x="190" y="308" width="420" height="40" rx="8" stroke-width="1.5"/><text class="ink" x="400" y="333" font-size="13.5" text-anchor="middle" font-weight="600">전류 분포를 잡는 부품이 마모되었다</text><text class="ink" x="176" y="333" font-size="12.5" text-anchor="end" font-weight="700">근본 원인</text><text class="sub" x="360" y="370" font-size="12.5" text-anchor="middle">대책은 근본 원인에 건다 → 마모 부품의 교체 주기를 관리 항목에 넣는다</text></svg>

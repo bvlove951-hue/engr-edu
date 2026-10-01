@@ -15,6 +15,9 @@ EDU = ROOT / "education"
 OUT = ROOT / "dist" / "engr-edu.html"
 
 
+FIG_REF = re.compile(r"^!\[[^\]]*\]\(figures/([\w.-]+)\.svg\)\s*$", re.M)
+
+
 def load_modules():
     mods = []
     for p in sorted(EDU.glob("*.md")):
@@ -22,6 +25,34 @@ def load_modules():
         m = re.search(r"^#\s+(.+)$", md, re.M)
         mods.append({"file": p.name, "title": m.group(1).strip() if m else p.stem, "md": md})
     return mods
+
+
+def load_figures(mods):
+    """본문에서 참조한 그림(education/figures/*.svg)만 넣는다. 없는 그림을 참조하면 실패."""
+    figs = {}
+    for mod in mods:
+        for name in FIG_REF.findall(mod["md"]):
+            p = EDU / "figures" / f"{name}.svg"
+            if not p.exists():
+                sys.exit(f"{mod['file']}: 그림 {p.name} 이 없습니다 (python3 tools/make_figures.py 실행)")
+            figs[name] = p.read_text(encoding="utf-8").strip()
+    return figs
+
+
+STYLE_RE = re.compile(r"<style>(.*?)</style>", re.S)
+
+
+def split_style(figs):
+    """모든 그림에 똑같이 들어 있는 <style>을 한 번만 싣는다 (앱이 문서에 한 번 넣는다)."""
+    style = ""
+    for name, svg in figs.items():
+        m = STYLE_RE.search(svg)
+        if m:
+            style = style or m.group(1)
+            if m.group(1) != style:
+                continue
+            figs[name] = STYLE_RE.sub("", svg, count=1)
+    return style
 
 
 def check_self_contained(html):
@@ -36,7 +67,9 @@ def check_self_contained(html):
 def main():
     html = SRC.read_text(encoding="utf-8")
     mods = load_modules()
-    payload = json.dumps(mods, ensure_ascii=False).replace("</", "<\\/")
+    figs = load_figures(mods)
+    fig_style = split_style(figs)
+    payload = json.dumps({"modules": mods, "figures": figs, "figStyle": fig_style}, ensure_ascii=False).replace("</", "<\\/")
     pattern = re.compile(r'(<script type="application/json" id="edu-data">)(.*?)(</script>)', re.S)
     if not pattern.search(html):
         sys.exit("src/app.html 에서 edu-data 자리를 찾지 못했습니다")
@@ -44,7 +77,7 @@ def main():
     check_self_contained(html)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(html, encoding="utf-8")
-    print(f"{OUT.relative_to(ROOT)}  ({OUT.stat().st_size / 1024:.0f} KB, 교육 모듈 {len(mods)}개)")
+    print(f"{OUT.relative_to(ROOT)}  ({OUT.stat().st_size / 1024:.0f} KB, 교육 모듈 {len(mods)}개, 그림 {len(figs)}개)")
 
 
 if __name__ == "__main__":
