@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" width="720" height="300" role="img" aria-labelledby="t-p6-sampling"><title id="t-p6-sampling">데이터의 출처를 의심하라 — 어디를 쟀는가</title><defs><style>
+text{font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',system-ui,-apple-system,'Segoe UI',sans-serif}
+.bg{fill:var(--fig-bg,#fcfcfb)}
+.pn{fill:var(--fig-panel,#f1f2f4)}
+.ink{fill:var(--fig-ink,#1c2230)}
+.sub{fill:var(--fig-sub,#52514e)}
+.mut{fill:var(--fig-mut,#898781)}
+.ax{stroke:var(--fig-axis,#c3c2b7);fill:none}
+.gr{stroke:var(--fig-grid,#e1e0d9);fill:none}
+.ed{stroke:var(--fig-edge,#7d8797);fill:none}
+.ah{fill:var(--fig-edge,#7d8797)}
+.ring{stroke:var(--fig-bg,#fcfcfb)}
+.f0{fill:var(--fig-0w,#eef0f3)} .s0{stroke:var(--fig-0,#8a94a6)} .k0{fill:var(--fig-0,#8a94a6)} .l0{stroke:var(--fig-0,#8a94a6);fill:none}
+.f1{fill:var(--fig-1w,#dbe8fa)} .s1{stroke:var(--fig-1,#2a78d6)} .k1{fill:var(--fig-1,#2a78d6)} .l1{stroke:var(--fig-1,#2a78d6);fill:none}
+.f2{fill:var(--fig-2w,#fbe1d5)} .s2{stroke:var(--fig-2,#eb6834)} .k2{fill:var(--fig-2,#eb6834)} .l2{stroke:var(--fig-2,#eb6834);fill:none}
+.f3{fill:var(--fig-3w,#d3f1e5)} .s3{stroke:var(--fig-3,#1baf7a)} .k3{fill:var(--fig-3,#1baf7a)} .l3{stroke:var(--fig-3,#1baf7a);fill:none}
+.f4{fill:var(--fig-4w,#fcefcc)} .s4{stroke:var(--fig-4,#eda100)} .k4{fill:var(--fig-4,#eda100)} .l4{stroke:var(--fig-4,#eda100);fill:none}
+.f5{fill:var(--fig-5w,#e3dff7)} .s5{stroke:var(--fig-5,#4a3aa7)} .k5{fill:var(--fig-5,#4a3aa7)} .l5{stroke:var(--fig-5,#4a3aa7);fill:none}
+.q1{fill:var(--fig-q1,#cde2fb)} .q2{fill:var(--fig-q2,#9ec5f4)} .q3{fill:var(--fig-q3,#6da7ec)}
+.good{fill:#0ca30c} .crit{fill:#d03b3b} .critl{stroke:#d03b3b;fill:none} .critw{fill:#d03b3b;fill-opacity:.28}
+.m-si{fill:var(--m-si,#c7ccd6)} .m-ox{fill:var(--m-ox,#cfe3f4)} .m-pr{fill:var(--m-pr,#cbbbe9)}
+.m-cu{fill:var(--m-cu,#e09a5f)} .m-ni{fill:var(--m-ni,#a9b1bd)} .m-sn{fill:var(--m-sn,#dfe5ec)}
+.m-imc{fill:var(--m-imc,#8f7b66)} .m-al{fill:var(--m-al,#b7c4d6)} .m-emc{fill:var(--m-emc,#4c5363)}
+.m-sub{fill:var(--m-sub,#7f9c78)} .m-n{fill:var(--m-n,#9fc3f0)} .m-p{fill:var(--m-p,#f2d2c2)} .m-gate{fill:var(--m-gate,#8b93a7)}
+.m-bath{fill:var(--m-bath,#e7f1fb)}
+.nterm{fill:var(--n-term-fill,#e8f6ee);stroke:var(--n-term-stroke,#2e9e5b)}
+.nproc{fill:var(--n-process-fill,#ffffff);stroke:var(--n-process-stroke,#8a94a6)}
+.ndec{fill:var(--n-decision-fill,#fff6e3);stroke:var(--n-decision-stroke,#d9921a)}
+.nio{fill:var(--n-io-fill,#edf2ff);stroke:var(--n-io-stroke,#5b7bd5)}
+.mono{font-family:ui-monospace,'D2Coding',Consolas,monospace}
+</style><marker id="ah-p6-sampling" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs><rect class="bg" x="0" y="0" width="720" height="300" rx="12"/><text class="ink" x="180" y="34" font-size="14" text-anchor="middle" font-weight="700">✗ 중심 1점만 측정</text><circle class="f0 s0" cx="180" cy="150" r="100" stroke-width="1.5"/><path class="bg" d="M170,249 L180,242 L190,249"/><circle class="k1 ring" cx="180" cy="150" r="7" stroke-width="2"/><text class="ink" x="180" y="178" font-size="12.5" text-anchor="middle" font-weight="700">10.1</text><text class="sub" x="180" y="276" font-size="12.5" text-anchor="middle">평균 10.1 µm — “문제없음”</text><text class="ink" x="540" y="34" font-size="14" text-anchor="middle" font-weight="700">✓ 13점 측정</text><circle class="f0 s0" cx="540" cy="150" r="100" stroke-width="1.5"/><path class="bg" d="M530,249 L540,242 L550,249"/><circle class="k1 ring" cx="540" cy="150" r="6" stroke-width="2"/><text class="ink" x="540" y="167" font-size="10.5" text-anchor="middle" font-weight="600">10.1</text><circle class="k1 ring" cx="540" cy="105" r="6" stroke-width="2"/><text class="ink" x="540" y="95" font-size="10.5" text-anchor="middle" font-weight="600">10.0</text><circle class="k1 ring" cx="585" cy="150" r="6" stroke-width="2"/><text class="ink" x="585" y="167" font-size="10.5" text-anchor="middle" font-weight="600">10.0</text><circle class="k1 ring" cx="540" cy="195" r="6" stroke-width="2"/><text class="ink" x="540" y="212" font-size="10.5" text-anchor="middle" font-weight="600">10.1</text><circle class="k1 ring" cx="495" cy="150" r="6" stroke-width="2"/><text class="ink" x="495" y="167" font-size="10.5" text-anchor="middle" font-weight="600">10.0</text><circle class="crit ring" cx="540" cy="66" r="6" stroke-width="2"/><text class="ink" x="540" y="56" font-size="10.5" text-anchor="middle" font-weight="600">9.3</text><circle class="crit ring" cx="600" cy="90" r="6" stroke-width="2"/><text class="ink" x="600" y="80" font-size="10.5" text-anchor="middle" font-weight="600">9.4</text><circle class="crit ring" cx="624" cy="150" r="6" stroke-width="2"/><text class="ink" x="624" y="167" font-size="10.5" text-anchor="middle" font-weight="600">9.2</text><circle class="crit ring" cx="600" cy="210" r="6" stroke-width="2"/><text class="ink" x="600" y="227" font-size="10.5" text-anchor="middle" font-weight="600">9.4</text><circle class="crit ring" cx="540" cy="234" r="6" stroke-width="2"/><text class="ink" x="540" y="251" font-size="10.5" text-anchor="middle" font-weight="600">9.3</text><circle class="crit ring" cx="480" cy="210" r="6" stroke-width="2"/><text class="ink" x="480" y="227" font-size="10.5" text-anchor="middle" font-weight="600">9.5</text><circle class="crit ring" cx="456" cy="150" r="6" stroke-width="2"/><text class="ink" x="456" y="167" font-size="10.5" text-anchor="middle" font-weight="600">9.3</text><circle class="crit ring" cx="480" cy="90" r="6" stroke-width="2"/><text class="ink" x="480" y="80" font-size="10.5" text-anchor="middle" font-weight="600">9.4</text><text class="ink" x="540" y="276" font-size="12.5" text-anchor="middle" font-weight="700">평균 9.6 µm — 가장자리가 얇다</text><circle class="crit ring" cx="626" cy="30" r="5" stroke-width="2"/><text class="sub" x="636" y="34" font-size="11" text-anchor="start">9.6 µm 미만</text></svg>

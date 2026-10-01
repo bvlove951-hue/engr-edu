@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" width="720" height="300" role="img" aria-labelledby="t-p3-repro"><title id="t-p3-repro">재현되지 않으면 아직 모르는 것이다 — 조건을 맞춘 비교</title><defs><style>
+text{font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',system-ui,-apple-system,'Segoe UI',sans-serif}
+.bg{fill:var(--fig-bg,#fcfcfb)}
+.pn{fill:var(--fig-panel,#f1f2f4)}
+.ink{fill:var(--fig-ink,#1c2230)}
+.sub{fill:var(--fig-sub,#52514e)}
+.mut{fill:var(--fig-mut,#898781)}
+.ax{stroke:var(--fig-axis,#c3c2b7);fill:none}
+.gr{stroke:var(--fig-grid,#e1e0d9);fill:none}
+.ed{stroke:var(--fig-edge,#7d8797);fill:none}
+.ah{fill:var(--fig-edge,#7d8797)}
+.ring{stroke:var(--fig-bg,#fcfcfb)}
+.f0{fill:var(--fig-0w,#eef0f3)} .s0{stroke:var(--fig-0,#8a94a6)} .k0{fill:var(--fig-0,#8a94a6)} .l0{stroke:var(--fig-0,#8a94a6);fill:none}
+.f1{fill:var(--fig-1w,#dbe8fa)} .s1{stroke:var(--fig-1,#2a78d6)} .k1{fill:var(--fig-1,#2a78d6)} .l1{stroke:var(--fig-1,#2a78d6);fill:none}
+.f2{fill:var(--fig-2w,#fbe1d5)} .s2{stroke:var(--fig-2,#eb6834)} .k2{fill:var(--fig-2,#eb6834)} .l2{stroke:var(--fig-2,#eb6834);fill:none}
+.f3{fill:var(--fig-3w,#d3f1e5)} .s3{stroke:var(--fig-3,#1baf7a)} .k3{fill:var(--fig-3,#1baf7a)} .l3{stroke:var(--fig-3,#1baf7a);fill:none}
+.f4{fill:var(--fig-4w,#fcefcc)} .s4{stroke:var(--fig-4,#eda100)} .k4{fill:var(--fig-4,#eda100)} .l4{stroke:var(--fig-4,#eda100);fill:none}
+.f5{fill:var(--fig-5w,#e3dff7)} .s5{stroke:var(--fig-5,#4a3aa7)} .k5{fill:var(--fig-5,#4a3aa7)} .l5{stroke:var(--fig-5,#4a3aa7);fill:none}
+.q1{fill:var(--fig-q1,#cde2fb)} .q2{fill:var(--fig-q2,#9ec5f4)} .q3{fill:var(--fig-q3,#6da7ec)}
+.good{fill:#0ca30c} .crit{fill:#d03b3b} .critl{stroke:#d03b3b;fill:none} .critw{fill:#d03b3b;fill-opacity:.28}
+.m-si{fill:var(--m-si,#c7ccd6)} .m-ox{fill:var(--m-ox,#cfe3f4)} .m-pr{fill:var(--m-pr,#cbbbe9)}
+.m-cu{fill:var(--m-cu,#e09a5f)} .m-ni{fill:var(--m-ni,#a9b1bd)} .m-sn{fill:var(--m-sn,#dfe5ec)}
+.m-imc{fill:var(--m-imc,#8f7b66)} .m-al{fill:var(--m-al,#b7c4d6)} .m-emc{fill:var(--m-emc,#4c5363)}
+.m-sub{fill:var(--m-sub,#7f9c78)} .m-n{fill:var(--m-n,#9fc3f0)} .m-p{fill:var(--m-p,#f2d2c2)} .m-gate{fill:var(--m-gate,#8b93a7)}
+.m-bath{fill:var(--m-bath,#e7f1fb)}
+.nterm{fill:var(--n-term-fill,#e8f6ee);stroke:var(--n-term-stroke,#2e9e5b)}
+.nproc{fill:var(--n-process-fill,#ffffff);stroke:var(--n-process-stroke,#8a94a6)}
+.ndec{fill:var(--n-decision-fill,#fff6e3);stroke:var(--n-decision-stroke,#d9921a)}
+.nio{fill:var(--n-io-fill,#edf2ff);stroke:var(--n-io-stroke,#5b7bd5)}
+.mono{font-family:ui-monospace,'D2Coding',Consolas,monospace}
+</style><marker id="ah-p3-repro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs><rect class="bg" x="0" y="0" width="720" height="300" rx="12"/><rect class="pn" x="14" y="14" width="330" height="272" rx="10"/><text class="ink" x="179" y="40" font-size="14" text-anchor="middle" font-weight="700">✗ 조건이 다른 비교</text><text class="ink" x="104" y="66" font-size="12.5" text-anchor="middle" font-weight="700">개선 전</text><text class="sub" x="104" y="84" font-size="11.5" text-anchor="middle">장비 A · 약품 lot 1 · 월</text><text class="ink" x="254" y="66" font-size="12.5" text-anchor="middle" font-weight="700">개선 후</text><text class="sub" x="254" y="84" font-size="11.5" text-anchor="middle">장비 B · 약품 lot 2 · 목</text><line class="ax" x1="34" y1="250" x2="324" y2="250" stroke-width="1.5"/><circle class="k0 ring" cx="80" cy="188" r="5" stroke-width="2"/><circle class="k1 ring" cx="230" cy="215" r="5" stroke-width="2"/><text class="mut" x="179" y="270" font-size="11" text-anchor="middle">불량률 (높을수록 나쁨)</text><rect class="pn" x="376" y="14" width="330" height="272" rx="10"/><text class="ink" x="541" y="40" font-size="14" text-anchor="middle" font-weight="700">✓ 조건을 맞춘 비교</text><text class="ink" x="466" y="66" font-size="12.5" text-anchor="middle" font-weight="700">개선 전</text><text class="sub" x="466" y="84" font-size="11.5" text-anchor="middle">같은 장비·lot·계측</text><text class="ink" x="616" y="66" font-size="12.5" text-anchor="middle" font-weight="700">개선 후</text><text class="sub" x="616" y="84" font-size="11.5" text-anchor="middle">웨이퍼를 나눠 동시에</text><line class="ax" x1="396" y1="250" x2="686" y2="250" stroke-width="1.5"/><circle class="k0 ring" cx="442" cy="190" r="5" stroke-width="2"/><circle class="k0 ring" cx="454" cy="184" r="5" stroke-width="2"/><circle class="k0 ring" cx="466" cy="193" r="5" stroke-width="2"/><circle class="k0 ring" cx="478" cy="187" r="5" stroke-width="2"/><circle class="k0 ring" cx="490" cy="189" r="5" stroke-width="2"/><circle class="k1 ring" cx="592" cy="217" r="5" stroke-width="2"/><circle class="k1 ring" cx="604" cy="213" r="5" stroke-width="2"/><circle class="k1 ring" cx="616" cy="220" r="5" stroke-width="2"/><circle class="k1 ring" cx="628" cy="215" r="5" stroke-width="2"/><circle class="k1 ring" cx="640" cy="216" r="5" stroke-width="2"/><text class="mut" x="541" y="270" font-size="11" text-anchor="middle">불량률 (높을수록 나쁨)</text><text class="ink" x="179" y="116" font-size="12" text-anchor="middle" font-weight="600">좋아진 이유가</text><text class="ink" x="179" y="132.2" font-size="12" text-anchor="middle" font-weight="600">개선 때문인지 모른다</text><text class="ink" x="541" y="116" font-size="12" text-anchor="middle" font-weight="600">5번 반복해도 같은 차이</text><text class="ink" x="541" y="132.2" font-size="12" text-anchor="middle" font-weight="600">→ 개선 효과로 판단</text></svg>

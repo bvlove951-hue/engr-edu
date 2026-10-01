@@ -24,7 +24,7 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
 
   console.log('교육과정');
   const toc = await page.$$eval('.toc-item', els => els.map(e => e.textContent));
-  ok(toc.length === 7, `목차 7개 (${toc.length})`);
+  ok(toc.length === 8, `목차 8개 (${toc.length})`);
   let flowTotal = 0, figTotal = 0, brokenTotal = 0; const widgetNames = [];
   for (let i = 0; i < toc.length; i++) {
     await page.click(`.toc-item >> nth=${i}`);
@@ -39,7 +39,15 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
     console.log(`    ${toc[i]}: 그림 ${figs}개, 도구 ${widgets.length}개, 흐름도 ${blocks}개 (노드 ${n}), 표 ${tables}개`);
   }
   ok(flowTotal >= 10, `흐름도 렌더링 ${flowTotal}개`);
-  ok(figTotal >= 37, `그림 렌더링 ${figTotal}개`);
+  ok(figTotal >= 46, `그림 렌더링 ${figTotal}개`);
+  await page.click('.toc-item >> nth=1');
+  const ex = await page.$$eval('#edu-doc blockquote.example', els => els.length);
+  ok(ex === 10, `원칙 10개 모두 예시 상자 (${ex})`);
+  await page.click('.toc-item >> nth=7');
+  const links = await page.$$eval('#edu-doc a.ext', els => els.map(a => ({ href: a.href, t: a.target, k: a.dataset.kind })));
+  ok(links.length >= 40 && links.every(l => l.t === '_blank' && /^https:/.test(l.href)), `참고 자료 링크 ${links.length}개, 모두 새 창·https`);
+  ok(['video', 'paper', 'course', 'wiki', 'web'].every(k => links.some(l => l.k === k)), '링크 종류 표시 (영상·논문·강의·위키·글)');
+  await page.screenshot({ path: path.join(OUT, '01c-refs.png') });
   ok(['cpk', 'control', 'cte', 'diffusion', 'faraday', 'yield'].every(w => widgetNames.includes(w)), '직접 해 보기 도구 6종: ' + widgetNames.join(', '));
   ok(brokenTotal === 0, '깨진 그림·도구 없음');
 

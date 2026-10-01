@@ -9,7 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import figlib  # noqa: E402
-import figs_a, figs_b, figs_c, figs_d  # noqa: E402,E401
+import figs_a, figs_b, figs_c, figs_d, figs_e  # noqa: E402,E401
 
 OUT = Path(__file__).resolve().parent.parent / "education" / "figures"
 
@@ -17,7 +17,7 @@ OUT = Path(__file__).resolve().parent.parent / "education" / "figures"
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     names = []
-    for mod in (figs_a, figs_b, figs_c, figs_d):
+    for mod in (figs_a, figs_b, figs_c, figs_d, figs_e):
         for fn in mod.FIGS:
             g = fn()
             (OUT / f"{g.name}.svg").write_text(g.svg(), encoding="utf-8")

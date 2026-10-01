@@ -90,6 +90,7 @@ a{color:var(--accent)}
 .toc-sub{margin:2px 0 8px 14px;border-left:2px solid var(--line);padding-left:6px}
 .toc-sub button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:3px 8px;font-size:12.5px;color:var(--muted);border-radius:6px}
 .toc-sub button:hover{color:var(--ink);background:var(--panel-2)}
+.toc-sub button.lv3{padding-left:20px;font-size:12px}
 .edu-main{flex:1;overflow:auto;padding:28px 36px 80px}
 .doc{max-width:900px;margin:0 auto}
 .doc h1{font-size:26px;letter-spacing:-.4px;margin:0 0 18px}
@@ -107,6 +108,18 @@ a{color:var(--accent)}
 .doc th,.doc td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
 .doc th{background:var(--panel-2)}
 .doc hr{border:0;border-top:1px solid var(--line);margin:22px 0}
+.doc blockquote.example{border-left-color:var(--ok);background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:0 10px 10px 0;padding:10px 14px}
+.doc blockquote.example b:first-child{color:var(--ok)}
+.doc a.ext{text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--accent) 35%,transparent);font-weight:600}
+.doc a.ext:hover{border-bottom-color:var(--accent);background:var(--accent-weak)}
+.doc a.ext::before{display:inline-block;font-size:10.5px;font-weight:700;border-radius:4px;padding:0 4px;margin-right:4px;vertical-align:1px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted)}
+.doc a.ext[data-kind="video"]::before{content:"▶ 영상";color:#d03b3b}
+.doc a.ext[data-kind="paper"]::before{content:"논문·표준"}
+.doc a.ext[data-kind="course"]::before{content:"강의·핸드북"}
+.doc a.ext[data-kind="wiki"]::before{content:"위키"}
+.doc a.ext[data-kind="pdf"]::before{content:"PDF"}
+.doc a.ext[data-kind="web"]::before{content:"글"}
+.doc a.ext::after{content:"↗";font-size:11px;margin-left:2px;color:var(--muted)}
 .flowblock{border:1px solid var(--line);border-radius:10px;background:var(--panel);margin:14px 0;overflow:hidden}
 .flowblock-head{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--panel-2)}
 .flowblock-head b{flex:1}
@@ -916,11 +929,24 @@ function updateUndo(){ $('#btn-undo').disabled = !S.hist.length; $('#btn-redo').
 /* ================================================================
  * 6. 교육과정 화면
  * ================================================================ */
+function linkKind(u){
+  if (/youtube\.com|youtu\.be/.test(u)) return 'video';
+  if (/doi\.org|sciencedirect|ncbi\.nlm|dl\.acm|scholar\.google|jedec\.org|ieee/.test(u)) return 'paper';
+  if (/ocw\.mit\.edu|nist\.gov/.test(u)) return 'course';
+  if (/wikipedia\.org/.test(u)) return 'wiki';
+  if (/\.pdf($|\?)/.test(u)) return 'pdf';
+  return 'web';
+}
 function inlineMd(t){
   const codes = [];
   let x = esc(t).replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return '\u0000' + (codes.length - 1) + '\u0000'; });
   x = x.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
-  x = x.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, a, u) => /^(https?:|#|\.{0,2}\/)/.test(u) ? `<a href="${u}" target="_blank" rel="noopener">${a}</a>` : a);
+  x = x.replace(/(^|[^*\w])\*([^*\s][^*]*?)\*(?![*\w])/g, '$1<i>$2</i>');
+  x = x.replace(/\[((?:[^\[\]]|\[[^\]]*\])+)\]\(([^)\s]+)\)/g, (_, a, u) => {
+    if (!/^(https?:|#|\.{0,2}\/)/.test(u)) return a;
+    if (!/^https?:/.test(u)) return `<a href="${u}">${a}</a>`;
+    return `<a class="ext" data-kind="${linkKind(u)}" href="${u}" target="_blank" rel="noopener noreferrer" title="${u}">${a}</a>`;
+  });
   return x.replace(/\u0000(\d+)\u0000/g, (_, i) => `<code>${codes[+i]}</code>`);
 }
 function renderMarkdown(md, flows, heads){
@@ -940,7 +966,7 @@ function renderMarkdown(md, flows, heads){
     }
     if (/^#{1,4}\s/.test(line)){
       const lv = line.match(/^#+/)[0].length, t = line.slice(lv).trim();
-      if (lv === 2 && heads){ heads.push(t); html += `<h2 id="sec-${heads.length - 1}">${inlineMd(t)}</h2>`; }
+      if (heads && (lv === 2 || (lv === 3 && /^원칙 \d+\./.test(t)))){ heads.push({t, lv}); html += `<h${lv} id="sec-${heads.length - 1}">${inlineMd(t)}</h${lv}>`; }
       else html += `<h${lv}>${inlineMd(t)}</h${lv}>`;
       i++; continue;
     }
@@ -968,7 +994,8 @@ function renderMarkdown(md, flows, heads){
     if (/^>/.test(line)){
       const buf = [];
       while (i < L.length && /^>/.test(L[i])){ buf.push(L[i].replace(/^>\s?/, '')); i++; }
-      html += `<blockquote>${renderMarkdown(buf.join('\n'))}</blockquote>`; continue;
+      const ex = /^\*\*예시\*\*/.test(buf[0] || '');
+      html += `<blockquote${ex ? ' class="example"' : ''}>${renderMarkdown(buf.join('\n'))}</blockquote>`; continue;
     }
     if (isItem(line)){
       const stack = [];
@@ -1022,7 +1049,7 @@ function renderEdu(){
     }}, m.title));
     if (i === S.eduIdx && heads.length){
       const sub = h('div', {class: 'toc-sub'});
-      heads.forEach((t, k) => sub.append(h('button', {onclick: () => { const el = document.getElementById('sec-' + k); if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'}); }}, t.replace(/[*`]/g, ''))));
+      heads.forEach(({t, lv}, k) => sub.append(h('button', {class: lv === 3 ? 'lv3' : null, onclick: () => { const el = document.getElementById('sec-' + k); if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'}); }}, t.replace(/[*`]/g, ''))));
       toc.append(sub);
     }
   });
