@@ -333,6 +333,52 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   await page.click('#view-hbm a[href="#go-edu-3"]');
   const back = await page.evaluate(() => ({ tab: window.EngrEdu.state.tab, idx: window.EngrEdu.state.eduIdx }));
   ok(back.tab === 'edu' && back.idx === 3, '카드의 링크로 교육 03 모듈 열기');
+
+  console.log('범프 공정');
+  await page.click('.toc-item >> nth=5');
+  await page.click('#edu-doc a[href="#go-bump"]');
+  await page.waitForSelector('#view-bump.active .bp-svg');
+  ok(await page.evaluate(() => window.EngrEdu.state.tab) === 'bump', '05 모듈의 링크로 범프 공정 탭 열기');
+  const bp = await page.evaluate(() => ({ chips: document.querySelectorAll('#view-bump .bp-line button').length, beats: window.EngrBump.state.beats, panels: document.querySelectorAll('#view-bump .bp-panel').length }));
+  ok(bp.chips === 12 && bp.panels === 3 && bp.beats === 18, `공정 12개 · 웨이퍼/다이/범프 3화면 · 단계 ${bp.beats}개`);
+  // 각 상태로 스크롤해서 그 상태가 되는지, 보이는 층이 맞는지
+  const bpAt = async s => {
+    await page.evaluate(s => { const b = window.EngrBump.blocks().find(x => x.states.includes(s)); const V = document.getElementById('view-bump'); V.scrollTop = b.top + (b.states.indexOf(s) + 0.5) / b.n * b.h - V.clientHeight * 0.5; }, s);
+    await page.waitForTimeout(150);
+    return page.evaluate(() => window.EngrBump.state.state);
+  };
+  const order = await page.evaluate(() => window.EngrBump.order);
+  let reached = 0;
+  for (const s of order) if (await bpAt(s) === s) reached++;
+  ok(reached === order.length, `스크롤하면 ${order.length}개 상태를 차례로 지난다 (${reached}/${order.length})`);
+  const vis = sel => page.evaluate(sel => [...document.querySelectorAll('#view-bump ' + sel)].some(e => !e.closest('.off')), sel);
+  await bpAt('develop');
+  const dv = [await vis('.f-seed'), await vis('[data-tip^="PR 틀"]'), await vis('.f-cu.gy')];
+  await bpAt('etch-ti');
+  const et = [await vis('[data-tip^="PR 틀"]'), await vis('[data-tip^="Cu 시드 — 도금"]'), await vis('.f-cu.gy')];
+  ok(dv.join() === 'true,true,false' && et.join() === 'false,false,true', `층이 공정에 따라 쌓이고 사라진다 (현상: 시드·PR 틀 / 시드 식각 후: 범프만)`);
+  await bpAt('reflow');
+  await page.waitForTimeout(1900);
+  const dome = await page.evaluate(() => document.querySelector('#view-bump .bp-dome').getAttribute('d'));
+  ok(/Q/.test(dome) && (await page.textContent('.bp-head .nm')) === '리플로우', '리플로우: 솔더가 둥글어지고 단계 표시가 바뀜');
+  await page.click('#view-bump .bp-views [data-v="bump"]');
+  await page.waitForTimeout(800);
+  const vb = await page.evaluate(() => document.querySelector('#view-bump .bp-svg').getAttribute('viewBox').split(' ').map(Number));
+  ok(vb[0] > 500 && vb[0] + vb[2] / 2 > 1100, `③ 범프 보기로 확대 (화면 가운데 x ${Math.round(vb[0] + vb[2] / 2)})`);
+  await page.screenshot({ path: path.join(OUT, '07-bump.png') });
+  await page.click('#view-bump .bp-views [data-v="all"]');
+  await page.click('#view-bump .bp .jz-tools .pres');
+  const k0 = await page.evaluate(() => window.EngrBump.state.pres);
+  await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(300);
+  const k1 = await page.evaluate(() => window.EngrBump.state);
+  await page.screenshot({ path: path.join(OUT, '08-bump-pres.png') });
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  ok(k1.pres === k0 + 1 && (await page.evaluate(() => window.EngrBump.state.pres)) === null, `발표 모드: → 로 다음 (${k1.state}), Esc로 닫기`);
+  await page.click('.bp-line button >> nth=5');
+  await page.waitForTimeout(1600);
+  ok((await page.evaluate(() => window.EngrBump.state.step)) === 'ecd', '공정 칩을 누르면 그 공정으로 이동 (06 도금)');
   await page.click('[data-tab="map"]');
 
   console.log('다크 모드 화면');

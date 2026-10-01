@@ -317,8 +317,13 @@ details.menu .menu-pop.left{left:0;right:auto}
   .tl{display:none}
   .ts{display:inline}
 }
+@media (max-width: 440px){
+  .brand{display:none}
+  .tab{padding:6px 7px}
+}
 </style>
 <style>/*@JOURNEY_CSS@*/</style>
+<style>/*@BUMP_CSS@*/</style>
 </head>
 <body>
 <div id="app">
@@ -328,6 +333,7 @@ details.menu .menu-pop.left{left:0;right:auto}
       <button class="tab" role="tab" data-tab="edu" aria-selected="true"><span class="tl">교육과정</span><span class="ts">교육</span></button>
       <button class="tab" role="tab" data-tab="map" aria-selected="false"><span class="tl">업무 알고리즘 맵</span><span class="ts">맵</span></button>
       <button class="tab" role="tab" data-tab="hbm" aria-selected="false" title="AI에서 DRAM 셀까지 스크롤 줌"><span class="tl">HBM 역추적</span><span class="ts">HBM</span></button>
+      <button class="tab" role="tab" data-tab="bump" aria-selected="false" title="앞면 범프 도금 공정 — 웨이퍼·다이·범프 한 화면"><span class="tl">범프 공정</span><span class="ts">범프</span></button>
     </nav>
     <div class="spacer"></div>
     <button class="icon-btn" id="btn-help" title="도움말"><span class="tl">도움말</span><span class="ts">?</span></button>
@@ -341,6 +347,7 @@ details.menu .menu-pop.left{left:0;right:auto}
   </section>
 
   <section class="view" id="view-hbm" aria-label="HBM 역추적 — AI에서 DRAM 셀까지"></section>
+  <section class="view" id="view-bump" aria-label="범프 공정 — 웨이퍼·다이·범프"></section>
 
   <section class="view" id="view-map">
     <aside class="map-side">
@@ -2162,11 +2169,11 @@ function setTab(t){
   document.dispatchEvent(new CustomEvent('engr:tab', {detail: t}));
 }
 $$('.tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
-// 탭 사이 이동 링크: #go-hbm, #go-map, #go-edu-4 (교육 모듈 번호)
+// 탭 사이 이동 링크: #go-hbm, #go-bump, #go-map, #go-edu-4 (교육 모듈 번호)
 document.addEventListener('click', ev => {
   const a = ev.target.closest && ev.target.closest('a[href^="#go-"]');
   if (!a) return;
-  const m = a.getAttribute('href').match(/^#go-(edu|map|hbm)(?:-(\d+))?$/);
+  const m = a.getAttribute('href').match(/^#go-(edu|map|hbm|bump)(?:-(\d+))?$/);
   if (!m) return;
   ev.preventDefault();
   if (m[1] === 'edu' && m[2] != null && S.edu.length){
@@ -2288,5 +2295,6 @@ init();
 })();
 </script>
 <script>/*@JOURNEY_JS@*/</script>
+<script>/*@BUMP_JS@*/</script>
 </body>
 </html>
