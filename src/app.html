@@ -1,0 +1,1723 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>engr-edu · 신입 엔지니어 교육과 업무 알고리즘 맵</title>
+<style>
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --panel-2:#fafbfc; --ink:#1c2230; --muted:#667085; --line:#e2e5ea; --line-2:#cfd4dc;
+  --accent:#2f6fde; --accent-ink:#ffffff; --accent-weak:#e9f0fd; --danger:#d14343; --ok:#2e9e5b; --warn:#c98314;
+  --n-process-fill:#ffffff; --n-process-stroke:#8a94a6;
+  --n-decision-fill:#fff6e3; --n-decision-stroke:#d9921a;
+  --n-term-fill:#e8f6ee; --n-term-stroke:#2e9e5b;
+  --n-io-fill:#edf2ff; --n-io-stroke:#5b7bd5;
+  --n-text:#1c2230; --n-sub:#5f6b7d; --edge:#7d8797; --edge-label-bg:#ffffff; --grid:#e9ecf0;
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
+  --font:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:ui-monospace,"Cascadia Code","D2Coding",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12151b; --panel:#1a1e26; --panel-2:#1f242d; --ink:#e6e9ef; --muted:#9aa3b2; --line:#2b313c; --line-2:#3a4250;
+    --accent:#6b9cff; --accent-ink:#0d1117; --accent-weak:#1f2b44; --danger:#ff7070; --ok:#5fd08f; --warn:#f0b351;
+    --n-process-fill:#20252e; --n-process-stroke:#7d889b;
+    --n-decision-fill:#3a2e17; --n-decision-stroke:#e0a443;
+    --n-term-fill:#173326; --n-term-stroke:#4fc283;
+    --n-io-fill:#1b2540; --n-io-stroke:#7c98ef;
+    --n-text:#e6e9ef; --n-sub:#a6afbd; --edge:#8a94a5; --edge-label-bg:#1a1e26; --grid:#1d222a;
+    --shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12151b; --panel:#1a1e26; --panel-2:#1f242d; --ink:#e6e9ef; --muted:#9aa3b2; --line:#2b313c; --line-2:#3a4250;
+  --accent:#6b9cff; --accent-ink:#0d1117; --accent-weak:#1f2b44; --danger:#ff7070; --ok:#5fd08f; --warn:#f0b351;
+  --n-process-fill:#20252e; --n-process-stroke:#7d889b;
+  --n-decision-fill:#3a2e17; --n-decision-stroke:#e0a443;
+  --n-term-fill:#173326; --n-term-stroke:#4fc283;
+  --n-io-fill:#1b2540; --n-io-stroke:#7c98ef;
+  --n-text:#e6e9ef; --n-sub:#a6afbd; --edge:#8a94a5; --edge-label-bg:#1a1e26; --grid:#1d222a;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.55}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--accent)}
+#app{height:100%;display:flex;flex-direction:column}
+
+/* top bar */
+.topbar{display:flex;align-items:center;gap:12px;padding:0 14px;height:48px;background:var(--panel);border-bottom:1px solid var(--line);flex:none}
+.brand{font-weight:700;letter-spacing:-.2px;white-space:nowrap}
+.brand small{font-weight:500;color:var(--muted);margin-left:6px}
+.tabs{display:flex;gap:4px;margin-left:8px}
+.tab{border:0;background:transparent;padding:6px 12px;border-radius:8px;color:var(--muted);font-weight:600}
+.tab[aria-selected="true"]{background:var(--accent-weak);color:var(--accent)}
+.spacer{flex:1}
+.icon-btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:5px 10px;white-space:nowrap}
+.icon-btn:hover{border-color:var(--line-2)}
+
+.view{flex:1;min-height:0;display:none}
+.view.active{display:flex}
+
+/* common */
+.btn{border:1px solid var(--line-2);background:var(--panel);border-radius:8px;padding:6px 11px;white-space:nowrap;line-height:1.3}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.danger{color:var(--danger)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.sm{padding:3px 8px;font-size:12.5px}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.field label{font-size:12px;color:var(--muted);font-weight:600}
+.input,.textarea,select.input{border:1px solid var(--line-2);background:var(--panel);border-radius:8px;padding:6px 9px;width:100%}
+.textarea{resize:vertical;min-height:70px;line-height:1.5}
+.input:focus,.textarea:focus{outline:2px solid var(--accent-weak);border-color:var(--accent)}
+.muted{color:var(--muted)}
+.hint{font-size:12.5px;color:var(--muted)}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.status{font-size:12.5px;padding:6px 9px;border-radius:8px;background:var(--panel-2);border:1px solid var(--line);margin-top:8px;white-space:pre-wrap}
+.status.err{border-color:var(--danger);color:var(--danger)}
+.status.ok{border-color:var(--ok)}
+.kbd{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line-2);border-bottom-width:2px;border-radius:4px;padding:0 4px;background:var(--panel-2)}
+
+/* education view */
+.edu-side{width:260px;flex:none;border-right:1px solid var(--line);background:var(--panel);overflow:auto;padding:14px 10px}
+.edu-side h3{font-size:12px;color:var(--muted);margin:4px 8px 8px;text-transform:uppercase;letter-spacing:.5px}
+.toc-item{display:block;width:100%;text-align:left;border:0;background:transparent;padding:7px 10px;border-radius:8px;font-weight:600}
+.toc-item:hover{background:var(--panel-2)}
+.toc-item.active{background:var(--accent-weak);color:var(--accent)}
+.toc-sub{margin:2px 0 8px 14px;border-left:2px solid var(--line);padding-left:6px}
+.toc-sub button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:3px 8px;font-size:12.5px;color:var(--muted);border-radius:6px}
+.toc-sub button:hover{color:var(--ink);background:var(--panel-2)}
+.edu-main{flex:1;overflow:auto;padding:28px 36px 80px}
+.doc{max-width:900px;margin:0 auto}
+.doc h1{font-size:26px;letter-spacing:-.4px;margin:0 0 18px}
+.doc h2{font-size:19px;margin:30px 0 10px}
+.doc h3{font-size:16px;margin:22px 0 6px}
+.doc h4{font-size:14.5px;margin:16px 0 4px}
+.doc p{margin:8px 0}
+.doc ul,.doc ol{padding-left:22px;margin:6px 0}
+.doc li{margin:3px 0}
+.doc code{font-family:var(--mono);font-size:12.5px;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.doc pre{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:12px;overflow:auto}
+.doc pre code{border:0;padding:0;background:transparent}
+.doc blockquote{margin:10px 0;padding:6px 14px;border-left:3px solid var(--accent);background:var(--accent-weak);border-radius:0 8px 8px 0}
+.doc table{border-collapse:collapse;margin:10px 0;width:100%;font-size:13.5px;display:block;overflow-x:auto}
+.doc th,.doc td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+.doc th{background:var(--panel-2)}
+.doc hr{border:0;border-top:1px solid var(--line);margin:22px 0}
+.flowblock{border:1px solid var(--line);border-radius:10px;background:var(--panel);margin:14px 0;overflow:hidden}
+.flowblock-head{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--panel-2)}
+.flowblock-head b{flex:1}
+.flowblock-body{overflow:auto;max-height:640px;padding:8px;background-image:radial-gradient(var(--grid) 1px,transparent 1px);background-size:16px 16px}
+.flowblock-body svg{display:block;margin:0 auto}
+.flowblock pre{margin:0;border:0;border-top:1px solid var(--line);border-radius:0}
+
+/* map view */
+.map-side{width:230px;flex:none;border-right:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.map-side-head{padding:10px;display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--line)}
+.map-list{flex:1;overflow:auto;padding:6px}
+.map-item{display:block;width:100%;text-align:left;border:0;background:transparent;border-radius:8px;padding:7px 9px;margin-bottom:2px}
+.map-item:hover{background:var(--panel-2)}
+.map-item.active{background:var(--accent-weak)}
+.map-item .t{font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.map-item .m{font-size:11.5px;color:var(--muted)}
+.map-center{flex:1;min-width:0;display:flex;flex-direction:column}
+.toolbar{display:flex;gap:6px;align-items:center;padding:7px 10px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+.toolbar .title-input{font-weight:700;width:220px;min-width:120px;flex:0 1 auto;border-color:transparent;background:transparent}
+.toolbar .title-input:hover{border-color:var(--line-2)}
+.sep{width:1px;height:22px;background:var(--line);margin:0 2px}
+details.menu{position:relative}
+details.menu>summary{list-style:none}
+details.menu>summary::-webkit-details-marker{display:none}
+details.menu .menu-pop{position:absolute;top:calc(100% + 4px);right:0;z-index:30;background:var(--panel);border:1px solid var(--line-2);border-radius:10px;box-shadow:var(--shadow);padding:5px;min-width:200px}
+details.menu .menu-pop.left{left:0;right:auto}
+.menu-pop button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:6px 10px;border-radius:7px;white-space:nowrap}
+.menu-pop button:hover{background:var(--panel-2)}
+.canvas-wrap{flex:1;position:relative;min-height:0;background-color:var(--bg);background-image:radial-gradient(var(--grid) 1.2px,transparent 1.2px);background-size:20px 20px;overflow:hidden}
+#canvas{width:100%;height:100%;display:block;touch-action:none;user-select:none;-webkit-user-select:none}
+.canvas-hint{position:absolute;left:10px;bottom:8px;font-size:11.5px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:3px 8px;pointer-events:none}
+.zoom-ind{position:absolute;right:10px;bottom:8px;font-size:11.5px;color:var(--muted)}
+.empty-canvas[hidden]{display:none}
+.empty-canvas{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.empty-canvas div{background:var(--panel);border:1px dashed var(--line-2);border-radius:12px;padding:18px 22px;text-align:center;color:var(--muted);max-width:380px}
+
+.panel{width:340px;flex:none;border-left:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.panel-tabs{display:flex;border-bottom:1px solid var(--line)}
+.panel-tabs button{flex:1;border:0;background:transparent;padding:10px 6px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent}
+.panel-tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.panel-body{flex:1;overflow:auto;padding:12px}
+.panel h4{margin:14px 0 6px;font-size:13px}
+.edge-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.edge-row .to{flex:1;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.edge-row input{width:84px}
+.img-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.img-card{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel-2)}
+.img-card img{display:block;width:100%;height:96px;object-fit:cover;cursor:zoom-in}
+.img-card .cap{display:flex;gap:4px;padding:4px}
+.img-card .cap input{flex:1;min-width:0;font-size:12px;padding:2px 5px;border:1px solid var(--line);border-radius:5px;background:var(--panel)}
+.img-card .cap button{border:0;background:transparent;color:var(--danger);padding:0 4px}
+.dropzone{border:1.5px dashed var(--line-2);border-radius:8px;padding:12px;text-align:center;color:var(--muted);font-size:12.5px;margin-top:8px}
+.dropzone.over{border-color:var(--accent);background:var(--accent-weak);color:var(--accent)}
+.cheat{font-size:12.5px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:8px}
+.cheat code{font-family:var(--mono);font-size:12px}
+.cheat table{border-collapse:collapse;width:100%}
+.cheat td{padding:2px 4px;vertical-align:top;border-bottom:1px solid var(--line)}
+
+/* svg nodes */
+.node{cursor:grab}
+.node .shape{stroke-width:1.5}
+.node.t-process .shape{fill:var(--n-process-fill);stroke:var(--n-process-stroke)}
+.node.t-decision .shape{fill:var(--n-decision-fill);stroke:var(--n-decision-stroke)}
+.node.t-start .shape,.node.t-end .shape{fill:var(--n-term-fill);stroke:var(--n-term-stroke)}
+.node.t-io .shape{fill:var(--n-io-fill);stroke:var(--n-io-stroke)}
+.node .ttl{fill:var(--n-text);font-size:13px;font-weight:600;font-family:var(--font)}
+.node .sub{fill:var(--n-sub);font-size:11.5px;font-family:var(--font)}
+.node .badge-bg{fill:var(--panel);stroke:var(--line-2);stroke-width:1}
+.node .badge{fill:var(--n-sub);font-size:11px;font-family:var(--font)}
+.node.selected .shape{stroke:var(--accent);stroke-width:3}
+.node.current .shape{stroke:var(--accent);stroke-width:3.5}
+.node .handle{fill:var(--accent);stroke:var(--panel);stroke-width:2;cursor:crosshair}
+.edge path.line{fill:none;stroke:var(--edge);stroke-width:1.6}
+.edge path.hit{fill:none;stroke:transparent;stroke-width:14;cursor:pointer}
+.edge.selected path.line{stroke:var(--accent);stroke-width:2.6}
+.edge .lbl-bg{fill:var(--edge-label-bg);stroke:var(--line);stroke-width:1}
+.edge .lbl{fill:var(--n-sub);font-size:11.5px;font-weight:600;font-family:var(--font)}
+.arrowhead{fill:var(--edge)}
+.temp-line{stroke:var(--accent);stroke-width:2;stroke-dasharray:5 4;fill:none}
+
+/* modal */
+.modal-back{position:fixed;inset:0;background:rgba(10,14,20,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal-back.open{display:flex}
+.modal{background:var(--panel);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.25);width:min(760px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column}
+.modal-head{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.modal-head h3{margin:0;flex:1;font-size:16px}
+.modal-body{padding:16px;overflow:auto}
+.modal-foot{padding:10px 16px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.type-pill{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:99px;background:var(--accent-weak);color:var(--accent)}
+.walk-detail{white-space:pre-wrap;margin:10px 0}
+.walk-caution{white-space:pre-wrap;border-left:3px solid var(--warn);padding:6px 10px;background:var(--panel-2);border-radius:0 8px 8px 0;margin:10px 0}
+.walk-imgs img{max-width:100%;border-radius:8px;border:1px solid var(--line);margin:6px 0;display:block}
+.walk-imgs figcaption{font-size:12.5px;color:var(--muted);margin-bottom:8px}
+.walk-next{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+.walk-next button{text-align:left}
+.lightbox img{max-width:100%;max-height:calc(100vh - 140px);display:block;margin:0 auto}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:10px;font-size:13px;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+
+@media (max-width: 900px){
+  .edu-side{display:none}
+  .edu-main{padding:18px 16px 60px}
+  .map-side{display:none}
+  .panel{width:280px}
+}
+@media (max-width: 640px){
+  .panel{display:none}
+  .brand small{display:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">engr-edu<small>신입 엔지니어 교육 · 업무 알고리즘 맵</small></div>
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="edu" aria-selected="true">교육과정</button>
+      <button class="tab" role="tab" data-tab="map" aria-selected="false">업무 알고리즘 맵</button>
+    </nav>
+    <div class="spacer"></div>
+    <button class="icon-btn" id="btn-help" title="도움말">도움말</button>
+    <button class="icon-btn" id="btn-settings" title="LLM 설정">LLM 설정</button>
+    <button class="icon-btn" id="btn-theme" title="밝게/어둡게">◐</button>
+  </header>
+
+  <section class="view active" id="view-edu">
+    <aside class="edu-side" id="edu-toc"></aside>
+    <main class="edu-main"><article class="doc" id="edu-doc"></article></main>
+  </section>
+
+  <section class="view" id="view-map">
+    <aside class="map-side">
+      <div class="map-side-head">
+        <button class="btn primary" id="btn-new-map">+ 새 맵</button>
+        <input class="input" id="map-filter" placeholder="맵 검색 (제목·내용·태그)">
+      </div>
+      <div class="map-list" id="map-list"></div>
+      <div class="hint" id="storage-note" style="padding:8px 10px;border-top:1px solid var(--line)"></div>
+    </aside>
+    <div class="map-center">
+      <div class="toolbar">
+        <input class="input title-input" id="map-title" placeholder="맵 제목">
+        <span class="sep"></span>
+        <details class="menu"><summary class="btn">+ 노드 ▾</summary>
+          <div class="menu-pop left" id="add-menu">
+            <button data-add="process">▭ 단계 (일반 작업)</button>
+            <button data-add="decision">◇ 판단 (분기)</button>
+            <button data-add="io">▱ 자료 · 입출력</button>
+            <button data-add="start">⬭ 시작</button>
+            <button data-add="end">⬭ 끝</button>
+          </div>
+        </details>
+        <button class="btn" id="btn-layout" title="자동 정렬">자동 정렬</button>
+        <button class="btn" id="btn-fit" title="화면 맞춤">화면 맞춤</button>
+        <button class="btn" id="btn-undo" title="되돌리기 (Ctrl+Z)">↶</button>
+        <button class="btn" id="btn-redo" title="다시 실행 (Ctrl+Y)">↷</button>
+        <span class="sep"></span>
+        <button class="btn primary" id="btn-walk" title="시작점부터 단계별로 따라가기">▶ 따라가기</button>
+        <div class="spacer"></div>
+        <details class="menu"><summary class="btn">내보내기 ▾</summary>
+          <div class="menu-pop" id="export-menu">
+            <button data-exp="share-one">공유용 HTML (이 맵)</button>
+            <button data-exp="share-all">공유용 HTML (모든 맵)</button>
+            <button data-exp="png">PNG 이미지</button>
+            <button data-exp="json">JSON (백업)</button>
+            <button data-exp="json-all">JSON (모든 맵 백업)</button>
+            <button data-exp="import">JSON 가져오기…</button>
+          </div>
+        </details>
+        <details class="menu"><summary class="btn">⋯</summary>
+          <div class="menu-pop" id="more-menu">
+            <button data-more="dup">맵 복제</button>
+            <button data-more="del" class="danger">맵 삭제</button>
+          </div>
+        </details>
+      </div>
+      <div class="canvas-wrap" id="canvas-wrap">
+        <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="empty-canvas" id="empty-canvas" hidden><div><b>빈 맵입니다</b><br>오른쪽 <b>글 → 도형</b> 탭에 업무 내용을 적고 변환하거나, <b>+ 노드</b> 로 직접 추가하세요.</div></div>
+        <div class="canvas-hint">드래그: 이동 · 휠: 확대 · 노드 아래 ● 끌기 또는 <span class="kbd">Shift</span>+드래그: 연결 · 더블클릭: 크게 보기</div>
+        <div class="zoom-ind" id="zoom-ind"></div>
+      </div>
+    </div>
+    <aside class="panel">
+      <div class="panel-tabs" role="tablist">
+        <button data-ptab="text" aria-selected="true">글 → 도형</button>
+        <button data-ptab="props" aria-selected="false">선택 항목</button>
+      </div>
+      <div class="panel-body" id="panel-text">
+        <div class="field">
+          <label for="src-text">배운 내용을 글로 적기</label>
+          <textarea class="textarea" id="src-text" rows="14" placeholder="예)&#10;시작: 두께 SPC 이탈 알람&#10;1. 이탈 wafer와 site 확인&#10;2. ? 재측정해도 같은가&#10;  아니오 → 계측기 점검 요청&#10;3. 같은 챔버 직전 lot 추세 확인&#10;끝: 판정 결과 기록&#10;&#10;※ 문법 없이 말로 풀어 써도 LLM 변환은 됩니다."></textarea>
+        </div>
+        <div class="row">
+          <button class="btn" id="btn-rule">규칙 변환 (오프라인)</button>
+          <button class="btn primary" id="btn-llm">LLM으로 도형화</button>
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label for="refine-text">LLM으로 다듬기 — 현재 맵에 요청</label>
+          <input class="input" id="refine-text" placeholder="예: 판단 기준을 더 구체적으로, PM 후 확인 단계 추가">
+        </div>
+        <button class="btn" id="btn-refine">LLM으로 다듬기</button>
+        <div id="llm-status"></div>
+        <details style="margin-top:12px"><summary class="hint" style="cursor:pointer">흐름 문법 요약 보기</summary>
+          <div class="cheat">
+            <table>
+              <tr><td><code># 제목</code></td><td>맵 제목</td></tr>
+              <tr><td><code>시작: …</code> <code>끝: …</code></td><td>시작/끝</td></tr>
+              <tr><td><code>1. …</code></td><td>단계 (번호 = ID)</td></tr>
+              <tr><td><code>? …</code></td><td>판단(마름모)</td></tr>
+              <tr><td><code>입력: …</code></td><td>자료·입출력</td></tr>
+              <tr><td><code>␣␣예 → 3</code></td><td>분기 (들여쓰기)</td></tr>
+              <tr><td><code>␣␣아니오 → 새 단계 → 2</code></td><td>새 단계 만들고 이어 붙임</td></tr>
+              <tr><td><code>␣␣> …</code></td><td>위 단계 상세 설명</td></tr>
+              <tr><td><code>␣␣! …</code></td><td>위 단계 주의점</td></tr>
+            </table>
+            <div style="margin-top:6px">자세한 설명은 교육과정 <b>06. 업무 알고리즘 작성법</b>에 있습니다.</div>
+          </div>
+        </details>
+      </div>
+      <div class="panel-body" id="panel-props" hidden></div>
+    </aside>
+  </section>
+
+  <div class="modal-back" id="modal-back"><div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head"><h3 id="modal-title"></h3><button class="btn sm" id="modal-close">닫기 ✕</button></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot" id="modal-foot"></div>
+  </div></div>
+  <div class="toast" id="toast"></div>
+  <input type="file" id="file-json" accept=".json,application/json" hidden>
+  <input type="file" id="file-img" accept="image/*" multiple hidden>
+</div>
+
+<script type="application/json" id="edu-data">[]</script>
+<script type="application/json" id="preload-maps">null</script>
+<script>
+(function(){
+'use strict';
+
+/* ================================================================
+ * 0. 기본 도구
+ * ================================================================ */
+const APP = document.getElementById('app');
+const INITIAL_APP_HTML = APP.innerHTML;          // 공유용 HTML 내보내기에 사용
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const SVGNS = 'http://www.w3.org/2000/svg';
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const clone = o => JSON.parse(JSON.stringify(o));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function h(tag, attrs, ...kids){
+  const e = document.createElement(tag);
+  if (attrs) for (const k in attrs){
+    const v = attrs[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) e.append(k.nodeType ? k : document.createTextNode(k));
+  return e;
+}
+function s(tag, attrs){
+  const e = document.createElementNS(SVGNS, tag);
+  if (attrs) for (const k in attrs) if (attrs[k] != null) e.setAttribute(k, attrs[k]);
+  return e;
+}
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+let toastTimer;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function download(name, data, type){
+  const blob = data instanceof Blob ? data : new Blob([data], {type: type || 'application/octet-stream'});
+  const a = h('a', {href: URL.createObjectURL(blob), download: name});
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+const safeName = t => (t || '맵').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60);
+const today = () => new Date().toISOString().slice(0, 10);
+
+/* ================================================================
+ * 1. 흐름 문법(flow) 파서 — 오프라인 규칙 변환
+ * ================================================================ */
+const COMPLEMENT = [['예','아니오'],['yes','no'],['y','n'],['o','x'],['ok','ng'],['있음','없음'],['정상','이상'],['합격','불합격'],['맞음','아님'],['참','거짓']];
+function complementOf(label){
+  const l = (label || '').trim().toLowerCase();
+  for (const [a, b] of COMPLEMENT){ if (l === a) return b; if (l === b) return a; }
+  return '';
+}
+const END_WORDS = ['끝','종료','end'];
+
+function parseFlow(src){
+  const lines = String(src || '').replace(/\r/g, '').split('\n');
+  const nodes = [], edges = [], top = [];
+  const alias = new Map();
+  let title = '', cur = null, seq = 0;
+  const mk = (type, text) => {
+    const n = {id: 'n' + (++seq), type, title: text.trim(), summary: '', detail: '', caution: '', tags: [], images: [], x: 0, y: 0, arrows: []};
+    nodes.push(n); return n;
+  };
+  const splitArrows = t => t.split(/\s*(?:→|->|⇒|=>)\s*/);
+  for (const raw of lines){
+    if (!raw.trim()) continue;
+    const indent = raw.match(/^[ \t]*/)[0].replace(/\t/g, '  ').length;
+    let line = raw.trim();
+    if (indent === 0 && /^#\s*/.test(line) && !/^#\d/.test(line)){ title = line.replace(/^#+\s*/, ''); continue; }
+    if (indent > 0 && cur){
+      if (/^>/.test(line)){ cur.detail += (cur.detail ? '\n' : '') + line.replace(/^>\s?/, ''); continue; }
+      if (/^[!！]/.test(line)){ cur.caution += (cur.caution ? '\n' : '') + line.replace(/^[!！]\s?/, ''); continue; }
+      const parts = splitArrows(line.replace(/^[-*•]\s+/, ''));
+      if (parts.length >= 2){
+        const label = parts[0].replace(/[:：]\s*$/, '').trim();
+        const targets = parts.slice(1).map(t => t.trim()).filter(Boolean);
+        if (targets.length) cur.arrows.push({label, targets});
+        continue;
+      }
+      cur.detail += (cur.detail ? '\n' : '') + line.replace(/^[-*•]\s+/, '');
+      continue;
+    }
+    line = line.replace(/^[-*•]\s+/, '');
+    let al = null, m;
+    if ((m = line.match(/^(\d+(?:\.\d+)*)[.)]\s*(.*)$/))){ al = m[1]; line = m[2]; }
+    if ((m = line.match(/^\[([^\]]+)\]\s*(.*)$/))){ al = m[1]; line = m[2]; }
+    const inline = splitArrows(line);
+    line = inline[0];
+    let type = 'process';
+    if (/^(시작|start)\s*[:：]/i.test(line)){ type = 'start'; line = line.replace(/^[^:：]*[:：]\s*/, ''); }
+    else if (/^(끝|종료|end)\s*[:：]/i.test(line)){ type = 'end'; line = line.replace(/^[^:：]*[:：]\s*/, ''); }
+    else if (/^(입력|출력|자료|데이터|io)\s*[:：]/i.test(line)){ type = 'io'; line = line.replace(/^[^:：]*[:：]\s*/, ''); }
+    else if (/^[?？]/.test(line)){ type = 'decision'; line = line.replace(/^[?？]\s*/, ''); }
+    if (!line.trim()) line = type === 'start' ? '시작' : type === 'end' ? '끝' : '(제목 없음)';
+    const n = mk(type, line);
+    if (inline.length > 1) n.arrows.push({label: '', targets: inline.slice(1).map(t => t.trim()).filter(Boolean)});
+    if (al) alias.set(al, n);
+    top.push(n); cur = n;
+  }
+  const resolve = t => {
+    const k = t.replace(/^\[|\]$/g, '').replace(/[.)]$/, '').trim();
+    if (alias.has(k)) return alias.get(k);
+    if (END_WORDS.includes(k.toLowerCase())){
+      const ends = top.filter(n => n.type === 'end');
+      if (ends.length) return ends[ends.length - 1];
+      return mk('end', k);
+    }
+    const exact = nodes.find(n => n.title === k);
+    if (exact) return exact;
+    if (k.length >= 2){ const pre = top.find(n => n.title.startsWith(k)); if (pre) return pre; }
+    return mk('process', k);
+  };
+  const addEdge = (a, b, label) => {
+    if (!a || !b || a === b) return;
+    if (edges.some(e => e.from === a.id && e.to === b.id)) return;
+    edges.push({id: 'e' + (edges.length + 1), from: a.id, to: b.id, label: label || ''});
+  };
+  top.forEach((n, i) => {
+    const next = top[i + 1];
+    for (const ar of n.arrows){
+      let prev = n;
+      ar.targets.forEach((t, j) => { const tn = resolve(t); addEdge(prev, tn, j === 0 ? ar.label : ''); prev = tn; });
+    }
+    if (n.type === 'end' || !next) return;
+    if (!n.arrows.length) addEdge(n, next, '');
+    else if (n.type === 'decision' && n.arrows.length === 1){
+      const first = resolve(n.arrows[0].targets[0]);
+      if (first !== next) addEdge(n, next, complementOf(n.arrows[0].label));
+    }
+  });
+  nodes.forEach(n => delete n.arrows);
+  return {title, nodes, edges};
+}
+
+/* ================================================================
+ * 2. 도형 크기와 자동 배치
+ * ================================================================ */
+const measureCtx = document.createElement('canvas').getContext('2d');
+const FONT_FAMILY = getComputedStyle(document.documentElement).getPropertyValue('--font') || 'sans-serif';
+function textW(t, font){ measureCtx.font = font; return measureCtx.measureText(t).width; }
+function wrapText(text, maxW, font, maxLines){
+  const out = []; let line = '';
+  const push = () => { out.push(line); line = ''; };
+  const tokens = String(text || '').split(/(\s+)/).filter(x => x !== '');
+  for (const tk of tokens){
+    if (/^\s+$/.test(tk)){ if (line) line += ' '; continue; }
+    if (textW(line + tk, font) <= maxW){ line += tk; continue; }
+    if (line.trim()){ line = line.trimEnd(); push(); }
+    if (textW(tk, font) <= maxW){ line = tk; continue; }
+    for (const ch of tk){ if (textW(line + ch, font) > maxW && line){ push(); } line += ch; }
+  }
+  if (line.trim()) out.push(line.trimEnd());
+  if (!out.length) out.push('');
+  if (maxLines && out.length > maxLines){
+    const cut = out.slice(0, maxLines);
+    let last = cut[maxLines - 1];
+    while (last && textW(last + '…', font) > maxW) last = last.slice(0, -1);
+    cut[maxLines - 1] = last + '…';
+    return cut;
+  }
+  return out;
+}
+const F_TITLE = '600 13px ' + FONT_FAMILY, F_SUB = '11.5px ' + FONT_FAMILY;
+const GEO = {
+  process: {w: 210, tw: 184},
+  io: {w: 220, tw: 168},
+  start: {w: 180, tw: 156},
+  end: {w: 180, tw: 156},
+  decision: {w: 240, tw: 136}
+};
+function nodeBox(n){
+  const g = GEO[n.type] || GEO.process;
+  const lines = wrapText(n.title || '(제목 없음)', g.tw, F_TITLE, n.type === 'decision' ? 4 : 3);
+  const sub = (n.summary && n.type !== 'decision') ? wrapText(n.summary, g.tw, F_SUB, 1) : [];
+  let hgt;
+  if (n.type === 'decision') hgt = Math.max(88, lines.length * 17 + 58);
+  else if (n.type === 'start' || n.type === 'end') hgt = Math.max(42, 18 + lines.length * 17 + sub.length * 15);
+  else hgt = Math.max(52, 22 + lines.length * 17 + sub.length * 16);
+  return {w: g.w, h: hgt, lines, sub};
+}
+
+function layoutMap(map){
+  const nodes = map.nodes; if (!nodes.length) return;
+  const byId = new Map(nodes.map(n => [n.id, n]));
+  const idx = new Map(nodes.map((n, i) => [n.id, i]));
+  const edges = map.edges.filter(e => byId.has(e.from) && byId.has(e.to) && e.from !== e.to);
+  const out = new Map(nodes.map(n => [n.id, []]));
+  const inc = new Map(nodes.map(n => [n.id, []]));
+  edges.forEach(e => { out.get(e.from).push(e); inc.get(e.to).push(e); });
+  // 역방향(되돌아가는) 간선 찾기
+  const state = new Map(), back = new Set();
+  const dfs = id => {
+    state.set(id, 1);
+    for (const e of out.get(id)){
+      const st = state.get(e.to);
+      if (st === 1) back.add(e); else if (!st) dfs(e.to);
+    }
+    state.set(id, 2);
+  };
+  [...nodes.filter(n => n.type === 'start'), ...nodes.filter(n => !inc.get(n.id).length), ...nodes]
+    .forEach(n => { if (!state.get(n.id)) dfs(n.id); });
+  const fwd = edges.filter(e => !back.has(e));
+  // 최장 경로로 층(rank) 정하기
+  const indeg = new Map(nodes.map(n => [n.id, 0]));
+  fwd.forEach(e => indeg.set(e.to, indeg.get(e.to) + 1));
+  const rank = new Map(nodes.map(n => [n.id, 0]));
+  const q = nodes.filter(n => !indeg.get(n.id)).map(n => n.id);
+  while (q.length){
+    const id = q.shift();
+    for (const e of fwd) if (e.from === id){
+      rank.set(e.to, Math.max(rank.get(e.to), rank.get(id) + 1));
+      indeg.set(e.to, indeg.get(e.to) - 1);
+      if (!indeg.get(e.to)) q.push(e.to);
+    }
+  }
+  const layers = [];
+  nodes.forEach(n => { const r = rank.get(n.id); (layers[r] || (layers[r] = [])).push(n); });
+  const box = new Map(nodes.map(n => [n.id, nodeBox(n)]));
+  const GAPX = 46, GAPY = 54;
+  const preds = id => fwd.filter(e => e.to === id).map(e => byId.get(e.from));
+  const succIn = (id, r) => fwd.filter(e => e.from === id && rank.get(e.to) === r).map(e => byId.get(e.to))
+    .sort((a, b) => idx.get(a.id) - idx.get(b.id));
+  let y = 0;
+  layers.forEach((L, r) => {
+    if (!L) return;
+    const maxH = Math.max(...L.map(n => box.get(n.id).h));
+    if (r > 0){
+      const prevL = layers[r - 1] || [];
+      const prevH = prevL.length ? Math.max(...prevL.map(n => box.get(n.id).h)) : 0;
+      y += prevH / 2 + GAPY + maxH / 2;
+    }
+    const want = new Map();
+    L.forEach(n => {
+      const ps = preds(n.id);
+      if (!ps.length){ want.set(n.id, 0); return; }
+      const xs = ps.map(p => {
+        const sib = succIn(p.id, r);
+        if (sib.length < 2) return p.x;
+        const k = sib.indexOf(n);
+        const step = (box.get(p.id).w + box.get(n.id).w) / 2 + GAPX - 40;
+        return p.x + (k === 0 ? 0 : (k % 2 ? 1 : -1) * Math.ceil(k / 2) * step);
+      });
+      want.set(n.id, xs.reduce((a, b) => a + b, 0) / xs.length);
+    });
+    L.sort((a, b) => (want.get(a.id) - want.get(b.id)) || (idx.get(a.id) - idx.get(b.id)));
+    const sep = (a, b) => (box.get(a.id).w + box.get(b.id).w) / 2 + GAPX;
+    const left = [], right = [];
+    L.forEach((n, i) => { left[i] = i ? Math.max(want.get(n.id), left[i - 1] + sep(L[i - 1], n)) : want.get(n.id); });
+    for (let i = L.length - 1; i >= 0; i--){ right[i] = i < L.length - 1 ? Math.min(want.get(L[i].id), right[i + 1] - sep(L[i], L[i + 1])) : want.get(L[i].id); }
+    L.forEach((n, i) => { n.x = Math.round((left[i] + right[i]) / 2); n.y = Math.round(y); });
+  });
+}
+
+/* ================================================================
+ * 3. SVG 그리기 (편집 캔버스와 교육 화면이 같이 사용)
+ * ================================================================ */
+function nodeShape(n, b){
+  const w = b.w, hh = b.h;
+  if (n.type === 'decision') return s('polygon', {class: 'shape', points: `0,${-hh/2} ${w/2},0 0,${hh/2} ${-w/2},0`});
+  if (n.type === 'start' || n.type === 'end') return s('rect', {class: 'shape', x: -w/2, y: -hh/2, width: w, height: hh, rx: hh/2});
+  if (n.type === 'io'){ const k = 14; return s('polygon', {class: 'shape', points: `${-w/2+k},${-hh/2} ${w/2},${-hh/2} ${w/2-k},${hh/2} ${-w/2},${hh/2}`}); }
+  return s('rect', {class: 'shape', x: -w/2, y: -hh/2, width: w, height: hh, rx: 8});
+}
+function roundedPath(pts, r){
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < pts.length - 1; i++){
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
+    const d1 = Math.hypot(x1 - x0, y1 - y0), d2 = Math.hypot(x2 - x1, y2 - y1);
+    const rr = Math.min(r, d1 / 2, d2 / 2);
+    const ax = x1 - (x1 - x0) / (d1 || 1) * rr, ay = y1 - (y1 - y0) / (d1 || 1) * rr;
+    const bx = x1 + (x2 - x1) / (d2 || 1) * rr, by = y1 + (y2 - y1) / (d2 || 1) * rr;
+    d += ` L${ax},${ay} Q${x1},${y1} ${bx},${by}`;
+  }
+  const L = pts[pts.length - 1];
+  return d + ` L${L[0]},${L[1]}`;
+}
+function edgeGeometry(a, ba, b, bb, backIndex){
+  const ax = a.x, ay = a.y, bx = b.x, by = b.y;
+  const aBottom = ay + ba.h / 2, bTop = by - bb.h / 2;
+  if (bTop > aBottom + 8){
+    const dx = bx - ax;
+    if (a.type === 'decision' && Math.abs(dx) > ba.w / 4){
+      const dir = dx > 0 ? 1 : -1;
+      const sx = ax + dir * ba.w / 2;
+      const pts = [[sx, ay], [bx, ay], [bx, bTop]];
+      return {d: roundedPath(pts, 12), lx: sx + dir * 26, ly: ay - 9, anchor: 'middle'};
+    }
+    if (Math.abs(dx) < 2) return {d: `M${ax},${aBottom} L${bx},${bTop}`, lx: ax + 8, ly: aBottom + 17, anchor: 'start'};
+    const my = (aBottom + bTop) / 2;
+    const d = `M${ax},${aBottom} C${ax},${my} ${bx},${my} ${bx},${bTop}`;
+    const t = .28, mt = 1 - t;
+    const px = mt*mt*mt*ax + 3*mt*mt*t*ax + 3*mt*t*t*bx + t*t*t*bx;
+    const py = mt*mt*mt*aBottom + 3*mt*mt*t*my + 3*mt*t*t*my + t*t*t*bTop;
+    return {d, lx: px + (dx > 0 ? -6 : 6), ly: py, anchor: dx > 0 ? 'end' : 'start'};
+  }
+  const X = Math.max(ax + ba.w / 2, bx + bb.w / 2) + 30 + backIndex * 16;
+  const pts = [[ax + ba.w / 2 - (a.type === 'io' ? 7 : 0), ay], [X, ay], [X, by], [bx + bb.w / 2 - (b.type === 'io' ? 7 : 0), by]];
+  return {d: roundedPath(pts, 12), lx: X, ly: (ay + by) / 2, anchor: 'middle', back: true};
+}
+
+let markerSeq = 0;
+function renderGraph(map, opts){
+  opts = opts || {};
+  const g = s('g');
+  const mid = 'arrow' + (++markerSeq);
+  const defs = s('defs');
+  const mk = s('marker', {id: mid, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse'});
+  mk.append(s('path', {d: 'M0,0 L10,5 L0,10 z', class: 'arrowhead'}));
+  defs.append(mk);
+  g.append(defs);
+  const byId = new Map(map.nodes.map(n => [n.id, n]));
+  const boxes = new Map(map.nodes.map(n => [n.id, nodeBox(n)]));
+  const eg = s('g'), ng = s('g');
+  g.append(eg, ng);
+  let backCount = 0;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  const grow = (x0, y0, x1, y1) => { minX = Math.min(minX, x0); minY = Math.min(minY, y0); maxX = Math.max(maxX, x1); maxY = Math.max(maxY, y1); };
+  for (const e of map.edges){
+    const a = byId.get(e.from), b = byId.get(e.to);
+    if (!a || !b || a === b) continue;
+    const geo = edgeGeometry(a, boxes.get(a.id), b, boxes.get(b.id), backCount);
+    if (geo.back){ backCount++; grow(geo.lx - 4, Math.min(a.y, b.y), geo.lx + 4, Math.max(a.y, b.y)); }
+    const eg1 = s('g', {class: 'edge' + (opts.selEdge === e.id ? ' selected' : ''), 'data-edge': e.id});
+    eg1.append(s('path', {class: 'hit', d: geo.d}));
+    eg1.append(s('path', {class: 'line', d: geo.d, 'marker-end': `url(#${mid})`}));
+    if (e.label){
+      const tw = textW(e.label, '600 11.5px ' + FONT_FAMILY) + 10;
+      const x0 = geo.anchor === 'middle' ? geo.lx - tw / 2 : geo.anchor === 'end' ? geo.lx - tw : geo.lx;
+      eg1.append(s('rect', {class: 'lbl-bg', x: x0, y: geo.ly - 9, width: tw, height: 18, rx: 9}));
+      const t = s('text', {class: 'lbl', x: x0 + tw / 2, y: geo.ly + 4, 'text-anchor': 'middle'});
+      t.textContent = e.label; eg1.append(t);
+      grow(x0, geo.ly - 9, x0 + tw, geo.ly + 9);
+    }
+    eg.append(eg1);
+  }
+  for (const n of map.nodes){
+    const b = boxes.get(n.id);
+    const cls = ['node', 't-' + n.type];
+    if (opts.selNode === n.id) cls.push('selected');
+    if (opts.current === n.id) cls.push('current');
+    const ng1 = s('g', {class: cls.join(' '), 'data-node': n.id, transform: `translate(${n.x},${n.y})`});
+    ng1.append(nodeShape(n, b));
+    const total = b.lines.length * 17 + b.sub.length * 16;
+    let ty = -total / 2 + 13;
+    for (const ln of b.lines){ const t = s('text', {class: 'ttl', x: 0, y: ty, 'text-anchor': 'middle'}); t.textContent = ln; ng1.append(t); ty += 17; }
+    for (const ln of b.sub){ const t = s('text', {class: 'sub', x: 0, y: ty + 1, 'text-anchor': 'middle'}); t.textContent = ln; ng1.append(t); ty += 16; }
+    const badges = [];
+    if (n.images && n.images.length) badges.push('📷' + n.images.length);
+    if (n.caution) badges.push('⚠');
+    if (n.detail) badges.push('¶');
+    if (badges.length){
+      const str = badges.join(' ');
+      const bw = textW(str, '11px ' + FONT_FAMILY) + 12;
+      const bx = n.type === 'decision' ? 18 : b.w / 2 - bw + 6;
+      const by = n.type === 'decision' ? -b.h / 2 + 2 : -b.h / 2 - 9;
+      ng1.append(s('rect', {class: 'badge-bg', x: bx, y: by, width: bw, height: 17, rx: 8.5}));
+      const t = s('text', {class: 'badge', x: bx + bw / 2, y: by + 12.5, 'text-anchor': 'middle'}); t.textContent = str; ng1.append(t);
+    }
+    if (opts.handles && opts.selNode === n.id){
+      ng1.append(s('circle', {class: 'handle', cx: 0, cy: b.h / 2 + (n.type === 'decision' ? 0 : 1), r: 7, 'data-handle': n.id}));
+    }
+    ng.append(ng1);
+    grow(n.x - b.w / 2, n.y - b.h / 2 - 10, n.x + b.w / 2, n.y + b.h / 2 + 8);
+  }
+  if (!map.nodes.length){ minX = minY = 0; maxX = maxY = 1; }
+  return {g, bounds: {x: minX, y: minY, w: maxX - minX, h: maxY - minY}};
+}
+function renderStatic(map){
+  const {g, bounds} = renderGraph(map, {});
+  const pad = 20;
+  const svg = s('svg', {xmlns: SVGNS, viewBox: `${bounds.x - pad} ${bounds.y - pad} ${bounds.w + pad * 2} ${bounds.h + pad * 2}`,
+    width: Math.round(bounds.w + pad * 2), height: Math.round(bounds.h + pad * 2)});
+  svg.append(g);
+  return svg;
+}
+
+/* ================================================================
+ * 4. 저장소 (IndexedDB, 실패 시 메모리)
+ * ================================================================ */
+const DB = {
+  db: null, mem: new Map(),
+  async open(){
+    try {
+      this.db = await new Promise((res, rej) => {
+        const r = indexedDB.open('engr-edu', 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('maps', {keyPath: 'id'});
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+      });
+    } catch (e){ this.db = null; }
+    return !!this.db;
+  },
+  tx(mode){ return this.db.transaction('maps', mode).objectStore('maps'); },
+  all(){
+    if (!this.db) return Promise.resolve([...this.mem.values()].map(clone));
+    return new Promise((res, rej) => { const r = this.tx('readonly').getAll(); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+  },
+  put(m){
+    const data = clone(m);
+    if (!this.db){ this.mem.set(m.id, data); return Promise.resolve(); }
+    return new Promise((res, rej) => { const r = this.tx('readwrite').put(data); r.onsuccess = () => res(); r.onerror = () => rej(r.error); });
+  },
+  del(id){
+    if (!this.db){ this.mem.delete(id); return Promise.resolve(); }
+    return new Promise((res, rej) => { const r = this.tx('readwrite').delete(id); r.onsuccess = () => res(); r.onerror = () => rej(r.error); });
+  }
+};
+
+/* ================================================================
+ * 5. 상태
+ * ================================================================ */
+const S = {
+  tab: 'edu', maps: [], cur: null, sel: null,
+  vp: {x: 0, y: 0, k: 1}, hist: [], fut: [], ptab: 'text', eduIdx: 0, edu: [], walk: null
+};
+function newMap(title){
+  const t = Date.now();
+  return {id: uid(), title: title || '새 업무 알고리즘', text: '', nodes: [], edges: [], createdAt: t, updatedAt: t};
+}
+function normalizeMap(m){
+  const out = {
+    id: String(m.id || uid()), title: String(m.title || '제목 없음'), text: String(m.text || ''),
+    createdAt: +m.createdAt || Date.now(), updatedAt: +m.updatedAt || Date.now(), nodes: [], edges: []
+  };
+  const types = ['start', 'end', 'process', 'decision', 'io'];
+  const seen = new Set();
+  (Array.isArray(m.nodes) ? m.nodes : []).forEach(n => {
+    let id = String(n.id || uid()); if (seen.has(id)) id = uid(); seen.add(id);
+    out.nodes.push({
+      id, type: types.includes(n.type) ? n.type : 'process', title: String(n.title || ''),
+      summary: String(n.summary || ''), detail: String(n.detail || ''), caution: String(n.caution || ''),
+      tags: Array.isArray(n.tags) ? n.tags.map(String) : [],
+      images: Array.isArray(n.images) ? n.images.filter(i => i && typeof i.src === 'string' && /^data:image\//.test(i.src)).map(i => ({id: String(i.id || uid()), src: i.src, caption: String(i.caption || '')})) : [],
+      x: +n.x || 0, y: +n.y || 0
+    });
+  });
+  (Array.isArray(m.edges) ? m.edges : []).forEach(e => {
+    if (!seen.has(String(e.from)) || !seen.has(String(e.to)) || e.from === e.to) return;
+    if (out.edges.some(x => x.from === String(e.from) && x.to === String(e.to))) return;
+    out.edges.push({id: String(e.id || uid()), from: String(e.from), to: String(e.to), label: String(e.label || '')});
+  });
+  return out;
+}
+
+let saveTimer;
+function touch(opts){
+  if (!S.cur) return;
+  S.cur.updatedAt = Date.now();
+  clearTimeout(saveTimer);
+  const m = S.cur;
+  saveTimer = setTimeout(() => { DB.put(m).catch(() => toast('저장 실패 — JSON으로 백업하세요')); renderMapList(); }, 350);
+  if (!opts || opts.canvas !== false) renderCanvas();
+}
+function pushHistory(){
+  if (!S.cur) return;
+  S.hist.push(JSON.stringify(S.cur));
+  if (S.hist.length > 60) S.hist.shift();
+  S.fut = [];
+  updateUndo();
+}
+function undo(){
+  if (!S.hist.length || !S.cur) return;
+  S.fut.push(JSON.stringify(S.cur));
+  replaceCur(JSON.parse(S.hist.pop()));
+}
+function redo(){
+  if (!S.fut.length || !S.cur) return;
+  S.hist.push(JSON.stringify(S.cur));
+  replaceCur(JSON.parse(S.fut.pop()));
+}
+function replaceCur(m){
+  const i = S.maps.findIndex(x => x.id === m.id);
+  if (i >= 0) S.maps[i] = m;
+  S.cur = m;
+  if (S.sel && !(S.sel.kind === 'node' ? m.nodes : m.edges).some(x => x.id === S.sel.id)) S.sel = null;
+  touch(); renderPanel(); updateUndo(); $('#map-title').value = m.title; $('#src-text').value = m.text;
+}
+function updateUndo(){ $('#btn-undo').disabled = !S.hist.length; $('#btn-redo').disabled = !S.fut.length; }
+
+/* ================================================================
+ * 6. 교육과정 화면
+ * ================================================================ */
+function inlineMd(t){
+  const codes = [];
+  let x = esc(t).replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return '\u0000' + (codes.length - 1) + '\u0000'; });
+  x = x.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  x = x.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, a, u) => /^(https?:|#|\.{0,2}\/)/.test(u) ? `<a href="${u}" target="_blank" rel="noopener">${a}</a>` : a);
+  return x.replace(/\u0000(\d+)\u0000/g, (_, i) => `<code>${codes[+i]}</code>`);
+}
+function renderMarkdown(md, flows, heads){
+  const L = String(md).replace(/\r/g, '').split('\n');
+  let html = '', i = 0;
+  const isItem = l => /^\s*([-*]|\d+[.)])\s+/.test(l);
+  const isBlockStart = l => /^(```|#{1,4}\s|>|\s*\||---+\s*$)/.test(l) || isItem(l);
+  while (i < L.length){
+    const line = L[i];
+    if (/^```/.test(line)){
+      const lang = line.slice(3).trim(); const buf = []; i++;
+      while (i < L.length && !/^```/.test(L[i])){ buf.push(L[i]); i++; }
+      i++;
+      if (lang === 'flow' && flows){ flows.push(buf.join('\n')); html += `<div class="flow-slot" data-flow="${flows.length - 1}"></div>`; }
+      else html += `<pre><code>${esc(buf.join('\n'))}</code></pre>`;
+      continue;
+    }
+    if (/^#{1,4}\s/.test(line)){
+      const lv = line.match(/^#+/)[0].length, t = line.slice(lv).trim();
+      if (lv === 2 && heads){ heads.push(t); html += `<h2 id="sec-${heads.length - 1}">${inlineMd(t)}</h2>`; }
+      else html += `<h${lv}>${inlineMd(t)}</h${lv}>`;
+      i++; continue;
+    }
+    if (/^---+\s*$/.test(line)){ html += '<hr>'; i++; continue; }
+    if (/^\s*\|/.test(line)){
+      const rows = [];
+      while (i < L.length && /^\s*\|/.test(L[i])){ rows.push(L[i].trim()); i++; }
+      const cells = r => r.replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+      const body = rows.filter((r, k) => !(k === 1 && /^\|?[\s:|-]+\|?$/.test(r)));
+      html += '<table>';
+      body.forEach((r, k) => {
+        const tag = k === 0 && rows.length > 1 && /^\|?[\s:|-]+\|?$/.test(rows[1]) ? 'th' : 'td';
+        html += '<tr>' + cells(r).map(c => `<${tag}>${inlineMd(c)}</${tag}>`).join('') + '</tr>';
+      });
+      html += '</table>'; continue;
+    }
+    if (/^>/.test(line)){
+      const buf = [];
+      while (i < L.length && /^>/.test(L[i])){ buf.push(L[i].replace(/^>\s?/, '')); i++; }
+      html += `<blockquote>${renderMarkdown(buf.join('\n'))}</blockquote>`; continue;
+    }
+    if (isItem(line)){
+      const stack = [];
+      while (i < L.length && (isItem(L[i]) || (L[i].trim() && /^\s{2,}/.test(L[i]) && stack.length))){
+        const m = L[i].match(/^(\s*)([-*]|\d+[.)])\s+(.*)$/);
+        if (!m){ html += ' ' + inlineMd(L[i].trim()); i++; continue; }
+        const ind = m[1].length, tag = /\d/.test(m[2]) ? 'ol' : 'ul';
+        if (!stack.length || ind > stack[stack.length - 1].ind){
+          const st = tag === 'ol' && parseInt(m[2]) !== 1 ? ` start="${parseInt(m[2])}"` : '';
+          html += `<${tag}${st}>`; stack.push({ind, tag});
+        } else {
+          while (stack.length > 1 && ind < stack[stack.length - 1].ind){ html += `</li></${stack.pop().tag}>`; }
+          html += '</li>';
+        }
+        html += `<li>${inlineMd(m[3])}`; i++;
+      }
+      while (stack.length) html += `</li></${stack.pop().tag}>`;
+      continue;
+    }
+    if (!line.trim()){ i++; continue; }
+    const buf = [];
+    while (i < L.length && L[i].trim() && !isBlockStart(L[i])){ buf.push(L[i].trim()); i++; }
+    html += `<p>${inlineMd(buf.join(' '))}</p>`;
+  }
+  return html;
+}
+function loadEdu(){
+  try { S.edu = JSON.parse($('#edu-data').textContent) || []; } catch(e){ S.edu = []; }
+  S.eduIdx = Math.min(store.get('engr-edu.eduIdx', 0), Math.max(0, S.edu.length - 1));
+}
+function renderEdu(){
+  const toc = $('#edu-toc'), doc = $('#edu-doc');
+  toc.innerHTML = ''; doc.innerHTML = '';
+  if (!S.edu.length){
+    doc.innerHTML = '<h1>교육 콘텐츠가 비어 있습니다</h1><p>이 파일은 빌드 전 원본입니다. 저장소에서 <code>python3 tools/build.py</code> 를 실행해 <code>dist/engr-edu.html</code> 을 만들고, 그 파일을 여세요.</p>';
+    return;
+  }
+  toc.append(h('h3', {text: '교육과정'}));
+  const flows = [], heads = [];
+  const mod = S.edu[S.eduIdx];
+  doc.innerHTML = renderMarkdown(mod.md, flows, heads);
+  S.edu.forEach((m, i) => {
+    toc.append(h('button', {class: 'toc-item' + (i === S.eduIdx ? ' active' : ''), onclick: () => {
+      S.eduIdx = i; store.set('engr-edu.eduIdx', i); renderEdu(); $('.edu-main').scrollTop = 0;
+    }}, m.title));
+    if (i === S.eduIdx && heads.length){
+      const sub = h('div', {class: 'toc-sub'});
+      heads.forEach((t, k) => sub.append(h('button', {onclick: () => { const el = document.getElementById('sec-' + k); if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'}); }}, t.replace(/[*`]/g, ''))));
+      toc.append(sub);
+    }
+  });
+  $$('.flow-slot', doc).forEach(slot => {
+    const src = flows[+slot.dataset.flow];
+    const parsed = parseFlow(src);
+    const map = {nodes: parsed.nodes, edges: parsed.edges};
+    layoutMap(map);
+    const pre = h('pre', {hidden: true}, h('code', {text: src}));
+    const box = h('div', {class: 'flowblock'},
+      h('div', {class: 'flowblock-head'},
+        h('b', {text: '◇ ' + (parsed.title || '업무 흐름')}),
+        h('button', {class: 'btn sm', onclick: () => { pre.hidden = !pre.hidden; }}, '흐름 문법 보기'),
+        h('button', {class: 'btn sm primary', onclick: () => importFlowAsMap(src, parsed.title)}, '맵으로 가져오기')),
+      h('div', {class: 'flowblock-body'}, renderStatic(map)),
+      pre);
+    slot.replaceWith(box);
+  });
+}
+async function importFlowAsMap(src, title){
+  const parsed = parseFlow(src);
+  const m = newMap(title || parsed.title || '가져온 흐름');
+  m.text = src; m.nodes = parsed.nodes; m.edges = parsed.edges;
+  layoutMap(m);
+  S.maps.unshift(m); await DB.put(m);
+  openMap(m.id); setTab('map'); requestAnimationFrame(fit);
+  toast('알고리즘 맵으로 가져왔습니다. 노드에 사진과 설명을 붙여 보세요.');
+}
+
+/* ================================================================
+ * 7. 맵 목록
+ * ================================================================ */
+function renderMapList(){
+  const list = $('#map-list'); list.innerHTML = '';
+  const q = $('#map-filter').value.trim().toLowerCase();
+  const items = S.maps.slice().sort((a, b) => b.updatedAt - a.updatedAt).filter(m => {
+    if (!q) return true;
+    const hay = [m.title, m.text, ...m.nodes.map(n => [n.title, n.summary, n.detail, (n.tags || []).join(' ')].join(' '))].join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+  if (!items.length) list.append(h('div', {class: 'hint', style: 'padding:10px'}, q ? '검색 결과가 없습니다.' : '맵이 없습니다.'));
+  items.forEach(m => {
+    list.append(h('button', {class: 'map-item' + (S.cur && S.cur.id === m.id ? ' active' : ''), onclick: () => openMap(m.id)},
+      h('span', {class: 't'}, m.title || '제목 없음'),
+      h('span', {class: 'm'}, `노드 ${m.nodes.length} · ${new Date(m.updatedAt).toLocaleDateString('ko-KR')}`)));
+  });
+}
+function openMap(id){
+  const m = S.maps.find(x => x.id === id); if (!m) return;
+  S.cur = m; S.sel = null; S.hist = []; S.fut = [];
+  $('#map-title').value = m.title; $('#src-text').value = m.text || '';
+  $('#llm-status').innerHTML = '';
+  store.set('engr-edu.lastMap', id);
+  renderMapList(); renderCanvas(); renderPanel(); updateUndo();
+  requestAnimationFrame(fit);
+}
+
+/* ================================================================
+ * 8. 캔버스 (편집)
+ * ================================================================ */
+const canvas = $('#canvas');
+let viewport = null;
+function renderCanvas(){
+  canvas.innerHTML = '';
+  if (!S.cur){ $('#empty-canvas').hidden = false; return; }
+  const {g} = renderGraph(S.cur, {
+    selNode: S.sel && S.sel.kind === 'node' ? S.sel.id : null,
+    selEdge: S.sel && S.sel.kind === 'edge' ? S.sel.id : null,
+    handles: true
+  });
+  viewport = s('g', {id: 'viewport'});
+  viewport.append(g);
+  canvas.append(viewport);
+  applyVp();
+  $('#empty-canvas').hidden = S.cur.nodes.length > 0;
+}
+function applyVp(){
+  if (viewport) viewport.setAttribute('transform', `translate(${S.vp.x},${S.vp.y}) scale(${S.vp.k})`);
+  $('#zoom-ind').textContent = Math.round(S.vp.k * 100) + '%';
+}
+function mapBounds(){
+  if (!S.cur || !S.cur.nodes.length) return null;
+  const {bounds} = renderGraph(S.cur, {});
+  return bounds;
+}
+function fit(){
+  const b = mapBounds(); const r = canvas.getBoundingClientRect();
+  if (!b || !r.width){ S.vp = {x: r.width / 2 || 0, y: 60, k: 1}; applyVp(); return; }
+  const pad = 50;
+  const k = Math.max(.2, Math.min(1.15, (r.width - pad * 2) / b.w, (r.height - pad * 2) / b.h));
+  S.vp = {k, x: (r.width - b.w * k) / 2 - b.x * k, y: Math.max(pad, (r.height - b.h * k) / 2) - b.y * k};
+  applyVp();
+}
+function toWorld(ev){
+  const r = canvas.getBoundingClientRect();
+  return {x: (ev.clientX - r.left - S.vp.x) / S.vp.k, y: (ev.clientY - r.top - S.vp.y) / S.vp.k};
+}
+function nodeById(id){ return S.cur && S.cur.nodes.find(n => n.id === id); }
+function select(sel){
+  S.sel = sel; renderCanvas();
+  if (sel) setPtab('props'); else renderPanel();
+}
+function addNode(type, at, title){
+  if (!S.cur) return null;
+  pushHistory();
+  const r = canvas.getBoundingClientRect();
+  const c = at || {x: (r.width / 2 - S.vp.x) / S.vp.k, y: (r.height / 2 - S.vp.y) / S.vp.k};
+  const label = {process: '새 단계', decision: '판단 질문?', io: '자료', start: '시작', end: '끝'}[type];
+  const n = {id: uid(), type, title: title || label, summary: '', detail: '', caution: '', tags: [], images: [], x: Math.round(c.x), y: Math.round(c.y)};
+  S.cur.nodes.push(n);
+  touch(); select({kind: 'node', id: n.id});
+  setTimeout(() => { const t = $('#prop-title'); if (t){ t.focus(); t.select(); } }, 30);
+  return n;
+}
+function addEdge(from, to, label){
+  if (!S.cur || from === to) return;
+  if (S.cur.edges.some(e => e.from === from && e.to === to)){ toast('이미 연결되어 있습니다'); return; }
+  pushHistory();
+  const src = nodeById(from);
+  let lbl = label || '';
+  if (!lbl && src && src.type === 'decision'){
+    const outs = S.cur.edges.filter(e => e.from === from);
+    lbl = outs.length === 0 ? '예' : (complementOf(outs[0].label) || '');
+  }
+  const e = {id: uid(), from, to, label: lbl};
+  S.cur.edges.push(e); touch();
+  return e;
+}
+function deleteSelection(){
+  if (!S.cur || !S.sel) return;
+  pushHistory();
+  if (S.sel.kind === 'node'){
+    S.cur.nodes = S.cur.nodes.filter(n => n.id !== S.sel.id);
+    S.cur.edges = S.cur.edges.filter(e => e.from !== S.sel.id && e.to !== S.sel.id);
+  } else S.cur.edges = S.cur.edges.filter(e => e.id !== S.sel.id);
+  S.sel = null; touch(); renderPanel();
+}
+
+let drag = null;
+canvas.addEventListener('pointerdown', ev => {
+  if (!S.cur || ev.button > 0) return;
+  const t = ev.target;
+  const handle = t.closest && t.closest('[data-handle]');
+  const nodeEl = t.closest && t.closest('[data-node]');
+  const edgeEl = t.closest && t.closest('[data-edge]');
+  const p = toWorld(ev);
+  canvas.setPointerCapture(ev.pointerId);
+  if (handle || (nodeEl && ev.shiftKey)){
+    const id = handle ? handle.dataset.handle : nodeEl.dataset.node;
+    const n = nodeById(id);
+    const line = s('path', {class: 'temp-line', d: `M${n.x},${n.y} L${p.x},${p.y}`});
+    viewport.append(line);
+    drag = {mode: 'connect', from: id, line, sx: n.x, sy: n.y};
+    return;
+  }
+  if (nodeEl){
+    const id = nodeEl.dataset.node;
+    const n = nodeById(id);
+    if (!S.sel || S.sel.id !== id) select({kind: 'node', id});
+    drag = {mode: 'node', id, ox: p.x - n.x, oy: p.y - n.y, moved: false};
+    return;
+  }
+  if (edgeEl){ select({kind: 'edge', id: edgeEl.dataset.edge}); return; }
+  drag = {mode: 'pan', sx: ev.clientX, sy: ev.clientY, vx: S.vp.x, vy: S.vp.y, moved: false};
+});
+canvas.addEventListener('pointermove', ev => {
+  if (!drag) return;
+  if (drag.mode === 'pan'){
+    const dx = ev.clientX - drag.sx, dy = ev.clientY - drag.sy;
+    if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
+    S.vp.x = drag.vx + dx; S.vp.y = drag.vy + dy; applyVp();
+  } else if (drag.mode === 'node'){
+    const p = toWorld(ev); const n = nodeById(drag.id);
+    const nx = Math.round(p.x - drag.ox), ny = Math.round(p.y - drag.oy);
+    if (!drag.moved && Math.abs(nx - n.x) + Math.abs(ny - n.y) < 3) return;
+    if (!drag.moved){ pushHistory(); drag.moved = true; }
+    n.x = nx; n.y = ny; renderCanvas();
+  } else if (drag.mode === 'connect'){
+    const p = toWorld(ev);
+    drag.line.setAttribute('d', `M${drag.sx},${drag.sy} L${p.x},${p.y}`);
+    drag.lastWorld = p;
+  }
+});
+canvas.addEventListener('pointerup', ev => {
+  if (!drag) return;
+  const d = drag; drag = null;
+  if (d.mode === 'pan' && !d.moved && S.sel) select(null);
+  if (d.mode === 'node' && d.moved) touch();
+  if (d.mode === 'connect'){
+    d.line.remove();
+    const under = document.elementFromPoint(ev.clientX, ev.clientY);
+    const target = under && under.closest && under.closest('[data-node]');
+    if (target && target.dataset.node !== d.from){ addEdge(d.from, target.dataset.node); select({kind: 'node', id: d.from}); }
+    else if (!target && d.lastWorld){
+      const src = nodeById(d.from);
+      if (Math.hypot(d.lastWorld.x - src.x, d.lastWorld.y - src.y) > 60){
+        const n = addNode('process', {x: d.lastWorld.x, y: d.lastWorld.y + 26});
+        if (n){ const hist = S.hist.length; addEdge(d.from, n.id); if (S.hist.length > hist) S.hist.pop(); updateUndo(); }
+      }
+    }
+  }
+});
+canvas.addEventListener('dblclick', ev => {
+  if (!S.cur) return;
+  const nodeEl = ev.target.closest && ev.target.closest('[data-node]');
+  if (nodeEl) startWalk(nodeEl.dataset.node, true);
+  else if (!ev.target.closest('[data-edge]')) addNode('process', toWorld(ev));
+});
+canvas.addEventListener('wheel', ev => {
+  ev.preventDefault();
+  const r = canvas.getBoundingClientRect();
+  const mx = ev.clientX - r.left, my = ev.clientY - r.top;
+  const k0 = S.vp.k;
+  const k = Math.max(.15, Math.min(3, k0 * Math.exp(-ev.deltaY * (ev.ctrlKey ? .01 : .0015))));
+  S.vp.x = mx - (mx - S.vp.x) * k / k0; S.vp.y = my - (my - S.vp.y) * k / k0; S.vp.k = k;
+  applyVp();
+}, {passive: false});
+
+/* ================================================================
+ * 9. 오른쪽 패널 (선택 항목 편집)
+ * ================================================================ */
+const TYPE_NAMES = {start: '시작', end: '끝', process: '단계', decision: '판단', io: '자료·입출력'};
+function setPtab(t){
+  S.ptab = t;
+  $$('.panel-tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.ptab === t ? 'true' : 'false'));
+  $('#panel-text').hidden = t !== 'text'; $('#panel-props').hidden = t !== 'props';
+  if (t === 'props') renderPanel();
+}
+function bindField(el, obj, key, after){
+  el.addEventListener('focus', () => pushHistory());
+  el.addEventListener('input', () => { obj[key] = el.value; touch(); if (after) after(); });
+  return el;
+}
+function renderPanel(){
+  const P = $('#panel-props'); P.innerHTML = '';
+  if (!S.cur){ P.append(h('p', {class: 'hint'}, '맵을 선택하세요.')); return; }
+  if (!S.sel){
+    P.append(h('p', {class: 'hint'}, '노드나 화살표를 클릭하면 여기서 편집합니다.'),
+      h('div', {class: 'cheat'},
+        h('div', null, h('b', null, '조작법')),
+        h('div', null, '· 빈 곳 드래그: 화면 이동 / 휠: 확대·축소'),
+        h('div', null, '· 노드 드래그: 위치 이동'),
+        h('div', null, '· 선택한 노드 아래 ● 를 끌어 다른 노드에 놓기: 연결'),
+        h('div', null, '· ● 를 빈 곳에 놓기: 새 단계 만들고 연결'),
+        h('div', null, '· 노드 더블클릭: 크게 보기 (따라가기)'),
+        h('div', null, '· 빈 곳 더블클릭: 새 단계'),
+        h('div', null, '· Delete: 선택 삭제 · Ctrl+Z / Ctrl+Y: 되돌리기 / 다시')),
+      h('h4', null, '맵 정보'),
+      h('div', {class: 'hint'}, `노드 ${S.cur.nodes.length}개 · 연결 ${S.cur.edges.length}개 · 이미지 ${S.cur.nodes.reduce((a, n) => a + n.images.length, 0)}장`));
+    return;
+  }
+  if (S.sel.kind === 'edge'){
+    const e = S.cur.edges.find(x => x.id === S.sel.id); if (!e){ S.sel = null; return renderPanel(); }
+    const a = nodeById(e.from), b = nodeById(e.to);
+    P.append(h('h4', {style: 'margin-top:0'}, '화살표'),
+      h('div', {class: 'hint', style: 'margin-bottom:10px'}, `${a ? a.title : '?'}  →  ${b ? b.title : '?'}`),
+      h('div', {class: 'field'}, h('label', {for: 'prop-elabel'}, '라벨 (예: 예 / 아니오 / 조건)'),
+        bindField(h('input', {class: 'input', id: 'prop-elabel', value: e.label}), e, 'label')),
+      h('div', {class: 'row'},
+        h('button', {class: 'btn', onclick: () => { pushHistory(); [e.from, e.to] = [e.to, e.from]; touch(); renderPanel(); }}, '방향 뒤집기'),
+        h('button', {class: 'btn danger', onclick: deleteSelection}, '화살표 삭제')));
+    return;
+  }
+  const n = nodeById(S.sel.id); if (!n){ S.sel = null; return renderPanel(); }
+  const typeSel = h('select', {class: 'input', id: 'prop-type'},
+    Object.keys(TYPE_NAMES).map(k => h('option', {value: k, selected: n.type === k}, TYPE_NAMES[k])));
+  typeSel.addEventListener('change', () => { pushHistory(); n.type = typeSel.value; touch(); });
+  const tags = h('input', {class: 'input', id: 'prop-tags', value: (n.tags || []).join(', '), placeholder: '예: 도금, 계측, PM'});
+  tags.addEventListener('focus', () => pushHistory());
+  tags.addEventListener('input', () => { n.tags = tags.value.split(',').map(x => x.trim()).filter(Boolean); touch({canvas: false}); });
+  const outs = S.cur.edges.filter(e => e.from === n.id);
+  const ins = S.cur.edges.filter(e => e.to === n.id);
+  const imgGrid = h('div', {class: 'img-grid'});
+  n.images.forEach(img => {
+    const cap = h('input', {value: img.caption, placeholder: '설명'});
+    cap.addEventListener('focus', () => pushHistory());
+    cap.addEventListener('input', () => { img.caption = cap.value; touch({canvas: false}); });
+    imgGrid.append(h('div', {class: 'img-card'},
+      h('img', {src: img.src, alt: img.caption || '노드 이미지', onclick: () => openLightbox(img)}),
+      h('div', {class: 'cap'}, cap, h('button', {title: '삭제', onclick: () => { pushHistory(); n.images = n.images.filter(x => x !== img); touch(); renderPanel(); }}, '✕'))));
+  });
+  const dz = h('div', {class: 'dropzone'}, '이미지를 끌어다 놓거나, ', h('a', {href: '#', onclick: ev => { ev.preventDefault(); $('#file-img').click(); }}, '파일 선택'), ', 또는 Ctrl+V 로 붙여넣기');
+  dz.addEventListener('dragover', ev => { ev.preventDefault(); dz.classList.add('over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+  dz.addEventListener('drop', ev => { ev.preventDefault(); dz.classList.remove('over'); addImages(n, ev.dataTransfer.files); });
+  P.append(
+    h('div', {class: 'row', style: 'justify-content:space-between;margin-bottom:8px'}, h('span', {class: 'type-pill'}, TYPE_NAMES[n.type]),
+      h('button', {class: 'btn sm', onclick: () => startWalk(n.id, true)}, '크게 보기')),
+    h('div', {class: 'field'}, h('label', {for: 'prop-type'}, '종류'), typeSel),
+    h('div', {class: 'field'}, h('label', {for: 'prop-title'}, n.type === 'decision' ? '판단 질문 (기준을 숫자·사실로)' : '제목'),
+      bindField(h('input', {class: 'input', id: 'prop-title', value: n.title}), n, 'title')),
+    h('div', {class: 'field'}, h('label', {for: 'prop-summary'}, '한 줄 요약 (도형 안에 표시)'),
+      bindField(h('input', {class: 'input', id: 'prop-summary', value: n.summary}), n, 'summary')),
+    h('div', {class: 'field'}, h('label', {for: 'prop-detail'}, '상세 설명 — 왜, 어떻게'),
+      bindField(h('textarea', {class: 'textarea', id: 'prop-detail', rows: 5}, n.detail), n, 'detail')),
+    h('div', {class: 'field'}, h('label', {for: 'prop-caution'}, '주의점 — 자주 하는 실수, 안전'),
+      bindField(h('textarea', {class: 'textarea', id: 'prop-caution', rows: 3}, n.caution), n, 'caution')),
+    h('div', {class: 'field'}, h('label', {for: 'prop-tags'}, '태그 (쉼표로 구분)'), tags),
+    h('h4', null, `이미지 (${n.images.length})`), imgGrid, dz,
+    h('h4', null, `나가는 화살표 (${outs.length})`),
+    outs.length ? outs.map(e => {
+      const inp = h('input', {class: 'input', value: e.label, placeholder: '라벨'});
+      bindField(inp, e, 'label');
+      const b = nodeById(e.to);
+      return h('div', {class: 'edge-row'}, inp, h('span', {class: 'to'}, '→ ' + (b ? b.title : '?')),
+        h('button', {class: 'btn sm danger', onclick: () => { pushHistory(); S.cur.edges = S.cur.edges.filter(x => x !== e); touch(); renderPanel(); }}, '✕'));
+    }) : h('div', {class: 'hint'}, '없음 — 노드 아래 ● 를 끌어 연결하세요.'),
+    ins.length ? h('div', {class: 'hint', style: 'margin-top:6px'}, '들어오는 화살표: ' + ins.map(e => (nodeById(e.from) || {}).title).join(', ')) : null,
+    h('div', {class: 'row', style: 'margin-top:14px'},
+      h('button', {class: 'btn', onclick: () => { const nn = addNode(n.type === 'decision' ? 'process' : 'process', {x: n.x, y: n.y + nodeBox(n).h + 70}); if (nn){ const k = S.hist.length; addEdge(n.id, nn.id); if (S.hist.length > k) S.hist.pop(); updateUndo(); } }}, '+ 다음 단계'),
+      h('button', {class: 'btn danger', onclick: deleteSelection}, '노드 삭제')));
+}
+
+/* 이미지 처리: 큰 사진은 줄여서 저장 */
+function readImage(file){
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => {
+      const src = fr.result;
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1600;
+        if (file.size < 450 * 1024 && img.width <= MAX && img.height <= MAX) return res(src);
+        const k = Math.min(1, MAX / Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL('image/jpeg', .85));
+      };
+      img.onerror = () => rej(new Error('이미지를 읽을 수 없습니다'));
+      img.src = src;
+    };
+    fr.onerror = () => rej(fr.error);
+    fr.readAsDataURL(file);
+  });
+}
+async function addImages(n, files){
+  const list = Array.from(files || []).filter(f => /^image\//.test(f.type));
+  if (!list.length) return;
+  pushHistory();
+  for (const f of list){
+    try { n.images.push({id: uid(), src: await readImage(f), caption: f.name && !/^image\.\w+$/.test(f.name) ? f.name.replace(/\.\w+$/, '') : ''}); }
+    catch (e){ toast(e.message); }
+  }
+  touch(); renderPanel();
+  toast(`이미지 ${list.length}장을 붙였습니다`);
+}
+$('#file-img').addEventListener('change', ev => {
+  const n = S.sel && S.sel.kind === 'node' && nodeById(S.sel.id);
+  if (n) addImages(n, ev.target.files);
+  ev.target.value = '';
+});
+document.addEventListener('paste', ev => {
+  if (S.tab !== 'map' || !S.sel || S.sel.kind !== 'node') return;
+  const files = Array.from(ev.clipboardData ? ev.clipboardData.files : []).filter(f => /^image\//.test(f.type));
+  if (!files.length) return;
+  ev.preventDefault();
+  addImages(nodeById(S.sel.id), files);
+});
+
+/* ================================================================
+ * 10. 모달: 따라가기 · 이미지 크게 · 설정 · 도움말
+ * ================================================================ */
+function openModal(title, body, foot){
+  $('#modal-title').textContent = title;
+  const B = $('#modal-body'), F = $('#modal-foot');
+  B.innerHTML = ''; F.innerHTML = '';
+  const parts = x => [].concat(x).flat(Infinity).filter(k => k != null && k !== false);
+  B.append(...parts(body)); if (foot) F.append(...parts(foot));
+  F.hidden = !foot;
+  $('#modal-back').classList.add('open');
+}
+function closeModal(){ $('#modal-back').classList.remove('open'); S.walk = null; if (S.tab === 'map') renderCanvas(); }
+$('#modal-close').addEventListener('click', closeModal);
+$('#modal-back').addEventListener('click', ev => { if (ev.target.id === 'modal-back') closeModal(); });
+function openLightbox(img){
+  openModal(img.caption || '이미지', h('div', {class: 'lightbox'}, h('img', {src: img.src, alt: img.caption || ''})));
+}
+function startWalk(fromId, single){
+  if (!S.cur || !S.cur.nodes.length){ toast('노드가 없습니다'); return; }
+  let id = fromId;
+  if (!id){
+    const st = S.cur.nodes.find(n => n.type === 'start') || S.cur.nodes.find(n => !S.cur.edges.some(e => e.to === n.id)) || S.cur.nodes[0];
+    id = st.id;
+  }
+  S.walk = {trail: [id], single: !!single};
+  renderWalk();
+}
+function renderWalk(){
+  const w = S.walk; if (!w) return;
+  const id = w.trail[w.trail.length - 1];
+  const n = nodeById(id); if (!n) return closeModal();
+  const outs = S.cur.edges.filter(e => e.from === n.id);
+  const body = [
+    h('div', {class: 'row'}, h('span', {class: 'type-pill'}, TYPE_NAMES[n.type]), h('span', {class: 'hint'}, `단계 ${w.trail.length}`)),
+    n.summary ? h('p', {style: 'font-weight:600;margin:10px 0 0'}, n.summary) : null,
+    n.detail ? h('div', {class: 'walk-detail'}, n.detail) : (n.summary ? null : h('p', {class: 'hint'}, '상세 설명이 아직 없습니다. 오른쪽 패널에서 추가하세요.')),
+    n.caution ? h('div', {class: 'walk-caution'}, '⚠ ' + n.caution) : null,
+    n.images.length ? h('div', {class: 'walk-imgs'}, n.images.map(img => h('figure', {style: 'margin:0'},
+      h('img', {src: img.src, alt: img.caption || ''}), img.caption ? h('figcaption', null, img.caption) : null))) : null,
+    n.tags && n.tags.length ? h('div', {class: 'hint'}, '태그: ' + n.tags.join(', ')) : null,
+    h('div', {class: 'walk-next'},
+      outs.length ? h('div', {class: 'hint'}, n.type === 'decision' ? '판단 결과를 고르세요' : '다음 단계') : h('div', {class: 'hint'}, n.type === 'end' ? '끝입니다.' : '이어지는 단계가 없습니다.'),
+      outs.map(e => { const b = nodeById(e.to); return h('button', {class: 'btn' + (outs.length === 1 ? ' primary' : ''), onclick: () => { w.trail.push(e.to); renderWalk(); }},
+        (e.label ? `[${e.label}] ` : '') + '→ ' + (b ? b.title : '?')); }))
+  ];
+  const foot = [
+    h('button', {class: 'btn', disabled: w.trail.length < 2, onclick: () => { w.trail.pop(); renderWalk(); }}, '← 이전'),
+    h('button', {class: 'btn', onclick: () => { S.walk = null; $('#modal-back').classList.remove('open'); select({kind: 'node', id: n.id}); }}, '이 노드 편집')
+  ];
+  openModal(n.title || '(제목 없음)', body, foot);
+  S.walk = w;
+  if (S.tab === 'map'){
+    const {g} = renderGraph(S.cur, {current: n.id});
+    canvas.innerHTML = ''; viewport = s('g'); viewport.append(g); canvas.append(viewport); applyVp();
+  }
+}
+
+const SETTINGS_KEY = 'engr-edu.settings';
+const DEFAULT_SETTINGS = {endpoint: 'https://api.anthropic.com/v1/messages', apiKey: '', model: 'claude-opus-5-5', effort: 'medium', fallback: true, remember: true};
+function getSettings(){ return Object.assign({}, DEFAULT_SETTINGS, store.get(SETTINGS_KEY, {}), S.sessionKey ? {apiKey: S.sessionKey} : {}); }
+function openSettings(){
+  const st = getSettings();
+  const f = {
+    endpoint: h('input', {class: 'input', value: st.endpoint}),
+    apiKey: h('input', {class: 'input', type: 'password', value: st.apiKey, placeholder: 'sk-ant-…', autocomplete: 'off'}),
+    model: h('input', {class: 'input', value: st.model}),
+    effort: h('select', {class: 'input'}, ['low', 'medium', 'high'].map(v => h('option', {value: v, selected: st.effort === v}, v))),
+    fallback: h('input', {type: 'checkbox', checked: st.fallback}),
+    remember: h('input', {type: 'checkbox', checked: st.remember})
+  };
+  openModal('LLM 설정', [
+    h('p', {class: 'hint', style: 'margin-top:0'}, '글을 알고리즘 맵으로 바꿀 때 Claude API를 씁니다. 사내 승인된 게이트웨이가 있다면 API 주소를 바꾸세요 (Anthropic Messages API 형식).'),
+    h('div', {class: 'field'}, h('label', null, 'API 주소'), f.endpoint),
+    h('div', {class: 'field'}, h('label', null, 'API 키'), f.apiKey),
+    h('div', {class: 'field'}, h('label', null, '모델'), f.model),
+    h('div', {class: 'field'}, h('label', null, '사고 깊이 (effort)'), f.effort),
+    h('label', {class: 'row', style: 'margin-bottom:6px'}, f.fallback, '거절 시 자동 대체 모델 사용 (server-side fallback)'),
+    h('label', {class: 'row'}, f.remember, '이 브라우저에 키 저장 (끄면 이 창을 닫을 때까지만 사용)'),
+    h('div', {class: 'status', style: 'margin-top:12px'}, '⚠ 외부 API로 보내는 글에 사내 공정 조건·수율·고객 정보를 넣지 마세요. 키는 공유용 HTML에 포함되지 않습니다.')
+  ], [
+    h('button', {class: 'btn danger', onclick: () => { store.del(SETTINGS_KEY); S.sessionKey = ''; closeModal(); toast('설정을 지웠습니다'); }}, '설정 지우기'),
+    h('button', {class: 'btn primary', onclick: () => {
+      const v = {endpoint: f.endpoint.value.trim() || DEFAULT_SETTINGS.endpoint, model: f.model.value.trim() || DEFAULT_SETTINGS.model,
+        effort: f.effort.value, fallback: f.fallback.checked, remember: f.remember.checked, apiKey: ''};
+      if (v.remember){ v.apiKey = f.apiKey.value.trim(); S.sessionKey = ''; } else S.sessionKey = f.apiKey.value.trim();
+      store.set(SETTINGS_KEY, v); closeModal(); toast('저장했습니다');
+    }}, '저장')
+  ]);
+}
+function openHelp(){
+  openModal('도움말', [
+    h('h4', {style: 'margin-top:0'}, '이 프로그램은'),
+    h('p', null, '신입 엔지니어 교육과정과, 배운 업무를 흐름도(업무 알고리즘)로 정리하는 도구를 하나의 HTML 파일에 담았습니다. 설치나 인터넷 연결 없이 열립니다 (LLM 변환만 네트워크가 필요합니다).'),
+    h('h4', null, '업무 알고리즘 맵 사용 순서'),
+    h('ol', null,
+      h('li', null, '왼쪽 위 + 새 맵'),
+      h('li', null, '오른쪽 「글 → 도형」 탭에 배운 내용을 적고 「규칙 변환」 또는 「LLM으로 도형화」'),
+      h('li', null, '노드를 클릭해 상세 설명·주의점·사진을 붙이기 (사진은 Ctrl+V 로 바로 붙여넣기)'),
+      h('li', null, '「▶ 따라가기」 로 처음 보는 사람 입장에서 검토'),
+      h('li', null, '「내보내기 → 공유용 HTML」 로 팀에 배포 (받은 사람이 열면 맵이 그대로 보입니다)')),
+    h('h4', null, '저장'),
+    h('p', null, '맵은 이 브라우저(IndexedDB)에 자동 저장됩니다. 브라우저 데이터를 지우면 사라지니 「JSON (모든 맵 백업)」 으로 주기적으로 백업하세요.'),
+    h('h4', null, '단축키'),
+    h('p', null, 'Delete: 선택 삭제 · Ctrl+Z: 되돌리기 · Ctrl+Y: 다시 · Esc: 선택 해제')
+  ]);
+}
+
+/* ================================================================
+ * 11. LLM 변환 (Claude Messages API, 구조화 출력)
+ * ================================================================ */
+const MAP_SCHEMA = {
+  type: 'object', additionalProperties: false, required: ['title', 'nodes', 'edges'],
+  properties: {
+    title: {type: 'string'},
+    nodes: {type: 'array', items: {type: 'object', additionalProperties: false,
+      required: ['id', 'type', 'title', 'summary', 'detail', 'caution'],
+      properties: {
+        id: {type: 'string'}, type: {type: 'string', enum: ['start', 'process', 'decision', 'io', 'end']},
+        title: {type: 'string'}, summary: {type: 'string'}, detail: {type: 'string'}, caution: {type: 'string'}
+      }}},
+    edges: {type: 'array', items: {type: 'object', additionalProperties: false, required: ['from', 'to', 'label'],
+      properties: {from: {type: 'string'}, to: {type: 'string'}, label: {type: 'string'}}}}
+  }
+};
+const SYSTEM_PROMPT = [
+  '당신은 반도체 제조 현장의 업무 지식을 신입 엔지니어가 그대로 따라 할 수 있는 업무 알고리즘(흐름도)으로 바꾸는 도우미입니다.',
+  '결과는 주어진 JSON 스키마에 맞춰 한국어로 작성합니다.',
+  '',
+  '노드 종류:',
+  '- start: 업무가 시작되는 계기 (알람, 요청, 입고 등). 보통 1개.',
+  '- process: 사람이 하는 작업 한 가지.',
+  '- decision: 판단 지점. title은 예/아니오로 답할 수 있는 질문으로 쓰고, 나가는 화살표마다 label(예/아니오 또는 조건)을 붙입니다.',
+  '- io: 확인하거나 남기는 자료·데이터·문서.',
+  '- end: 업무가 끝나는 상태. 막다른 분기는 end로 끝내거나 다른 단계로 이어 붙입니다.',
+  '',
+  '작성 규칙:',
+  '- title은 20자 안팎의 짧은 동사구 또는 질문. summary는 도형 안에 보일 한 줄(40자 이내, 없으면 빈 문자열).',
+  '- detail에는 원문에 있는 이유·방법·기준을 옮겨 적습니다. caution에는 원문에 있는 주의점·안전 사항을 적고, 없으면 빈 문자열.',
+  '- 판단 기준은 원문에 있는 숫자와 관찰 가능한 사실을 그대로 씁니다. 원문에 기준이 없으면 지어내지 말고 detail 끝에 "[확인 필요] 판단 기준이 원문에 없음"이라고 적습니다.',
+  '- 원문에 없는 작업 단계를 새로 만들지 않습니다. 시작/끝 노드와 흐름을 잇는 데 꼭 필요한 연결만 보완할 수 있습니다.',
+  '- id는 n1, n2 … 처럼 짧게 쓰고, edges의 from/to는 반드시 존재하는 id여야 합니다.',
+  '- 되돌아가는 반복(재측정 후 다시 판단 등)은 이전 노드로 가는 화살표로 표현합니다.'
+].join('\n');
+
+async function callClaude(userContent){
+  const st = getSettings();
+  if (!st.apiKey) throw new Error('API 키가 없습니다. 오른쪽 위 「LLM 설정」에서 키를 넣으세요.');
+  const headers = {
+    'content-type': 'application/json',
+    'x-api-key': st.apiKey,
+    'anthropic-version': '2023-06-01',
+    'anthropic-dangerous-direct-browser-access': 'true'
+  };
+  const body = {
+    model: st.model, max_tokens: 16000, system: SYSTEM_PROMPT,
+    output_config: {effort: st.effort, format: {type: 'json_schema', schema: MAP_SCHEMA}},
+    messages: [{role: 'user', content: userContent}]
+  };
+  if (st.fallback){ headers['anthropic-beta'] = 'server-side-fallback-2026-07-01'; body.fallbacks = 'default'; }
+  let res;
+  try { res = await fetch(st.endpoint, {method: 'POST', headers, body: JSON.stringify(body)}); }
+  catch (e){ throw new Error('API 서버에 연결하지 못했습니다. 사내망에서 외부 API가 막혀 있을 수 있습니다. 승인된 게이트웨이 주소가 있으면 설정에서 바꾸고, 없으면 「규칙 변환」을 쓰세요.\n(' + e.message + ')'); }
+  let data = null;
+  try { data = await res.json(); } catch (e){}
+  if (!res.ok){
+    const msg = data && data.error && data.error.message ? data.error.message : res.statusText;
+    const hint = res.status === 401 ? 'API 키를 확인하세요.' :
+      res.status === 429 ? '요청이 많습니다. 잠시 후 다시 시도하세요.' :
+      res.status === 400 && /fallback/i.test(msg) ? '설정에서 「거절 시 자동 대체 모델 사용」을 끄고 다시 시도하세요.' :
+      res.status >= 500 ? 'API 서버 오류입니다. 잠시 후 다시 시도하세요.' : '';
+    throw new Error(`API 오류 ${res.status}: ${msg}${hint ? '\n' + hint : ''}`);
+  }
+  if (!data) throw new Error('응답을 읽지 못했습니다.');
+  if (data.stop_reason === 'refusal'){
+    const why = data.stop_details && data.stop_details.explanation ? '\n' + data.stop_details.explanation : '';
+    throw new Error('모델이 이 요청을 처리하지 않았습니다.' + why);
+  }
+  if (data.stop_reason === 'max_tokens') throw new Error('결과가 너무 길어 중간에 끊겼습니다. 글을 나누어 변환하세요.');
+  const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+  let parsed;
+  try { parsed = JSON.parse(text); }
+  catch (e){
+    const m = text.match(/\{[\s\S]*\}/);
+    if (!m) throw new Error('결과를 해석하지 못했습니다.');
+    parsed = JSON.parse(m[0]);
+  }
+  if (!parsed || !Array.isArray(parsed.nodes) || !Array.isArray(parsed.edges)) throw new Error('결과 형식이 올바르지 않습니다.');
+  return {result: parsed, model: data.model};
+}
+function setLlmStatus(msg, kind){
+  const el = $('#llm-status'); el.innerHTML = '';
+  if (msg) el.append(h('div', {class: 'status' + (kind ? ' ' + kind : '')}, msg));
+}
+function applyGenerated(gen, keepFrom){
+  const old = keepFrom || [];
+  const m = normalizeMap({id: S.cur.id, title: S.cur.title, text: S.cur.text, nodes: gen.nodes.map(n => ({...n, tags: [], images: []})), edges: gen.edges});
+  // 같은 id 또는 같은 제목의 기존 노드에서 사진·태그를 이어받는다
+  m.nodes.forEach(n => {
+    const prev = old.find(o => o.id === n.id) || old.find(o => o.title === n.title);
+    if (prev){ n.images = prev.images || []; n.tags = prev.tags || []; }
+  });
+  pushHistory();
+  S.cur.nodes = m.nodes; S.cur.edges = m.edges;
+  if (gen.title && (!S.cur.title || /^새 업무 알고리즘|^제목 없음/.test(S.cur.title))){ S.cur.title = gen.title; $('#map-title').value = gen.title; }
+  layoutMap(S.cur); S.sel = null; touch(); renderPanel(); fit();
+}
+async function runLLM(mode){
+  if (!S.cur) return;
+  const text = $('#src-text').value.trim();
+  const btns = ['#btn-llm', '#btn-refine', '#btn-rule'].map(x => $(x));
+  let content;
+  if (mode === 'refine'){
+    const ask = $('#refine-text').value.trim();
+    if (!S.cur.nodes.length){ setLlmStatus('다듬을 맵이 없습니다. 먼저 도형화하세요.', 'err'); return; }
+    if (!ask){ setLlmStatus('무엇을 고칠지 요청을 적어 주세요.', 'err'); return; }
+    const cur = {title: S.cur.title, nodes: S.cur.nodes.map(n => ({id: n.id, type: n.type, title: n.title, summary: n.summary, detail: n.detail, caution: n.caution})),
+      edges: S.cur.edges.map(e => ({from: e.from, to: e.to, label: e.label}))};
+    content = `아래는 현재 업무 알고리즘 맵입니다. 요청에 맞게 수정한 전체 맵을 돌려주세요. 바꾸지 않는 노드는 id를 그대로 유지하세요.\n\n<현재_맵>\n${JSON.stringify(cur)}\n</현재_맵>\n\n${text ? `<원문>\n${text}\n</원문>\n\n` : ''}<요청>\n${ask}\n</요청>`;
+  } else {
+    if (!text){ setLlmStatus('먼저 왼쪽 칸에 업무 내용을 적어 주세요.', 'err'); return; }
+    content = `다음은 신입 엔지니어가 선배에게 배운 업무 내용을 적은 글입니다. 이 글을 업무 알고리즘 맵으로 바꿔 주세요.\n\n<원문>\n${text}\n</원문>`;
+  }
+  btns.forEach(b => b.disabled = true);
+  setLlmStatus('Claude가 변환하는 중입니다… (보통 10~60초)');
+  try {
+    const {result, model} = await callClaude(content);
+    applyGenerated(result, S.cur.nodes);
+    const dropped = result.edges.length - S.cur.edges.length;
+    setLlmStatus(`완료: 노드 ${S.cur.nodes.length}개, 연결 ${S.cur.edges.length}개${dropped > 0 ? ` (잘못된 연결 ${dropped}개 제외)` : ''} · ${model || ''}\n결과는 초안입니다 — 판단 기준을 꼭 확인하세요.`, 'ok');
+  } catch (e){ setLlmStatus(e.message, 'err'); }
+  finally { btns.forEach(b => b.disabled = false); }
+}
+function runRule(){
+  if (!S.cur) return;
+  const text = $('#src-text').value;
+  if (!text.trim()){ setLlmStatus('먼저 업무 내용을 적어 주세요.', 'err'); return; }
+  const parsed = parseFlow(text);
+  if (!parsed.nodes.length){ setLlmStatus('변환할 단계를 찾지 못했습니다.', 'err'); return; }
+  applyGenerated(parsed, S.cur.nodes);
+  const leaves = S.cur.nodes.filter(n => n.type !== 'end' && !S.cur.edges.some(e => e.from === n.id));
+  setLlmStatus(`규칙 변환 완료: 노드 ${parsed.nodes.length}개, 연결 ${parsed.edges.length}개` +
+    (leaves.length > 1 ? `\n이어지지 않는 단계 ${leaves.length}개: ${leaves.map(n => n.title).slice(0, 4).join(', ')}${leaves.length > 4 ? ' …' : ''}` : ''), 'ok');
+}
+
+/* ================================================================
+ * 12. 내보내기 · 가져오기
+ * ================================================================ */
+function buildShareHTML(maps){
+  const doc = document.documentElement.cloneNode(true);
+  doc.removeAttribute('data-theme');
+  doc.querySelector('#app').innerHTML = INITIAL_APP_HTML;
+  const payload = JSON.stringify({exportedAt: new Date().toISOString(), maps}).replace(/</g, '\\u003c');
+  doc.querySelector('#preload-maps').textContent = payload;
+  return '<!doctype html>\n' + doc.outerHTML;
+}
+function exportPNG(){
+  if (!S.cur || !S.cur.nodes.length){ toast('내보낼 노드가 없습니다'); return; }
+  const live = renderStatic(S.cur);
+  const holder = h('div', {style: 'position:fixed;left:-99999px;top:0'}); holder.append(live); document.body.append(holder);
+  const copy = live.cloneNode(true);
+  const a = live.querySelectorAll('*'), b = copy.querySelectorAll('*');
+  const props = ['fill', 'stroke', 'stroke-width', 'stroke-dasharray', 'font-size', 'font-weight', 'font-family', 'opacity'];
+  a.forEach((el, i) => { const cs = getComputedStyle(el); b[i].setAttribute('style', props.map(p => `${p}:${cs.getPropertyValue(p)}`).join(';')); });
+  holder.remove();
+  const bg = getComputedStyle(document.body).backgroundColor;
+  const xml = new XMLSerializer().serializeToString(copy);
+  const img = new Image();
+  const scale = 2;
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = (+copy.getAttribute('width')) * scale; c.height = (+copy.getAttribute('height')) * scale;
+    const ctx = c.getContext('2d'); ctx.fillStyle = bg; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+    c.toBlob(bl => download(safeName(S.cur.title) + '.png', bl), 'image/png');
+  };
+  img.onerror = () => toast('PNG 변환에 실패했습니다');
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+}
+async function importJSON(file){
+  try {
+    const data = JSON.parse(await file.text());
+    const arr = Array.isArray(data) ? data : Array.isArray(data.maps) ? data.maps : [data];
+    let n = 0;
+    for (const raw of arr){
+      if (!raw || !Array.isArray(raw.nodes)) continue;
+      const m = normalizeMap(raw);
+      if (S.maps.some(x => x.id === m.id)) m.id = uid();
+      S.maps.unshift(m); await DB.put(m); n++;
+    }
+    if (!n) throw new Error('맵 데이터가 없습니다');
+    renderMapList(); openMap(S.maps[0].id); toast(`맵 ${n}개를 가져왔습니다`);
+  } catch (e){ toast('가져오기 실패: ' + e.message); }
+}
+$('#file-json').addEventListener('change', ev => { const f = ev.target.files[0]; if (f) importJSON(f); ev.target.value = ''; });
+$('#export-menu').addEventListener('click', ev => {
+  const b = ev.target.closest('button'); if (!b) return;
+  ev.target.closest('details').open = false;
+  const k = b.dataset.exp;
+  if (k === 'import') return $('#file-json').click();
+  if (k === 'json-all') return download(`engr-edu-백업-${today()}.json`, JSON.stringify({maps: S.maps}, null, 1), 'application/json');
+  if (k === 'share-all') return download(`engr-edu-업무알고리즘-${today()}.html`, buildShareHTML(S.maps), 'text/html');
+  if (!S.cur) return toast('맵을 먼저 선택하세요');
+  if (k === 'json') download(safeName(S.cur.title) + '.json', JSON.stringify(S.cur, null, 1), 'application/json');
+  if (k === 'share-one') download(safeName(S.cur.title) + '.html', buildShareHTML([S.cur]), 'text/html');
+  if (k === 'png') exportPNG();
+});
+
+/* ================================================================
+ * 13. 이벤트 연결
+ * ================================================================ */
+function setTab(t){
+  S.tab = t;
+  $$('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t ? 'true' : 'false'));
+  $('#view-edu').classList.toggle('active', t === 'edu');
+  $('#view-map').classList.toggle('active', t === 'map');
+  store.set('engr-edu.tab', t);
+  if (t === 'map'){ renderCanvas(); requestAnimationFrame(() => { if (!S.fitted){ fit(); S.fitted = true; } }); }
+}
+$$('.tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+$$('.panel-tabs button').forEach(b => b.addEventListener('click', () => setPtab(b.dataset.ptab)));
+$('#btn-settings').addEventListener('click', openSettings);
+$('#btn-help').addEventListener('click', openHelp);
+$('#btn-theme').addEventListener('click', () => {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+    (!document.documentElement.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+  const t = dark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', t); store.set('engr-edu.theme', t);
+});
+$('#btn-new-map').addEventListener('click', async () => {
+  const m = newMap(); S.maps.unshift(m); openMap(m.id); setPtab('text');
+  DB.put(m).catch(() => toast('저장 실패 — JSON으로 백업하세요'));
+  setTimeout(() => $('#src-text').focus(), 30);
+});
+$('#map-filter').addEventListener('input', renderMapList);
+$('#map-title').addEventListener('focus', () => pushHistory());
+$('#map-title').addEventListener('input', ev => { if (S.cur){ S.cur.title = ev.target.value; touch({canvas: false}); } });
+$('#src-text').addEventListener('input', ev => { if (S.cur){ S.cur.text = ev.target.value; touch({canvas: false}); } });
+$('#add-menu').addEventListener('click', ev => {
+  const b = ev.target.closest('button'); if (!b) return;
+  ev.target.closest('details').open = false;
+  if (!S.cur) return toast('맵을 먼저 선택하세요');
+  addNode(b.dataset.add);
+});
+$('#more-menu').addEventListener('click', async ev => {
+  const b = ev.target.closest('button'); if (!b || !S.cur) return;
+  ev.target.closest('details').open = false;
+  if (b.dataset.more === 'dup'){
+    const m = clone(S.cur); m.id = uid(); m.title += ' (복사본)'; m.createdAt = m.updatedAt = Date.now();
+    S.maps.unshift(m); await DB.put(m); openMap(m.id); toast('복제했습니다');
+  }
+  if (b.dataset.more === 'del'){
+    if (!confirm(`「${S.cur.title}」 맵을 삭제할까요? 되돌릴 수 없습니다.`)) return;
+    const id = S.cur.id; await DB.del(id);
+    S.maps = S.maps.filter(m => m.id !== id); S.cur = null;
+    if (S.maps.length) openMap(S.maps[0].id); else { renderMapList(); renderCanvas(); renderPanel(); }
+    toast('삭제했습니다');
+  }
+});
+document.addEventListener('click', ev => { $$('details.menu[open]').forEach(d => { if (!d.contains(ev.target)) d.open = false; }); });
+$('#btn-layout').addEventListener('click', () => { if (!S.cur) return; pushHistory(); layoutMap(S.cur); touch(); fit(); });
+$('#btn-fit').addEventListener('click', fit);
+$('#btn-undo').addEventListener('click', undo);
+$('#btn-redo').addEventListener('click', redo);
+$('#btn-walk').addEventListener('click', () => startWalk(null));
+$('#btn-rule').addEventListener('click', runRule);
+$('#btn-llm').addEventListener('click', () => runLLM('create'));
+$('#btn-refine').addEventListener('click', () => runLLM('refine'));
+document.addEventListener('keydown', ev => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement && document.activeElement.tagName);
+  if (ev.key === 'Escape'){ if ($('#modal-back').classList.contains('open')) closeModal(); else if (S.sel && !typing) select(null); return; }
+  if (S.tab !== 'map' || typing || $('#modal-back').classList.contains('open')) return;
+  if ((ev.key === 'Delete' || ev.key === 'Backspace') && S.sel){ ev.preventDefault(); deleteSelection(); }
+  else if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z' && !ev.shiftKey){ ev.preventDefault(); undo(); }
+  else if ((ev.ctrlKey || ev.metaKey) && (ev.key.toLowerCase() === 'y' || (ev.key.toLowerCase() === 'z' && ev.shiftKey))){ ev.preventDefault(); redo(); }
+});
+window.addEventListener('resize', () => { if (S.tab === 'map') applyVp(); });
+
+/* ================================================================
+ * 14. 시작
+ * ================================================================ */
+const SAMPLE = `# 예시: 도금 두께 SPC 이탈 판정
+시작: 두께 SPC 이탈 알람
+1. 이탈 wafer와 site 확인
+2. ? 재측정해도 같은 값인가
+  아니오 → 계측기 점검 요청 → 끝
+  예 → 3
+3. 같은 챔버 직전 lot 추세 확인
+  > 같은 챔버의 최근 5 lot 추세를 본다.
+4. ? 추세성 하락인가
+  예 → 약품 분석 및 소모품 수명 확인 → 6
+  아니오 → 5
+5. 단발성 원인 확인 (접촉, 웨이퍼 상태)
+  ! 웨이퍼 로딩 이력과 알람 로그를 함께 본다.
+6. 엔지니어 판정 및 lot 처리 결정
+끝: 판정 결과 기록`;
+
+async function init(){
+  const theme = store.get('engr-edu.theme', null);
+  if (theme) document.documentElement.setAttribute('data-theme', theme);
+  loadEdu(); renderEdu();
+  const persistent = await DB.open();
+  $('#storage-note').textContent = persistent ? '이 브라우저에 자동 저장됩니다. 주기적으로 JSON 백업을 받아 두세요.' : '⚠ 브라우저 저장소를 쓸 수 없어 창을 닫으면 사라집니다. JSON으로 내보내세요.';
+  try { S.maps = (await DB.all()).map(normalizeMap); } catch (e){ S.maps = []; }
+  let preload = null;
+  try { preload = JSON.parse($('#preload-maps').textContent); } catch (e){}
+  let openId = store.get('engr-edu.lastMap', null), tab = store.get('engr-edu.tab', 'edu');
+  if (preload && Array.isArray(preload.maps) && preload.maps.length){
+    for (const raw of preload.maps){
+      const m = normalizeMap(raw);
+      const ex = S.maps.find(x => x.id === m.id);
+      if (ex && ex.updatedAt >= m.updatedAt) continue;
+      if (ex) S.maps = S.maps.filter(x => x !== ex);
+      S.maps.push(m); await DB.put(m);
+    }
+    openId = String(preload.maps[0].id); tab = 'map';
+  }
+  if (!S.maps.length){
+    const p = parseFlow(SAMPLE);
+    const m = newMap(p.title); m.text = SAMPLE; m.nodes = p.nodes; m.edges = p.edges; layoutMap(m);
+    S.maps.push(m); await DB.put(m);
+  }
+  renderMapList();
+  openMap(S.maps.some(m => m.id === openId) ? openId : S.maps.slice().sort((a, b) => b.updatedAt - a.updatedAt)[0].id);
+  setTab(S.edu.length ? tab : 'map');
+}
+
+// 테스트와 디버깅용
+window.EngrEdu = {parseFlow, layoutMap, renderMarkdown, normalizeMap, buildShareHTML, state: S, callClaude, MAP_SCHEMA};
+init();
+})();
+</script>
+</body>
+</html>

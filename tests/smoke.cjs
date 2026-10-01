@@ -1,0 +1,183 @@
+// 브라우저 스모크 테스트: node tests/smoke.cjs  (playwright 필요)
+// 빌드 결과물(dist/engr-edu.html)을 실제 Chromium으로 열어 주요 기능을 확인한다.
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+const { chromium } = require('playwright');
+
+const ROOT = path.resolve(__dirname, '..');
+const FILE = 'file://' + path.join(ROOT, 'dist', 'engr-edu.html');
+const OUT = process.env.SHOT_DIR || fs.mkdtempSync(path.join(os.tmpdir(), 'engr-edu-'));
+let failed = 0;
+const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if (!cond) failed++; };
+
+(async () => {
+  const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  await page.goto(FILE);
+  await page.waitForFunction(() => window.EngrEdu && window.EngrEdu.state.maps.length > 0);
+
+  console.log('교육과정');
+  const toc = await page.$$eval('.toc-item', els => els.map(e => e.textContent));
+  ok(toc.length === 7, `목차 7개 (${toc.length})`);
+  let flowTotal = 0;
+  for (let i = 0; i < toc.length; i++) {
+    await page.click(`.toc-item >> nth=${i}`);
+    const n = await page.$$eval('.flowblock svg .node', els => els.length);
+    const blocks = await page.$$eval('.flowblock', els => els.length);
+    flowTotal += blocks;
+    const tables = await page.$$eval('#edu-doc table', els => els.length);
+    console.log(`    ${toc[i]}: 흐름도 ${blocks}개 (노드 ${n}), 표 ${tables}개`);
+  }
+  ok(flowTotal >= 10, `흐름도 렌더링 ${flowTotal}개`);
+  await page.click('.toc-item >> nth=1');
+  await page.screenshot({ path: path.join(OUT, '01-edu.png') });
+
+  console.log('흐름 문법 파서');
+  const pf = await page.evaluate(() => {
+    const src = `# 예
+시작: 알람
+1. 확인
+2. ? 재측정 동일한가
+  아니오 → 계측기 점검 → 끝
+  예 → 3
+3. 추세 확인
+4. ? 추세 하락인가
+  아니오 → 5
+5. 단발 원인
+  > 상세
+  ! 주의
+끝: 기록`;
+    const r = window.EngrEdu.parseFlow(src);
+    const t = id => r.nodes.find(n => n.id === id).title;
+    return { title: r.title, n: r.nodes.length, types: r.nodes.map(n => n.type).join(','),
+      edges: r.edges.map(e => `${t(e.from)}>${t(e.to)}:${e.label}`), d5: r.nodes.find(n => n.title === '단발 원인') };
+  });
+  ok(pf.title === '예', '제목 파싱');
+  ok(pf.n === 8, `노드 8개 (${pf.n}: ${pf.types})`);
+  ok(pf.edges.includes('계측기 점검>기록:'), '→ 끝 이 끝 노드로 연결');
+  ok(pf.edges.includes('재측정 동일한가>3. 추세 확인:예') || pf.edges.includes('재측정 동일한가>추세 확인:예'), '예 → 3 번호 참조');
+  ok(pf.edges.includes('추세 하락인가>단발 원인:아니오') && pf.edges.includes('추세 하락인가>단발 원인:아니오'), '분기 1개일 때 다음 단계 연결');
+  ok(pf.d5 && pf.d5.detail === '상세' && pf.d5.caution === '주의', '상세 > / 주의 ! 파싱');
+  ok(!pf.edges.some(e => e.startsWith('기록>')), '끝 노드에서 자동 연결 없음');
+
+  console.log('알고리즘 맵');
+  await page.click('[data-tab="map"]');
+  await page.waitForTimeout(200);
+  const nodeCount = await page.$$eval('#canvas .node', els => els.length);
+  ok(nodeCount > 5, `예시 맵 노드 렌더링 (${nodeCount})`);
+  await page.screenshot({ path: path.join(OUT, '02-map.png') });
+
+  // 규칙 변환
+  await page.click('#btn-new-map');
+  await page.fill('#src-text', `# PM 후 확인
+시작: PM 완료
+1. 소모품 교체 이력 기록
+2. ? Qual 웨이퍼 두께가 기준 안인가
+  아니오 → 조정 후 재측정 → 2
+3. 생산 투입
+끝: 이력 등록`);
+  await page.click('#btn-rule');
+  await page.waitForTimeout(150);
+  const after = await page.evaluate(() => ({ n: window.EngrEdu.state.cur.nodes.length, e: window.EngrEdu.state.cur.edges.length, t: window.EngrEdu.state.cur.title }));
+  ok(after.n === 6 && after.e === 6, `규칙 변환 노드 6 / 연결 6 (${after.n}/${after.e})`);
+  ok(after.t === 'PM 후 확인', '규칙 변환이 맵 제목 설정');
+
+  // 노드 선택 → 이미지 붙이기
+  const firstNode = await page.$('#canvas .node.t-process');
+  await firstNode.click();
+  const png = path.join(OUT, 'tiny.png');
+  fs.writeFileSync(png, Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64'));
+  await page.setInputFiles('#file-img', png);
+  await page.waitForTimeout(300);
+  const imgs = await page.evaluate(() => { const S = window.EngrEdu.state; return S.cur.nodes.find(n => n.id === S.sel.id).images.length; });
+  ok(imgs === 1, '노드에 이미지 첨부');
+  ok(await page.$$eval('#canvas .badge', els => els.some(e => e.textContent.includes('📷1'))), '이미지 배지 표시');
+
+  // 삭제 → 되돌리기
+  const sel = await page.evaluate(() => window.EngrEdu.state.cur.nodes.find(n => n.type === 'process').id);
+  await page.locator(`#canvas [data-node="${sel}"]`).click();
+  await page.keyboard.press('Delete');
+  const afterDel = await page.evaluate(() => window.EngrEdu.state.cur.nodes.length);
+  await page.keyboard.press('Control+z');
+  const afterUndo = await page.evaluate(() => window.EngrEdu.state.cur.nodes.length);
+  ok(afterDel === 5 && afterUndo === 6, `삭제 후 되돌리기 (${afterDel} → ${afterUndo})`);
+
+  // 따라가기
+  await page.click('#btn-walk');
+  const walkTitle = await page.textContent('#modal-title');
+  ok(walkTitle === 'PM 완료', `따라가기 시작점 (${walkTitle})`);
+  await page.click('.walk-next button');
+  ok((await page.textContent('#modal-title')) === '소모품 교체 이력 기록', '따라가기 다음 단계 이동');
+  ok(!/null|undefined/.test(await page.textContent('#modal-body')), '따라가기 화면에 null 표시 없음');
+  await page.click('#modal-close');
+
+  console.log('LLM 변환 (모의 응답)');
+  let sent = null;
+  await page.route('https://api.anthropic.com/v1/messages', async route => {
+    sent = { headers: route.request().headers(), body: JSON.parse(route.request().postData()) };
+    const result = { title: '모의 결과', nodes: [
+      { id: 'n1', type: 'start', title: '시작', summary: '', detail: '', caution: '' },
+      { id: 'n2', type: 'decision', title: '두께가 기준 안인가', summary: '', detail: '[확인 필요] 판단 기준이 원문에 없음', caution: '' },
+      { id: 'n3', type: 'end', title: '끝', summary: '', detail: '', caution: '' }],
+      edges: [{ from: 'n1', to: 'n2', label: '' }, { from: 'n2', to: 'n3', label: '예' }, { from: 'n2', to: 'zz', label: '아니오' }] };
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
+      id: 'msg_test', type: 'message', role: 'assistant', model: 'claude-opus-5-5', stop_reason: 'end_turn', stop_details: null,
+      content: [{ type: 'thinking', thinking: '', signature: 'x' }, { type: 'text', text: JSON.stringify(result) }] }) });
+  });
+  await page.evaluate(() => localStorage.setItem('engr-edu.settings', JSON.stringify({ apiKey: 'sk-ant-test', remember: true })));
+  await page.click('[data-ptab="text"]');
+  await page.fill('#src-text', '두께를 재고 기준 안이면 끝낸다');
+  await page.click('#btn-llm');
+  await page.waitForSelector('#llm-status .status.ok, #llm-status .status.err');
+  const st = await page.textContent('#llm-status');
+  ok(/완료/.test(st), 'LLM 변환 완료 메시지: ' + st.split('\n')[0]);
+  ok(sent && sent.body.output_config.format.type === 'json_schema', '구조화 출력(json_schema) 요청');
+  ok(sent && sent.body.model === 'claude-opus-5-5' && sent.body.fallbacks === 'default', '모델·fallback 설정');
+  ok(sent && sent.headers['anthropic-dangerous-direct-browser-access'] === 'true' && sent.headers['anthropic-version'] === '2023-06-01', '필수 헤더');
+  const llmMap = await page.evaluate(() => ({ n: window.EngrEdu.state.cur.nodes.length, e: window.EngrEdu.state.cur.edges.length }));
+  ok(llmMap.n === 3 && llmMap.e === 2, `LLM 결과 적용, 잘못된 간선 제거 (${llmMap.n}/${llmMap.e})`);
+
+  // 거절 응답 처리
+  await page.unroute('https://api.anthropic.com/v1/messages');
+  await page.route('https://api.anthropic.com/v1/messages', route => route.fulfill({ status: 200, contentType: 'application/json',
+    body: JSON.stringify({ stop_reason: 'refusal', stop_details: { type: 'refusal', category: null, explanation: '테스트 거절' }, content: [] }) }));
+  await page.click('#btn-llm');
+  await page.waitForSelector('#llm-status .status.err');
+  ok(/처리하지 않았습니다/.test(await page.textContent('#llm-status')), '거절(refusal) 응답 처리');
+
+  console.log('공유용 HTML');
+  const share = await page.evaluate(() => window.EngrEdu.buildShareHTML([window.EngrEdu.state.maps.find(m => m.title === 'PM 후 확인')]));
+  ok(!share.includes('sk-ant-test'), '공유 HTML에 API 키 없음');
+  const sharePath = path.join(OUT, 'share.html');
+  fs.writeFileSync(sharePath, share);
+  const ctx2 = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const p2 = await ctx2.newPage();
+  const errors2 = [];
+  p2.on('pageerror', e => errors2.push(e.message));
+  await p2.goto('file://' + sharePath);
+  await p2.waitForFunction(() => window.EngrEdu && window.EngrEdu.state.cur);
+  const shared = await p2.evaluate(() => ({ tab: window.EngrEdu.state.tab, title: window.EngrEdu.state.cur.title, imgs: window.EngrEdu.state.cur.nodes.reduce((a, n) => a + n.images.length, 0) }));
+  ok(shared.tab === 'map' && shared.title === 'PM 후 확인', `공유 HTML이 맵을 열고 시작 (${shared.tab}, ${shared.title})`);
+  ok(shared.imgs === 1, '공유 HTML에 이미지 포함');
+  ok(errors2.length === 0, '공유 HTML 오류 없음 ' + errors2.join(' | '));
+  await ctx2.close();
+
+  console.log('다크 모드 화면');
+  await page.click('#btn-theme');
+  await page.click('#btn-layout');
+  await page.screenshot({ path: path.join(OUT, '03-map-dark.png') });
+  await page.click('[data-tab="edu"]');
+  await page.click('.toc-item >> nth=4');
+  await page.screenshot({ path: path.join(OUT, '04-edu-dark.png') });
+
+  ok(errors.length === 0, '페이지 오류 없음 ' + errors.join(' | '));
+  await browser.close();
+  console.log(`\n스크린샷: ${OUT}`);
+  console.log(failed ? `실패 ${failed}건` : '모두 통과');
+  process.exit(failed ? 1 : 0);
+})().catch(e => { console.error(e); process.exit(1); });

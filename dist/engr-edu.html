@@ -1,0 +1,1723 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>engr-edu · 신입 엔지니어 교육과 업무 알고리즘 맵</title>
+<style>
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --panel-2:#fafbfc; --ink:#1c2230; --muted:#667085; --line:#e2e5ea; --line-2:#cfd4dc;
+  --accent:#2f6fde; --accent-ink:#ffffff; --accent-weak:#e9f0fd; --danger:#d14343; --ok:#2e9e5b; --warn:#c98314;
+  --n-process-fill:#ffffff; --n-process-stroke:#8a94a6;
+  --n-decision-fill:#fff6e3; --n-decision-stroke:#d9921a;
+  --n-term-fill:#e8f6ee; --n-term-stroke:#2e9e5b;
+  --n-io-fill:#edf2ff; --n-io-stroke:#5b7bd5;
+  --n-text:#1c2230; --n-sub:#5f6b7d; --edge:#7d8797; --edge-label-bg:#ffffff; --grid:#e9ecf0;
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
+  --font:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:ui-monospace,"Cascadia Code","D2Coding",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12151b; --panel:#1a1e26; --panel-2:#1f242d; --ink:#e6e9ef; --muted:#9aa3b2; --line:#2b313c; --line-2:#3a4250;
+    --accent:#6b9cff; --accent-ink:#0d1117; --accent-weak:#1f2b44; --danger:#ff7070; --ok:#5fd08f; --warn:#f0b351;
+    --n-process-fill:#20252e; --n-process-stroke:#7d889b;
+    --n-decision-fill:#3a2e17; --n-decision-stroke:#e0a443;
+    --n-term-fill:#173326; --n-term-stroke:#4fc283;
+    --n-io-fill:#1b2540; --n-io-stroke:#7c98ef;
+    --n-text:#e6e9ef; --n-sub:#a6afbd; --edge:#8a94a5; --edge-label-bg:#1a1e26; --grid:#1d222a;
+    --shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12151b; --panel:#1a1e26; --panel-2:#1f242d; --ink:#e6e9ef; --muted:#9aa3b2; --line:#2b313c; --line-2:#3a4250;
+  --accent:#6b9cff; --accent-ink:#0d1117; --accent-weak:#1f2b44; --danger:#ff7070; --ok:#5fd08f; --warn:#f0b351;
+  --n-process-fill:#20252e; --n-process-stroke:#7d889b;
+  --n-decision-fill:#3a2e17; --n-decision-stroke:#e0a443;
+  --n-term-fill:#173326; --n-term-stroke:#4fc283;
+  --n-io-fill:#1b2540; --n-io-stroke:#7c98ef;
+  --n-text:#e6e9ef; --n-sub:#a6afbd; --edge:#8a94a5; --edge-label-bg:#1a1e26; --grid:#1d222a;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.55}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--accent)}
+#app{height:100%;display:flex;flex-direction:column}
+
+/* top bar */
+.topbar{display:flex;align-items:center;gap:12px;padding:0 14px;height:48px;background:var(--panel);border-bottom:1px solid var(--line);flex:none}
+.brand{font-weight:700;letter-spacing:-.2px;white-space:nowrap}
+.brand small{font-weight:500;color:var(--muted);margin-left:6px}
+.tabs{display:flex;gap:4px;margin-left:8px}
+.tab{border:0;background:transparent;padding:6px 12px;border-radius:8px;color:var(--muted);font-weight:600}
+.tab[aria-selected="true"]{background:var(--accent-weak);color:var(--accent)}
+.spacer{flex:1}
+.icon-btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:5px 10px;white-space:nowrap}
+.icon-btn:hover{border-color:var(--line-2)}
+
+.view{flex:1;min-height:0;display:none}
+.view.active{display:flex}
+
+/* common */
+.btn{border:1px solid var(--line-2);background:var(--panel);border-radius:8px;padding:6px 11px;white-space:nowrap;line-height:1.3}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.danger{color:var(--danger)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.sm{padding:3px 8px;font-size:12.5px}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.field label{font-size:12px;color:var(--muted);font-weight:600}
+.input,.textarea,select.input{border:1px solid var(--line-2);background:var(--panel);border-radius:8px;padding:6px 9px;width:100%}
+.textarea{resize:vertical;min-height:70px;line-height:1.5}
+.input:focus,.textarea:focus{outline:2px solid var(--accent-weak);border-color:var(--accent)}
+.muted{color:var(--muted)}
+.hint{font-size:12.5px;color:var(--muted)}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.status{font-size:12.5px;padding:6px 9px;border-radius:8px;background:var(--panel-2);border:1px solid var(--line);margin-top:8px;white-space:pre-wrap}
+.status.err{border-color:var(--danger);color:var(--danger)}
+.status.ok{border-color:var(--ok)}
+.kbd{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line-2);border-bottom-width:2px;border-radius:4px;padding:0 4px;background:var(--panel-2)}
+
+/* education view */
+.edu-side{width:260px;flex:none;border-right:1px solid var(--line);background:var(--panel);overflow:auto;padding:14px 10px}
+.edu-side h3{font-size:12px;color:var(--muted);margin:4px 8px 8px;text-transform:uppercase;letter-spacing:.5px}
+.toc-item{display:block;width:100%;text-align:left;border:0;background:transparent;padding:7px 10px;border-radius:8px;font-weight:600}
+.toc-item:hover{background:var(--panel-2)}
+.toc-item.active{background:var(--accent-weak);color:var(--accent)}
+.toc-sub{margin:2px 0 8px 14px;border-left:2px solid var(--line);padding-left:6px}
+.toc-sub button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:3px 8px;font-size:12.5px;color:var(--muted);border-radius:6px}
+.toc-sub button:hover{color:var(--ink);background:var(--panel-2)}
+.edu-main{flex:1;overflow:auto;padding:28px 36px 80px}
+.doc{max-width:900px;margin:0 auto}
+.doc h1{font-size:26px;letter-spacing:-.4px;margin:0 0 18px}
+.doc h2{font-size:19px;margin:30px 0 10px}
+.doc h3{font-size:16px;margin:22px 0 6px}
+.doc h4{font-size:14.5px;margin:16px 0 4px}
+.doc p{margin:8px 0}
+.doc ul,.doc ol{padding-left:22px;margin:6px 0}
+.doc li{margin:3px 0}
+.doc code{font-family:var(--mono);font-size:12.5px;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.doc pre{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:12px;overflow:auto}
+.doc pre code{border:0;padding:0;background:transparent}
+.doc blockquote{margin:10px 0;padding:6px 14px;border-left:3px solid var(--accent);background:var(--accent-weak);border-radius:0 8px 8px 0}
+.doc table{border-collapse:collapse;margin:10px 0;width:100%;font-size:13.5px;display:block;overflow-x:auto}
+.doc th,.doc td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+.doc th{background:var(--panel-2)}
+.doc hr{border:0;border-top:1px solid var(--line);margin:22px 0}
+.flowblock{border:1px solid var(--line);border-radius:10px;background:var(--panel);margin:14px 0;overflow:hidden}
+.flowblock-head{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--panel-2)}
+.flowblock-head b{flex:1}
+.flowblock-body{overflow:auto;max-height:640px;padding:8px;background-image:radial-gradient(var(--grid) 1px,transparent 1px);background-size:16px 16px}
+.flowblock-body svg{display:block;margin:0 auto}
+.flowblock pre{margin:0;border:0;border-top:1px solid var(--line);border-radius:0}
+
+/* map view */
+.map-side{width:230px;flex:none;border-right:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.map-side-head{padding:10px;display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--line)}
+.map-list{flex:1;overflow:auto;padding:6px}
+.map-item{display:block;width:100%;text-align:left;border:0;background:transparent;border-radius:8px;padding:7px 9px;margin-bottom:2px}
+.map-item:hover{background:var(--panel-2)}
+.map-item.active{background:var(--accent-weak)}
+.map-item .t{font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.map-item .m{font-size:11.5px;color:var(--muted)}
+.map-center{flex:1;min-width:0;display:flex;flex-direction:column}
+.toolbar{display:flex;gap:6px;align-items:center;padding:7px 10px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+.toolbar .title-input{font-weight:700;width:220px;min-width:120px;flex:0 1 auto;border-color:transparent;background:transparent}
+.toolbar .title-input:hover{border-color:var(--line-2)}
+.sep{width:1px;height:22px;background:var(--line);margin:0 2px}
+details.menu{position:relative}
+details.menu>summary{list-style:none}
+details.menu>summary::-webkit-details-marker{display:none}
+details.menu .menu-pop{position:absolute;top:calc(100% + 4px);right:0;z-index:30;background:var(--panel);border:1px solid var(--line-2);border-radius:10px;box-shadow:var(--shadow);padding:5px;min-width:200px}
+details.menu .menu-pop.left{left:0;right:auto}
+.menu-pop button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:6px 10px;border-radius:7px;white-space:nowrap}
+.menu-pop button:hover{background:var(--panel-2)}
+.canvas-wrap{flex:1;position:relative;min-height:0;background-color:var(--bg);background-image:radial-gradient(var(--grid) 1.2px,transparent 1.2px);background-size:20px 20px;overflow:hidden}
+#canvas{width:100%;height:100%;display:block;touch-action:none;user-select:none;-webkit-user-select:none}
+.canvas-hint{position:absolute;left:10px;bottom:8px;font-size:11.5px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:3px 8px;pointer-events:none}
+.zoom-ind{position:absolute;right:10px;bottom:8px;font-size:11.5px;color:var(--muted)}
+.empty-canvas[hidden]{display:none}
+.empty-canvas{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.empty-canvas div{background:var(--panel);border:1px dashed var(--line-2);border-radius:12px;padding:18px 22px;text-align:center;color:var(--muted);max-width:380px}
+
+.panel{width:340px;flex:none;border-left:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.panel-tabs{display:flex;border-bottom:1px solid var(--line)}
+.panel-tabs button{flex:1;border:0;background:transparent;padding:10px 6px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent}
+.panel-tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.panel-body{flex:1;overflow:auto;padding:12px}
+.panel h4{margin:14px 0 6px;font-size:13px}
+.edge-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.edge-row .to{flex:1;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.edge-row input{width:84px}
+.img-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.img-card{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel-2)}
+.img-card img{display:block;width:100%;height:96px;object-fit:cover;cursor:zoom-in}
+.img-card .cap{display:flex;gap:4px;padding:4px}
+.img-card .cap input{flex:1;min-width:0;font-size:12px;padding:2px 5px;border:1px solid var(--line);border-radius:5px;background:var(--panel)}
+.img-card .cap button{border:0;background:transparent;color:var(--danger);padding:0 4px}
+.dropzone{border:1.5px dashed var(--line-2);border-radius:8px;padding:12px;text-align:center;color:var(--muted);font-size:12.5px;margin-top:8px}
+.dropzone.over{border-color:var(--accent);background:var(--accent-weak);color:var(--accent)}
+.cheat{font-size:12.5px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:8px}
+.cheat code{font-family:var(--mono);font-size:12px}
+.cheat table{border-collapse:collapse;width:100%}
+.cheat td{padding:2px 4px;vertical-align:top;border-bottom:1px solid var(--line)}
+
+/* svg nodes */
+.node{cursor:grab}
+.node .shape{stroke-width:1.5}
+.node.t-process .shape{fill:var(--n-process-fill);stroke:var(--n-process-stroke)}
+.node.t-decision .shape{fill:var(--n-decision-fill);stroke:var(--n-decision-stroke)}
+.node.t-start .shape,.node.t-end .shape{fill:var(--n-term-fill);stroke:var(--n-term-stroke)}
+.node.t-io .shape{fill:var(--n-io-fill);stroke:var(--n-io-stroke)}
+.node .ttl{fill:var(--n-text);font-size:13px;font-weight:600;font-family:var(--font)}
+.node .sub{fill:var(--n-sub);font-size:11.5px;font-family:var(--font)}
+.node .badge-bg{fill:var(--panel);stroke:var(--line-2);stroke-width:1}
+.node .badge{fill:var(--n-sub);font-size:11px;font-family:var(--font)}
+.node.selected .shape{stroke:var(--accent);stroke-width:3}
+.node.current .shape{stroke:var(--accent);stroke-width:3.5}
+.node .handle{fill:var(--accent);stroke:var(--panel);stroke-width:2;cursor:crosshair}
+.edge path.line{fill:none;stroke:var(--edge);stroke-width:1.6}
+.edge path.hit{fill:none;stroke:transparent;stroke-width:14;cursor:pointer}
+.edge.selected path.line{stroke:var(--accent);stroke-width:2.6}
+.edge .lbl-bg{fill:var(--edge-label-bg);stroke:var(--line);stroke-width:1}
+.edge .lbl{fill:var(--n-sub);font-size:11.5px;font-weight:600;font-family:var(--font)}
+.arrowhead{fill:var(--edge)}
+.temp-line{stroke:var(--accent);stroke-width:2;stroke-dasharray:5 4;fill:none}
+
+/* modal */
+.modal-back{position:fixed;inset:0;background:rgba(10,14,20,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal-back.open{display:flex}
+.modal{background:var(--panel);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.25);width:min(760px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column}
+.modal-head{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.modal-head h3{margin:0;flex:1;font-size:16px}
+.modal-body{padding:16px;overflow:auto}
+.modal-foot{padding:10px 16px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.type-pill{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:99px;background:var(--accent-weak);color:var(--accent)}
+.walk-detail{white-space:pre-wrap;margin:10px 0}
+.walk-caution{white-space:pre-wrap;border-left:3px solid var(--warn);padding:6px 10px;background:var(--panel-2);border-radius:0 8px 8px 0;margin:10px 0}
+.walk-imgs img{max-width:100%;border-radius:8px;border:1px solid var(--line);margin:6px 0;display:block}
+.walk-imgs figcaption{font-size:12.5px;color:var(--muted);margin-bottom:8px}
+.walk-next{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+.walk-next button{text-align:left}
+.lightbox img{max-width:100%;max-height:calc(100vh - 140px);display:block;margin:0 auto}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:10px;font-size:13px;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+
+@media (max-width: 900px){
+  .edu-side{display:none}
+  .edu-main{padding:18px 16px 60px}
+  .map-side{display:none}
+  .panel{width:280px}
+}
+@media (max-width: 640px){
+  .panel{display:none}
+  .brand small{display:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">engr-edu<small>신입 엔지니어 교육 · 업무 알고리즘 맵</small></div>
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="edu" aria-selected="true">교육과정</button>
+      <button class="tab" role="tab" data-tab="map" aria-selected="false">업무 알고리즘 맵</button>
+    </nav>
+    <div class="spacer"></div>
+    <button class="icon-btn" id="btn-help" title="도움말">도움말</button>
+    <button class="icon-btn" id="btn-settings" title="LLM 설정">LLM 설정</button>
+    <button class="icon-btn" id="btn-theme" title="밝게/어둡게">◐</button>
+  </header>
+
+  <section class="view active" id="view-edu">
+    <aside class="edu-side" id="edu-toc"></aside>
+    <main class="edu-main"><article class="doc" id="edu-doc"></article></main>
+  </section>
+
+  <section class="view" id="view-map">
+    <aside class="map-side">
+      <div class="map-side-head">
+        <button class="btn primary" id="btn-new-map">+ 새 맵</button>
+        <input class="input" id="map-filter" placeholder="맵 검색 (제목·내용·태그)">
+      </div>
+      <div class="map-list" id="map-list"></div>
+      <div class="hint" id="storage-note" style="padding:8px 10px;border-top:1px solid var(--line)"></div>
+    </aside>
+    <div class="map-center">
+      <div class="toolbar">
+        <input class="input title-input" id="map-title" placeholder="맵 제목">
+        <span class="sep"></span>
+        <details class="menu"><summary class="btn">+ 노드 ▾</summary>
+          <div class="menu-pop left" id="add-menu">
+            <button data-add="process">▭ 단계 (일반 작업)</button>
+            <button data-add="decision">◇ 판단 (분기)</button>
+            <button data-add="io">▱ 자료 · 입출력</button>
+            <button data-add="start">⬭ 시작</button>
+            <button data-add="end">⬭ 끝</button>
+          </div>
+        </details>
+        <button class="btn" id="btn-layout" title="자동 정렬">자동 정렬</button>
+        <button class="btn" id="btn-fit" title="화면 맞춤">화면 맞춤</button>
+        <button class="btn" id="btn-undo" title="되돌리기 (Ctrl+Z)">↶</button>
+        <button class="btn" id="btn-redo" title="다시 실행 (Ctrl+Y)">↷</button>
+        <span class="sep"></span>
+        <button class="btn primary" id="btn-walk" title="시작점부터 단계별로 따라가기">▶ 따라가기</button>
+        <div class="spacer"></div>
+        <details class="menu"><summary class="btn">내보내기 ▾</summary>
+          <div class="menu-pop" id="export-menu">
+            <button data-exp="share-one">공유용 HTML (이 맵)</button>
+            <button data-exp="share-all">공유용 HTML (모든 맵)</button>
+            <button data-exp="png">PNG 이미지</button>
+            <button data-exp="json">JSON (백업)</button>
+            <button data-exp="json-all">JSON (모든 맵 백업)</button>
+            <button data-exp="import">JSON 가져오기…</button>
+          </div>
+        </details>
+        <details class="menu"><summary class="btn">⋯</summary>
+          <div class="menu-pop" id="more-menu">
+            <button data-more="dup">맵 복제</button>
+            <button data-more="del" class="danger">맵 삭제</button>
+          </div>
+        </details>
+      </div>
+      <div class="canvas-wrap" id="canvas-wrap">
+        <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="empty-canvas" id="empty-canvas" hidden><div><b>빈 맵입니다</b><br>오른쪽 <b>글 → 도형</b> 탭에 업무 내용을 적고 변환하거나, <b>+ 노드</b> 로 직접 추가하세요.</div></div>
+        <div class="canvas-hint">드래그: 이동 · 휠: 확대 · 노드 아래 ● 끌기 또는 <span class="kbd">Shift</span>+드래그: 연결 · 더블클릭: 크게 보기</div>
+        <div class="zoom-ind" id="zoom-ind"></div>
+      </div>
+    </div>
+    <aside class="panel">
+      <div class="panel-tabs" role="tablist">
+        <button data-ptab="text" aria-selected="true">글 → 도형</button>
+        <button data-ptab="props" aria-selected="false">선택 항목</button>
+      </div>
+      <div class="panel-body" id="panel-text">
+        <div class="field">
+          <label for="src-text">배운 내용을 글로 적기</label>
+          <textarea class="textarea" id="src-text" rows="14" placeholder="예)&#10;시작: 두께 SPC 이탈 알람&#10;1. 이탈 wafer와 site 확인&#10;2. ? 재측정해도 같은가&#10;  아니오 → 계측기 점검 요청&#10;3. 같은 챔버 직전 lot 추세 확인&#10;끝: 판정 결과 기록&#10;&#10;※ 문법 없이 말로 풀어 써도 LLM 변환은 됩니다."></textarea>
+        </div>
+        <div class="row">
+          <button class="btn" id="btn-rule">규칙 변환 (오프라인)</button>
+          <button class="btn primary" id="btn-llm">LLM으로 도형화</button>
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label for="refine-text">LLM으로 다듬기 — 현재 맵에 요청</label>
+          <input class="input" id="refine-text" placeholder="예: 판단 기준을 더 구체적으로, PM 후 확인 단계 추가">
+        </div>
+        <button class="btn" id="btn-refine">LLM으로 다듬기</button>
+        <div id="llm-status"></div>
+        <details style="margin-top:12px"><summary class="hint" style="cursor:pointer">흐름 문법 요약 보기</summary>
+          <div class="cheat">
+            <table>
+              <tr><td><code># 제목</code></td><td>맵 제목</td></tr>
+              <tr><td><code>시작: …</code> <code>끝: …</code></td><td>시작/끝</td></tr>
+              <tr><td><code>1. …</code></td><td>단계 (번호 = ID)</td></tr>
+              <tr><td><code>? …</code></td><td>판단(마름모)</td></tr>
+              <tr><td><code>입력: …</code></td><td>자료·입출력</td></tr>
+              <tr><td><code>␣␣예 → 3</code></td><td>분기 (들여쓰기)</td></tr>
+              <tr><td><code>␣␣아니오 → 새 단계 → 2</code></td><td>새 단계 만들고 이어 붙임</td></tr>
+              <tr><td><code>␣␣> …</code></td><td>위 단계 상세 설명</td></tr>
+              <tr><td><code>␣␣! …</code></td><td>위 단계 주의점</td></tr>
+            </table>
+            <div style="margin-top:6px">자세한 설명은 교육과정 <b>06. 업무 알고리즘 작성법</b>에 있습니다.</div>
+          </div>
+        </details>
+      </div>
+      <div class="panel-body" id="panel-props" hidden></div>
+    </aside>
+  </section>
+
+  <div class="modal-back" id="modal-back"><div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head"><h3 id="modal-title"></h3><button class="btn sm" id="modal-close">닫기 ✕</button></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot" id="modal-foot"></div>
+  </div></div>
+  <div class="toast" id="toast"></div>
+  <input type="file" id="file-json" accept=".json,application/json" hidden>
+  <input type="file" id="file-img" accept="image/*" multiple hidden>
+</div>
+
+<script type="application/json" id="edu-data">[{"file": "00_과정안내.md", "title": "과정 안내 — 신입 엔지니어 기초 과정", "md": "# 과정 안내 — 신입 엔지니어 기초 과정\n\n## 이 과정은 누구를 위한 것인가\n\n- 반도체 제조 현장(전공정·후공정·패키징)에 처음 배치된 신입 엔지니어\n- 전공이 달라 공정·장비 용어가 낯선 사람\n- 일은 하고 있지만 \"왜 이렇게 하는지\"를 정리해 본 적이 없는 사람\n\n## 끝나면 할 수 있어야 하는 것\n\n1. 현상, 해석, 가정을 구분해서 말할 수 있다.\n2. 자기 공정이 전체 흐름(웨이퍼 → 칩 → 패키지 → 고객)에서 어디에 있는지 설명할 수 있다.\n3. 평균·산포·공정능력·관리도를 읽고, 이상을 데이터로 판단할 수 있다.\n4. 라인 이상, 변경 심의, 보고처럼 자주 부딪히는 상황에서 첫 대응 순서를 안다.\n5. 배운 업무를 **업무 알고리즘(흐름도)** 으로 적어 다른 사람이 따라 할 수 있게 만든다.\n\n## 구성\n\n| 모듈 | 주제 | 핵심 질문 |\n|---|---|---|\n| 01 | 엔지니어의 마인드 | 엔지니어는 무엇으로 일하는가? |\n| 02 | 자주 부딪히는 업무 상황 | 이런 일이 생기면 무엇부터 하는가? |\n| 03 | 공학의 기초 | 숫자를 어떻게 믿고, 어떻게 의심하는가? |\n| 04 | 반도체의 기초 | 내가 만드는 것은 무엇이고 어떻게 동작하는가? |\n| 05 | 제조기술의 기초 | 공장은 어떻게 같은 것을 매일 만들어 내는가? |\n| 06 | 업무 알고리즘 작성법 | 배운 것을 어떻게 남겨서 다시 쓰는가? |\n\n## 권장 진행 (4주)\n\n| 주차 | 학습 | 실습 |\n|---|---|---|\n| 1주 | 01 마인드, 04 반도체 기초 | 내 공정의 위치를 흐름도로 그리기 |\n| 2주 | 03 공학 기초 (통계·측정·DOE) | 내 공정 데이터 하나로 평균·산포·Cpk 계산 |\n| 3주 | 05 제조기술 기초 | 내 공정의 4M 변경점 목록과 관리계획 읽기 |\n| 4주 | 02 업무 상황, 06 알고리즘 작성법 | 선배 업무 1개를 인터뷰해 알고리즘 맵으로 정리 |\n\n## 학습 방법 — \"읽고 끝내지 말고, 알고리즘으로 남겨라\"\n\n이 과정에서 가장 중요한 습관은 **배운 것을 절차로 다시 적는 것**입니다.\n\n```flow\n# 배운 것을 내 것으로 만드는 루프\n시작: 새로운 업무/지식을 배움\n1. 들은 그대로 글로 적기 (메모, 순서 상관없이)\n2. 단계와 판단 지점을 나눠 다시 적기\n3. 알고리즘 맵으로 도형화 (LLM 또는 규칙 변환)\n4. 각 단계에 사진·도면·주의점 붙이기\n5. ? 선배가 보고 그대로 따라 할 수 있는가\n  아니오 → 빠진 판단 기준 묻고 보완 → 2\n  예 → 6\n6. 팀 공유 (HTML 내보내기)\n끝: 다음 신입의 교재가 됨\n```\n\n이 저장소의 **업무 알고리즘 맵** 프로그램(`dist/engr-edu.html`)이 이 루프를 돕습니다. 교육 탭에 있는 흐름도에서 **[맵으로 가져오기]** 를 누르면, 편집 가능한 알고리즘 맵이 만들어집니다.\n\n## 각 모듈의 공통 구조\n\n- **학습 목표**: 무엇을 할 수 있게 되는가\n- **본문**: 개념 → 현장 예시 → 흔한 오해\n- **흐름도**: 그대로 따라 할 수 있는 절차\n- **자기 점검**: 답을 말로 설명할 수 있으면 통과\n"}, {"file": "01_엔지니어의_마인드.md", "title": "01. 엔지니어의 마인드", "md": "# 01. 엔지니어의 마인드\n\n## 학습 목표\n\n- 엔지니어의 일이 \"정답 찾기\"가 아니라 **제약 속의 의사결정**이라는 것을 이해한다.\n- 현상, 해석, 가정을 구분해서 말하고 쓴다.\n- 틀렸을 때 빨리, 명확하게 정정하는 것이 신뢰를 만든다는 것을 안다.\n\n---\n\n## 1. 엔지니어는 무엇으로 일하는가\n\n과학자는 \"왜 그런가\"를 묻고, 엔지니어는 **\"그래서 무엇을 바꿀 것인가\"** 를 묻습니다.\n엔지니어의 결과물은 결정이고, 그 결정에는 언제나 제약이 붙습니다.\n\n| 제약 | 현장에서의 모습 |\n|---|---|\n| 시간 | 라인은 멈추지 않는다. 오늘 결정하지 않으면 내일 웨이퍼가 그대로 흘러간다. |\n| 비용 | 테스트 웨이퍼, 계측 시간, 장비 다운타임이 모두 돈이다. |\n| 정보 | 데이터는 언제나 부족하다. 완벽한 정보는 오지 않는다. |\n| 위험 | 잘못된 결정은 수율 손실, 고객 클레임, 안전사고로 이어진다. |\n\n그래서 좋은 엔지니어는 **\"지금 가진 정보로 내릴 수 있는 가장 나은 결정 + 틀렸을 때 빨리 알아챌 장치\"** 를 함께 만듭니다.\n\n---\n\n## 2. 열 가지 원칙\n\n### 원칙 1. 현상과 해석을 분리하라\n\n> \"Ni 두께가 얇아서 범프가 찢어졌다.\"\n\n이 문장에는 현상(찢어짐), 해석(원인은 Ni 두께), 가정(두께가 얇았을 것)이 섞여 있습니다. 나누어 쓰면 이렇게 됩니다.\n\n- **[측정]** 3번 lot에서 범프 찢어짐이 2.1% 발생했다.\n- **[측정]** 같은 lot의 Ni 두께 평균이 기준 대비 8% 낮았다.\n- **[가정]** 두께 저하가 찢어짐의 원인이다. ← 아직 검증되지 않았다.\n\n모든 숫자와 주장 앞에 **`[측정]`, `[계산]`, `[가정]`** 꼬리표를 붙이는 습관을 들이세요. 보고를 받는 사람이 어디를 믿고 어디를 의심해야 할지 바로 알 수 있습니다.\n\n### 원칙 2. 단위와 자릿수를 먼저 보라\n\n계산 결과가 나오면 공식보다 먼저 **단위가 맞는지, 자릿수가 상식적인지** 확인합니다.\n도금 두께가 3 mm로 나왔다면 공식을 다시 볼 필요도 없이 어딘가 틀린 것입니다(µm 단위의 1000배).\n\n### 원칙 3. 재현되지 않으면 아직 모르는 것이다\n\n한 번 본 현상은 \"관측\"이고, 조건을 통제해서 다시 만들 수 있어야 \"이해\"입니다.\n대책의 효과도 마찬가지로, 개선 전과 후를 같은 조건에서 비교해야 합니다.\n\n### 원칙 4. 변화점을 먼저 찾아라\n\n어제까지 괜찮던 것이 오늘 나쁘다면 **어제와 오늘 사이에 바뀐 것**이 있습니다.\n4M(Man, Machine, Material, Method)과 1E(Environment)를 순서대로 확인하세요.\n원인 분석의 80%는 변화점 추적으로 끝납니다.\n\n### 원칙 5. 반증할 수 있는 가설을 세워라\n\n\"여러 요인이 복합적으로 작용했다\"는 틀릴 수 없는 문장이라서 쓸모가 없습니다.\n좋은 가설은 **\"이 가설이 맞다면 X 조건에서 Y가 관측되어야 한다\"** 처럼 검증 방법을 품고 있습니다.\n\n### 원칙 6. 데이터로 말하되, 데이터의 출처를 의심하라\n\n- 그 계측기는 교정되었는가?\n- 표본은 전체를 대표하는가? (웨이퍼 중심만 쟀다든가)\n- 평균만 보고 산포를 놓치지 않았는가?\n\n### 원칙 7. 틀렸으면 빨리, 명확하게 정정하라\n\n정정은 신뢰를 잃는 일이 아니라 **신뢰를 쌓는 일**입니다. 정정본에는 세 가지를 맨 앞에 적습니다.\n\n1. 원래 무엇이라고 했는가\n2. 무엇이 틀렸고, 왜 틀렸는가\n3. 결론이 바뀌는가, 바뀌지 않는가\n\n### 원칙 8. 트레이드오프를 숨기지 마라\n\n모든 대책에는 대가가 있습니다. 전류밀도를 낮추면 품질은 좋아질 수 있지만 생산성(UPH)이 떨어집니다.\n대가를 숨긴 제안은 나중에 반드시 발목을 잡습니다.\n\n### 원칙 9. 안전은 협상 대상이 아니다\n\n화학약품, 고전압, 회전체, 고온을 다루는 현장입니다. 일정 압박이 있어도 **안전 절차(보호구, LOTO, MSDS 확인)는 생략하지 않습니다.**\n\n### 원칙 10. 기록이 곧 실력이다\n\n기억은 사라지고 기록은 남습니다. 오늘 해결한 문제를 기록하지 않으면, 6개월 뒤 같은 문제를 처음부터 다시 풉니다.\n**배운 것을 알고리즘으로 남기는 것**이 이 과정의 최종 목표입니다.\n\n---\n\n## 3. 생각의 도구\n\n| 도구 | 언제 쓰는가 | 한 줄 사용법 |\n|---|---|---|\n| 5 Why | 근본 원인까지 내려갈 때 | \"왜?\"를 다섯 번 묻되, 각 답이 사실인지 확인한다 |\n| 특성요인도(Fishbone) | 원인 후보를 빠짐없이 펼칠 때 | 4M1E를 가지로 놓고 후보를 붙인다 |\n| 페르미 추정 | 데이터가 없을 때 크기를 가늠할 때 | 아는 값의 곱으로 자릿수를 맞춘다 |\n| 최악의 경우 가정 | 위험을 판단할 때 | \"이게 틀리면 무슨 일이 생기나?\"를 먼저 묻는다 |\n| 반대편 변호 | 결론을 내기 직전 | 내 결론을 반박하는 자료를 일부러 찾아본다 |\n\n---\n\n## 4. 나쁜 습관 vs 좋은 습관\n\n| 나쁜 습관 | 좋은 습관 |\n|---|---|\n| \"아마 ~ 때문일 겁니다\" | \"~가 원인이라면 ~가 보여야 합니다. 확인해 보겠습니다\" |\n| 결과를 다 모은 뒤에야 보고한다 | 중간에 \"현재까지 / 다음 단계 / 막힌 것\"을 짧게 공유한다 |\n| 평균만 본다 | 평균, 산포, 분포 모양, 이상치를 함께 본다 |\n| 한 가지 원인에 꽂힌다 | 원인 후보를 펼치고, 하나씩 제거한다 |\n| 실수를 숨긴다 | 실수를 빨리 알리고, 재발 방지책을 함께 낸다 |\n| 머릿속에만 있다 | 절차, 판단 기준, 사진을 문서로 남긴다 |\n\n---\n\n## 5. 문제 해결 기본 루프\n\n```flow\n# 엔지니어의 문제 해결 기본 루프\n시작: 문제 인지 (알람, 불량, 문의)\n1. 현상 정의 — 언제, 어디서, 얼마나, 무엇이\n  > 측정값으로 적는다. \"많이\"가 아니라 \"2.1%\".\n2. 영향 범위 확인 — 어느 lot, 장비, 제품까지인가\n3. ? 즉시 격리가 필요한가\n  예 → 해당 lot/장비 홀드 및 보고 → 4\n  아니오 → 4\n4. 변화점 조사 (4M1E)\n5. 원인 가설 수립 (반증 가능한 형태로)\n6. 검증 (데이터 재분석 또는 실험)\n7. ? 가설이 검증되었는가\n  아니오 → 5\n  예 → 8\n8. 대책 수립 및 효과 확인\n9. 표준화 (레시피, 관리계획, 교육자료 반영)\n끝: 기록 공유 및 종결\n```\n\n---\n\n## 6. 자기 점검\n\n1. \"Ni 두께가 얇아서 찢어졌다\"를 측정, 가정, 해석으로 나누어 다시 써 보세요.\n2. 어제까지 정상이던 공정에서 오늘 이상이 생겼습니다. 가장 먼저 확인할 다섯 가지는 무엇인가요?\n3. 내가 지난주에 보고한 내용 중 틀린 것을 발견했습니다. 정정 메일의 첫 세 줄을 써 보세요.\n4. 지금 맡은 업무에서 \"기록되지 않은 암묵지\"를 하나 찾아 적어 보세요.\n"}, {"file": "02_자주_부딪히는_업무상황.md", "title": "02. 자주 부딪히는 업무 상황", "md": "# 02. 자주 부딪히는 업무 상황\n\n## 학습 목표\n\n- 신입 엔지니어가 처음 1년 안에 반드시 겪는 상황을 미리 안다.\n- 상황별로 **첫 30분에 할 일**과 **절대 하지 말아야 할 일**을 안다.\n- 보고, 협업, 이견 조율을 구조적으로 처리한다.\n\n각 상황은 **상황 → 왜 생기나 → 첫 대응 → 하지 말 것 → 팁** 순서로 정리했습니다.\n\n---\n\n## 상황 1. 라인에서 이상이 발생했다 (알람, SPC 이탈)\n\n- **왜 생기나**: 장비 상태 변화, 약품 소모, 소모품 수명, 계측 오류, 앞 공정의 변화.\n- **첫 대응**\n  1. 사실 확인: 어떤 항목이, 언제부터, 얼마나 벗어났는가.\n  2. 영향 범위: 이미 진행된 lot은 몇 개이고, 다음 공정으로 넘어갔는가.\n  3. 격리: 규정에 따라 장비 인터락이나 lot 홀드를 건다.\n  4. 1차 보고: 해석 없이 **사실과 조치**만 보고한다.\n- **하지 말 것**: 원인을 확신하기 전에 레시피를 바꾸는 것. 혼자 해결하려고 보고를 미루는 것.\n- **팁**: 계측 오류부터 의심하세요. 의외로 자주 있습니다. 같은 시료를 다시 재거나 다른 계측기로 재 보세요.\n\n```flow\n# 라인 이상 발생 시 첫 대응\n시작: 알람 / SPC 이탈 인지\n1. 항목, 시점, 이탈 크기 확인\n2. ? 계측 오류 가능성이 있는가\n  예 → 재측정 또는 교차 계측 → 3\n  아니오 → 3\n3. ? 실제 이탈인가\n  아니오 → 계측 이상 기록 및 계측기 점검 요청\n  예 → 4\n4. 영향 lot과 장비 범위 파악\n5. 규정에 따라 홀드 또는 인터락\n6. 1차 보고 — 사실과 조치만\n7. 변화점 조사 (4M1E)\n끝: 원인 분석 프로세스로 이관\n```\n\n---\n\n## 상황 2. 불량 원인이 여러 공정에 걸쳐 있다\n\n- **왜 생기나**: 범프 불량 하나에도 포토(패턴), 도금(두께와 조성), 리플로우(온도), 적층(압력과 휨)이 모두 관여합니다.\n- **첫 대응**: 우리 공정이 **바꿀 수 있는 인자**와 **다른 공정이 주관하는 인자**를 나누어 정리합니다.\n- **하지 말 것**: \"우리 공정은 스펙 안이니까 우리 문제가 아니다\"로 끝내는 것. 스펙 안이어도 조합이 나쁘면 불량이 납니다.\n- **팁**: 공동 DOE를 제안할 때 각 공정의 인자와 수준을 표 하나에 넣으면 회의가 빨라집니다.\n\n---\n\n## 상황 3. 상사에게 보고해야 한다\n\n- **원칙**: **결론 먼저, 근거는 뒤에.** 상사는 바쁘고, 첫 세 줄만 읽을 수도 있습니다.\n- **구조 (상부 보고 1장)**\n\n| 순서 | 내용 | 예 |\n|---|---|---|\n| 1 | 결론 / 요청사항 | \"A안 적용을 제안합니다. 승인 요청드립니다.\" |\n| 2 | 배경 | 현재 불량 현황, 고객 영향 |\n| 3 | 근거 | 데이터, 실험 결과 (측정/계산/가정 표시) |\n| 4 | 리스크와 대가 | 생산성 영향, 남은 불확실성 |\n| 5 | 다음 단계 | 일정, 담당 |\n\n- **하지 말 것**: 시간 순서대로 \"처음에 ~를 했고, 그다음에 ~를 했고…\"라고 쓰는 것.\n- **팁**: 보고 자료는 청중에 맞춰 분량을 다르게 만드세요. 상부 보고 1~2장, 회의 브리핑 4장, 실무 해설서는 분량 제한 없이 씁니다.\n\n```flow\n# 보고서 작성 순서\n시작: 보고 요청 또는 보고 필요 인지\n1. 보고 대상과 그 사람이 내릴 결정 확인\n2. 결론을 한 문장으로 쓰기\n3. ? 결론을 한 문장으로 쓸 수 있는가\n  아니오 → 분석이 덜 끝남. 추가 분석 → 2\n  예 → 4\n4. 결론을 받치는 근거 3개 이내 선정\n5. 숫자마다 측정, 계산, 가정 표시\n6. 리스크와 대가 명시\n7. 상세 근거는 부속 문서로 분리\n끝: 보고\n```\n\n---\n\n## 상황 4. 데이터가 부족한데 지금 판단해야 한다\n\n- **첫 대응**: 지금 가진 정보로 내릴 수 있는 결정과, 그 결정이 틀렸을 때의 피해를 함께 적습니다.\n- **판단 기준**: 되돌리기 쉬운 결정은 빨리 내리고, 되돌리기 어려운 결정은 데이터를 더 모읍니다.\n- **팁**: \"지금은 A로 진행하고, X 데이터가 나오는 시점(날짜)에 재판단\"처럼 **재검토 시점**을 함께 정하세요.\n\n---\n\n## 상황 5. 공정 변경(4M 변경) 심의를 준비한다\n\n- **왜 어렵나**: 변경은 개선 효과와 함께 미지의 위험을 들여옵니다. 심의 위원은 위험을 묻습니다.\n- **반드시 답해야 할 질문**\n  1. 무엇을 왜 바꾸는가?\n  2. 제품 특성과 신뢰성에 영향이 없는가? (근거 데이터)\n  3. 장비나 lot이 달라도 결과가 같은가? (재현성)\n  4. 문제가 생기면 어떻게 원복하는가?\n  5. 관리계획과 표준은 어떻게 바뀌는가?\n- **팁**: 질문 하나에 장표 하나로 답하는 구조가 가장 강합니다.\n\n---\n\n## 상황 6. 장비 PM(예방정비) 뒤에 산포가 커졌다\n\n- **왜 생기나**: 부품 교체 후 초기 상태 차이, 조립 편차, 시즈닝 부족.\n- **첫 대응**: PM 작업 내역(교체 부품, 조정 항목)과 PM 전후 데이터를 나란히 놓습니다.\n- **팁**: PM 후 확인 항목(Qual 조건)을 체크리스트로 만들어 두면 같은 문제가 반복되지 않습니다.\n\n---\n\n## 상황 7. 설비사, 협력사와 일한다\n\n- **원칙**: 요청은 **구체적으로, 서면으로, 기한과 함께** 보냅니다.\n- **하지 말 것**: 사내 기밀(공정 조건, 수율, 고객 정보)을 필요 이상으로 공유하는 것. 공유 범위는 사전에 확인합니다.\n- **팁**: 회의가 끝나면 합의 사항과 담당, 기한을 메일로 정리해 보내세요.\n\n---\n\n## 상황 8. 내가 실수를 했다 (레시피 오입력, 잘못된 lot 진행)\n\n- **첫 대응**: **즉시 알린다.** 숨기는 시간만큼 피해가 커집니다.\n- **순서**: 사실 보고 → 영향 범위 파악 → 조치 → 재발 방지(사람이 아니라 시스템을 고친다)\n- **팁**: \"주의하겠습니다\"는 재발 방지책이 아닙니다. 인터락, 이중 확인, 입력 검증 같은 **구조적 장치**를 제안하세요.\n\n---\n\n## 상황 9. 아무도 문서로 남기지 않은 업무를 넘겨받았다\n\n- **첫 대응**: 선배가 실제로 일하는 모습을 따라다니며 **판단 지점**을 질문합니다. \"이때 왜 이렇게 하셨어요?\"\n- **팁**: 들은 내용을 그날 바로 업무 알고리즘 맵으로 정리하고, 선배에게 검토를 받으세요. 그것이 다음 사람의 교재가 됩니다.\n\n---\n\n## 상황 10. 일이 동시에 몰린다\n\n| 긴급도 / 중요도 | 높음 | 낮음 |\n|---|---|---|\n| **높음** | 라인 이상, 고객 클레임 → 즉시 | 단순 문의 → 짧게 처리하거나 위임 |\n| **낮음** | 개선과제, 교육자료 → 시간 확보 | 하지 않아도 되는 일 → 정리 |\n\n- **팁**: 우선순위가 헷갈리면 혼자 정하지 말고 상사에게 \"A와 B 중 무엇을 먼저 할까요?\"라고 물으세요. 그것도 일입니다.\n\n---\n\n## 상황 11. 회의에서 반대 의견을 내야 한다\n\n- **원칙**: 사람이 아니라 **주장과 근거**에 반대합니다.\n- **화법**: \"그 가설이 맞다면 X도 보여야 하는데, 데이터에는 Y가 보입니다. 이 부분을 같이 확인해 보면 좋겠습니다.\"\n- **팁**: 반대만 하지 말고 확인 방법을 함께 제안하세요.\n\n---\n\n## 자기 점검\n\n1. 지금 담당 장비에서 알람이 울렸습니다. 첫 30분 동안 할 일을 순서대로 적어 보세요.\n2. 최근에 쓴 보고 메일의 첫 세 줄을 \"결론 → 근거 → 요청\" 구조로 다시 써 보세요.\n3. 변경 심의에서 \"장비가 달라도 같은 결과가 나오느냐\"는 질문을 받았습니다. 어떤 데이터를 준비해야 하나요?\n"}, {"file": "03_공학의_기초.md", "title": "03. 공학의 기초", "md": "# 03. 공학의 기초\n\n## 학습 목표\n\n- 단위, 차원, 유효숫자로 계산의 상식선을 검증한다.\n- 평균, 표준편차, 공정능력(Cp, Cpk), 관리도를 읽고 해석한다.\n- 측정시스템과 실험계획법(DOE)의 기본을 이해한다.\n- 응력, 열팽창, 확산, 전기화학의 기초 식을 현장 문제에 연결한다.\n\n---\n\n## 1. 단위와 차원 — 계산의 첫 번째 검사\n\n### 차원 해석\n\n식의 양변은 차원이 같아야 합니다. 차원이 맞지 않는 식은 틀린 식입니다.\n\n- 전류밀도 `J = I / A` → [A] / [m²] = A/m²\n- 도금 속도 `v = J · M / (n · F · ρ)` → (A/m² · g/mol) / (C/mol · g/m³) = m/s ✔\n\n### 자주 쓰는 단위 변환\n\n| 양 | 변환 |\n|---|---|\n| 길이 | 1 µm = 10⁻⁶ m = 1,000 nm = 10,000 Å |\n| 전류밀도 | 1 A/dm² (ASD) = 100 A/m² = 10 mA/cm² |\n| 압력 | 1 atm ≈ 101.3 kPa ≈ 760 Torr |\n| 온도 | K = °C + 273.15 |\n| 농도 | 1 g/L = 1,000 ppm (수용액, 근사) |\n\n### 유효숫자\n\n계측기 분해능이 0.1 µm인데 결과를 3.14159 µm로 쓰면 **모르는 것을 아는 척하는 것**입니다.\n결과의 자릿수는 입력 중 가장 부정확한 값에 맞춥니다.\n\n---\n\n## 2. 통계 — 산포를 읽는 눈\n\n### 평균과 표준편차\n\n- 평균(x̄): 중심이 어디인가\n- 표준편차(σ): 얼마나 퍼져 있는가\n- **평균이 같아도 산포가 다르면 다른 공정입니다.**\n\n정규분포에서는 다음 비율이 알려져 있습니다.\n\n| 범위 | 포함 비율 |\n|---|---|\n| 평균 ± 1σ | 약 68.3% |\n| 평균 ± 2σ | 약 95.4% |\n| 평균 ± 3σ | 약 99.73% |\n\n### 공정능력 지수\n\n- `Cp = (USL − LSL) / 6σ` — 산포만 본다 (규격 폭 대비 산포가 얼마나 좁은가)\n- `Cpk = min(USL − x̄, x̄ − LSL) / 3σ` — 중심 치우침까지 본다\n\n| Cpk | 해석 |\n|---|---|\n| < 1.0 | 규격 이탈품이 상당히 나온다 → 즉시 개선 |\n| 1.0 ~ 1.33 | 관리가 필요하다 |\n| ≥ 1.33 | 양호 (일반적인 양산 목표) |\n| ≥ 1.67 | 매우 양호 (중요 특성 목표로 자주 쓰임) |\n\n> **흔한 오해**: Cp가 높으면 좋은 공정이다? → 중심이 규격 끝에 붙어 있으면 Cp가 높아도 불량이 납니다. 항상 Cpk를 함께 보세요.\n\n### 관리도 (Control Chart)\n\n관리도는 **공정이 평소처럼 움직이는가**를 판단하는 도구입니다.\n관리한계(UCL/LCL)는 공정의 실제 산포로 정하고, 규격(USL/LSL)은 고객이나 설계가 정합니다. **둘은 다른 개념입니다.**\n\n이상 신호의 예 (Western Electric 규칙 일부)\n1. 관리한계를 벗어난 점 1개\n2. 중심선 한쪽에 연속 7~9점\n3. 연속 6점 이상 증가 또는 감소 (추세)\n4. 3점 중 2점이 2σ 밖 (같은 쪽)\n\n### 상관과 인과\n\n두 변수가 함께 움직인다고 해서 하나가 다른 하나의 원인은 아닙니다.\n**제3의 변수**(예: 같은 장비, 같은 시기, 같은 약품 lot)가 둘 다에 영향을 줄 수 있습니다. 인과를 확인하려면 실험으로 한 인자만 바꿔 봐야 합니다.\n\n### 표본\n\n- 웨이퍼 한 장의 중심 한 점만 재면 웨이퍼 전체를 대표하지 못합니다.\n- 측정 위치(site map), 웨이퍼 수, lot 수를 정하는 것이 데이터 품질의 절반입니다.\n\n---\n\n## 3. 측정 — 데이터를 믿기 전에\n\n| 용어 | 뜻 |\n|---|---|\n| 정확도 (Accuracy) | 참값에 얼마나 가까운가 → 교정(calibration)으로 관리 |\n| 정밀도 (Precision) | 반복하면 얼마나 같은 값이 나오는가 |\n| 반복성 (Repeatability) | 같은 사람, 같은 장비로 반복 측정했을 때의 산포 |\n| 재현성 (Reproducibility) | 다른 사람이나 다른 장비로 측정했을 때의 산포 |\n| Gage R&R | 측정 산포가 공정 산포에서 차지하는 비율 |\n\n> 측정 산포가 공정 산포의 30%를 넘으면, 그 계측으로는 공정 변화를 구분하기 어렵습니다. (일반적으로 10% 미만이면 양호, 10~30%는 조건부로 수용합니다.)\n\n---\n\n## 4. 실험계획법 (DOE) 기초\n\n한 번에 한 인자씩 바꾸는 실험(OFAT)은 **교호작용**을 놓치고 웨이퍼를 많이 씁니다.\n\n| 용어 | 뜻 | 예 |\n|---|---|---|\n| 인자 (Factor) | 바꾸는 변수 | 전류밀도, 온도, 첨가제 농도 |\n| 수준 (Level) | 인자의 값 | 저 / 고 |\n| 반응 (Response) | 측정하는 결과 | 두께 균일도, 조성, 불량률 |\n| 주효과 | 한 인자가 반응에 주는 평균 영향 | |\n| 교호작용 | 한 인자의 효과가 다른 인자 수준에 따라 달라짐 | 온도가 높을 때만 전류밀도 효과가 커짐 |\n| 랜덤화 | 실험 순서를 무작위로 | 시간에 따른 드리프트를 분산 |\n| 블록화 | 통제 못 하는 변수를 묶음 | 장비 A, B를 블록으로 |\n\n### 좋은 DOE의 조건\n\n1. **검증할 가정에 번호를 붙이고**, 각 실험 레그가 어느 가정을 검증하는지 표로 연결합니다.\n2. **내가 바꿀 수 있는 인자**와 **다른 공정이 주관하는 인자**를 구분합니다.\n3. 실험 전에 **판별 기준**을 먼저 적습니다. \"A가 맞다면 반응이 X 이상 변해야 한다.\"\n\n```flow\n# DOE 설계 절차\n시작: 검증할 질문 정의\n1. 가설과 검증 가정 목록 작성 (A1, A2, ...)\n2. 인자와 수준 선정\n  > 바꿀 수 있는 인자와 주관 공정이 다른 인자를 구분한다.\n3. 반응 변수와 측정 방법 확정\n4. ? 측정시스템이 충분히 정밀한가\n  아니오 → 계측 조건 개선 또는 대체 계측 → 3\n  예 → 5\n5. 판별 기준을 실험 전에 기록\n6. 실험 배치 (랜덤화, 블록화, 반복 수)\n7. 실행 및 데이터 수집\n8. 분석 (주효과, 교호작용, 잔차 확인)\n9. ? 판별 기준을 만족하는가\n  아니오 → 가설 수정 → 1\n  예 → 10\n10. 확인 실험 (최적 조건 재현)\n끝: 결론과 다음 단계 보고\n```\n\n---\n\n## 5. 재료역학 기초 — 응력과 열팽창\n\n### 응력과 변형\n\n- 응력 `σ = F / A` (단위 Pa = N/m²)\n- 변형률 `ε = ΔL / L` (단위 없음)\n- 탄성 영역에서는 `σ = E · ε` (E: 탄성계수, 영률)\n\n### 열팽창 불일치 (CTE mismatch)\n\n서로 다른 재료를 붙여 놓고 온도를 바꾸면, 각자 늘어나려는 양이 달라서 계면에 응력이 생깁니다.\n\n- 자유 열변형률 `ε = α · ΔT` (α: 열팽창계수, 1/K)\n- 대략적인 열응력 `σ ≈ E · Δα · ΔT`\n\n| 재료 | 열팽창계수 (대략, ppm/K) |\n|---|---|\n| 실리콘 | 약 2.6 |\n| 구리 | 약 17 |\n| 니켈 | 약 13 |\n| 주석계 솔더 | 약 20~23 |\n| 몰드 수지(EMC) | 약 7~15 (유리전이 이하), 그 이상에서 크게 증가 |\n\n> 패키징 불량(휨, 박리, 범프 균열)의 상당수는 **CTE 불일치 + 온도 이력**으로 설명됩니다. 리플로우와 냉각, 신뢰성 열사이클을 거칠 때마다 응력이 반복됩니다.\n\n---\n\n## 6. 열·물질 전달 기초 — 확산\n\n- 확산은 농도가 높은 곳에서 낮은 곳으로 물질이 이동하는 현상입니다.\n- 픽의 제1법칙: `J = −D · dC/dx` (D: 확산계수)\n- 확산 거리의 크기: `x ≈ √(D · t)` → **시간을 4배로 늘려야 거리가 2배**가 됩니다.\n- 확산계수는 온도에 지수적으로 민감합니다 (아레니우스: `D = D₀ · exp(−Q / RT)`).\n\n현장 연결\n- 도금: 전극 표면 근처의 **확산층** 두께가 이온 공급 속도를 결정합니다. 교반이 강하면 확산층이 얇아집니다.\n- 패키징: 고온 보관이나 리플로우 중 계면에서 금속간화합물(IMC)이 자라는 속도도 확산이 지배합니다.\n\n---\n\n## 7. 전기화학 기초 — 도금의 언어\n\n### 패러데이 법칙\n\n전기량만큼 금속이 석출됩니다.\n\n- 석출 질량 `m = (I · t · M) / (n · F)` × 전류효율\n  - I: 전류(A), t: 시간(s), M: 몰질량(g/mol), n: 이온 전하수, F: 패러데이 상수(약 96,485 C/mol)\n- 두께로 바꾸면 `두께 = m / (ρ · A)`\n\n### 핵심 개념\n\n| 개념 | 뜻 | 현장 의미 |\n|---|---|---|\n| 전류밀도 | 단위 면적당 전류 | 높으면 빠르지만 거칠어지거나 조성이 바뀔 수 있다 |\n| 전류효율 | 금속 석출에 쓰인 전류의 비율 | 나머지는 수소 발생 등 부반응에 쓰인다 |\n| 한계전류밀도 | 확산이 공급을 따라가지 못하는 전류밀도 | 넘으면 이상 석출(분말, 탄 도금)이 생긴다 |\n| 첨가제 | 촉진제, 억제제, 평탄제 | 표면 형상과 결정 조직을 조절한다 |\n| 균일전착성 | 패턴 위치와 관계없이 고르게 도금되는 정도 | 웨이퍼 중심과 가장자리, 밀집 패턴과 고립 패턴의 차이 |\n\n---\n\n## 8. 모델링 마인드\n\n> \"모든 모델은 틀렸다. 그러나 일부는 쓸모 있다.\" — George Box\n\n- 모델의 목적은 정답이 아니라 **의사결정에 필요한 정도의 예측**입니다.\n- 모델 결과를 보고할 때는 **가정 목록**을 함께 내놓습니다.\n- 모델이 실측과 다르면, 모델을 고치기 전에 **빠진 물리**가 있는지 먼저 봅니다. 예를 들어 언더필이 차지하는 면적을 빼먹으면 응력 결론이 뒤집힐 수 있습니다.\n- 숫자 하나가 아니라 **범위(밴드)** 로 말하는 습관을 들이세요. 입력 가정이 바뀌면 결과도 바뀝니다.\n\n---\n\n## 자기 점검\n\n1. 1 ASD는 몇 mA/cm²인가요?\n2. 규격 10 ± 1 µm, 평균 10.4 µm, 표준편차 0.2 µm일 때 Cp와 Cpk를 계산해 보세요. (정답: Cp ≈ 1.67, Cpk = 1.0)\n3. 관리한계와 규격의 차이를 신입에게 설명하듯 써 보세요.\n4. 실리콘 위의 구리 패턴이 250 °C에서 상온으로 식을 때 응력이 생기는 이유를 CTE로 설명해 보세요.\n5. 확산 시간이 9배가 되면 확산 거리는 몇 배가 되나요?\n"}, {"file": "04_반도체의_기초.md", "title": "04. 반도체의 기초", "md": "# 04. 반도체의 기초\n\n## 학습 목표\n\n- 반도체가 왜 \"반\"도체인지, 트랜지스터가 어떻게 스위치가 되는지 설명한다.\n- DRAM과 NAND의 차이를 안다.\n- 웨이퍼에서 칩, 칩에서 패키지까지의 전체 흐름을 그린다.\n- HBM이 왜 필요하고 어떻게 쌓는지 설명한다.\n\n---\n\n## 1. 반도체란\n\n| 구분 | 전기가 흐르는 정도 | 예 |\n|---|---|---|\n| 도체 | 잘 흐른다 | 구리, 알루미늄 |\n| 부도체 | 흐르지 않는다 | 유리, 산화막(SiO₂) |\n| 반도체 | **조건에 따라** 흐르게 할 수 있다 | 실리콘(Si), 게르마늄 |\n\n반도체의 가치는 \"전기가 흐를지 말지를 **우리가 제어할 수 있다**\"는 데 있습니다.\n\n### 도핑\n\n순수한 실리콘에 불순물을 아주 조금 넣어 전기적 성질을 바꿉니다.\n\n- **N형**: 인(P), 비소(As) 첨가 → 전자가 남는다 (음전하 운반)\n- **P형**: 붕소(B) 첨가 → 정공이 생긴다 (양전하 운반)\n\n### PN 접합\n\nP형과 N형을 붙이면 한쪽 방향으로만 전류가 흐르는 **다이오드**가 됩니다. 이것이 모든 반도체 소자의 출발점입니다.\n\n---\n\n## 2. 트랜지스터 — 전기로 움직이는 스위치\n\nMOSFET(금속-산화막-반도체 전계효과 트랜지스터)은 네 부분으로 되어 있습니다.\n\n- **소스(Source)**, **드레인(Drain)**: 전류가 들어오고 나가는 곳\n- **게이트(Gate)**: 스위치 손잡이\n- **게이트 산화막**: 게이트와 채널을 전기적으로 분리하는 얇은 절연막\n\n게이트에 전압을 걸면 아래에 **채널**이 생겨 소스와 드레인 사이에 전류가 흐릅니다(ON). 전압을 빼면 끊깁니다(OFF).\n이 ON/OFF가 디지털의 1과 0입니다. 칩 하나에 이런 스위치가 수십억 개 들어 있습니다.\n\n> 미세화의 의미: 트랜지스터를 작게 만들면 같은 면적에 더 많이 넣을 수 있고, 더 빠르고 전력도 적게 씁니다. 대신 누설전류, 공정 산포, 미세 결함에 훨씬 민감해집니다.\n\n---\n\n## 3. 메모리 반도체\n\n| 구분 | DRAM | NAND 플래시 |\n|---|---|---|\n| 저장 원리 | 커패시터에 전하를 저장 | 절연층에 갇힌 전하로 저장 |\n| 전원을 끄면 | 데이터가 사라진다 (휘발성) | 데이터가 남는다 (비휘발성) |\n| 속도 | 빠르다 | 상대적으로 느리다 |\n| 특징 | 전하가 새어 나가서 주기적으로 다시 써야 한다 (리프레시) | 3D로 수백 층을 쌓는다 |\n| 용도 | 주기억장치, GPU 메모리(HBM) | SSD, 스마트폰 저장장치 |\n\n**DRAM 셀** = 트랜지스터 1개 + 커패시터 1개 (1T1C)\n- 커패시터에 전하가 있으면 1, 없으면 0입니다.\n- 트랜지스터는 그 커패시터를 읽고 쓰는 문 역할을 합니다.\n\n---\n\n## 4. 반도체 제조의 전체 흐름\n\n```flow\n# 웨이퍼에서 고객까지\n시작: 실리콘 잉곳 성장, 웨이퍼 절단\n1. 전공정 (FAB) — 웨이퍼 위에 회로를 만든다\n  > 산화, 포토, 식각, 증착, 이온주입, 금속배선을 수백 번 반복한다.\n2. 웨이퍼 테스트 (EDS / Probe)\n  > 웨이퍼 상태에서 칩 하나하나의 전기적 특성을 검사해 양품과 불량을 가린다.\n3. 범프 형성 (Wafer-level packaging)\n  > 칩을 외부와 연결할 금속 돌기를 도금으로 만든다.\n4. 후면 공정 및 절단 (Dicing)\n5. 패키징 — 적층, 접합, 몰딩\n6. 최종 테스트 및 신뢰성 평가\n7. ? 출하 기준을 만족하는가\n  아니오 → 불량 분석 및 피드백 → 1\n  예 → 8\n8. 고객 실장 (SMT)\n끝: 최종 제품 (서버, GPU, 스마트폰)\n```\n\n### 전공정 8대 공정 (요약)\n\n| 공정 | 하는 일 | 비유 |\n|---|---|---|\n| 웨이퍼 제조 | 고순도 실리콘 원판을 만든다 | 도화지 |\n| 산화 | 표면에 절연막(SiO₂)을 만든다 | 보호 코팅 |\n| 포토 (노광) | 빛으로 회로 패턴을 감광막에 새긴다 | 사진 인화 |\n| 식각 | 필요 없는 부분을 깎아낸다 | 조각 |\n| 증착 | 얇은 막을 쌓는다 (CVD, PVD, ALD) | 덧칠 |\n| 이온주입 | 불순물을 넣어 전기적 성질을 만든다 | 양념 |\n| 금속배선 | 소자끼리 전선으로 연결한다 | 배선 공사 |\n| EDS (테스트) | 칩마다 동작을 검사한다 | 검수 |\n\n---\n\n## 5. 패키징 — 칩을 세상과 연결하기\n\n패키징이 하는 일은 네 가지입니다.\n1. **전기 연결**: 칩의 신호와 전원을 기판으로 연결한다.\n2. **보호**: 습기, 충격, 오염으로부터 칩을 지킨다.\n3. **방열**: 칩에서 나는 열을 밖으로 내보낸다.\n4. **실장 편의**: 고객이 기판에 붙일 수 있는 형태로 만든다.\n\n### 연결 방식의 발전\n\n| 방식 | 설명 | 특징 |\n|---|---|---|\n| 와이어 본딩 | 금선이나 구리선으로 칩 가장자리를 연결 | 저렴하다. 연결 수와 속도에 한계가 있다 |\n| 플립칩 | 칩을 뒤집어 범프로 기판에 직접 접합 | 칩 면적 전체를 연결에 쓸 수 있다 |\n| TSV | 실리콘을 수직으로 뚫어 칩끼리 연결 | 칩을 위로 쌓을 수 있다 |\n| 하이브리드 본딩 | 범프 없이 구리끼리 직접 접합 | 초미세 피치. 차세대 기술 |\n\n### 범프 (Bump)\n\n칩의 패드 위에 도금으로 만드는 작은 금속 기둥입니다. 일반적으로 이렇게 쌓습니다.\n\n- **구리(Cu)**: 몸통. 전기가 잘 통하고 높이를 만든다.\n- **니켈(Ni)**: 확산 방지층. 솔더와 구리가 과도하게 반응하는 것을 막는다.\n- **솔더(예: SnAg)**: 접합재. 녹아서 상대 범프나 패드와 붙는다.\n\n접합 후에는 솔더와 금속 사이에 **금속간화합물(IMC)** 이 생깁니다. IMC는 접합에 꼭 필요하지만, 너무 자라면 부서지기 쉽고 부피 변화로 void를 만들 수 있습니다.\n\n---\n\n## 6. HBM (High Bandwidth Memory)\n\n### 왜 필요한가\n\nAI와 GPU 연산은 **메모리에서 데이터를 꺼내 오는 속도(대역폭)** 에 막힙니다.\nHBM은 DRAM 칩을 수직으로 쌓고 수천 개의 통로로 프로세서와 연결해서 대역폭을 크게 넓힙니다.\n\n### 구조\n\n```\n        ┌──────── core die (DRAM) ────────┐  ← 여러 층 (8단, 12단, 16단…)\n        ├──────── core die (DRAM) ────────┤\n        ├──────── core die (DRAM) ────────┤     층 사이: 마이크로범프 + 언더필\n        ├──────── core die (DRAM) ────────┤     층 관통: TSV\n        └──────── base die (로직) ────────┘  ← 맨 아래, 인터페이스 역할\n                  ↓ 범프\n        ─────────── 인터포저 ───────────── ← GPU와 나란히 놓인다\n```\n\n### 핵심 공정 기술\n\n| 기술 | 내용 |\n|---|---|\n| TSV | 칩을 관통하는 수직 전극. 칩 사이 신호와 전원의 통로 |\n| 마이크로범프 | 수십 µm 피치의 미세 범프. 도금으로 만든다 |\n| 웨이퍼 박화 | 쌓기 위해 웨이퍼를 수십 µm 수준으로 얇게 간다 |\n| 적층 및 접합 | 칩을 정렬해 쌓고 열과 압력으로 접합한다 |\n| 언더필, 몰딩 | 범프 사이 빈 공간을 채워 기계적으로 보강하고 보호한다 |\n\n### HBM에서 자주 문제가 되는 것\n\n- **휨(warpage)**: 얇은 칩과 서로 다른 CTE 때문에 휜다. 접합 불량의 원인이 된다.\n- **범프 높이 산포(coplanarity)**: 범프 높이가 고르지 않으면 일부 범프가 덜 붙거나 응력을 몰아서 받는다.\n- **범프 균열과 계면 박리**: 열 이력에 따른 응력이 반복되면서 생긴다.\n- **열**: 층이 많을수록 열이 빠져나가기 어렵다.\n\n> 단수가 늘어날수록 **같은 공정 산포가 더 큰 위험이 됩니다.** 한 층의 불량이 전체 스택의 불량이 되기 때문입니다. (스택 수율 ≈ 층별 수율의 거듭제곱)\n\n---\n\n## 7. 수율 (Yield)\n\n- 수율 = 양품 수 / 전체 수\n- 공정 단계별 수율을 곱한 것이 최종 수율입니다. 단계마다 99%여도 100단계를 지나면 약 37%만 남습니다 (0.99¹⁰⁰ ≈ 0.366).\n- 그래서 반도체 공장은 **0.1%의 개선**에도 큰 노력을 들입니다.\n\n---\n\n## 8. 클린룸\n\n- 미세 입자 하나가 회로를 끊거나 이어 버릴 수 있습니다.\n- 클린룸 등급은 단위 부피당 입자 수로 나눕니다.\n- 방진복, 에어샤워, 반입 물품 제한은 **수율을 지키는 규칙**입니다. 귀찮은 절차가 아닙니다.\n\n---\n\n## 자기 점검\n\n1. DRAM이 리프레시를 해야 하는 이유를 한 문장으로 설명해 보세요.\n2. 범프의 Ni 층은 왜 필요한가요?\n3. HBM에서 단수가 늘어나면 왜 공정 산포에 더 민감해지나요?\n4. 층별 수율이 99.5%인 12단 스택의 스택 수율은 대략 얼마인가요? (정답: 0.995¹² ≈ 94%)\n5. 내 공정은 \"웨이퍼에서 고객까지\" 흐름도의 어느 단계에 있나요? 앞뒤 공정은 무엇인가요?\n"}, {"file": "05_제조기술의_기초.md", "title": "05. 제조기술의 기초", "md": "# 05. 제조기술의 기초\n\n## 학습 목표\n\n- 양산 공장이 \"같은 것을 매일 똑같이\" 만들기 위해 쓰는 체계를 이해한다.\n- 4M1E, SPC, FDC, 변경관리, FMEA, 8D의 목적과 쓰임을 안다.\n- 설비 관리(PM, OEE)와 품질 비용의 개념을 안다.\n- 전해도금 공정을 예로 공정 관리 포인트를 읽는다.\n\n---\n\n## 1. 양산이란 무엇인가\n\n연구실에서는 **한 번 잘 만들면** 성공입니다. 양산에서는 **매일, 모든 장비에서, 모든 사람이 똑같이** 만들어야 성공입니다.\n양산 기술은 결국 **산포와의 싸움**입니다.\n\n### 공장의 구성 요소\n\n| 요소 | 역할 |\n|---|---|\n| 설비 (Equipment) | 공정을 실제로 수행한다 |\n| 레시피 (Recipe) | 설비가 따르는 공정 조건의 집합 |\n| MES | lot의 흐름, 이력, 홀드를 관리하는 생산 관리 시스템 |\n| SPC | 공정 결과(계측값)의 통계적 관리 |\n| FDC | 설비 센서 데이터의 실시간 이상 감지 |\n| 표준 (SOP, 관리계획) | 사람이 따르는 절차와 기준 |\n\n---\n\n## 2. 4M 1E — 변화의 다섯 근원\n\n| 구분 | 예 | 확인 질문 |\n|---|---|---|\n| Man (사람) | 작업자 교대, 신규 인원 | 작업 방법이 표준과 같은가? |\n| Machine (설비) | PM, 부품 교체, 소프트웨어 업데이트 | 설비 상태가 변하지 않았는가? |\n| Material (자재) | 약품 lot, 웨이퍼 공급사, 소모품 | 자재 lot이 바뀌지 않았는가? |\n| Method (방법) | 레시피, 측정 방법, 공정 순서 | 조건이나 절차가 변경되지 않았는가? |\n| Environment (환경) | 온습도, 진동, 배기, 순수 품질 | 유틸리티에 이상이 없는가? |\n\n> 이상이 생기면 4M1E의 **변화 이력**을 가장 먼저 봅니다. 변경은 반드시 기록되어야 하는 이유이기도 합니다.\n\n---\n\n## 3. SPC와 FDC\n\n| 구분 | SPC | FDC |\n|---|---|---|\n| 보는 것 | 공정 **결과** (두께, CD, 조성) | 설비 **상태** (전류, 전압, 온도, 유량, 압력) |\n| 시점 | 공정 후 계측 | 공정 중 실시간 |\n| 장점 | 제품 품질과 직접 연결된다 | 이상을 빨리, 웨이퍼마다 잡는다 |\n| 한계 | 계측 샘플링 사이를 놓친다 | 센서 값이 품질과 항상 연결되지는 않는다 |\n\n**둘을 함께 쓰는 것**이 핵심입니다. FDC로 빨리 잡고, SPC로 품질 영향을 확인합니다.\n\n### Run-to-Run (R2R) 제어\n\n이전 결과를 보고 다음 lot의 조건을 자동으로 미세 보정합니다.\n예를 들어 도금 두께가 조금씩 낮아지는 추세라면 도금 시간을 약간 늘립니다.\n단, **보정량이 계속 커지면 근본 원인(장비 열화, 약품 소모)을 찾아야 합니다.** 보정은 문제를 가릴 수도 있습니다.\n\n---\n\n## 4. 변경관리 (Change Control)\n\n양산 중인 공정을 바꾸는 것은 **새로운 위험을 들여오는 일**입니다.\n\n```flow\n# 공정 변경 관리 절차\n시작: 변경 필요 발생 (개선, 원가, 단종 대응)\n1. 변경 내용과 목적 정의 (4M 중 무엇을 바꾸는가)\n2. 위험 평가 (FMEA 갱신)\n3. 평가 계획 수립 — 품질, 신뢰성, 재현성\n4. 평가 실행 (복수 lot, 복수 장비)\n5. ? 판정 기준을 만족하는가\n  아니오 → 원인 분석 및 계획 수정 → 3\n  예 → 6\n6. 변경 심의 (유관 부서, 필요 시 고객 승인)\n7. ? 승인되었는가\n  아니오 → 보완 요청 사항 반영 → 3\n  예 → 8\n8. 표준, 레시피, 관리계획 개정\n9. 적용 및 초기 유동 관리 (강화 모니터링)\n끝: 변경 종결 및 기록 보관\n```\n\n---\n\n## 5. FMEA — 일어나기 전에 막기\n\n**고장모드 영향 분석 (Failure Mode and Effects Analysis)**\n\n| 항목 | 질문 |\n|---|---|\n| 고장 모드 | 어떻게 잘못될 수 있는가? (예: 도금 두께 부족) |\n| 영향 | 잘못되면 무슨 일이 생기는가? (예: 접합 불량, 신뢰성 저하) |\n| 원인 | 왜 그렇게 되는가? (예: 전극 접촉 불량, 약품 농도 저하) |\n| 현재 관리 | 지금 무엇으로 막거나 잡고 있는가? |\n| S / O / D | 심각도, 발생도, 검출도 (각 1~10) |\n\n- 전통적으로는 `RPN = S × O × D`로 우선순위를 정했습니다. 최근에는 **심각도가 높은 항목을 먼저** 보는 방식(AP, Action Priority)을 많이 씁니다.\n- FMEA는 한 번 쓰고 끝나는 문서가 아닙니다. **불량이 나올 때마다 갱신하는 살아 있는 문서**입니다.\n\n---\n\n## 6. 8D — 문제 해결의 표준 양식\n\n고객 클레임이나 중대 불량에 쓰는 표준 절차입니다.\n\n| 단계 | 내용 |\n|---|---|\n| D1 | 팀 구성 |\n| D2 | 문제 기술 (5W2H) |\n| D3 | 임시 조치 (고객 보호, 봉쇄) |\n| D4 | 근본 원인 규명 — **발생 원인**과 **유출 원인**(왜 못 잡았나)을 모두 |\n| D5 | 영구 대책 선정 |\n| D6 | 영구 대책 실행 및 효과 확인 |\n| D7 | 재발 방지 (표준화, 유사 공정 전개) |\n| D8 | 팀 격려 및 종결 |\n\n> 흔한 실수: D4에서 발생 원인만 찾고 **유출 원인**을 빠뜨리는 것. \"왜 생겼나\"와 함께 \"왜 검사에서 못 걸렀나\"도 답해야 합니다.\n\n---\n\n## 7. 관리계획 (Control Plan)\n\n공정별로 **무엇을, 얼마나 자주, 어떤 기준으로, 이탈하면 어떻게** 관리하는지 적은 문서입니다.\n\n| 공정 | 관리 항목 | 규격 | 측정 방법 | 빈도 | 이탈 시 조치 |\n|---|---|---|---|---|---|\n| 도금 | 두께 | (제품별) | 계측기 A | lot당 n매 | 홀드 후 엔지니어 판정 |\n| 도금 | 약품 농도 | (약품별) | 적정 분석 | 일 n회 | 보충 후 재분석 |\n\n신입이 맡은 공정의 관리계획을 **처음부터 끝까지 한 번 읽는 것**은 가장 효과적인 공정 공부입니다.\n\n---\n\n## 8. 설비 관리\n\n### PM (Preventive Maintenance, 예방정비)\n\n- 고장 나기 전에 정해진 주기로 점검하고 부품을 교체합니다.\n- PM 뒤에는 **Qual(장비 적격성 확인)** 을 통과해야 생산에 투입합니다.\n- 소모품(씰, 전극, 필터, 멤브레인)의 수명 관리가 산포 관리의 핵심입니다.\n\n### OEE (설비 종합 효율)\n\n`OEE = 가동률 × 성능률 × 양품률`\n\n| 손실 | 예 |\n|---|---|\n| 가동 손실 | 고장, PM, 셋업, 대기 |\n| 성능 손실 | 속도 저하, 짧은 정지 |\n| 품질 손실 | 불량, 재작업 |\n\n---\n\n## 9. 품질 비용과 1:10:100 법칙\n\n불량을 발견하는 시점이 늦을수록 비용이 대략 10배씩 커진다는 경험칙입니다.\n\n| 발견 시점 | 상대 비용 |\n|---|---|\n| 공정 내 | 1 |\n| 후공정, 출하 검사 | 10 |\n| 고객 현장 | 100 이상 (리콜, 신뢰 손실) |\n\n그래서 **앞 공정에서 잡는 것**이 언제나 가장 쌉니다.\n\n---\n\n## 10. 예시 — 전해도금(ECD) 공정의 관리 포인트\n\n웨이퍼 레벨 범프 도금을 예로 공정 관리의 관점을 정리했습니다. (일반적인 수준의 설명이며 특정 회사의 조건이 아닙니다.)\n\n### 공정 흐름\n\n```flow\n# 웨이퍼 레벨 범프 도금 공정 개요\n시작: 시드층 증착된 웨이퍼 입고\n1. 포토레지스트 도포 및 패턴 형성\n  > 범프가 생길 자리만 열린 틀(몰드)을 만든다.\n2. 전처리 (세정, 젖음성 확보)\n3. Cu 도금\n4. Ni 도금 (확산 방지층)\n5. 솔더 도금 (예: SnAg)\n6. 레지스트 제거 (Strip)\n7. 시드층 식각\n8. 리플로우 (솔더를 녹여 둥글게 만듦)\n9. 계측 — 높이, 형상, 조성, 외관\n10. ? 기준을 만족하는가\n  아니오 → 홀드 및 원인 분석\n  예 → 11\n11. 다음 공정 (적층, 패키징)으로 이동\n끝: 범프 완성\n```\n\n### 관리 포인트\n\n| 구분 | 관리 항목 | 왜 중요한가 |\n|---|---|---|\n| 약품 | 금속이온 농도, 산 농도, 첨가제 농도, 불순물 | 두께, 조성, 표면 형상이 바뀐다 |\n| 전기 | 전류밀도, 파형, 접촉 저항 | 두께와 균일도, 조성이 바뀐다 |\n| 유동 | 교반, 순환 유량, 온도 | 확산층 두께가 공급 속도와 조성을 정한다 |\n| 하드웨어 | 립씰(전극 접촉부 밀봉), 애노드, 멤브레인, 필터 | 누액, 오염, 균일도 이상의 원인이 된다 |\n| 결과 | 높이, 높이 산포, 조성, void, 외관 | 다음 공정의 접합 품질로 이어진다 |\n\n> 도금은 **약품 상태가 매일 변하는 공정**입니다. 금속은 쓰는 만큼 줄고, 첨가제는 분해되고, 부산물은 쌓입니다. 정기 분석과 보충(dosing), 그리고 그 이력 관리가 안정성의 핵심입니다.\n\n---\n\n## 자기 점검\n\n1. SPC와 FDC의 차이를 한 문장씩 설명해 보세요.\n2. Run-to-Run 보정량이 매주 커지고 있습니다. 무엇을 의심해야 하나요?\n3. 8D의 D4에서 반드시 함께 찾아야 하는 두 가지 원인은 무엇인가요?\n4. 내 공정의 관리계획에서 이탈 시 조치가 \"엔지니어 판정\"인 항목을 하나 골라, 판정 절차를 알고리즘 맵으로 그려 보세요.\n5. 도금 공정에서 약품 lot이 바뀐 뒤 두께 산포가 커졌습니다. 4M1E 중 무엇에 해당하고, 무엇을 확인해야 하나요?\n"}, {"file": "06_업무알고리즘_작성법.md", "title": "06. 업무 알고리즘 작성법", "md": "# 06. 업무 알고리즘 작성법\n\n## 학습 목표\n\n- 배운 업무를 **단계와 판단 지점**으로 나누어 적는다.\n- 흐름 문법(flow)으로 쓰거나 LLM 변환을 써서 업무 알고리즘 맵을 만든다.\n- 각 단계(노드)에 사진, 도면, 주의점을 붙여 **다른 사람이 따라 할 수 있는 교재**로 만든다.\n\n---\n\n## 1. 왜 알고리즘으로 남기는가\n\n선배의 노하우는 대부분 **판단 기준**에 있습니다. \"이 정도면 괜찮다\", \"이럴 땐 장비부터 본다\" 같은 기준입니다.\n문장으로 된 인수인계서는 이 판단 지점이 묻히지만, 흐름도는 **마름모(판단)** 로 드러냅니다.\n\n좋은 업무 알고리즘의 조건은 다음과 같습니다.\n1. 처음 보는 사람이 **그대로 따라 할 수 있다**.\n2. 판단 지점마다 **기준이 숫자나 관찰 가능한 사실**로 적혀 있다.\n3. 단계마다 **왜 하는지**와 **주의점**이 붙어 있다.\n4. 막다른 길이 없다. 모든 분기가 어디론가 이어지거나 명확히 끝난다.\n\n---\n\n## 2. 작성 순서\n\n```flow\n# 업무 알고리즘 만들기\n시작: 정리할 업무 선정\n1. 선배 작업을 관찰하거나 인터뷰하며 메모\n  > \"이때 왜 이렇게 하셨어요?\"를 계속 묻는다. 판단 기준이 핵심이다.\n2. 메모를 시간 순서의 단계로 다시 쓰기\n3. 판단 지점을 찾아 ? 로 표시하고 분기 적기\n4. 알고리즘 맵으로 변환 (규칙 변환 또는 LLM 변환)\n5. 노드마다 상세 설명, 주의점, 사진 붙이기\n  ! 사진에 사내 기밀 정보가 찍히지 않았는지 확인한다.\n6. ? 선배가 검토했을 때 빠진 판단이 없는가\n  아니오 → 지적 사항 반영 → 3\n  예 → 7\n7. HTML로 내보내 팀에 공유\n끝: 교재로 등록\n```\n\n---\n\n## 3. 흐름 문법 (flow)\n\nLLM 없이도 아래 문법으로 쓰면 프로그램이 바로 도형으로 바꿔 줍니다.\n\n| 쓰는 법 | 의미 | 도형 |\n|---|---|---|\n| `# 제목` | 맵 제목 | — |\n| `시작: 내용` | 시작점 | 둥근 사각형 |\n| `끝: 내용` 또는 `종료: 내용` | 끝점 | 둥근 사각형 |\n| `내용` 또는 `1. 내용` | 일반 단계 (번호는 ID로 쓰임) | 사각형 |\n| `? 내용` 또는 `3. ? 내용` | 판단 (분기) | 마름모 |\n| `입력: 내용` | 자료, 데이터 입출력 | 평행사변형 |\n| (들여쓰기) `예 → 대상` | 분기. 대상은 번호, 단계 이름, 또는 새 내용 | 화살표 + 라벨 |\n| (들여쓰기) `아니오 → 새 단계 → 3` | 새 단계를 만들고 3번으로 이어 붙임 | |\n| (들여쓰기) `→ 대상` | 라벨 없는 이동 (되돌아가기 등) | 화살표 |\n| (들여쓰기) `> 내용` | 바로 위 단계의 상세 설명 | 노드 상세에 저장 |\n| (들여쓰기) `! 내용` | 바로 위 단계의 주의점 | 노드에 ⚠ 표시 |\n\n### 연결 규칙\n\n- 단계는 기본적으로 **바로 다음 줄의 단계로 이어집니다**.\n- 단계 아래에 `→` 줄이 있으면 기본 연결 대신 그 화살표를 씁니다.\n- 판단(`?`)에 분기가 하나만 적혀 있으면, 나머지 경우는 다음 단계로 이어지고 라벨이 반대로 붙습니다. (`아니오`만 적으면 `예`는 다음 단계)\n- `끝:` 다음에는 자동 연결이 없습니다.\n\n### 예시\n\n```flow\n# 도금 두께 이탈 판정\n시작: 두께 SPC 이탈 알람\n1. 이탈 wafer와 site 확인\n2. ? 계측 재현성이 있는가 (재측정 결과 동일)\n  아니오 → 계측기 점검 요청 → 끝\n  예 → 3\n3. 동일 챔버 직전 lot 데이터 확인\n  > 같은 챔버의 최근 5 lot 추세를 본다.\n4. ? 추세성 하락인가\n  예 → 약품 분석 및 소모품 수명 확인 → 6\n  아니오 → 5\n5. 단발성 원인 확인 (접촉, 웨이퍼 상태)\n  ! 웨이퍼 로딩 이력과 알람 로그를 함께 본다.\n6. 엔지니어 판정 및 lot 처리 결정\n끝: 판정 결과 기록\n```\n\n> `→ 끝` 은 `끝:` 단계로 이어집니다. 대상에 단계 이름의 앞부분만 적어도, 그 이름으로 시작하는 단계로 이어집니다.\n\n---\n\n## 4. LLM 변환 쓰기\n\n말로 풀어 쓴 메모를 붙여 넣고 **[LLM으로 도형화]** 를 누르면, Claude가 단계·판단·분기를 찾아 맵으로 만들어 줍니다.\n\n- 설정에서 API 키를 넣어야 합니다. 키는 **이 브라우저에만** 저장됩니다.\n- 사내에서 승인된 LLM 게이트웨이가 있으면, 설정의 **API 주소**를 그 주소로 바꿔 쓸 수 있습니다 (Anthropic Messages API와 같은 형식이어야 합니다).\n- **기밀 주의**: 외부 API로 보내는 텍스트에 사내 공정 조건, 수율, 고객 정보를 넣지 마세요. 사내 규정을 먼저 확인하세요. 기밀이 섞인 내용은 LLM 없이 흐름 문법으로 작성하세요.\n- 변환 결과는 초안입니다. **판단 기준이 정확한지는 반드시 사람이 확인**하세요.\n\n이미 만든 맵에도 **[LLM으로 다듬기]** 를 쓸 수 있습니다. \"판단 기준을 더 구체적으로\", \"PM 후 확인 단계 추가\"처럼 요청하면 됩니다.\n\n---\n\n## 5. 노드에 붙일 것\n\n| 항목 | 예 |\n|---|---|\n| 요약 | 한 줄. 도형 안에 보인다 |\n| 상세 설명 | 왜 하는지, 어떻게 하는지 |\n| 주의점 | 자주 하는 실수, 안전 주의 |\n| 이미지 | 장비 화면 캡처, 부품 사진, 도면, 그래프 (붙여넣기 또는 끌어다 놓기) |\n| 태그 | 장비명, 공정명. 검색에 쓴다 |\n\n---\n\n## 자기 점검\n\n1. 지난주에 배운 업무 하나를 흐름 문법 10줄 이내로 적어 보세요.\n2. 그 흐름에서 판단 기준이 \"적당히\", \"충분히\"처럼 모호한 곳을 찾아 숫자나 관찰 가능한 사실로 바꿔 보세요.\n3. 만든 맵을 동기에게 보여 주고, 설명 없이 따라 할 수 있는지 확인해 보세요.\n"}]</script>
+<script type="application/json" id="preload-maps">null</script>
+<script>
+(function(){
+'use strict';
+
+/* ================================================================
+ * 0. 기본 도구
+ * ================================================================ */
+const APP = document.getElementById('app');
+const INITIAL_APP_HTML = APP.innerHTML;          // 공유용 HTML 내보내기에 사용
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const SVGNS = 'http://www.w3.org/2000/svg';
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const clone = o => JSON.parse(JSON.stringify(o));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function h(tag, attrs, ...kids){
+  const e = document.createElement(tag);
+  if (attrs) for (const k in attrs){
+    const v = attrs[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) e.append(k.nodeType ? k : document.createTextNode(k));
+  return e;
+}
+function s(tag, attrs){
+  const e = document.createElementNS(SVGNS, tag);
+  if (attrs) for (const k in attrs) if (attrs[k] != null) e.setAttribute(k, attrs[k]);
+  return e;
+}
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+let toastTimer;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function download(name, data, type){
+  const blob = data instanceof Blob ? data : new Blob([data], {type: type || 'application/octet-stream'});
+  const a = h('a', {href: URL.createObjectURL(blob), download: name});
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+const safeName = t => (t || '맵').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60);
+const today = () => new Date().toISOString().slice(0, 10);
+
+/* ================================================================
+ * 1. 흐름 문법(flow) 파서 — 오프라인 규칙 변환
+ * ================================================================ */
+const COMPLEMENT = [['예','아니오'],['yes','no'],['y','n'],['o','x'],['ok','ng'],['있음','없음'],['정상','이상'],['합격','불합격'],['맞음','아님'],['참','거짓']];
+function complementOf(label){
+  const l = (label || '').trim().toLowerCase();
+  for (const [a, b] of COMPLEMENT){ if (l === a) return b; if (l === b) return a; }
+  return '';
+}
+const END_WORDS = ['끝','종료','end'];
+
+function parseFlow(src){
+  const lines = String(src || '').replace(/\r/g, '').split('\n');
+  const nodes = [], edges = [], top = [];
+  const alias = new Map();
+  let title = '', cur = null, seq = 0;
+  const mk = (type, text) => {
+    const n = {id: 'n' + (++seq), type, title: text.trim(), summary: '', detail: '', caution: '', tags: [], images: [], x: 0, y: 0, arrows: []};
+    nodes.push(n); return n;
+  };
+  const splitArrows = t => t.split(/\s*(?:→|->|⇒|=>)\s*/);
+  for (const raw of lines){
+    if (!raw.trim()) continue;
+    const indent = raw.match(/^[ \t]*/)[0].replace(/\t/g, '  ').length;
+    let line = raw.trim();
+    if (indent === 0 && /^#\s*/.test(line) && !/^#\d/.test(line)){ title = line.replace(/^#+\s*/, ''); continue; }
+    if (indent > 0 && cur){
+      if (/^>/.test(line)){ cur.detail += (cur.detail ? '\n' : '') + line.replace(/^>\s?/, ''); continue; }
+      if (/^[!！]/.test(line)){ cur.caution += (cur.caution ? '\n' : '') + line.replace(/^[!！]\s?/, ''); continue; }
+      const parts = splitArrows(line.replace(/^[-*•]\s+/, ''));
+      if (parts.length >= 2){
+        const label = parts[0].replace(/[:：]\s*$/, '').trim();
+        const targets = parts.slice(1).map(t => t.trim()).filter(Boolean);
+        if (targets.length) cur.arrows.push({label, targets});
+        continue;
+      }
+      cur.detail += (cur.detail ? '\n' : '') + line.replace(/^[-*•]\s+/, '');
+      continue;
+    }
+    line = line.replace(/^[-*•]\s+/, '');
+    let al = null, m;
+    if ((m = line.match(/^(\d+(?:\.\d+)*)[.)]\s*(.*)$/))){ al = m[1]; line = m[2]; }
+    if ((m = line.match(/^\[([^\]]+)\]\s*(.*)$/))){ al = m[1]; line = m[2]; }
+    const inline = splitArrows(line);
+    line = inline[0];
+    let type = 'process';
+    if (/^(시작|start)\s*[:：]/i.test(line)){ type = 'start'; line = line.replace(/^[^:：]*[:：]\s*/, ''); }
+    else if (/^(끝|종료|end)\s*[:：]/i.test(line)){ type = 'end'; line = line.replace(/^[^:：]*[:：]\s*/, ''); }
+    else if (/^(입력|출력|자료|데이터|io)\s*[:：]/i.test(line)){ type = 'io'; line = line.replace(/^[^:：]*[:：]\s*/, ''); }
+    else if (/^[?？]/.test(line)){ type = 'decision'; line = line.replace(/^[?？]\s*/, ''); }
+    if (!line.trim()) line = type === 'start' ? '시작' : type === 'end' ? '끝' : '(제목 없음)';
+    const n = mk(type, line);
+    if (inline.length > 1) n.arrows.push({label: '', targets: inline.slice(1).map(t => t.trim()).filter(Boolean)});
+    if (al) alias.set(al, n);
+    top.push(n); cur = n;
+  }
+  const resolve = t => {
+    const k = t.replace(/^\[|\]$/g, '').replace(/[.)]$/, '').trim();
+    if (alias.has(k)) return alias.get(k);
+    if (END_WORDS.includes(k.toLowerCase())){
+      const ends = top.filter(n => n.type === 'end');
+      if (ends.length) return ends[ends.length - 1];
+      return mk('end', k);
+    }
+    const exact = nodes.find(n => n.title === k);
+    if (exact) return exact;
+    if (k.length >= 2){ const pre = top.find(n => n.title.startsWith(k)); if (pre) return pre; }
+    return mk('process', k);
+  };
+  const addEdge = (a, b, label) => {
+    if (!a || !b || a === b) return;
+    if (edges.some(e => e.from === a.id && e.to === b.id)) return;
+    edges.push({id: 'e' + (edges.length + 1), from: a.id, to: b.id, label: label || ''});
+  };
+  top.forEach((n, i) => {
+    const next = top[i + 1];
+    for (const ar of n.arrows){
+      let prev = n;
+      ar.targets.forEach((t, j) => { const tn = resolve(t); addEdge(prev, tn, j === 0 ? ar.label : ''); prev = tn; });
+    }
+    if (n.type === 'end' || !next) return;
+    if (!n.arrows.length) addEdge(n, next, '');
+    else if (n.type === 'decision' && n.arrows.length === 1){
+      const first = resolve(n.arrows[0].targets[0]);
+      if (first !== next) addEdge(n, next, complementOf(n.arrows[0].label));
+    }
+  });
+  nodes.forEach(n => delete n.arrows);
+  return {title, nodes, edges};
+}
+
+/* ================================================================
+ * 2. 도형 크기와 자동 배치
+ * ================================================================ */
+const measureCtx = document.createElement('canvas').getContext('2d');
+const FONT_FAMILY = getComputedStyle(document.documentElement).getPropertyValue('--font') || 'sans-serif';
+function textW(t, font){ measureCtx.font = font; return measureCtx.measureText(t).width; }
+function wrapText(text, maxW, font, maxLines){
+  const out = []; let line = '';
+  const push = () => { out.push(line); line = ''; };
+  const tokens = String(text || '').split(/(\s+)/).filter(x => x !== '');
+  for (const tk of tokens){
+    if (/^\s+$/.test(tk)){ if (line) line += ' '; continue; }
+    if (textW(line + tk, font) <= maxW){ line += tk; continue; }
+    if (line.trim()){ line = line.trimEnd(); push(); }
+    if (textW(tk, font) <= maxW){ line = tk; continue; }
+    for (const ch of tk){ if (textW(line + ch, font) > maxW && line){ push(); } line += ch; }
+  }
+  if (line.trim()) out.push(line.trimEnd());
+  if (!out.length) out.push('');
+  if (maxLines && out.length > maxLines){
+    const cut = out.slice(0, maxLines);
+    let last = cut[maxLines - 1];
+    while (last && textW(last + '…', font) > maxW) last = last.slice(0, -1);
+    cut[maxLines - 1] = last + '…';
+    return cut;
+  }
+  return out;
+}
+const F_TITLE = '600 13px ' + FONT_FAMILY, F_SUB = '11.5px ' + FONT_FAMILY;
+const GEO = {
+  process: {w: 210, tw: 184},
+  io: {w: 220, tw: 168},
+  start: {w: 180, tw: 156},
+  end: {w: 180, tw: 156},
+  decision: {w: 240, tw: 136}
+};
+function nodeBox(n){
+  const g = GEO[n.type] || GEO.process;
+  const lines = wrapText(n.title || '(제목 없음)', g.tw, F_TITLE, n.type === 'decision' ? 4 : 3);
+  const sub = (n.summary && n.type !== 'decision') ? wrapText(n.summary, g.tw, F_SUB, 1) : [];
+  let hgt;
+  if (n.type === 'decision') hgt = Math.max(88, lines.length * 17 + 58);
+  else if (n.type === 'start' || n.type === 'end') hgt = Math.max(42, 18 + lines.length * 17 + sub.length * 15);
+  else hgt = Math.max(52, 22 + lines.length * 17 + sub.length * 16);
+  return {w: g.w, h: hgt, lines, sub};
+}
+
+function layoutMap(map){
+  const nodes = map.nodes; if (!nodes.length) return;
+  const byId = new Map(nodes.map(n => [n.id, n]));
+  const idx = new Map(nodes.map((n, i) => [n.id, i]));
+  const edges = map.edges.filter(e => byId.has(e.from) && byId.has(e.to) && e.from !== e.to);
+  const out = new Map(nodes.map(n => [n.id, []]));
+  const inc = new Map(nodes.map(n => [n.id, []]));
+  edges.forEach(e => { out.get(e.from).push(e); inc.get(e.to).push(e); });
+  // 역방향(되돌아가는) 간선 찾기
+  const state = new Map(), back = new Set();
+  const dfs = id => {
+    state.set(id, 1);
+    for (const e of out.get(id)){
+      const st = state.get(e.to);
+      if (st === 1) back.add(e); else if (!st) dfs(e.to);
+    }
+    state.set(id, 2);
+  };
+  [...nodes.filter(n => n.type === 'start'), ...nodes.filter(n => !inc.get(n.id).length), ...nodes]
+    .forEach(n => { if (!state.get(n.id)) dfs(n.id); });
+  const fwd = edges.filter(e => !back.has(e));
+  // 최장 경로로 층(rank) 정하기
+  const indeg = new Map(nodes.map(n => [n.id, 0]));
+  fwd.forEach(e => indeg.set(e.to, indeg.get(e.to) + 1));
+  const rank = new Map(nodes.map(n => [n.id, 0]));
+  const q = nodes.filter(n => !indeg.get(n.id)).map(n => n.id);
+  while (q.length){
+    const id = q.shift();
+    for (const e of fwd) if (e.from === id){
+      rank.set(e.to, Math.max(rank.get(e.to), rank.get(id) + 1));
+      indeg.set(e.to, indeg.get(e.to) - 1);
+      if (!indeg.get(e.to)) q.push(e.to);
+    }
+  }
+  const layers = [];
+  nodes.forEach(n => { const r = rank.get(n.id); (layers[r] || (layers[r] = [])).push(n); });
+  const box = new Map(nodes.map(n => [n.id, nodeBox(n)]));
+  const GAPX = 46, GAPY = 54;
+  const preds = id => fwd.filter(e => e.to === id).map(e => byId.get(e.from));
+  const succIn = (id, r) => fwd.filter(e => e.from === id && rank.get(e.to) === r).map(e => byId.get(e.to))
+    .sort((a, b) => idx.get(a.id) - idx.get(b.id));
+  let y = 0;
+  layers.forEach((L, r) => {
+    if (!L) return;
+    const maxH = Math.max(...L.map(n => box.get(n.id).h));
+    if (r > 0){
+      const prevL = layers[r - 1] || [];
+      const prevH = prevL.length ? Math.max(...prevL.map(n => box.get(n.id).h)) : 0;
+      y += prevH / 2 + GAPY + maxH / 2;
+    }
+    const want = new Map();
+    L.forEach(n => {
+      const ps = preds(n.id);
+      if (!ps.length){ want.set(n.id, 0); return; }
+      const xs = ps.map(p => {
+        const sib = succIn(p.id, r);
+        if (sib.length < 2) return p.x;
+        const k = sib.indexOf(n);
+        const step = (box.get(p.id).w + box.get(n.id).w) / 2 + GAPX - 40;
+        return p.x + (k === 0 ? 0 : (k % 2 ? 1 : -1) * Math.ceil(k / 2) * step);
+      });
+      want.set(n.id, xs.reduce((a, b) => a + b, 0) / xs.length);
+    });
+    L.sort((a, b) => (want.get(a.id) - want.get(b.id)) || (idx.get(a.id) - idx.get(b.id)));
+    const sep = (a, b) => (box.get(a.id).w + box.get(b.id).w) / 2 + GAPX;
+    const left = [], right = [];
+    L.forEach((n, i) => { left[i] = i ? Math.max(want.get(n.id), left[i - 1] + sep(L[i - 1], n)) : want.get(n.id); });
+    for (let i = L.length - 1; i >= 0; i--){ right[i] = i < L.length - 1 ? Math.min(want.get(L[i].id), right[i + 1] - sep(L[i], L[i + 1])) : want.get(L[i].id); }
+    L.forEach((n, i) => { n.x = Math.round((left[i] + right[i]) / 2); n.y = Math.round(y); });
+  });
+}
+
+/* ================================================================
+ * 3. SVG 그리기 (편집 캔버스와 교육 화면이 같이 사용)
+ * ================================================================ */
+function nodeShape(n, b){
+  const w = b.w, hh = b.h;
+  if (n.type === 'decision') return s('polygon', {class: 'shape', points: `0,${-hh/2} ${w/2},0 0,${hh/2} ${-w/2},0`});
+  if (n.type === 'start' || n.type === 'end') return s('rect', {class: 'shape', x: -w/2, y: -hh/2, width: w, height: hh, rx: hh/2});
+  if (n.type === 'io'){ const k = 14; return s('polygon', {class: 'shape', points: `${-w/2+k},${-hh/2} ${w/2},${-hh/2} ${w/2-k},${hh/2} ${-w/2},${hh/2}`}); }
+  return s('rect', {class: 'shape', x: -w/2, y: -hh/2, width: w, height: hh, rx: 8});
+}
+function roundedPath(pts, r){
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < pts.length - 1; i++){
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
+    const d1 = Math.hypot(x1 - x0, y1 - y0), d2 = Math.hypot(x2 - x1, y2 - y1);
+    const rr = Math.min(r, d1 / 2, d2 / 2);
+    const ax = x1 - (x1 - x0) / (d1 || 1) * rr, ay = y1 - (y1 - y0) / (d1 || 1) * rr;
+    const bx = x1 + (x2 - x1) / (d2 || 1) * rr, by = y1 + (y2 - y1) / (d2 || 1) * rr;
+    d += ` L${ax},${ay} Q${x1},${y1} ${bx},${by}`;
+  }
+  const L = pts[pts.length - 1];
+  return d + ` L${L[0]},${L[1]}`;
+}
+function edgeGeometry(a, ba, b, bb, backIndex){
+  const ax = a.x, ay = a.y, bx = b.x, by = b.y;
+  const aBottom = ay + ba.h / 2, bTop = by - bb.h / 2;
+  if (bTop > aBottom + 8){
+    const dx = bx - ax;
+    if (a.type === 'decision' && Math.abs(dx) > ba.w / 4){
+      const dir = dx > 0 ? 1 : -1;
+      const sx = ax + dir * ba.w / 2;
+      const pts = [[sx, ay], [bx, ay], [bx, bTop]];
+      return {d: roundedPath(pts, 12), lx: sx + dir * 26, ly: ay - 9, anchor: 'middle'};
+    }
+    if (Math.abs(dx) < 2) return {d: `M${ax},${aBottom} L${bx},${bTop}`, lx: ax + 8, ly: aBottom + 17, anchor: 'start'};
+    const my = (aBottom + bTop) / 2;
+    const d = `M${ax},${aBottom} C${ax},${my} ${bx},${my} ${bx},${bTop}`;
+    const t = .28, mt = 1 - t;
+    const px = mt*mt*mt*ax + 3*mt*mt*t*ax + 3*mt*t*t*bx + t*t*t*bx;
+    const py = mt*mt*mt*aBottom + 3*mt*mt*t*my + 3*mt*t*t*my + t*t*t*bTop;
+    return {d, lx: px + (dx > 0 ? -6 : 6), ly: py, anchor: dx > 0 ? 'end' : 'start'};
+  }
+  const X = Math.max(ax + ba.w / 2, bx + bb.w / 2) + 30 + backIndex * 16;
+  const pts = [[ax + ba.w / 2 - (a.type === 'io' ? 7 : 0), ay], [X, ay], [X, by], [bx + bb.w / 2 - (b.type === 'io' ? 7 : 0), by]];
+  return {d: roundedPath(pts, 12), lx: X, ly: (ay + by) / 2, anchor: 'middle', back: true};
+}
+
+let markerSeq = 0;
+function renderGraph(map, opts){
+  opts = opts || {};
+  const g = s('g');
+  const mid = 'arrow' + (++markerSeq);
+  const defs = s('defs');
+  const mk = s('marker', {id: mid, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse'});
+  mk.append(s('path', {d: 'M0,0 L10,5 L0,10 z', class: 'arrowhead'}));
+  defs.append(mk);
+  g.append(defs);
+  const byId = new Map(map.nodes.map(n => [n.id, n]));
+  const boxes = new Map(map.nodes.map(n => [n.id, nodeBox(n)]));
+  const eg = s('g'), ng = s('g');
+  g.append(eg, ng);
+  let backCount = 0;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  const grow = (x0, y0, x1, y1) => { minX = Math.min(minX, x0); minY = Math.min(minY, y0); maxX = Math.max(maxX, x1); maxY = Math.max(maxY, y1); };
+  for (const e of map.edges){
+    const a = byId.get(e.from), b = byId.get(e.to);
+    if (!a || !b || a === b) continue;
+    const geo = edgeGeometry(a, boxes.get(a.id), b, boxes.get(b.id), backCount);
+    if (geo.back){ backCount++; grow(geo.lx - 4, Math.min(a.y, b.y), geo.lx + 4, Math.max(a.y, b.y)); }
+    const eg1 = s('g', {class: 'edge' + (opts.selEdge === e.id ? ' selected' : ''), 'data-edge': e.id});
+    eg1.append(s('path', {class: 'hit', d: geo.d}));
+    eg1.append(s('path', {class: 'line', d: geo.d, 'marker-end': `url(#${mid})`}));
+    if (e.label){
+      const tw = textW(e.label, '600 11.5px ' + FONT_FAMILY) + 10;
+      const x0 = geo.anchor === 'middle' ? geo.lx - tw / 2 : geo.anchor === 'end' ? geo.lx - tw : geo.lx;
+      eg1.append(s('rect', {class: 'lbl-bg', x: x0, y: geo.ly - 9, width: tw, height: 18, rx: 9}));
+      const t = s('text', {class: 'lbl', x: x0 + tw / 2, y: geo.ly + 4, 'text-anchor': 'middle'});
+      t.textContent = e.label; eg1.append(t);
+      grow(x0, geo.ly - 9, x0 + tw, geo.ly + 9);
+    }
+    eg.append(eg1);
+  }
+  for (const n of map.nodes){
+    const b = boxes.get(n.id);
+    const cls = ['node', 't-' + n.type];
+    if (opts.selNode === n.id) cls.push('selected');
+    if (opts.current === n.id) cls.push('current');
+    const ng1 = s('g', {class: cls.join(' '), 'data-node': n.id, transform: `translate(${n.x},${n.y})`});
+    ng1.append(nodeShape(n, b));
+    const total = b.lines.length * 17 + b.sub.length * 16;
+    let ty = -total / 2 + 13;
+    for (const ln of b.lines){ const t = s('text', {class: 'ttl', x: 0, y: ty, 'text-anchor': 'middle'}); t.textContent = ln; ng1.append(t); ty += 17; }
+    for (const ln of b.sub){ const t = s('text', {class: 'sub', x: 0, y: ty + 1, 'text-anchor': 'middle'}); t.textContent = ln; ng1.append(t); ty += 16; }
+    const badges = [];
+    if (n.images && n.images.length) badges.push('📷' + n.images.length);
+    if (n.caution) badges.push('⚠');
+    if (n.detail) badges.push('¶');
+    if (badges.length){
+      const str = badges.join(' ');
+      const bw = textW(str, '11px ' + FONT_FAMILY) + 12;
+      const bx = n.type === 'decision' ? 18 : b.w / 2 - bw + 6;
+      const by = n.type === 'decision' ? -b.h / 2 + 2 : -b.h / 2 - 9;
+      ng1.append(s('rect', {class: 'badge-bg', x: bx, y: by, width: bw, height: 17, rx: 8.5}));
+      const t = s('text', {class: 'badge', x: bx + bw / 2, y: by + 12.5, 'text-anchor': 'middle'}); t.textContent = str; ng1.append(t);
+    }
+    if (opts.handles && opts.selNode === n.id){
+      ng1.append(s('circle', {class: 'handle', cx: 0, cy: b.h / 2 + (n.type === 'decision' ? 0 : 1), r: 7, 'data-handle': n.id}));
+    }
+    ng.append(ng1);
+    grow(n.x - b.w / 2, n.y - b.h / 2 - 10, n.x + b.w / 2, n.y + b.h / 2 + 8);
+  }
+  if (!map.nodes.length){ minX = minY = 0; maxX = maxY = 1; }
+  return {g, bounds: {x: minX, y: minY, w: maxX - minX, h: maxY - minY}};
+}
+function renderStatic(map){
+  const {g, bounds} = renderGraph(map, {});
+  const pad = 20;
+  const svg = s('svg', {xmlns: SVGNS, viewBox: `${bounds.x - pad} ${bounds.y - pad} ${bounds.w + pad * 2} ${bounds.h + pad * 2}`,
+    width: Math.round(bounds.w + pad * 2), height: Math.round(bounds.h + pad * 2)});
+  svg.append(g);
+  return svg;
+}
+
+/* ================================================================
+ * 4. 저장소 (IndexedDB, 실패 시 메모리)
+ * ================================================================ */
+const DB = {
+  db: null, mem: new Map(),
+  async open(){
+    try {
+      this.db = await new Promise((res, rej) => {
+        const r = indexedDB.open('engr-edu', 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('maps', {keyPath: 'id'});
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+      });
+    } catch (e){ this.db = null; }
+    return !!this.db;
+  },
+  tx(mode){ return this.db.transaction('maps', mode).objectStore('maps'); },
+  all(){
+    if (!this.db) return Promise.resolve([...this.mem.values()].map(clone));
+    return new Promise((res, rej) => { const r = this.tx('readonly').getAll(); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+  },
+  put(m){
+    const data = clone(m);
+    if (!this.db){ this.mem.set(m.id, data); return Promise.resolve(); }
+    return new Promise((res, rej) => { const r = this.tx('readwrite').put(data); r.onsuccess = () => res(); r.onerror = () => rej(r.error); });
+  },
+  del(id){
+    if (!this.db){ this.mem.delete(id); return Promise.resolve(); }
+    return new Promise((res, rej) => { const r = this.tx('readwrite').delete(id); r.onsuccess = () => res(); r.onerror = () => rej(r.error); });
+  }
+};
+
+/* ================================================================
+ * 5. 상태
+ * ================================================================ */
+const S = {
+  tab: 'edu', maps: [], cur: null, sel: null,
+  vp: {x: 0, y: 0, k: 1}, hist: [], fut: [], ptab: 'text', eduIdx: 0, edu: [], walk: null
+};
+function newMap(title){
+  const t = Date.now();
+  return {id: uid(), title: title || '새 업무 알고리즘', text: '', nodes: [], edges: [], createdAt: t, updatedAt: t};
+}
+function normalizeMap(m){
+  const out = {
+    id: String(m.id || uid()), title: String(m.title || '제목 없음'), text: String(m.text || ''),
+    createdAt: +m.createdAt || Date.now(), updatedAt: +m.updatedAt || Date.now(), nodes: [], edges: []
+  };
+  const types = ['start', 'end', 'process', 'decision', 'io'];
+  const seen = new Set();
+  (Array.isArray(m.nodes) ? m.nodes : []).forEach(n => {
+    let id = String(n.id || uid()); if (seen.has(id)) id = uid(); seen.add(id);
+    out.nodes.push({
+      id, type: types.includes(n.type) ? n.type : 'process', title: String(n.title || ''),
+      summary: String(n.summary || ''), detail: String(n.detail || ''), caution: String(n.caution || ''),
+      tags: Array.isArray(n.tags) ? n.tags.map(String) : [],
+      images: Array.isArray(n.images) ? n.images.filter(i => i && typeof i.src === 'string' && /^data:image\//.test(i.src)).map(i => ({id: String(i.id || uid()), src: i.src, caption: String(i.caption || '')})) : [],
+      x: +n.x || 0, y: +n.y || 0
+    });
+  });
+  (Array.isArray(m.edges) ? m.edges : []).forEach(e => {
+    if (!seen.has(String(e.from)) || !seen.has(String(e.to)) || e.from === e.to) return;
+    if (out.edges.some(x => x.from === String(e.from) && x.to === String(e.to))) return;
+    out.edges.push({id: String(e.id || uid()), from: String(e.from), to: String(e.to), label: String(e.label || '')});
+  });
+  return out;
+}
+
+let saveTimer;
+function touch(opts){
+  if (!S.cur) return;
+  S.cur.updatedAt = Date.now();
+  clearTimeout(saveTimer);
+  const m = S.cur;
+  saveTimer = setTimeout(() => { DB.put(m).catch(() => toast('저장 실패 — JSON으로 백업하세요')); renderMapList(); }, 350);
+  if (!opts || opts.canvas !== false) renderCanvas();
+}
+function pushHistory(){
+  if (!S.cur) return;
+  S.hist.push(JSON.stringify(S.cur));
+  if (S.hist.length > 60) S.hist.shift();
+  S.fut = [];
+  updateUndo();
+}
+function undo(){
+  if (!S.hist.length || !S.cur) return;
+  S.fut.push(JSON.stringify(S.cur));
+  replaceCur(JSON.parse(S.hist.pop()));
+}
+function redo(){
+  if (!S.fut.length || !S.cur) return;
+  S.hist.push(JSON.stringify(S.cur));
+  replaceCur(JSON.parse(S.fut.pop()));
+}
+function replaceCur(m){
+  const i = S.maps.findIndex(x => x.id === m.id);
+  if (i >= 0) S.maps[i] = m;
+  S.cur = m;
+  if (S.sel && !(S.sel.kind === 'node' ? m.nodes : m.edges).some(x => x.id === S.sel.id)) S.sel = null;
+  touch(); renderPanel(); updateUndo(); $('#map-title').value = m.title; $('#src-text').value = m.text;
+}
+function updateUndo(){ $('#btn-undo').disabled = !S.hist.length; $('#btn-redo').disabled = !S.fut.length; }
+
+/* ================================================================
+ * 6. 교육과정 화면
+ * ================================================================ */
+function inlineMd(t){
+  const codes = [];
+  let x = esc(t).replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return '\u0000' + (codes.length - 1) + '\u0000'; });
+  x = x.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  x = x.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, a, u) => /^(https?:|#|\.{0,2}\/)/.test(u) ? `<a href="${u}" target="_blank" rel="noopener">${a}</a>` : a);
+  return x.replace(/\u0000(\d+)\u0000/g, (_, i) => `<code>${codes[+i]}</code>`);
+}
+function renderMarkdown(md, flows, heads){
+  const L = String(md).replace(/\r/g, '').split('\n');
+  let html = '', i = 0;
+  const isItem = l => /^\s*([-*]|\d+[.)])\s+/.test(l);
+  const isBlockStart = l => /^(```|#{1,4}\s|>|\s*\||---+\s*$)/.test(l) || isItem(l);
+  while (i < L.length){
+    const line = L[i];
+    if (/^```/.test(line)){
+      const lang = line.slice(3).trim(); const buf = []; i++;
+      while (i < L.length && !/^```/.test(L[i])){ buf.push(L[i]); i++; }
+      i++;
+      if (lang === 'flow' && flows){ flows.push(buf.join('\n')); html += `<div class="flow-slot" data-flow="${flows.length - 1}"></div>`; }
+      else html += `<pre><code>${esc(buf.join('\n'))}</code></pre>`;
+      continue;
+    }
+    if (/^#{1,4}\s/.test(line)){
+      const lv = line.match(/^#+/)[0].length, t = line.slice(lv).trim();
+      if (lv === 2 && heads){ heads.push(t); html += `<h2 id="sec-${heads.length - 1}">${inlineMd(t)}</h2>`; }
+      else html += `<h${lv}>${inlineMd(t)}</h${lv}>`;
+      i++; continue;
+    }
+    if (/^---+\s*$/.test(line)){ html += '<hr>'; i++; continue; }
+    if (/^\s*\|/.test(line)){
+      const rows = [];
+      while (i < L.length && /^\s*\|/.test(L[i])){ rows.push(L[i].trim()); i++; }
+      const cells = r => r.replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+      const body = rows.filter((r, k) => !(k === 1 && /^\|?[\s:|-]+\|?$/.test(r)));
+      html += '<table>';
+      body.forEach((r, k) => {
+        const tag = k === 0 && rows.length > 1 && /^\|?[\s:|-]+\|?$/.test(rows[1]) ? 'th' : 'td';
+        html += '<tr>' + cells(r).map(c => `<${tag}>${inlineMd(c)}</${tag}>`).join('') + '</tr>';
+      });
+      html += '</table>'; continue;
+    }
+    if (/^>/.test(line)){
+      const buf = [];
+      while (i < L.length && /^>/.test(L[i])){ buf.push(L[i].replace(/^>\s?/, '')); i++; }
+      html += `<blockquote>${renderMarkdown(buf.join('\n'))}</blockquote>`; continue;
+    }
+    if (isItem(line)){
+      const stack = [];
+      while (i < L.length && (isItem(L[i]) || (L[i].trim() && /^\s{2,}/.test(L[i]) && stack.length))){
+        const m = L[i].match(/^(\s*)([-*]|\d+[.)])\s+(.*)$/);
+        if (!m){ html += ' ' + inlineMd(L[i].trim()); i++; continue; }
+        const ind = m[1].length, tag = /\d/.test(m[2]) ? 'ol' : 'ul';
+        if (!stack.length || ind > stack[stack.length - 1].ind){
+          const st = tag === 'ol' && parseInt(m[2]) !== 1 ? ` start="${parseInt(m[2])}"` : '';
+          html += `<${tag}${st}>`; stack.push({ind, tag});
+        } else {
+          while (stack.length > 1 && ind < stack[stack.length - 1].ind){ html += `</li></${stack.pop().tag}>`; }
+          html += '</li>';
+        }
+        html += `<li>${inlineMd(m[3])}`; i++;
+      }
+      while (stack.length) html += `</li></${stack.pop().tag}>`;
+      continue;
+    }
+    if (!line.trim()){ i++; continue; }
+    const buf = [];
+    while (i < L.length && L[i].trim() && !isBlockStart(L[i])){ buf.push(L[i].trim()); i++; }
+    html += `<p>${inlineMd(buf.join(' '))}</p>`;
+  }
+  return html;
+}
+function loadEdu(){
+  try { S.edu = JSON.parse($('#edu-data').textContent) || []; } catch(e){ S.edu = []; }
+  S.eduIdx = Math.min(store.get('engr-edu.eduIdx', 0), Math.max(0, S.edu.length - 1));
+}
+function renderEdu(){
+  const toc = $('#edu-toc'), doc = $('#edu-doc');
+  toc.innerHTML = ''; doc.innerHTML = '';
+  if (!S.edu.length){
+    doc.innerHTML = '<h1>교육 콘텐츠가 비어 있습니다</h1><p>이 파일은 빌드 전 원본입니다. 저장소에서 <code>python3 tools/build.py</code> 를 실행해 <code>dist/engr-edu.html</code> 을 만들고, 그 파일을 여세요.</p>';
+    return;
+  }
+  toc.append(h('h3', {text: '교육과정'}));
+  const flows = [], heads = [];
+  const mod = S.edu[S.eduIdx];
+  doc.innerHTML = renderMarkdown(mod.md, flows, heads);
+  S.edu.forEach((m, i) => {
+    toc.append(h('button', {class: 'toc-item' + (i === S.eduIdx ? ' active' : ''), onclick: () => {
+      S.eduIdx = i; store.set('engr-edu.eduIdx', i); renderEdu(); $('.edu-main').scrollTop = 0;
+    }}, m.title));
+    if (i === S.eduIdx && heads.length){
+      const sub = h('div', {class: 'toc-sub'});
+      heads.forEach((t, k) => sub.append(h('button', {onclick: () => { const el = document.getElementById('sec-' + k); if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'}); }}, t.replace(/[*`]/g, ''))));
+      toc.append(sub);
+    }
+  });
+  $$('.flow-slot', doc).forEach(slot => {
+    const src = flows[+slot.dataset.flow];
+    const parsed = parseFlow(src);
+    const map = {nodes: parsed.nodes, edges: parsed.edges};
+    layoutMap(map);
+    const pre = h('pre', {hidden: true}, h('code', {text: src}));
+    const box = h('div', {class: 'flowblock'},
+      h('div', {class: 'flowblock-head'},
+        h('b', {text: '◇ ' + (parsed.title || '업무 흐름')}),
+        h('button', {class: 'btn sm', onclick: () => { pre.hidden = !pre.hidden; }}, '흐름 문법 보기'),
+        h('button', {class: 'btn sm primary', onclick: () => importFlowAsMap(src, parsed.title)}, '맵으로 가져오기')),
+      h('div', {class: 'flowblock-body'}, renderStatic(map)),
+      pre);
+    slot.replaceWith(box);
+  });
+}
+async function importFlowAsMap(src, title){
+  const parsed = parseFlow(src);
+  const m = newMap(title || parsed.title || '가져온 흐름');
+  m.text = src; m.nodes = parsed.nodes; m.edges = parsed.edges;
+  layoutMap(m);
+  S.maps.unshift(m); await DB.put(m);
+  openMap(m.id); setTab('map'); requestAnimationFrame(fit);
+  toast('알고리즘 맵으로 가져왔습니다. 노드에 사진과 설명을 붙여 보세요.');
+}
+
+/* ================================================================
+ * 7. 맵 목록
+ * ================================================================ */
+function renderMapList(){
+  const list = $('#map-list'); list.innerHTML = '';
+  const q = $('#map-filter').value.trim().toLowerCase();
+  const items = S.maps.slice().sort((a, b) => b.updatedAt - a.updatedAt).filter(m => {
+    if (!q) return true;
+    const hay = [m.title, m.text, ...m.nodes.map(n => [n.title, n.summary, n.detail, (n.tags || []).join(' ')].join(' '))].join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+  if (!items.length) list.append(h('div', {class: 'hint', style: 'padding:10px'}, q ? '검색 결과가 없습니다.' : '맵이 없습니다.'));
+  items.forEach(m => {
+    list.append(h('button', {class: 'map-item' + (S.cur && S.cur.id === m.id ? ' active' : ''), onclick: () => openMap(m.id)},
+      h('span', {class: 't'}, m.title || '제목 없음'),
+      h('span', {class: 'm'}, `노드 ${m.nodes.length} · ${new Date(m.updatedAt).toLocaleDateString('ko-KR')}`)));
+  });
+}
+function openMap(id){
+  const m = S.maps.find(x => x.id === id); if (!m) return;
+  S.cur = m; S.sel = null; S.hist = []; S.fut = [];
+  $('#map-title').value = m.title; $('#src-text').value = m.text || '';
+  $('#llm-status').innerHTML = '';
+  store.set('engr-edu.lastMap', id);
+  renderMapList(); renderCanvas(); renderPanel(); updateUndo();
+  requestAnimationFrame(fit);
+}
+
+/* ================================================================
+ * 8. 캔버스 (편집)
+ * ================================================================ */
+const canvas = $('#canvas');
+let viewport = null;
+function renderCanvas(){
+  canvas.innerHTML = '';
+  if (!S.cur){ $('#empty-canvas').hidden = false; return; }
+  const {g} = renderGraph(S.cur, {
+    selNode: S.sel && S.sel.kind === 'node' ? S.sel.id : null,
+    selEdge: S.sel && S.sel.kind === 'edge' ? S.sel.id : null,
+    handles: true
+  });
+  viewport = s('g', {id: 'viewport'});
+  viewport.append(g);
+  canvas.append(viewport);
+  applyVp();
+  $('#empty-canvas').hidden = S.cur.nodes.length > 0;
+}
+function applyVp(){
+  if (viewport) viewport.setAttribute('transform', `translate(${S.vp.x},${S.vp.y}) scale(${S.vp.k})`);
+  $('#zoom-ind').textContent = Math.round(S.vp.k * 100) + '%';
+}
+function mapBounds(){
+  if (!S.cur || !S.cur.nodes.length) return null;
+  const {bounds} = renderGraph(S.cur, {});
+  return bounds;
+}
+function fit(){
+  const b = mapBounds(); const r = canvas.getBoundingClientRect();
+  if (!b || !r.width){ S.vp = {x: r.width / 2 || 0, y: 60, k: 1}; applyVp(); return; }
+  const pad = 50;
+  const k = Math.max(.2, Math.min(1.15, (r.width - pad * 2) / b.w, (r.height - pad * 2) / b.h));
+  S.vp = {k, x: (r.width - b.w * k) / 2 - b.x * k, y: Math.max(pad, (r.height - b.h * k) / 2) - b.y * k};
+  applyVp();
+}
+function toWorld(ev){
+  const r = canvas.getBoundingClientRect();
+  return {x: (ev.clientX - r.left - S.vp.x) / S.vp.k, y: (ev.clientY - r.top - S.vp.y) / S.vp.k};
+}
+function nodeById(id){ return S.cur && S.cur.nodes.find(n => n.id === id); }
+function select(sel){
+  S.sel = sel; renderCanvas();
+  if (sel) setPtab('props'); else renderPanel();
+}
+function addNode(type, at, title){
+  if (!S.cur) return null;
+  pushHistory();
+  const r = canvas.getBoundingClientRect();
+  const c = at || {x: (r.width / 2 - S.vp.x) / S.vp.k, y: (r.height / 2 - S.vp.y) / S.vp.k};
+  const label = {process: '새 단계', decision: '판단 질문?', io: '자료', start: '시작', end: '끝'}[type];
+  const n = {id: uid(), type, title: title || label, summary: '', detail: '', caution: '', tags: [], images: [], x: Math.round(c.x), y: Math.round(c.y)};
+  S.cur.nodes.push(n);
+  touch(); select({kind: 'node', id: n.id});
+  setTimeout(() => { const t = $('#prop-title'); if (t){ t.focus(); t.select(); } }, 30);
+  return n;
+}
+function addEdge(from, to, label){
+  if (!S.cur || from === to) return;
+  if (S.cur.edges.some(e => e.from === from && e.to === to)){ toast('이미 연결되어 있습니다'); return; }
+  pushHistory();
+  const src = nodeById(from);
+  let lbl = label || '';
+  if (!lbl && src && src.type === 'decision'){
+    const outs = S.cur.edges.filter(e => e.from === from);
+    lbl = outs.length === 0 ? '예' : (complementOf(outs[0].label) || '');
+  }
+  const e = {id: uid(), from, to, label: lbl};
+  S.cur.edges.push(e); touch();
+  return e;
+}
+function deleteSelection(){
+  if (!S.cur || !S.sel) return;
+  pushHistory();
+  if (S.sel.kind === 'node'){
+    S.cur.nodes = S.cur.nodes.filter(n => n.id !== S.sel.id);
+    S.cur.edges = S.cur.edges.filter(e => e.from !== S.sel.id && e.to !== S.sel.id);
+  } else S.cur.edges = S.cur.edges.filter(e => e.id !== S.sel.id);
+  S.sel = null; touch(); renderPanel();
+}
+
+let drag = null;
+canvas.addEventListener('pointerdown', ev => {
+  if (!S.cur || ev.button > 0) return;
+  const t = ev.target;
+  const handle = t.closest && t.closest('[data-handle]');
+  const nodeEl = t.closest && t.closest('[data-node]');
+  const edgeEl = t.closest && t.closest('[data-edge]');
+  const p = toWorld(ev);
+  canvas.setPointerCapture(ev.pointerId);
+  if (handle || (nodeEl && ev.shiftKey)){
+    const id = handle ? handle.dataset.handle : nodeEl.dataset.node;
+    const n = nodeById(id);
+    const line = s('path', {class: 'temp-line', d: `M${n.x},${n.y} L${p.x},${p.y}`});
+    viewport.append(line);
+    drag = {mode: 'connect', from: id, line, sx: n.x, sy: n.y};
+    return;
+  }
+  if (nodeEl){
+    const id = nodeEl.dataset.node;
+    const n = nodeById(id);
+    if (!S.sel || S.sel.id !== id) select({kind: 'node', id});
+    drag = {mode: 'node', id, ox: p.x - n.x, oy: p.y - n.y, moved: false};
+    return;
+  }
+  if (edgeEl){ select({kind: 'edge', id: edgeEl.dataset.edge}); return; }
+  drag = {mode: 'pan', sx: ev.clientX, sy: ev.clientY, vx: S.vp.x, vy: S.vp.y, moved: false};
+});
+canvas.addEventListener('pointermove', ev => {
+  if (!drag) return;
+  if (drag.mode === 'pan'){
+    const dx = ev.clientX - drag.sx, dy = ev.clientY - drag.sy;
+    if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true;
+    S.vp.x = drag.vx + dx; S.vp.y = drag.vy + dy; applyVp();
+  } else if (drag.mode === 'node'){
+    const p = toWorld(ev); const n = nodeById(drag.id);
+    const nx = Math.round(p.x - drag.ox), ny = Math.round(p.y - drag.oy);
+    if (!drag.moved && Math.abs(nx - n.x) + Math.abs(ny - n.y) < 3) return;
+    if (!drag.moved){ pushHistory(); drag.moved = true; }
+    n.x = nx; n.y = ny; renderCanvas();
+  } else if (drag.mode === 'connect'){
+    const p = toWorld(ev);
+    drag.line.setAttribute('d', `M${drag.sx},${drag.sy} L${p.x},${p.y}`);
+    drag.lastWorld = p;
+  }
+});
+canvas.addEventListener('pointerup', ev => {
+  if (!drag) return;
+  const d = drag; drag = null;
+  if (d.mode === 'pan' && !d.moved && S.sel) select(null);
+  if (d.mode === 'node' && d.moved) touch();
+  if (d.mode === 'connect'){
+    d.line.remove();
+    const under = document.elementFromPoint(ev.clientX, ev.clientY);
+    const target = under && under.closest && under.closest('[data-node]');
+    if (target && target.dataset.node !== d.from){ addEdge(d.from, target.dataset.node); select({kind: 'node', id: d.from}); }
+    else if (!target && d.lastWorld){
+      const src = nodeById(d.from);
+      if (Math.hypot(d.lastWorld.x - src.x, d.lastWorld.y - src.y) > 60){
+        const n = addNode('process', {x: d.lastWorld.x, y: d.lastWorld.y + 26});
+        if (n){ const hist = S.hist.length; addEdge(d.from, n.id); if (S.hist.length > hist) S.hist.pop(); updateUndo(); }
+      }
+    }
+  }
+});
+canvas.addEventListener('dblclick', ev => {
+  if (!S.cur) return;
+  const nodeEl = ev.target.closest && ev.target.closest('[data-node]');
+  if (nodeEl) startWalk(nodeEl.dataset.node, true);
+  else if (!ev.target.closest('[data-edge]')) addNode('process', toWorld(ev));
+});
+canvas.addEventListener('wheel', ev => {
+  ev.preventDefault();
+  const r = canvas.getBoundingClientRect();
+  const mx = ev.clientX - r.left, my = ev.clientY - r.top;
+  const k0 = S.vp.k;
+  const k = Math.max(.15, Math.min(3, k0 * Math.exp(-ev.deltaY * (ev.ctrlKey ? .01 : .0015))));
+  S.vp.x = mx - (mx - S.vp.x) * k / k0; S.vp.y = my - (my - S.vp.y) * k / k0; S.vp.k = k;
+  applyVp();
+}, {passive: false});
+
+/* ================================================================
+ * 9. 오른쪽 패널 (선택 항목 편집)
+ * ================================================================ */
+const TYPE_NAMES = {start: '시작', end: '끝', process: '단계', decision: '판단', io: '자료·입출력'};
+function setPtab(t){
+  S.ptab = t;
+  $$('.panel-tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.ptab === t ? 'true' : 'false'));
+  $('#panel-text').hidden = t !== 'text'; $('#panel-props').hidden = t !== 'props';
+  if (t === 'props') renderPanel();
+}
+function bindField(el, obj, key, after){
+  el.addEventListener('focus', () => pushHistory());
+  el.addEventListener('input', () => { obj[key] = el.value; touch(); if (after) after(); });
+  return el;
+}
+function renderPanel(){
+  const P = $('#panel-props'); P.innerHTML = '';
+  if (!S.cur){ P.append(h('p', {class: 'hint'}, '맵을 선택하세요.')); return; }
+  if (!S.sel){
+    P.append(h('p', {class: 'hint'}, '노드나 화살표를 클릭하면 여기서 편집합니다.'),
+      h('div', {class: 'cheat'},
+        h('div', null, h('b', null, '조작법')),
+        h('div', null, '· 빈 곳 드래그: 화면 이동 / 휠: 확대·축소'),
+        h('div', null, '· 노드 드래그: 위치 이동'),
+        h('div', null, '· 선택한 노드 아래 ● 를 끌어 다른 노드에 놓기: 연결'),
+        h('div', null, '· ● 를 빈 곳에 놓기: 새 단계 만들고 연결'),
+        h('div', null, '· 노드 더블클릭: 크게 보기 (따라가기)'),
+        h('div', null, '· 빈 곳 더블클릭: 새 단계'),
+        h('div', null, '· Delete: 선택 삭제 · Ctrl+Z / Ctrl+Y: 되돌리기 / 다시')),
+      h('h4', null, '맵 정보'),
+      h('div', {class: 'hint'}, `노드 ${S.cur.nodes.length}개 · 연결 ${S.cur.edges.length}개 · 이미지 ${S.cur.nodes.reduce((a, n) => a + n.images.length, 0)}장`));
+    return;
+  }
+  if (S.sel.kind === 'edge'){
+    const e = S.cur.edges.find(x => x.id === S.sel.id); if (!e){ S.sel = null; return renderPanel(); }
+    const a = nodeById(e.from), b = nodeById(e.to);
+    P.append(h('h4', {style: 'margin-top:0'}, '화살표'),
+      h('div', {class: 'hint', style: 'margin-bottom:10px'}, `${a ? a.title : '?'}  →  ${b ? b.title : '?'}`),
+      h('div', {class: 'field'}, h('label', {for: 'prop-elabel'}, '라벨 (예: 예 / 아니오 / 조건)'),
+        bindField(h('input', {class: 'input', id: 'prop-elabel', value: e.label}), e, 'label')),
+      h('div', {class: 'row'},
+        h('button', {class: 'btn', onclick: () => { pushHistory(); [e.from, e.to] = [e.to, e.from]; touch(); renderPanel(); }}, '방향 뒤집기'),
+        h('button', {class: 'btn danger', onclick: deleteSelection}, '화살표 삭제')));
+    return;
+  }
+  const n = nodeById(S.sel.id); if (!n){ S.sel = null; return renderPanel(); }
+  const typeSel = h('select', {class: 'input', id: 'prop-type'},
+    Object.keys(TYPE_NAMES).map(k => h('option', {value: k, selected: n.type === k}, TYPE_NAMES[k])));
+  typeSel.addEventListener('change', () => { pushHistory(); n.type = typeSel.value; touch(); });
+  const tags = h('input', {class: 'input', id: 'prop-tags', value: (n.tags || []).join(', '), placeholder: '예: 도금, 계측, PM'});
+  tags.addEventListener('focus', () => pushHistory());
+  tags.addEventListener('input', () => { n.tags = tags.value.split(',').map(x => x.trim()).filter(Boolean); touch({canvas: false}); });
+  const outs = S.cur.edges.filter(e => e.from === n.id);
+  const ins = S.cur.edges.filter(e => e.to === n.id);
+  const imgGrid = h('div', {class: 'img-grid'});
+  n.images.forEach(img => {
+    const cap = h('input', {value: img.caption, placeholder: '설명'});
+    cap.addEventListener('focus', () => pushHistory());
+    cap.addEventListener('input', () => { img.caption = cap.value; touch({canvas: false}); });
+    imgGrid.append(h('div', {class: 'img-card'},
+      h('img', {src: img.src, alt: img.caption || '노드 이미지', onclick: () => openLightbox(img)}),
+      h('div', {class: 'cap'}, cap, h('button', {title: '삭제', onclick: () => { pushHistory(); n.images = n.images.filter(x => x !== img); touch(); renderPanel(); }}, '✕'))));
+  });
+  const dz = h('div', {class: 'dropzone'}, '이미지를 끌어다 놓거나, ', h('a', {href: '#', onclick: ev => { ev.preventDefault(); $('#file-img').click(); }}, '파일 선택'), ', 또는 Ctrl+V 로 붙여넣기');
+  dz.addEventListener('dragover', ev => { ev.preventDefault(); dz.classList.add('over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+  dz.addEventListener('drop', ev => { ev.preventDefault(); dz.classList.remove('over'); addImages(n, ev.dataTransfer.files); });
+  P.append(
+    h('div', {class: 'row', style: 'justify-content:space-between;margin-bottom:8px'}, h('span', {class: 'type-pill'}, TYPE_NAMES[n.type]),
+      h('button', {class: 'btn sm', onclick: () => startWalk(n.id, true)}, '크게 보기')),
+    h('div', {class: 'field'}, h('label', {for: 'prop-type'}, '종류'), typeSel),
+    h('div', {class: 'field'}, h('label', {for: 'prop-title'}, n.type === 'decision' ? '판단 질문 (기준을 숫자·사실로)' : '제목'),
+      bindField(h('input', {class: 'input', id: 'prop-title', value: n.title}), n, 'title')),
+    h('div', {class: 'field'}, h('label', {for: 'prop-summary'}, '한 줄 요약 (도형 안에 표시)'),
+      bindField(h('input', {class: 'input', id: 'prop-summary', value: n.summary}), n, 'summary')),
+    h('div', {class: 'field'}, h('label', {for: 'prop-detail'}, '상세 설명 — 왜, 어떻게'),
+      bindField(h('textarea', {class: 'textarea', id: 'prop-detail', rows: 5}, n.detail), n, 'detail')),
+    h('div', {class: 'field'}, h('label', {for: 'prop-caution'}, '주의점 — 자주 하는 실수, 안전'),
+      bindField(h('textarea', {class: 'textarea', id: 'prop-caution', rows: 3}, n.caution), n, 'caution')),
+    h('div', {class: 'field'}, h('label', {for: 'prop-tags'}, '태그 (쉼표로 구분)'), tags),
+    h('h4', null, `이미지 (${n.images.length})`), imgGrid, dz,
+    h('h4', null, `나가는 화살표 (${outs.length})`),
+    outs.length ? outs.map(e => {
+      const inp = h('input', {class: 'input', value: e.label, placeholder: '라벨'});
+      bindField(inp, e, 'label');
+      const b = nodeById(e.to);
+      return h('div', {class: 'edge-row'}, inp, h('span', {class: 'to'}, '→ ' + (b ? b.title : '?')),
+        h('button', {class: 'btn sm danger', onclick: () => { pushHistory(); S.cur.edges = S.cur.edges.filter(x => x !== e); touch(); renderPanel(); }}, '✕'));
+    }) : h('div', {class: 'hint'}, '없음 — 노드 아래 ● 를 끌어 연결하세요.'),
+    ins.length ? h('div', {class: 'hint', style: 'margin-top:6px'}, '들어오는 화살표: ' + ins.map(e => (nodeById(e.from) || {}).title).join(', ')) : null,
+    h('div', {class: 'row', style: 'margin-top:14px'},
+      h('button', {class: 'btn', onclick: () => { const nn = addNode(n.type === 'decision' ? 'process' : 'process', {x: n.x, y: n.y + nodeBox(n).h + 70}); if (nn){ const k = S.hist.length; addEdge(n.id, nn.id); if (S.hist.length > k) S.hist.pop(); updateUndo(); } }}, '+ 다음 단계'),
+      h('button', {class: 'btn danger', onclick: deleteSelection}, '노드 삭제')));
+}
+
+/* 이미지 처리: 큰 사진은 줄여서 저장 */
+function readImage(file){
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => {
+      const src = fr.result;
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1600;
+        if (file.size < 450 * 1024 && img.width <= MAX && img.height <= MAX) return res(src);
+        const k = Math.min(1, MAX / Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL('image/jpeg', .85));
+      };
+      img.onerror = () => rej(new Error('이미지를 읽을 수 없습니다'));
+      img.src = src;
+    };
+    fr.onerror = () => rej(fr.error);
+    fr.readAsDataURL(file);
+  });
+}
+async function addImages(n, files){
+  const list = Array.from(files || []).filter(f => /^image\//.test(f.type));
+  if (!list.length) return;
+  pushHistory();
+  for (const f of list){
+    try { n.images.push({id: uid(), src: await readImage(f), caption: f.name && !/^image\.\w+$/.test(f.name) ? f.name.replace(/\.\w+$/, '') : ''}); }
+    catch (e){ toast(e.message); }
+  }
+  touch(); renderPanel();
+  toast(`이미지 ${list.length}장을 붙였습니다`);
+}
+$('#file-img').addEventListener('change', ev => {
+  const n = S.sel && S.sel.kind === 'node' && nodeById(S.sel.id);
+  if (n) addImages(n, ev.target.files);
+  ev.target.value = '';
+});
+document.addEventListener('paste', ev => {
+  if (S.tab !== 'map' || !S.sel || S.sel.kind !== 'node') return;
+  const files = Array.from(ev.clipboardData ? ev.clipboardData.files : []).filter(f => /^image\//.test(f.type));
+  if (!files.length) return;
+  ev.preventDefault();
+  addImages(nodeById(S.sel.id), files);
+});
+
+/* ================================================================
+ * 10. 모달: 따라가기 · 이미지 크게 · 설정 · 도움말
+ * ================================================================ */
+function openModal(title, body, foot){
+  $('#modal-title').textContent = title;
+  const B = $('#modal-body'), F = $('#modal-foot');
+  B.innerHTML = ''; F.innerHTML = '';
+  const parts = x => [].concat(x).flat(Infinity).filter(k => k != null && k !== false);
+  B.append(...parts(body)); if (foot) F.append(...parts(foot));
+  F.hidden = !foot;
+  $('#modal-back').classList.add('open');
+}
+function closeModal(){ $('#modal-back').classList.remove('open'); S.walk = null; if (S.tab === 'map') renderCanvas(); }
+$('#modal-close').addEventListener('click', closeModal);
+$('#modal-back').addEventListener('click', ev => { if (ev.target.id === 'modal-back') closeModal(); });
+function openLightbox(img){
+  openModal(img.caption || '이미지', h('div', {class: 'lightbox'}, h('img', {src: img.src, alt: img.caption || ''})));
+}
+function startWalk(fromId, single){
+  if (!S.cur || !S.cur.nodes.length){ toast('노드가 없습니다'); return; }
+  let id = fromId;
+  if (!id){
+    const st = S.cur.nodes.find(n => n.type === 'start') || S.cur.nodes.find(n => !S.cur.edges.some(e => e.to === n.id)) || S.cur.nodes[0];
+    id = st.id;
+  }
+  S.walk = {trail: [id], single: !!single};
+  renderWalk();
+}
+function renderWalk(){
+  const w = S.walk; if (!w) return;
+  const id = w.trail[w.trail.length - 1];
+  const n = nodeById(id); if (!n) return closeModal();
+  const outs = S.cur.edges.filter(e => e.from === n.id);
+  const body = [
+    h('div', {class: 'row'}, h('span', {class: 'type-pill'}, TYPE_NAMES[n.type]), h('span', {class: 'hint'}, `단계 ${w.trail.length}`)),
+    n.summary ? h('p', {style: 'font-weight:600;margin:10px 0 0'}, n.summary) : null,
+    n.detail ? h('div', {class: 'walk-detail'}, n.detail) : (n.summary ? null : h('p', {class: 'hint'}, '상세 설명이 아직 없습니다. 오른쪽 패널에서 추가하세요.')),
+    n.caution ? h('div', {class: 'walk-caution'}, '⚠ ' + n.caution) : null,
+    n.images.length ? h('div', {class: 'walk-imgs'}, n.images.map(img => h('figure', {style: 'margin:0'},
+      h('img', {src: img.src, alt: img.caption || ''}), img.caption ? h('figcaption', null, img.caption) : null))) : null,
+    n.tags && n.tags.length ? h('div', {class: 'hint'}, '태그: ' + n.tags.join(', ')) : null,
+    h('div', {class: 'walk-next'},
+      outs.length ? h('div', {class: 'hint'}, n.type === 'decision' ? '판단 결과를 고르세요' : '다음 단계') : h('div', {class: 'hint'}, n.type === 'end' ? '끝입니다.' : '이어지는 단계가 없습니다.'),
+      outs.map(e => { const b = nodeById(e.to); return h('button', {class: 'btn' + (outs.length === 1 ? ' primary' : ''), onclick: () => { w.trail.push(e.to); renderWalk(); }},
+        (e.label ? `[${e.label}] ` : '') + '→ ' + (b ? b.title : '?')); }))
+  ];
+  const foot = [
+    h('button', {class: 'btn', disabled: w.trail.length < 2, onclick: () => { w.trail.pop(); renderWalk(); }}, '← 이전'),
+    h('button', {class: 'btn', onclick: () => { S.walk = null; $('#modal-back').classList.remove('open'); select({kind: 'node', id: n.id}); }}, '이 노드 편집')
+  ];
+  openModal(n.title || '(제목 없음)', body, foot);
+  S.walk = w;
+  if (S.tab === 'map'){
+    const {g} = renderGraph(S.cur, {current: n.id});
+    canvas.innerHTML = ''; viewport = s('g'); viewport.append(g); canvas.append(viewport); applyVp();
+  }
+}
+
+const SETTINGS_KEY = 'engr-edu.settings';
+const DEFAULT_SETTINGS = {endpoint: 'https://api.anthropic.com/v1/messages', apiKey: '', model: 'claude-opus-5-5', effort: 'medium', fallback: true, remember: true};
+function getSettings(){ return Object.assign({}, DEFAULT_SETTINGS, store.get(SETTINGS_KEY, {}), S.sessionKey ? {apiKey: S.sessionKey} : {}); }
+function openSettings(){
+  const st = getSettings();
+  const f = {
+    endpoint: h('input', {class: 'input', value: st.endpoint}),
+    apiKey: h('input', {class: 'input', type: 'password', value: st.apiKey, placeholder: 'sk-ant-…', autocomplete: 'off'}),
+    model: h('input', {class: 'input', value: st.model}),
+    effort: h('select', {class: 'input'}, ['low', 'medium', 'high'].map(v => h('option', {value: v, selected: st.effort === v}, v))),
+    fallback: h('input', {type: 'checkbox', checked: st.fallback}),
+    remember: h('input', {type: 'checkbox', checked: st.remember})
+  };
+  openModal('LLM 설정', [
+    h('p', {class: 'hint', style: 'margin-top:0'}, '글을 알고리즘 맵으로 바꿀 때 Claude API를 씁니다. 사내 승인된 게이트웨이가 있다면 API 주소를 바꾸세요 (Anthropic Messages API 형식).'),
+    h('div', {class: 'field'}, h('label', null, 'API 주소'), f.endpoint),
+    h('div', {class: 'field'}, h('label', null, 'API 키'), f.apiKey),
+    h('div', {class: 'field'}, h('label', null, '모델'), f.model),
+    h('div', {class: 'field'}, h('label', null, '사고 깊이 (effort)'), f.effort),
+    h('label', {class: 'row', style: 'margin-bottom:6px'}, f.fallback, '거절 시 자동 대체 모델 사용 (server-side fallback)'),
+    h('label', {class: 'row'}, f.remember, '이 브라우저에 키 저장 (끄면 이 창을 닫을 때까지만 사용)'),
+    h('div', {class: 'status', style: 'margin-top:12px'}, '⚠ 외부 API로 보내는 글에 사내 공정 조건·수율·고객 정보를 넣지 마세요. 키는 공유용 HTML에 포함되지 않습니다.')
+  ], [
+    h('button', {class: 'btn danger', onclick: () => { store.del(SETTINGS_KEY); S.sessionKey = ''; closeModal(); toast('설정을 지웠습니다'); }}, '설정 지우기'),
+    h('button', {class: 'btn primary', onclick: () => {
+      const v = {endpoint: f.endpoint.value.trim() || DEFAULT_SETTINGS.endpoint, model: f.model.value.trim() || DEFAULT_SETTINGS.model,
+        effort: f.effort.value, fallback: f.fallback.checked, remember: f.remember.checked, apiKey: ''};
+      if (v.remember){ v.apiKey = f.apiKey.value.trim(); S.sessionKey = ''; } else S.sessionKey = f.apiKey.value.trim();
+      store.set(SETTINGS_KEY, v); closeModal(); toast('저장했습니다');
+    }}, '저장')
+  ]);
+}
+function openHelp(){
+  openModal('도움말', [
+    h('h4', {style: 'margin-top:0'}, '이 프로그램은'),
+    h('p', null, '신입 엔지니어 교육과정과, 배운 업무를 흐름도(업무 알고리즘)로 정리하는 도구를 하나의 HTML 파일에 담았습니다. 설치나 인터넷 연결 없이 열립니다 (LLM 변환만 네트워크가 필요합니다).'),
+    h('h4', null, '업무 알고리즘 맵 사용 순서'),
+    h('ol', null,
+      h('li', null, '왼쪽 위 + 새 맵'),
+      h('li', null, '오른쪽 「글 → 도형」 탭에 배운 내용을 적고 「규칙 변환」 또는 「LLM으로 도형화」'),
+      h('li', null, '노드를 클릭해 상세 설명·주의점·사진을 붙이기 (사진은 Ctrl+V 로 바로 붙여넣기)'),
+      h('li', null, '「▶ 따라가기」 로 처음 보는 사람 입장에서 검토'),
+      h('li', null, '「내보내기 → 공유용 HTML」 로 팀에 배포 (받은 사람이 열면 맵이 그대로 보입니다)')),
+    h('h4', null, '저장'),
+    h('p', null, '맵은 이 브라우저(IndexedDB)에 자동 저장됩니다. 브라우저 데이터를 지우면 사라지니 「JSON (모든 맵 백업)」 으로 주기적으로 백업하세요.'),
+    h('h4', null, '단축키'),
+    h('p', null, 'Delete: 선택 삭제 · Ctrl+Z: 되돌리기 · Ctrl+Y: 다시 · Esc: 선택 해제')
+  ]);
+}
+
+/* ================================================================
+ * 11. LLM 변환 (Claude Messages API, 구조화 출력)
+ * ================================================================ */
+const MAP_SCHEMA = {
+  type: 'object', additionalProperties: false, required: ['title', 'nodes', 'edges'],
+  properties: {
+    title: {type: 'string'},
+    nodes: {type: 'array', items: {type: 'object', additionalProperties: false,
+      required: ['id', 'type', 'title', 'summary', 'detail', 'caution'],
+      properties: {
+        id: {type: 'string'}, type: {type: 'string', enum: ['start', 'process', 'decision', 'io', 'end']},
+        title: {type: 'string'}, summary: {type: 'string'}, detail: {type: 'string'}, caution: {type: 'string'}
+      }}},
+    edges: {type: 'array', items: {type: 'object', additionalProperties: false, required: ['from', 'to', 'label'],
+      properties: {from: {type: 'string'}, to: {type: 'string'}, label: {type: 'string'}}}}
+  }
+};
+const SYSTEM_PROMPT = [
+  '당신은 반도체 제조 현장의 업무 지식을 신입 엔지니어가 그대로 따라 할 수 있는 업무 알고리즘(흐름도)으로 바꾸는 도우미입니다.',
+  '결과는 주어진 JSON 스키마에 맞춰 한국어로 작성합니다.',
+  '',
+  '노드 종류:',
+  '- start: 업무가 시작되는 계기 (알람, 요청, 입고 등). 보통 1개.',
+  '- process: 사람이 하는 작업 한 가지.',
+  '- decision: 판단 지점. title은 예/아니오로 답할 수 있는 질문으로 쓰고, 나가는 화살표마다 label(예/아니오 또는 조건)을 붙입니다.',
+  '- io: 확인하거나 남기는 자료·데이터·문서.',
+  '- end: 업무가 끝나는 상태. 막다른 분기는 end로 끝내거나 다른 단계로 이어 붙입니다.',
+  '',
+  '작성 규칙:',
+  '- title은 20자 안팎의 짧은 동사구 또는 질문. summary는 도형 안에 보일 한 줄(40자 이내, 없으면 빈 문자열).',
+  '- detail에는 원문에 있는 이유·방법·기준을 옮겨 적습니다. caution에는 원문에 있는 주의점·안전 사항을 적고, 없으면 빈 문자열.',
+  '- 판단 기준은 원문에 있는 숫자와 관찰 가능한 사실을 그대로 씁니다. 원문에 기준이 없으면 지어내지 말고 detail 끝에 "[확인 필요] 판단 기준이 원문에 없음"이라고 적습니다.',
+  '- 원문에 없는 작업 단계를 새로 만들지 않습니다. 시작/끝 노드와 흐름을 잇는 데 꼭 필요한 연결만 보완할 수 있습니다.',
+  '- id는 n1, n2 … 처럼 짧게 쓰고, edges의 from/to는 반드시 존재하는 id여야 합니다.',
+  '- 되돌아가는 반복(재측정 후 다시 판단 등)은 이전 노드로 가는 화살표로 표현합니다.'
+].join('\n');
+
+async function callClaude(userContent){
+  const st = getSettings();
+  if (!st.apiKey) throw new Error('API 키가 없습니다. 오른쪽 위 「LLM 설정」에서 키를 넣으세요.');
+  const headers = {
+    'content-type': 'application/json',
+    'x-api-key': st.apiKey,
+    'anthropic-version': '2023-06-01',
+    'anthropic-dangerous-direct-browser-access': 'true'
+  };
+  const body = {
+    model: st.model, max_tokens: 16000, system: SYSTEM_PROMPT,
+    output_config: {effort: st.effort, format: {type: 'json_schema', schema: MAP_SCHEMA}},
+    messages: [{role: 'user', content: userContent}]
+  };
+  if (st.fallback){ headers['anthropic-beta'] = 'server-side-fallback-2026-07-01'; body.fallbacks = 'default'; }
+  let res;
+  try { res = await fetch(st.endpoint, {method: 'POST', headers, body: JSON.stringify(body)}); }
+  catch (e){ throw new Error('API 서버에 연결하지 못했습니다. 사내망에서 외부 API가 막혀 있을 수 있습니다. 승인된 게이트웨이 주소가 있으면 설정에서 바꾸고, 없으면 「규칙 변환」을 쓰세요.\n(' + e.message + ')'); }
+  let data = null;
+  try { data = await res.json(); } catch (e){}
+  if (!res.ok){
+    const msg = data && data.error && data.error.message ? data.error.message : res.statusText;
+    const hint = res.status === 401 ? 'API 키를 확인하세요.' :
+      res.status === 429 ? '요청이 많습니다. 잠시 후 다시 시도하세요.' :
+      res.status === 400 && /fallback/i.test(msg) ? '설정에서 「거절 시 자동 대체 모델 사용」을 끄고 다시 시도하세요.' :
+      res.status >= 500 ? 'API 서버 오류입니다. 잠시 후 다시 시도하세요.' : '';
+    throw new Error(`API 오류 ${res.status}: ${msg}${hint ? '\n' + hint : ''}`);
+  }
+  if (!data) throw new Error('응답을 읽지 못했습니다.');
+  if (data.stop_reason === 'refusal'){
+    const why = data.stop_details && data.stop_details.explanation ? '\n' + data.stop_details.explanation : '';
+    throw new Error('모델이 이 요청을 처리하지 않았습니다.' + why);
+  }
+  if (data.stop_reason === 'max_tokens') throw new Error('결과가 너무 길어 중간에 끊겼습니다. 글을 나누어 변환하세요.');
+  const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+  let parsed;
+  try { parsed = JSON.parse(text); }
+  catch (e){
+    const m = text.match(/\{[\s\S]*\}/);
+    if (!m) throw new Error('결과를 해석하지 못했습니다.');
+    parsed = JSON.parse(m[0]);
+  }
+  if (!parsed || !Array.isArray(parsed.nodes) || !Array.isArray(parsed.edges)) throw new Error('결과 형식이 올바르지 않습니다.');
+  return {result: parsed, model: data.model};
+}
+function setLlmStatus(msg, kind){
+  const el = $('#llm-status'); el.innerHTML = '';
+  if (msg) el.append(h('div', {class: 'status' + (kind ? ' ' + kind : '')}, msg));
+}
+function applyGenerated(gen, keepFrom){
+  const old = keepFrom || [];
+  const m = normalizeMap({id: S.cur.id, title: S.cur.title, text: S.cur.text, nodes: gen.nodes.map(n => ({...n, tags: [], images: []})), edges: gen.edges});
+  // 같은 id 또는 같은 제목의 기존 노드에서 사진·태그를 이어받는다
+  m.nodes.forEach(n => {
+    const prev = old.find(o => o.id === n.id) || old.find(o => o.title === n.title);
+    if (prev){ n.images = prev.images || []; n.tags = prev.tags || []; }
+  });
+  pushHistory();
+  S.cur.nodes = m.nodes; S.cur.edges = m.edges;
+  if (gen.title && (!S.cur.title || /^새 업무 알고리즘|^제목 없음/.test(S.cur.title))){ S.cur.title = gen.title; $('#map-title').value = gen.title; }
+  layoutMap(S.cur); S.sel = null; touch(); renderPanel(); fit();
+}
+async function runLLM(mode){
+  if (!S.cur) return;
+  const text = $('#src-text').value.trim();
+  const btns = ['#btn-llm', '#btn-refine', '#btn-rule'].map(x => $(x));
+  let content;
+  if (mode === 'refine'){
+    const ask = $('#refine-text').value.trim();
+    if (!S.cur.nodes.length){ setLlmStatus('다듬을 맵이 없습니다. 먼저 도형화하세요.', 'err'); return; }
+    if (!ask){ setLlmStatus('무엇을 고칠지 요청을 적어 주세요.', 'err'); return; }
+    const cur = {title: S.cur.title, nodes: S.cur.nodes.map(n => ({id: n.id, type: n.type, title: n.title, summary: n.summary, detail: n.detail, caution: n.caution})),
+      edges: S.cur.edges.map(e => ({from: e.from, to: e.to, label: e.label}))};
+    content = `아래는 현재 업무 알고리즘 맵입니다. 요청에 맞게 수정한 전체 맵을 돌려주세요. 바꾸지 않는 노드는 id를 그대로 유지하세요.\n\n<현재_맵>\n${JSON.stringify(cur)}\n</현재_맵>\n\n${text ? `<원문>\n${text}\n</원문>\n\n` : ''}<요청>\n${ask}\n</요청>`;
+  } else {
+    if (!text){ setLlmStatus('먼저 왼쪽 칸에 업무 내용을 적어 주세요.', 'err'); return; }
+    content = `다음은 신입 엔지니어가 선배에게 배운 업무 내용을 적은 글입니다. 이 글을 업무 알고리즘 맵으로 바꿔 주세요.\n\n<원문>\n${text}\n</원문>`;
+  }
+  btns.forEach(b => b.disabled = true);
+  setLlmStatus('Claude가 변환하는 중입니다… (보통 10~60초)');
+  try {
+    const {result, model} = await callClaude(content);
+    applyGenerated(result, S.cur.nodes);
+    const dropped = result.edges.length - S.cur.edges.length;
+    setLlmStatus(`완료: 노드 ${S.cur.nodes.length}개, 연결 ${S.cur.edges.length}개${dropped > 0 ? ` (잘못된 연결 ${dropped}개 제외)` : ''} · ${model || ''}\n결과는 초안입니다 — 판단 기준을 꼭 확인하세요.`, 'ok');
+  } catch (e){ setLlmStatus(e.message, 'err'); }
+  finally { btns.forEach(b => b.disabled = false); }
+}
+function runRule(){
+  if (!S.cur) return;
+  const text = $('#src-text').value;
+  if (!text.trim()){ setLlmStatus('먼저 업무 내용을 적어 주세요.', 'err'); return; }
+  const parsed = parseFlow(text);
+  if (!parsed.nodes.length){ setLlmStatus('변환할 단계를 찾지 못했습니다.', 'err'); return; }
+  applyGenerated(parsed, S.cur.nodes);
+  const leaves = S.cur.nodes.filter(n => n.type !== 'end' && !S.cur.edges.some(e => e.from === n.id));
+  setLlmStatus(`규칙 변환 완료: 노드 ${parsed.nodes.length}개, 연결 ${parsed.edges.length}개` +
+    (leaves.length > 1 ? `\n이어지지 않는 단계 ${leaves.length}개: ${leaves.map(n => n.title).slice(0, 4).join(', ')}${leaves.length > 4 ? ' …' : ''}` : ''), 'ok');
+}
+
+/* ================================================================
+ * 12. 내보내기 · 가져오기
+ * ================================================================ */
+function buildShareHTML(maps){
+  const doc = document.documentElement.cloneNode(true);
+  doc.removeAttribute('data-theme');
+  doc.querySelector('#app').innerHTML = INITIAL_APP_HTML;
+  const payload = JSON.stringify({exportedAt: new Date().toISOString(), maps}).replace(/</g, '\\u003c');
+  doc.querySelector('#preload-maps').textContent = payload;
+  return '<!doctype html>\n' + doc.outerHTML;
+}
+function exportPNG(){
+  if (!S.cur || !S.cur.nodes.length){ toast('내보낼 노드가 없습니다'); return; }
+  const live = renderStatic(S.cur);
+  const holder = h('div', {style: 'position:fixed;left:-99999px;top:0'}); holder.append(live); document.body.append(holder);
+  const copy = live.cloneNode(true);
+  const a = live.querySelectorAll('*'), b = copy.querySelectorAll('*');
+  const props = ['fill', 'stroke', 'stroke-width', 'stroke-dasharray', 'font-size', 'font-weight', 'font-family', 'opacity'];
+  a.forEach((el, i) => { const cs = getComputedStyle(el); b[i].setAttribute('style', props.map(p => `${p}:${cs.getPropertyValue(p)}`).join(';')); });
+  holder.remove();
+  const bg = getComputedStyle(document.body).backgroundColor;
+  const xml = new XMLSerializer().serializeToString(copy);
+  const img = new Image();
+  const scale = 2;
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = (+copy.getAttribute('width')) * scale; c.height = (+copy.getAttribute('height')) * scale;
+    const ctx = c.getContext('2d'); ctx.fillStyle = bg; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+    c.toBlob(bl => download(safeName(S.cur.title) + '.png', bl), 'image/png');
+  };
+  img.onerror = () => toast('PNG 변환에 실패했습니다');
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+}
+async function importJSON(file){
+  try {
+    const data = JSON.parse(await file.text());
+    const arr = Array.isArray(data) ? data : Array.isArray(data.maps) ? data.maps : [data];
+    let n = 0;
+    for (const raw of arr){
+      if (!raw || !Array.isArray(raw.nodes)) continue;
+      const m = normalizeMap(raw);
+      if (S.maps.some(x => x.id === m.id)) m.id = uid();
+      S.maps.unshift(m); await DB.put(m); n++;
+    }
+    if (!n) throw new Error('맵 데이터가 없습니다');
+    renderMapList(); openMap(S.maps[0].id); toast(`맵 ${n}개를 가져왔습니다`);
+  } catch (e){ toast('가져오기 실패: ' + e.message); }
+}
+$('#file-json').addEventListener('change', ev => { const f = ev.target.files[0]; if (f) importJSON(f); ev.target.value = ''; });
+$('#export-menu').addEventListener('click', ev => {
+  const b = ev.target.closest('button'); if (!b) return;
+  ev.target.closest('details').open = false;
+  const k = b.dataset.exp;
+  if (k === 'import') return $('#file-json').click();
+  if (k === 'json-all') return download(`engr-edu-백업-${today()}.json`, JSON.stringify({maps: S.maps}, null, 1), 'application/json');
+  if (k === 'share-all') return download(`engr-edu-업무알고리즘-${today()}.html`, buildShareHTML(S.maps), 'text/html');
+  if (!S.cur) return toast('맵을 먼저 선택하세요');
+  if (k === 'json') download(safeName(S.cur.title) + '.json', JSON.stringify(S.cur, null, 1), 'application/json');
+  if (k === 'share-one') download(safeName(S.cur.title) + '.html', buildShareHTML([S.cur]), 'text/html');
+  if (k === 'png') exportPNG();
+});
+
+/* ================================================================
+ * 13. 이벤트 연결
+ * ================================================================ */
+function setTab(t){
+  S.tab = t;
+  $$('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t ? 'true' : 'false'));
+  $('#view-edu').classList.toggle('active', t === 'edu');
+  $('#view-map').classList.toggle('active', t === 'map');
+  store.set('engr-edu.tab', t);
+  if (t === 'map'){ renderCanvas(); requestAnimationFrame(() => { if (!S.fitted){ fit(); S.fitted = true; } }); }
+}
+$$('.tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+$$('.panel-tabs button').forEach(b => b.addEventListener('click', () => setPtab(b.dataset.ptab)));
+$('#btn-settings').addEventListener('click', openSettings);
+$('#btn-help').addEventListener('click', openHelp);
+$('#btn-theme').addEventListener('click', () => {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+    (!document.documentElement.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+  const t = dark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', t); store.set('engr-edu.theme', t);
+});
+$('#btn-new-map').addEventListener('click', async () => {
+  const m = newMap(); S.maps.unshift(m); openMap(m.id); setPtab('text');
+  DB.put(m).catch(() => toast('저장 실패 — JSON으로 백업하세요'));
+  setTimeout(() => $('#src-text').focus(), 30);
+});
+$('#map-filter').addEventListener('input', renderMapList);
+$('#map-title').addEventListener('focus', () => pushHistory());
+$('#map-title').addEventListener('input', ev => { if (S.cur){ S.cur.title = ev.target.value; touch({canvas: false}); } });
+$('#src-text').addEventListener('input', ev => { if (S.cur){ S.cur.text = ev.target.value; touch({canvas: false}); } });
+$('#add-menu').addEventListener('click', ev => {
+  const b = ev.target.closest('button'); if (!b) return;
+  ev.target.closest('details').open = false;
+  if (!S.cur) return toast('맵을 먼저 선택하세요');
+  addNode(b.dataset.add);
+});
+$('#more-menu').addEventListener('click', async ev => {
+  const b = ev.target.closest('button'); if (!b || !S.cur) return;
+  ev.target.closest('details').open = false;
+  if (b.dataset.more === 'dup'){
+    const m = clone(S.cur); m.id = uid(); m.title += ' (복사본)'; m.createdAt = m.updatedAt = Date.now();
+    S.maps.unshift(m); await DB.put(m); openMap(m.id); toast('복제했습니다');
+  }
+  if (b.dataset.more === 'del'){
+    if (!confirm(`「${S.cur.title}」 맵을 삭제할까요? 되돌릴 수 없습니다.`)) return;
+    const id = S.cur.id; await DB.del(id);
+    S.maps = S.maps.filter(m => m.id !== id); S.cur = null;
+    if (S.maps.length) openMap(S.maps[0].id); else { renderMapList(); renderCanvas(); renderPanel(); }
+    toast('삭제했습니다');
+  }
+});
+document.addEventListener('click', ev => { $$('details.menu[open]').forEach(d => { if (!d.contains(ev.target)) d.open = false; }); });
+$('#btn-layout').addEventListener('click', () => { if (!S.cur) return; pushHistory(); layoutMap(S.cur); touch(); fit(); });
+$('#btn-fit').addEventListener('click', fit);
+$('#btn-undo').addEventListener('click', undo);
+$('#btn-redo').addEventListener('click', redo);
+$('#btn-walk').addEventListener('click', () => startWalk(null));
+$('#btn-rule').addEventListener('click', runRule);
+$('#btn-llm').addEventListener('click', () => runLLM('create'));
+$('#btn-refine').addEventListener('click', () => runLLM('refine'));
+document.addEventListener('keydown', ev => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement && document.activeElement.tagName);
+  if (ev.key === 'Escape'){ if ($('#modal-back').classList.contains('open')) closeModal(); else if (S.sel && !typing) select(null); return; }
+  if (S.tab !== 'map' || typing || $('#modal-back').classList.contains('open')) return;
+  if ((ev.key === 'Delete' || ev.key === 'Backspace') && S.sel){ ev.preventDefault(); deleteSelection(); }
+  else if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z' && !ev.shiftKey){ ev.preventDefault(); undo(); }
+  else if ((ev.ctrlKey || ev.metaKey) && (ev.key.toLowerCase() === 'y' || (ev.key.toLowerCase() === 'z' && ev.shiftKey))){ ev.preventDefault(); redo(); }
+});
+window.addEventListener('resize', () => { if (S.tab === 'map') applyVp(); });
+
+/* ================================================================
+ * 14. 시작
+ * ================================================================ */
+const SAMPLE = `# 예시: 도금 두께 SPC 이탈 판정
+시작: 두께 SPC 이탈 알람
+1. 이탈 wafer와 site 확인
+2. ? 재측정해도 같은 값인가
+  아니오 → 계측기 점검 요청 → 끝
+  예 → 3
+3. 같은 챔버 직전 lot 추세 확인
+  > 같은 챔버의 최근 5 lot 추세를 본다.
+4. ? 추세성 하락인가
+  예 → 약품 분석 및 소모품 수명 확인 → 6
+  아니오 → 5
+5. 단발성 원인 확인 (접촉, 웨이퍼 상태)
+  ! 웨이퍼 로딩 이력과 알람 로그를 함께 본다.
+6. 엔지니어 판정 및 lot 처리 결정
+끝: 판정 결과 기록`;
+
+async function init(){
+  const theme = store.get('engr-edu.theme', null);
+  if (theme) document.documentElement.setAttribute('data-theme', theme);
+  loadEdu(); renderEdu();
+  const persistent = await DB.open();
+  $('#storage-note').textContent = persistent ? '이 브라우저에 자동 저장됩니다. 주기적으로 JSON 백업을 받아 두세요.' : '⚠ 브라우저 저장소를 쓸 수 없어 창을 닫으면 사라집니다. JSON으로 내보내세요.';
+  try { S.maps = (await DB.all()).map(normalizeMap); } catch (e){ S.maps = []; }
+  let preload = null;
+  try { preload = JSON.parse($('#preload-maps').textContent); } catch (e){}
+  let openId = store.get('engr-edu.lastMap', null), tab = store.get('engr-edu.tab', 'edu');
+  if (preload && Array.isArray(preload.maps) && preload.maps.length){
+    for (const raw of preload.maps){
+      const m = normalizeMap(raw);
+      const ex = S.maps.find(x => x.id === m.id);
+      if (ex && ex.updatedAt >= m.updatedAt) continue;
+      if (ex) S.maps = S.maps.filter(x => x !== ex);
+      S.maps.push(m); await DB.put(m);
+    }
+    openId = String(preload.maps[0].id); tab = 'map';
+  }
+  if (!S.maps.length){
+    const p = parseFlow(SAMPLE);
+    const m = newMap(p.title); m.text = SAMPLE; m.nodes = p.nodes; m.edges = p.edges; layoutMap(m);
+    S.maps.push(m); await DB.put(m);
+  }
+  renderMapList();
+  openMap(S.maps.some(m => m.id === openId) ? openId : S.maps.slice().sort((a, b) => b.updatedAt - a.updatedAt)[0].id);
+  setTab(S.edu.length ? tab : 'map');
+}
+
+// 테스트와 디버깅용
+window.EngrEdu = {parseFlow, layoutMap, renderMarkdown, normalizeMap, buildShareHTML, state: S, callClaude, MAP_SCHEMA};
+init();
+})();
+</script>
+</body>
+</html>
