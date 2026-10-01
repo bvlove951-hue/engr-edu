@@ -13,6 +13,11 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "src" / "app.html"
 EDU = ROOT / "education"
 OUT = ROOT / "dist" / "engr-edu.html"
+# 앱 원본의 자리 표시(주석)를 별도 파일의 내용으로 바꿔 넣는다
+PARTS = {
+    "/*@JOURNEY_CSS@*/": ROOT / "src" / "journey.css",   # HBM 역추적 탭 스타일
+    "/*@JOURNEY_JS@*/": ROOT / "src" / "journey.js",     # HBM 역추적 탭 (스크롤 줌 스토리)
+}
 
 
 FIG_REF = re.compile(r"^!\[[^\]]*\]\(figures/([\w.-]+)\.svg\)\s*$", re.M)
@@ -55,6 +60,19 @@ def split_style(figs):
     return style
 
 
+def inject_parts(html):
+    """src/journey.css·journey.js 를 <style>·<script> 자리에 넣는다."""
+    for marker, path in PARTS.items():
+        if html.count(marker) != 1:
+            sys.exit(f"src/app.html 에서 {marker} 자리를 찾지 못했습니다")
+        code = path.read_text(encoding="utf-8")
+        # 인라인 <script>/<style> 안에서 HTML 파서를 깨뜨리는 문자열 금지
+        if re.search(r"</(script|style)|<!--", code, re.I):
+            sys.exit(f"{path.name}: '</script', '</style', '<!--' 는 인라인으로 넣을 수 없습니다")
+        html = html.replace(marker, code, 1)
+    return html
+
+
 def check_self_contained(html):
     """외부 스크립트·스타일·폰트 참조가 있으면 실패시킨다 (사내망 CDN 차단 대비)."""
     bad = re.findall(r"<(?:script|link|img|iframe)[^>]+(?:src|href)\s*=\s*[\"']?(?:https?:)?//", html, re.I)
@@ -74,6 +92,7 @@ def main():
     if not pattern.search(html):
         sys.exit("src/app.html 에서 edu-data 자리를 찾지 못했습니다")
     html = pattern.sub(lambda m: m.group(1) + payload + m.group(3), html, count=1)
+    html = inject_parts(html)
     check_self_contained(html)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(html, encoding="utf-8")

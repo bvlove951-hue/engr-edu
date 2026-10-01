@@ -52,8 +52,9 @@ a{color:var(--accent)}
 .brand{font-weight:700;letter-spacing:-.2px;white-space:nowrap}
 .brand small{font-weight:500;color:var(--muted);margin-left:6px}
 .tabs{display:flex;gap:4px;margin-left:8px}
-.tab{border:0;background:transparent;padding:6px 12px;border-radius:8px;color:var(--muted);font-weight:600}
+.tab{border:0;background:transparent;padding:6px 12px;border-radius:8px;color:var(--muted);font-weight:600;white-space:nowrap}
 .tab[aria-selected="true"]{background:var(--accent-weak);color:var(--accent)}
+.ts{display:none}
 .spacer{flex:1}
 .icon-btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:5px 10px;white-space:nowrap}
 .icon-btn:hover{border-color:var(--line-2)}
@@ -309,20 +310,28 @@ details.menu .menu-pop.left{left:0;right:auto}
 @media (max-width: 640px){
   .panel{display:none}
   .brand small{display:none}
+  .topbar{gap:6px;padding:0 10px}
+  .tabs{margin-left:0;gap:2px}
+  .tab{padding:6px 9px}
+  .icon-btn{padding:5px 9px}
+  .tl{display:none}
+  .ts{display:inline}
 }
 </style>
+<style>/*@JOURNEY_CSS@*/</style>
 </head>
 <body>
 <div id="app">
   <header class="topbar">
     <div class="brand">engr-edu<small>신입 엔지니어 교육 · 업무 알고리즘 맵</small></div>
     <nav class="tabs" role="tablist">
-      <button class="tab" role="tab" data-tab="edu" aria-selected="true">교육과정</button>
-      <button class="tab" role="tab" data-tab="map" aria-selected="false">업무 알고리즘 맵</button>
+      <button class="tab" role="tab" data-tab="edu" aria-selected="true"><span class="tl">교육과정</span><span class="ts">교육</span></button>
+      <button class="tab" role="tab" data-tab="map" aria-selected="false"><span class="tl">업무 알고리즘 맵</span><span class="ts">맵</span></button>
+      <button class="tab" role="tab" data-tab="hbm" aria-selected="false" title="AI에서 DRAM 셀까지 스크롤 줌"><span class="tl">HBM 역추적</span><span class="ts">HBM</span></button>
     </nav>
     <div class="spacer"></div>
-    <button class="icon-btn" id="btn-help" title="도움말">도움말</button>
-    <button class="icon-btn" id="btn-settings" title="LLM 설정">LLM 설정</button>
+    <button class="icon-btn" id="btn-help" title="도움말"><span class="tl">도움말</span><span class="ts">?</span></button>
+    <button class="icon-btn" id="btn-settings" title="LLM 설정"><span class="tl">LLM 설정</span><span class="ts">LLM</span></button>
     <button class="icon-btn" id="btn-theme" title="밝게/어둡게">◐</button>
   </header>
 
@@ -330,6 +339,8 @@ details.menu .menu-pop.left{left:0;right:auto}
     <aside class="edu-side" id="edu-toc"></aside>
     <main class="edu-main"><article class="doc" id="edu-doc"></article></main>
   </section>
+
+  <section class="view" id="view-hbm" aria-label="HBM 역추적 — AI에서 DRAM 셀까지"></section>
 
   <section class="view" id="view-map">
     <aside class="map-side">
@@ -1928,10 +1939,13 @@ function openHelp(){
       h('li', null, '노드에 마우스를 올리면 글과 사진이 바로 뜹니다'),
       h('li', null, '「▶ 따라가기」 로 처음 보는 사람 입장에서 검토'),
       h('li', null, '「내보내기 → 공유용 HTML」 로 팀에 배포 (받은 사람이 열면 맵이 그대로 보입니다)')),
+    h('h4', null, 'HBM 역추적'),
+    h('p', null, 'AI 데이터센터에서 DRAM 셀까지 스크롤할 때마다 한 단계씩 줌인합니다. 화면의 점선 상자를 누르면 그 안으로, 위쪽 장 버튼으로 바로 이동합니다. 「제조 순서」는 같은 화면을 거꾸로(줌아웃) 보여 주고, 「▶ 발표 모드」는 전체 화면에서 ← → 키로 넘깁니다.'),
     h('h4', null, '저장'),
     h('p', null, '맵은 이 브라우저(IndexedDB)에 자동 저장됩니다. 브라우저 데이터를 지우면 사라지니 「JSON (모든 맵 백업)」 으로 주기적으로 백업하세요.'),
     h('h4', null, '단축키'),
-    h('p', null, 'Delete: 선택 삭제 · Ctrl+Z: 되돌리기 · Ctrl+Y: 다시 · Esc: 선택 해제')
+    h('p', null, '맵 — Delete: 선택 삭제 · Ctrl+Z: 되돌리기 · Ctrl+Y: 다시 · Esc: 선택 해제'),
+    h('p', null, 'HBM 역추적 — ← →: 이전·다음 단계 · ↓ PageDown Space: 스크롤 · 발표 모드에서 Home/End: 처음·끝, Esc: 닫기')
   ]);
 }
 
@@ -2139,14 +2153,28 @@ $('#export-menu').addEventListener('click', ev => {
  * 13. 이벤트 연결
  * ================================================================ */
 function setTab(t){
+  if (!$('#view-' + t)) t = 'edu';
   S.tab = t;
   $$('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t ? 'true' : 'false'));
-  $('#view-edu').classList.toggle('active', t === 'edu');
-  $('#view-map').classList.toggle('active', t === 'map');
+  $$('#app > .view').forEach(v => v.classList.toggle('active', v.id === 'view-' + t));
   store.set('engr-edu.tab', t);
   if (t === 'map'){ renderCanvas(); requestAnimationFrame(() => { if (!S.fitted){ fit(); S.fitted = true; } }); }
+  document.dispatchEvent(new CustomEvent('engr:tab', {detail: t}));
 }
 $$('.tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+// 탭 사이 이동 링크: #go-hbm, #go-map, #go-edu-4 (교육 모듈 번호)
+document.addEventListener('click', ev => {
+  const a = ev.target.closest && ev.target.closest('a[href^="#go-"]');
+  if (!a) return;
+  const m = a.getAttribute('href').match(/^#go-(edu|map|hbm)(?:-(\d+))?$/);
+  if (!m) return;
+  ev.preventDefault();
+  if (m[1] === 'edu' && m[2] != null && S.edu.length){
+    S.eduIdx = Math.min(+m[2], S.edu.length - 1); store.set('engr-edu.eduIdx', S.eduIdx);
+    renderEdu(); $('.edu-main').scrollTop = 0;
+  }
+  setTab(m[1]);
+});
 $$('.panel-tabs button').forEach(b => b.addEventListener('click', () => setPtab(b.dataset.ptab)));
 $('#btn-settings').addEventListener('click', openSettings);
 $('#btn-help').addEventListener('click', openHelp);
@@ -2259,5 +2287,6 @@ window.EngrEdu = {parseFlow, layoutMap, renderMarkdown, normalizeMap, buildShare
 init();
 })();
 </script>
+<script>/*@JOURNEY_JS@*/</script>
 </body>
 </html>

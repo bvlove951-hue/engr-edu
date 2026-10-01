@@ -261,6 +261,80 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   ok(errors2.length === 0, '공유 HTML 오류 없음 ' + errors2.join(' | '));
   await ctx2.close();
 
+  console.log('HBM 역추적');
+  await page.click('[data-tab="edu"]');
+  await page.click('.toc-item >> nth=4');
+  await page.click('#edu-doc a[href="#go-hbm"]');
+  await page.waitForSelector('#view-hbm.active .jz-svg');
+  ok(await page.evaluate(() => window.EngrEdu.state.tab) === 'hbm', '04 모듈의 링크로 HBM 역추적 탭 열기');
+  const jz = await page.evaluate(() => ({ scenes: document.querySelectorAll('#view-hbm .jz-scene').length, beats: window.EngrJourney.state.beats }));
+  ok(jz.scenes === 12 && jz.beats > 40, `장면 12개, 단계 ${jz.beats}개`);
+  const holes = await page.evaluate(() => { const b = window.EngrJourney.blocks(); let n = 0; for (let k = 1; k < b.length; k++) if (Math.abs(b[k - 1].top + b[k - 1].h - b[k].top) > 1) n++; return n; });
+  ok(holes === 0, '스크롤 블록이 빈틈 없이 이어짐');
+  // 조건에 맞는 블록의 frac 위치를 화면 가운데(기준선)에 둔다
+  const jzGo = async (cond, frac) => {
+    await page.evaluate(([cond, frac]) => {
+      const V = document.getElementById('view-hbm'), b = window.EngrJourney.blocks().find(new Function('b', 'return ' + cond));
+      V.scrollTop = b.top + frac * b.h - V.clientHeight * 0.5;
+    }, [cond, frac]);
+    await page.waitForTimeout(120);
+  };
+  const visible = () => page.evaluate(() => [...document.querySelectorAll('#view-hbm .jz-scene')].filter(g => g.style.display !== 'none').map(g => ({ i: +g.dataset.i, tf: g.getAttribute('transform') || '' })));
+  let sceneOk = 0;
+  for (let si = 0; si < 12; si++) {
+    await jzGo(`b.kind === 'card' && b.si === ${si} && b.j === 0`, 0.02);
+    const u = await page.evaluate(() => window.EngrJourney.state.pos.u), vis = await visible();
+    if (u === si && vis.length === 1 && vis[0].i === si) sceneOk++;
+  }
+  ok(sceneOk === 12, `스크롤하면 12개 장면이 차례로 나온다 (${sceneOk}/12)`);
+  await jzGo(`b.kind === 'gap' && b.from === 4 && b.to === 5`, 0.5);
+  const tr = await visible();
+  ok(tr.length === 2 && tr.every(t => /scale\(/.test(t.tf)), '장면 사이에서는 두 장면이 줌으로 겹친다 (출하 → 웨이퍼)');
+  ok(/되감기/.test(await page.textContent('.jz-badge')), '되감기 전환 표시');
+  await jzGo(`b.kind === 'card' && b.si === 11 && b.j === 0`, 0.02);
+  const hud = await page.evaluate(() => ({ mag: document.querySelector('.jz-scale [data-o=mag]').textContent, mk: document.querySelector('.jz-gauge .mk').textContent }));
+  ok(/[만억]/.test(hud.mag) && /nm/.test(hud.mk), `배율·눈금 표시 (${hud.mag}, ${hud.mk})`);
+  const race = page.locator('#view-hbm .jc:has(.race)');
+  const tok0 = await race.locator('[data-o="t1"]').textContent();
+  await setRange(race.locator('input[data-i="bw"]'), '9.6');
+  const tok1 = await race.locator('[data-o="t1"]').textContent();
+  ok(tok0 === '34 토큰/s' && tok1 === '69 토큰/s', `토큰 레이스: 대역폭 ×2 → 속도 ×2 (${tok0} → ${tok1})`);
+  const lanes = () => page.evaluate(() => document.querySelectorAll('#view-hbm .jz-scene[data-i="2"] .lane').length);
+  const ln0 = await lanes();
+  await page.click('#view-hbm .jc [data-g="gen"] button[data-v="HBM4"]');
+  const ln1 = await lanes();
+  ok(ln0 === 128 && ln1 === 256, `대역폭 위젯: HBM4 → 화면의 데이터선 ${ln0} → ${ln1}`);
+  await page.click('#view-hbm .jc [data-g="pt"] button[data-v="local"]');
+  const wp = await page.evaluate(() => window.EngrJourney.scenes[5].p);
+  ok(wp.pattern === 'local' && wp.stats.fail > 0 && wp.stats.total > 300, `웨이퍼 맵 패턴 바꾸기 (불합격 ${wp.stats.fail}/${wp.stats.total})`);
+  await page.click('#view-hbm .jc [data-g="N"] button[data-v="16"]');
+  const die16 = await page.evaluate(() => document.querySelectorAll('#view-hbm .jz-scene[data-i="6"] [data-tip^="코어 다이 #16"]').length);
+  const thick = await page.locator('#view-hbm .jc:has([data-g="N"]) [data-o="t"]').textContent();
+  ok(die16 > 0 && thick === '≈ 26 µm', `높이 예산: 16단 → 화면도 16단, 코어 다이 ${thick}`);
+  await jzGo(`b.kind === 'card' && b.si === 3 && b.j === 1`, 0.5 / 5);
+  const st0 = await page.evaluate(() => window.EngrJourney.scenes[3]._state);
+  await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(900);
+  const st1 = await page.evaluate(() => window.EngrJourney.scenes[3]._state);
+  ok(st0 === '1' && st1 === '2', `카드 안 단계 스크롤 · → 키로 다음 단계 (CoWoS ${st0} → ${st1})`);
+  await page.screenshot({ path: path.join(OUT, '05-hbm.png') });
+  await page.click('.jz-tools [data-mode="fwd"]');
+  const fwd = await page.evaluate(() => window.EngrJourney.blocks().filter(b => b.kind === 'card' && b.j === 0).map(b => b.si).join(','));
+  ok(fwd === '11,10,9,8,7,6,5,4,3,2,1,0', '제조 순서 모드: DRAM → AI 순서로 다시 재생');
+  await page.click('.jz-tools [data-mode="rev"]');
+  await page.click('.jz-tools .pres');
+  await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(2200);
+  const pk = await page.evaluate(() => window.EngrJourney.state.pres);
+  await page.screenshot({ path: path.join(OUT, '06-hbm-pres.png') });
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
+  ok(pk === 1 && (await page.evaluate(() => window.EngrJourney.state.pres)) === null, '발표 모드: → 키로 다음, Esc로 닫기');
+  await page.click('#view-hbm a[href="#go-edu-3"]');
+  const back = await page.evaluate(() => ({ tab: window.EngrEdu.state.tab, idx: window.EngrEdu.state.eduIdx }));
+  ok(back.tab === 'edu' && back.idx === 3, '카드의 링크로 교육 03 모듈 열기');
+  await page.click('[data-tab="map"]');
+
   console.log('다크 모드 화면');
   await page.click('#btn-theme');
   await page.click('#btn-layout');
