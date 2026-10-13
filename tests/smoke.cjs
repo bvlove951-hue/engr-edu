@@ -6,7 +6,7 @@ const os = require('os');
 const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '..');
-const FILE = 'file://' + path.join(ROOT, 'dist', 'engr-edu.html');
+const FILE = 'file://' + (process.env.ENGR_HTML ? path.resolve(process.env.ENGR_HTML) : path.join(ROOT, 'dist', 'engr-edu.html'));
 const OUT = process.env.SHOT_DIR || fs.mkdtempSync(path.join(os.tmpdir(), 'engr-edu-'));
 let failed = 0;
 const setRange = (loc, v) => loc.evaluate((el, val) => { el.value = val; el.dispatchEvent(new Event('input', { bubbles: true })); }, v);
@@ -379,6 +379,59 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   await page.click('.bp-line button >> nth=5');
   await page.waitForTimeout(1600);
   ok((await page.evaluate(() => window.EngrBump.state.step)) === 'ecd', '공정 칩을 누르면 그 공정으로 이동 (06 도금)');
+
+  console.log('전해도금');
+  await page.click('[data-tab="edu"]');
+  await page.click('.toc-item >> nth=3');
+  await page.click('#edu-doc a[href="#go-plating"]');
+  await page.waitForSelector('#view-plating.active .pl-svg');
+  ok(await page.evaluate(() => window.EngrEdu.state.tab) === 'plating', '03 모듈의 링크로 전해도금 탭 열기');
+  const pl = await page.evaluate(() => ({ ch: window.EngrPlating.chapters, beats: window.EngrPlating.state.beats,
+    scenes: document.querySelectorAll('#view-plating .pl-scene').length, chips: document.querySelectorAll('#view-plating .pl-line button').length,
+    tiles: document.querySelectorAll('#view-plating .pl-scene[data-ch="intro"] .pl-go').length }));
+  const plParts = [1, 2, 3].map(p => pl.ch.filter(c => c.part === p).length).join('/');
+  ok(pl.ch.length === 13 && pl.scenes === 14 && pl.chips === 13 && plParts === '4/4/5', `13장 (부별 ${plParts}) · 장면 ${pl.scenes} · 칩 ${pl.chips}`);
+  ok(pl.beats >= 50 && pl.tiles >= 13, `단계 ${pl.beats}개 · 차례 타일 ${pl.tiles}개`);
+  // 각 상태로 스크롤해서 그 상태 · 그 장면이 되는지
+  const plAt = async s => {
+    await page.evaluate(s => { const b = window.EngrPlating.blocks().find(x => !x.note && x.states.includes(s)); const V = document.getElementById('view-plating'); V.scrollTop = b.top + (b.states.indexOf(s) + 0.5) / b.n * b.h - V.clientHeight * 0.5; }, s);
+    await page.waitForTimeout(120);
+    return page.evaluate(() => window.EngrPlating.state.state);
+  };
+  const plOrder = await page.evaluate(() => window.EngrPlating.order);
+  let plReached = 0, plScene = 0;
+  for (const s of plOrder){
+    if (await plAt(s) === s) plReached++;
+    const curScene = await page.evaluate(() => [...document.querySelectorAll('#view-plating .pl-scene.cur')].map(g => g.dataset.ch).join());
+    if (curScene === (s === 'intro' ? 'intro' : s.split('.')[0])) plScene++;
+  }
+  ok(plReached === plOrder.length && plScene === plOrder.length, `스크롤하면 ${plOrder.length}개 상태를 차례로 지나고 장면이 바뀐다 (${plReached} · ${plScene})`);
+  await plAt('intro');
+  await page.click('#view-plating .pl-scene.cur .pl-go[data-go="wafer"] .pl-tile');
+  await page.waitForTimeout(1700);
+  ok((await page.evaluate(() => window.EngrPlating.state.chapter)) === 'wafer', '차례 타일을 누르면 그 장으로 (07 웨이퍼 분포)');
+  await page.click('#view-plating .pl-line button >> nth=11');
+  await page.waitForTimeout(1700);
+  ok((await page.evaluate(() => window.EngrPlating.state.chapter)) === 'defects', '장 칩을 누르면 그 장으로 (12 불량 도감)');
+  const tipBox = await page.evaluate(() => { const el = [...document.querySelectorAll('#view-plating .pl-scene.cur [data-tip]')].find(e => !e.closest('.off') && !e.closest('.hide') && e.getBoundingClientRect().width > 20); const r = el.getBoundingClientRect(); return {x: r.x + r.width / 2, y: r.y + r.height / 2}; });
+  await page.mouse.move(tipBox.x, tipBox.y);
+  ok(await page.isVisible('#view-plating .jz-tip'), '장면 요소에 마우스 → 이름 · 역할');
+  await page.click('#view-plating .jz-tools [data-act="deep"]');
+  const deepN = await page.evaluate(() => { const d = [...document.querySelectorAll('#view-plating details.pl-deep')]; return {n: d.length, open: d.filter(x => x.open).length}; });
+  await page.click('#view-plating .jz-tools [data-act="deep"]');
+  const deepOff = await page.evaluate(() => [...document.querySelectorAll('#view-plating details.pl-deep')].filter(x => x.open).length);
+  ok(deepN.n >= 12 && deepN.open === deepN.n && deepOff === 0, `깊게 보기: 「한 걸음 더」 ${deepN.n}개를 모두 펼치고 접기`);
+  await page.click('#view-plating .jz-tools .pres');
+  const pk0 = await page.evaluate(() => window.EngrPlating.state.pres);
+  await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(400);
+  const pk1 = await page.evaluate(() => ({ k: window.EngrPlating.state.pres, cap: document.querySelector('#view-plating .jz-cap .t').textContent }));
+  await page.screenshot({ path: path.join(OUT, '10-plating-pres.png') });
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
+  ok(pk1.k === pk0 + 1 && pk1.cap.length > 3 && (await page.evaluate(() => window.EngrPlating.state.pres)) === null, `발표 모드: → 로 다음 (${pk1.cap}), Esc로 닫기`);
+  /*@PLATING_WIDGET_TESTS@*/
+  await page.screenshot({ path: path.join(OUT, '09-plating.png') });
   await page.click('[data-tab="map"]');
 
   console.log('다크 모드 화면');

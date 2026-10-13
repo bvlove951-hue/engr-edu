@@ -301,6 +301,14 @@ details.menu .menu-pop.left{left:0;right:auto}
 .img-card{position:relative}
 .canvas-wrap.drop-over{outline:3px dashed var(--accent);outline-offset:-6px}
 
+@media (max-width: 1180px){
+  .brand small{display:none}
+}
+@media (max-width: 960px){
+  /* 탭이 다섯 개라 좁은 화면에서는 짧은 이름으로 */
+  .tabs .tl,.icon-btn .tl{display:none}
+  .tabs .ts,.icon-btn .ts{display:inline}
+}
 @media (max-width: 900px){
   .edu-side{display:none}
   .edu-main{padding:18px 16px 60px}
@@ -324,6 +332,7 @@ details.menu .menu-pop.left{left:0;right:auto}
 </style>
 <style>/*@JOURNEY_CSS@*/</style>
 <style>/*@BUMP_CSS@*/</style>
+<style>/*@PLATING_CSS@*/</style>
 </head>
 <body>
 <div id="app">
@@ -334,6 +343,7 @@ details.menu .menu-pop.left{left:0;right:auto}
       <button class="tab" role="tab" data-tab="map" aria-selected="false"><span class="tl">업무 알고리즘 맵</span><span class="ts">맵</span></button>
       <button class="tab" role="tab" data-tab="hbm" aria-selected="false" title="AI에서 DRAM 셀까지 스크롤 줌"><span class="tl">HBM 역추적</span><span class="ts">HBM</span></button>
       <button class="tab" role="tab" data-tab="bump" aria-selected="false" title="앞면 범프 도금 공정 — 웨이퍼·다이·범프 한 화면"><span class="tl">범프 공정</span><span class="ts">범프</span></button>
+      <button class="tab" role="tab" data-tab="plating" aria-selected="false" title="전해도금 — 원리부터 현장까지 13장"><span class="tl">전해도금</span><span class="ts">도금</span></button>
     </nav>
     <div class="spacer"></div>
     <button class="icon-btn" id="btn-help" title="도움말"><span class="tl">도움말</span><span class="ts">?</span></button>
@@ -348,6 +358,7 @@ details.menu .menu-pop.left{left:0;right:auto}
 
   <section class="view" id="view-hbm" aria-label="HBM 역추적 — AI에서 DRAM 셀까지"></section>
   <section class="view" id="view-bump" aria-label="범프 공정 — 웨이퍼·다이·범프"></section>
+  <section class="view" id="view-plating" aria-label="전해도금 — 원리부터 현장까지"></section>
 
   <section class="view" id="view-map">
     <aside class="map-side">
@@ -1948,11 +1959,13 @@ function openHelp(){
       h('li', null, '「내보내기 → 공유용 HTML」 로 팀에 배포 (받은 사람이 열면 맵이 그대로 보입니다)')),
     h('h4', null, 'HBM 역추적'),
     h('p', null, 'AI 데이터센터에서 DRAM 셀까지 스크롤할 때마다 한 단계씩 줌인합니다. 화면의 점선 상자를 누르면 그 안으로, 위쪽 장 버튼으로 바로 이동합니다. 「제조 순서」는 같은 화면을 거꾸로(줌아웃) 보여 주고, 「▶ 발표 모드」는 전체 화면에서 ← → 키로 넘깁니다.'),
+    h('h4', null, '범프 공정 · 전해도금'),
+    h('p', null, '범프 공정은 앞면 범프 12단계를 웨이퍼 · 다이 · 범프 세 단위로, 전해도금은 도금의 원리부터 장비 · 도금액 · 불량까지 13장으로 설명합니다. 스크롤하거나 ← → 키로 넘기고, 아래 칩을 누르면 바로 이동합니다. 전해도금의 「깊게 보기」는 카드마다 접혀 있는 「한 걸음 더」를 모두 펼칩니다.'),
     h('h4', null, '저장'),
     h('p', null, '맵은 이 브라우저(IndexedDB)에 자동 저장됩니다. 브라우저 데이터를 지우면 사라지니 「JSON (모든 맵 백업)」 으로 주기적으로 백업하세요.'),
     h('h4', null, '단축키'),
     h('p', null, '맵 — Delete: 선택 삭제 · Ctrl+Z: 되돌리기 · Ctrl+Y: 다시 · Esc: 선택 해제'),
-    h('p', null, 'HBM 역추적 — ← →: 이전·다음 단계 · ↓ PageDown Space: 스크롤 · 발표 모드에서 Home/End: 처음·끝, Esc: 닫기')
+    h('p', null, 'HBM 역추적 · 범프 공정 · 전해도금 — ← →: 이전·다음 단계 · ↓ PageDown Space: 스크롤 · 발표 모드에서 Home/End: 처음·끝, Esc: 닫기')
   ]);
 }
 
@@ -2169,11 +2182,11 @@ function setTab(t){
   document.dispatchEvent(new CustomEvent('engr:tab', {detail: t}));
 }
 $$('.tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
-// 탭 사이 이동 링크: #go-hbm, #go-bump, #go-map, #go-edu-4 (교육 모듈 번호)
+// 탭 사이 이동 링크: #go-hbm, #go-bump, #go-plating, #go-map, #go-edu-4 (교육 모듈 번호)
 document.addEventListener('click', ev => {
   const a = ev.target.closest && ev.target.closest('a[href^="#go-"]');
   if (!a) return;
-  const m = a.getAttribute('href').match(/^#go-(edu|map|hbm|bump)(?:-(\d+))?$/);
+  const m = a.getAttribute('href').match(/^#go-(edu|map|hbm|bump|plating)(?:-(\d+))?$/);
   if (!m) return;
   ev.preventDefault();
   if (m[1] === 'edu' && m[2] != null && S.edu.length){
@@ -2296,5 +2309,6 @@ init();
 </script>
 <script>/*@JOURNEY_JS@*/</script>
 <script>/*@BUMP_JS@*/</script>
+<script>/*@PLATING_JS@*/</script>
 </body>
 </html>

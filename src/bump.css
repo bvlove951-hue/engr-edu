@@ -152,6 +152,7 @@
   .bp .jz-tools{top:auto;bottom:44px;right:8px;left:auto;z-index:2}
   .bp-views{top:auto;bottom:44px;left:8px;right:auto;z-index:2}
   .bp .jz-tools .tl,.bp-views .tl{display:none}
+  .bp .jz-tools .ts{display:inline}
   .bp-views button,.bp .jz-tools button{font-size:11px;padding:3px 7px}
   .bp-line .chipsr{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none}
   .bp-line button{flex:none}

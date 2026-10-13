@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """교육 콘텐츠(education/*.md)를 앱(src/app.html)에 넣어 단일 HTML(dist/engr-edu.html)로 만든다.
 
-사용법:  python3 tools/build.py
+사용법:  python3 tools/build.py            (dist/engr-edu.html)
+        python3 tools/build.py --out 경로  (다른 곳에 만들기 — 작업 중 비교용)
+        python3 tools/build.py --out 경로 --only 03,07  (전해도금 탭에 그 장만 넣기)
 결과물은 외부 파일·CDN 없이 더블클릭만으로 열리는 하나의 HTML 파일이다.
 """
 import json
@@ -19,6 +21,9 @@ PARTS = {
     "/*@JOURNEY_JS@*/": ROOT / "src" / "journey.js",     # HBM 역추적 탭 (스크롤 줌 스토리)
     "/*@BUMP_CSS@*/": ROOT / "src" / "bump.css",         # 범프 공정 탭 스타일
     "/*@BUMP_JS@*/": ROOT / "src" / "bump.js",           # 범프 공정 탭 (웨이퍼·다이·범프 한 화면)
+    "/*@PLATING_CSS@*/": ROOT / "src" / "plating.css",   # 전해도금 탭 스타일
+    # 전해도금 탭: 장(章)마다 한 파일(src/plating/NN-*.js)을 번호 순으로 싣고, 마지막에 엔진(src/plating.js)
+    "/*@PLATING_JS@*/": [*sorted((ROOT / "src" / "plating").glob("*.js")), ROOT / "src" / "plating.js"],
 }
 
 
@@ -62,16 +67,23 @@ def split_style(figs):
     return style
 
 
-def inject_parts(html):
-    """src/journey.*, bump.* 를 <style>·<script> 자리에 넣는다."""
-    for marker, path in PARTS.items():
+def inject_parts(html, only=None):
+    """src/journey.*, bump.*, plating.* 를 <style>·<script> 자리에 넣는다.
+    여러 파일(전해도금 장 파일들)은 파일마다 따로 <script>에 넣어, 한 파일의 오류가 다른 장을 멈추지 않게 한다.
+    only: 전해도금 장 번호 목록(예: ['03', '07']) — 그 장만 넣는다 (작업 중 확인용)."""
+    for marker, paths in PARTS.items():
         if html.count(marker) != 1:
             sys.exit(f"src/app.html 에서 {marker} 자리를 찾지 못했습니다")
-        code = path.read_text(encoding="utf-8")
-        # 인라인 <script>/<style> 안에서 HTML 파서를 깨뜨리는 문자열 금지
-        if re.search(r"</(script|style)|<!--", code, re.I):
-            sys.exit(f"{path.name}: '</script', '</style', '<!--' 는 인라인으로 넣을 수 없습니다")
-        html = html.replace(marker, code, 1)
+        codes = []
+        for path in paths if isinstance(paths, list) else [paths]:
+            if only and path.parent.name == "plating" and path.name[:2] not in only:
+                continue
+            code = path.read_text(encoding="utf-8")
+            # 인라인 <script>/<style> 안에서 HTML 파서를 깨뜨리는 문자열 금지
+            if re.search(r"</(script|style)|<!--", code, re.I):
+                sys.exit(f"{path.name}: '</script', '</style', '<!--' 는 인라인으로 넣을 수 없습니다")
+            codes.append(code)
+        html = html.replace(marker, "\n</script>\n<script>\n".join(codes) if isinstance(paths, list) else codes[0], 1)
     return html
 
 
@@ -85,6 +97,8 @@ def check_self_contained(html):
 
 
 def main():
+    out = Path(sys.argv[sys.argv.index("--out") + 1]).resolve() if "--out" in sys.argv else OUT
+    only = sys.argv[sys.argv.index("--only") + 1].split(",") if "--only" in sys.argv else None
     html = SRC.read_text(encoding="utf-8")
     mods = load_modules()
     figs = load_figures(mods)
@@ -94,11 +108,12 @@ def main():
     if not pattern.search(html):
         sys.exit("src/app.html 에서 edu-data 자리를 찾지 못했습니다")
     html = pattern.sub(lambda m: m.group(1) + payload + m.group(3), html, count=1)
-    html = inject_parts(html)
+    html = inject_parts(html, only)
     check_self_contained(html)
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(html, encoding="utf-8")
-    print(f"{OUT.relative_to(ROOT)}  ({OUT.stat().st_size / 1024:.0f} KB, 교육 모듈 {len(mods)}개, 그림 {len(figs)}개)")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(html, encoding="utf-8")
+    shown = out.relative_to(ROOT) if out.is_relative_to(ROOT) else out
+    print(f"{shown}  ({out.stat().st_size / 1024:.0f} KB, 교육 모듈 {len(mods)}개, 그림 {len(figs)}개)")
 
 
 if __name__ == "__main__":
