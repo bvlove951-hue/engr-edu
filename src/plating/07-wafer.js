@@ -89,7 +89,7 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 앞 공정 · 
 .jc .p07-row{display:flex;flex-wrap:wrap;column-gap:16px}
 .jc .p07-row .pl-seg{margin:4px 0}
 .jc .p07-w .kpi{flex:1 1 64px;min-width:0;padding:5px 7px}
-.jc .p07-w .kpi .v{font-size:16px}
+.jc .p07-w .kpi .v{font-size:16px;white-space:nowrap}
 .jc .p07-w .kpi .s{font-size:10px;line-height:1.3;letter-spacing:-.3px}
 .jc .p07-msg{min-height:80px}
 .pl-svg .p07-b{font-weight:800}`,
@@ -191,7 +191,7 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 앞 공정 · 
       <div class="p07-row">${K.seg('plate', [['0', '없음'], ['1', '있음']], '0', '고저항판')}${K.seg('shield', [['0', '없음'], ['1', '있음']], '0', '실드')}</div>
       ${K.kpis([['중심', 'k-c', '평균 대비'], ['가장자리', 'k-e', '평균 대비'], ['균일도', 'k-u', '범위/(2·평균)'], ['λ', 'k-l', '들어가는 거리']])}
       <p class="pl-msg p07-msg" data-o="msg"></p>
-      ${K.model('<b>1차원 개념 모델 — 실제 장비보다 과장될 수 있습니다.</b> λ = √(Rp/Rs), Rp = 간격/κ + 고저항판 + (R_pol + h/κ) ÷ 개구율 (h = PR 구멍 깊이), R_pol = b/(2.303·J). 개구율을 바꿔도 범프 기준 전류밀도(J)는 그대로 둡니다. 가장자리 꼬리(약 10 mm)는 실드 · 고저항판 · 낮은 전류밀도 · 높은 전도도에서 작아집니다. 설명 줄의 두 % = 각 효과만으로 가장자리가 중심보다 두꺼운 정도. 값은 예시 (식은 「한 걸음 더」).')}</div>`;
+      ${K.model('<b>1차원 개념 모델 — 실제 장비보다 과장될 수 있습니다.</b> λ = √(Rp/Rs), Rp = 간격/κ + 고저항판 + (R_pol + h/κ) ÷ 개구율 (h = PR 구멍 깊이), R_pol = b/(2.303·J). 개구율을 바꿔도 범프 기준 전류밀도(J)는 그대로 둡니다. 가장자리 꼬리(약 10 mm)는 실드 · 고저항판 · 낮은 전류밀도 · 높은 전도도에서 작아집니다. 위 안내의 두 % = 각 효과만으로 가장자리가 중심보다 두꺼운 정도. 값은 예시 (식은 「한 걸음 더」).')}</div>`;
   },
   mount(K, ctx){
     const {R, C, L, P, T, G, LB, tip} = K;
@@ -232,22 +232,23 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 앞 공정 · 
       for (let k = 0; k <= 8; k++) mp += R(bx, MAP.y + MAP.r - (k + 1) * bh, 26, bh, 'pl-hm', {style: `fill:${K.heat(k / 8)}`});
       mp += T(bx + 34, MAP.y + MAP.r, '−20 %', 't-dim', 'start') + T(bx + 34, MAP.y + 6, '0', 't-dim', 'start') + T(bx + 34, MAP.y - MAP.r + 18, '+20 %', 't-dim', 'start');
       ctx.$('[data-v="map"]').innerHTML = G(mp, {'data-tip': '웨이퍼 맵 — 색은 평균 대비 두께\n이 모델은 둘레 방향으로 고른(축대칭) 원인 — 시드 · 접점 링 · 실드 · 고저항판 — 만 넣어 늘 고리(동심원) 무늬다'});
-      const pc = v => `${v >= 1 ? '+' : '−'}${Math.abs((v - 1) * 100).toFixed(1)} %`;
+      const f1 = x => x.toFixed(Math.abs(x) >= 99.95 ? 0 : 1);      // 100 % 넘으면 소수점 없이 (KPI 칸이 두 줄로 넘치지 않게)
+      const pc = v => `${v >= 1 ? '+' : '−'}${f1(Math.abs((v - 1) * 100))} %`;
       const lmm = (pr.lam * 1000).toFixed(0);
       ctx.$('[data-v="read"]').innerHTML = LB(
-        T(964, 990, `중심 ${pc(pr.center)} · 가장자리 ${pc(pr.edge)} · 균일도 ±${pr.unif.toFixed(1)} %`, 't-warn', 'start') +
+        T(964, 990, `중심 ${pc(pr.center)} · 가장자리 ${pc(pr.edge)} · 균일도 ±${f1(pr.unif)} %`, 't-warn', 'start') +
         T(964, 1024, `λ = ${lmm} mm — 전류가 시드를 타고 안쪽으로 들어가는 거리`, 't-sub', 'start') +
         T(964, 1054, `터미널 효과만: 중심/가장자리 = 1/I₀(a/λ) = ${pr.ce.toFixed(2)}`, 't-sub', 'start') +
         T(964, 1086, `a = 150 mm · R_pol = ${sci(pr.Rpol)} Ω·m² (${st.j} ASD) · 1차원 개념 모델`, 't-dim', 'start'));
-      ctx.out('k-c', pc(pr.center)); ctx.out('k-e', pc(pr.edge)); ctx.out('k-u', `±${pr.unif.toFixed(1)} %`); ctx.out('k-l', `${lmm} mm`);
+      ctx.out('k-c', pc(pr.center)); ctx.out('k-e', pc(pr.edge)); ctx.out('k-u', `±${f1(pr.unif)} %`); ctx.out('k-l', `${lmm} mm`);
       if (kU){ const box = kU.closest('.kpi'); box.classList.toggle('ok', pr.unif < 3); box.classList.toggle('warn', pr.unif >= 3 && pr.unif < 10); box.classList.toggle('ng', pr.unif >= 10); }
       // 어느 효과가 큰가: 터미널 효과만의 (가장자리/중심 − 1) vs 가장자리 꼬리 E
       const tc = 1 / pr.ce - 1, tp = Math.round(tc * 100), ep = Math.round(pr.E * 100);
       ctx.q('[data-o=msg]').innerHTML = pr.unif < 3 ? '고른 편입니다 (이 모델 기준). 시드가 바뀌거나 개구율이 다른 제품이 오면 다시 확인합니다.'
         : st.shield && pr.edge < Math.min(pr.center, 0.97) ? '<b>가장자리가 얇습니다</b> — 실드가 너무 많이 가립니다(과보정). 시드 · 개구율이 바뀌면 실드 설정도 다시 맞춰야 합니다.'
-        : tc > 1.5 * pr.E ? `<b>중심이 얇습니다</b> — 터미널 효과(+${tp} %)가 가장자리 효과(+${ep} %)보다 큽니다. ${levers(st, pr.unif)}`
-        : pr.E > 1.5 * tc ? `<b>가장자리가 두껍습니다</b> — 가장자리 효과(+${ep} %)가 터미널 효과(+${tp} %)보다 큽니다. ${levers(st, pr.unif)}`
-        : `<b>두 효과가 비슷합니다</b> — 터미널 효과 +${tp} % · 가장자리 효과 +${ep} %. ${levers(st, pr.unif)}`;
+        : tc > 1.5 * pr.E ? `<b>중심이 얇습니다</b> — 터미널 효과(+${tp}&nbsp;%)가 가장자리 효과(+${ep}&nbsp;%)보다 큽니다. ${levers(st, pr.unif)}`
+        : pr.E > 1.5 * tc ? `<b>가장자리가 두껍습니다</b> — 가장자리 효과(+${ep}&nbsp;%)가 터미널 효과(+${tp}&nbsp;%)보다 큽니다. ${levers(st, pr.unif)}`
+        : `<b>두 효과가 비슷합니다</b> — 터미널 효과 +${tp}&nbsp;% · 가장자리 효과 +${ep}&nbsp;%. ${levers(st, pr.unif)}`;
       ctx.refresh();
     }
     ctx.range('seed', v => { st.seed = seedOf(v); render(); return st.seed.toFixed(2) + ' µm'; });
