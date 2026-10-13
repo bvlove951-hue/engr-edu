@@ -495,32 +495,34 @@ function resolvePos(){
 }
 let ticking = false, activeCard = null;
 function onScroll(){
-  if (ticking || pres) return;
+  if (ticking || pres || scrollAnim) return;          // 코드가 스크롤을 옮기는 중에는 지나가는 단계를 켜지 않는다 (목표 단계는 이미 켜 둠)
   ticking = true;
   requestAnimationFrame(() => {
     ticking = false;
-    if (pres) return;
+    if (pres || scrollAnim) return;
     const {b, sub} = resolvePos();
     if (activeCard !== b){ if (activeCard) activeCard.card.classList.remove('active'); activeCard = b; b.card.classList.add('active'); }
     if (b.states[sub] !== cur) apply(b.states[sub]);
   });
 }
 let scrollAnim = null;
-function cancelScrollAnim(){ if (scrollAnim){ cancelAnimationFrame(scrollAnim); scrollAnim = null; } }
+function cancelScrollAnim(){ if (scrollAnim){ cancelAnimationFrame(scrollAnim); scrollAnim = null; onScroll(); } }   // 멈춘 자리에 맞춘다
 function scrollViewTo(top, animate){
   cancelScrollAnim();
   top = clamp(top, 0, Math.max(0, VIEW.scrollHeight - VIEW.clientHeight));
   const from = VIEW.scrollTop, dist = top - from;
   if (!animate || reduced || Math.abs(dist) < 4){ VIEW.scrollTop = top; return; }
   const dur = clamp(Math.abs(dist) / Math.max(1, VIEW.clientHeight) * 300, 350, 1400), t0 = performance.now();
-  const step = now => { const t = clamp((now - t0) / dur); VIEW.scrollTop = from + dist * (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2); scrollAnim = t < 1 ? requestAnimationFrame(step) : null; };
+  const step = now => { const t = clamp((now - t0) / dur); VIEW.scrollTop = from + dist * (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2); scrollAnim = t < 1 ? requestAnimationFrame(step) : null; if (t >= 1) onScroll(); };
   scrollAnim = requestAnimationFrame(step);
 }
 function scrollToBlock(b, frac){ measure(); scrollViewTo(b.top + frac * b.h - anchorOffset(), true); }
 function gotoBeat(k){
   k = clamp(k, 0, beats.length - 1);
   if (pres) return presGo(k);
-  const bt = beats[k]; scrollToBlock(bt.b, (bt.sub + 0.5) / bt.b.n);
+  const bt = beats[k];
+  if (bt.s !== cur) apply(bt.s);                       // 목표 단계를 바로 보여 주고, 스크롤은 뒤따라간다
+  scrollToBlock(bt.b, (bt.sub + 0.5) / bt.b.n);
 }
 function gotoChapter(cid, sid){
   const ch = BYID[cid]; if (!ch) return;

@@ -451,6 +451,12 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   await plSet('chem', 'c', 1); await plSet('chem', 'pk', 212); const cold = await plOut('chem', 'k-v');
   await plSet('chem', 'pk', 250);
   ok(agHiJ < agMid && agMid < agLoJ && agHiC > agMid && /안 녹음/.test(cold), `10 SnAg: 전류밀도 2 → 5 → 15 ASD에 Ag ${agLoJ} → ${agMid} → ${agHiJ} %, Ag 농도 ×2 → ${agHiC} %, 최고 212 °C → ${cold}`);
+  // 위젯이 먼 단계로 보낼 때: 지나가는 단계가 고른 것을 덮어쓰지 않는다 (12 불량 도감: 높이 → 녹인 뒤)
+  await page.evaluate(() => window.EngrPlating.gotoChapter('defects', 'size')); await page.waitForTimeout(1700);
+  await page.evaluate(() => [...window.EngrPlating.ctx('defects').card.querySelectorAll('[data-g="def"] button')].find(b => b.dataset.v === 'bridge').click());
+  await page.waitForTimeout(1700);
+  const farPick = await page.evaluate(() => ({ st: window.EngrPlating.state.state, pick: window.EngrPlating.ctx('defects').card.querySelector('[data-g="def"] button[aria-pressed="true"]').dataset.v }));
+  ok(farPick.st === 'defects.melt' && farPick.pick === 'bridge', `먼 단계로 가는 위젯 클릭: 단계 ${farPick.st} · 고른 불량 ${farPick.pick} 유지`);
   await plSet('bath', 'b', 0); const ss0 = await plOut('bath', 'k-ss');
   await plSet('bath', 'b', 5); const ss5 = await plOut('bath', 'k-ss'), t95 = await plOut('bath', 'k-t95');
   await plSeg('bath', 'dose', 'time'); const outT = plNum(await plOut('bath', 'k-out'));
