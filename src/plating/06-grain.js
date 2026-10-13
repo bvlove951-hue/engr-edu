@@ -86,7 +86,7 @@ const DEMO = {nuc: {cd: 40, add: true, age: false}, grain: {cd: 40, add: true, a
     for (let k = 0; k < 7; k++) im += K.E(390 + 7 + ri() * 8, IY + 14 + k * 21, 6 + ri() * 4, 5, 'f-hole2');
     // 이름표는 층 위에, 짧은 세로 지시선으로 (층을 가로지르지 않게)
     im += LB(L(396, 826, 396, IY + 2, 's-lead') + C(396, IY + 2, 3.5, 'k-lead') + T(410, 842, '커켄달 보이드 — Cu/Cu₃Sn 계면', 't-sub', 'start') + T(410, 872, 'S (촉진제에서 옴)가 이 계면에 모인다', 't-sub', 'start'));
-    im += LB(L(232, 880, 232, IY + 22, 's-lead') + C(232, IY + 22, 3.5, 'k-lead') + T(96, 872, '도금막 속 불순물 (S · Cl · C 등)', 't-sub', 'start'));
+    im += LB(L(232, 880, 232, IY + 22, 's-lead') + C(232, IY + 22, 3.5, 'k-lead') + T(96, 872, '막 속 불순물 (S · Cl · C 등)', 't-sub', 'start'));
     im += TT(1000, 880, [...wrap('리플로우 한 번보다 고온에 오래 둘 때(예: 150 °C 시효 · 신뢰성 시험) 자란다', 26), ...wrap('Ni 방벽 범프는 솔더가 Ni와 만난다(Ni–Sn) → 주로 상대 Cu 패드 · Ni 없는 곳의 이야기', 26)], 't-dim', 'start', 26);
     s += G(im, only('imp'));
     // stress: 휨(블랭킷 막) · 크랙과 들뜸(범프) · 자기 풀림

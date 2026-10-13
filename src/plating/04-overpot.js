@@ -39,6 +39,7 @@ const ZN = [
   {t: '③ 공급 한계', d: '물질전달 지배. 더 밀어도 금속 전류가 늘지 않는다(한계전류). 튀어나온 곳만 자라 덴드라이트(나뭇가지)가 된다', c: 'k-ng'},
   {t: '④ 수소 발생', d: '금속은 한계만큼만 쌓이고 남는 전류로 수소가 함께 나온다 → 효율↓ · 가루(탄 도금) · 핀홀 · 피트', c: 'k-ng'}
 ];
+const EQL = [GX0 + 48, GY0 - 132];                          // 평형 이름표 둘째 줄 시작점 (지시선 끝)
 // 발표 모드 · 손대기 전: 단계마다 보여 줄 [과전압, 억제제]
 const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59, 'none'], slope: [0.3, 'sup']};
 
@@ -70,7 +71,8 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
     s += LB(T((GX0 + GX1) / 2, GY0 + 66, 'Cu 반응의 과전압 — 음극 쪽으로 민 정도 (mV) →', 't-sub'));
     s += LB(T(GX0 - 24, GY1 - 34, '↑ 전류밀도 (석출 속도)', 't-sub', 'start'));
     // 평형: 가로축 0 = 평형 전위
-    s += G(LB(K.lead(GX0, GY0, GX0 + 60, GY0 - 110, 'η = 0 → 평형 전위 (전류 0 · 0 V가 아님)', 'start', 't-warn')), only('eq'));
+    // 짧은 지시선 + 두 줄 (곡선 왼쪽 빈 곳에, 곡선과 겹치지 않게)
+    s += G(LB(P(`M${GX0 + 6},${GY0 - 10} L${EQL[0] - 8},${EQL[1] + 12}`, 's-lead') + C(GX0, GY0, 3.5, 'k-lead') + TT(EQL[0], EQL[1] - 28, ['η = 0 → 평형 전위', '(전류 0 · 0 V 아님)'], 't-warn', 'start', 28)), only('eq'));
     s += `<g data-v="curves"></g><g data-v="dot"></g>`;
     // 아래: 구역별 막 모양
     const MX = [90, 335, 580, 825], MW = 230, BY = 1062;
@@ -147,7 +149,7 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
     sl += `<g data-v="paths"></g>`;
     sl += para(720, ['완만한 곡선 = 전류를 조금 더 흘리려면 훨씬 더 밀어야 한다 = 모든 길 입구에 같은 톨게이트(표면 저항) → 길 길이 차이가 덜 중요 → 고르게', '모양 그대로 옆으로 옮기기만 하면 → 쏠림 그대로']);
     sl += para(954, ['크기에 따라 주역이 다르다 (바그너 수)'], 't-warn');
-    sl += para(988, ['웨이퍼 반지름 150 mm (300 mm 웨이퍼): Wa ≈ 0.2 → 하드웨어 (실드 · 고저항판 = 인공 분극)', '범프 50 µm: Wa ≈ 500 → 첨가제 · 공급'], 't-sub', 28);
+    sl += para(988, ['웨이퍼 반지름 150\u00a0mm (300\u00a0mm 웨이퍼): Wa\u00a0≈\u00a00.2 → 하드웨어 (실드 · 고저항판 = 인공\u00a0분극)', '범프 50\u00a0µm: Wa\u00a0≈\u00a0500 → 첨가제 · 공급'], 't-sub', 28);
     s += G(sl, only('slope'));
     return s;
   },
@@ -199,17 +201,34 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
       const r = model(st.e, cv, st.a), z = zone(r), x = gx(st.e), y = gy(r.i);
       let dt = L(x, GY0, x, y, 's-dash') + C(x, gy(r.im), 9, 'k-acc') + C(x, y, 13, ZN[z].c) + C(x, y, 22, 'co-ring');
       const eq0 = st.e < 0.0025;                                 // 미는 힘 0 = 평형
-      // 점 이름표: 한계전류 선 · 곡선 이름표 · 별 이름표와 겹치지 않는 자리를 고른다 (위 → 아래 → 더 위)
-      const dl = eq0 ? '평형 (알짜 전류 0)' : ZN[z].t, yL = gy(st.a);
-      const tw = (t, px) => [...t].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch) ? 1 : /[A-Za-z0-9 .,:;'()\-]/.test(ch) ? 0.55 : 0.85), 0) * px;
+      // 점 이름표: 곡선 · 한계전류 선 · 다른 이름표와 겹치지 않는 자리를 고른다 (오른쪽 위 → 오른쪽 아래 → 왼쪽 위 → 더 위)
+      const sid = ctx.step(), yL = gy(st.a);
+      const dl = eq0 ? '평형 (알짜 전류 0)' : ZN[z].t;
+      const tw = (t, px) => [...t].reduce((a, ch) => a + (/[\u3131-\uD79D]/.test(ch) ? 1 : /[A-Za-z0-9 .,:;'()\-]/.test(ch) ? 0.55 : 0.85), 0) * px;
       const bb = (tx, ty, t, px, an) => { const w = tw(t, px), x0 = an === 'end' ? tx - w : tx; return [x0 - 4, ty - px * 0.85 - 4, x0 + w + 4, ty + px * 0.25 + 4]; };
       const hit = (p, q) => p[0] < q[2] && q[0] < p[2] && p[1] < q[3] && q[1] < p[3];
-      const obs = [[GX0, yL - 3, GX1, yL + 3], [GX0, GY1, GX1, GY1 + 24], bb(sPos[0], sPos[1], sLbl, 21, sPos[2]), [fx - 13, fy - 13, fx + 13, fy + 13],
+      const obs = [[GX0, yL - 3, GX1, yL + 3], [GX0, GY1, GX1, GY1 + 24], bb(GX0 + 10, ly, '한계전류 iL', 23, 'start'),
         left ? bb(mx - 16, my - 12, cv.nm, 23, 'end') : bb(mx + 16, my + 30, cv.nm, 23, 'start'), left ? bb(qx + 16, qy + 30, cc.nm, 21, 'start') : bb(qx - 16, qy - 10, cc.nm, 21, 'end')];
-      const lx = Math.min(x + 20, GX1 - tw(dl, 23) - 6);
-      const cand = [y - 26, y + 44, y - 64].map(v => Math.max(GY1 + 44, Math.min(GY0 - 14, v)));
-      const ty = cand.find(v => !obs.some(o => hit(bb(lx, v, dl, 23, 'start'), o))) || cand[0];
-      dt += LB(T(lx, ty, dl, 't-warn', 'start'));
+      if (sid === 'kin') obs.push(bb(sPos[0], sPos[1], sLbl, 21, sPos[2]), [fx - 13, fy - 13, fx + 13, fy + 13]);
+      if (sid === 'h2') obs.push(bb(GX0 + 10, ly > yL ? yL + 60 : yL - 46, '주황 점선 = 전체 (금속 + 수소)', 23, 'start'));
+      if (sid === 'eq') obs.push([EQL[0] - 4, EQL[1] - 52, EQL[0] + 240, EQL[1] + 8], [GX0, EQL[1], EQL[0], GY0 - 8]);
+      const cpts = [];
+      for (let e = 0; e <= EMAX; e += 0.004){ cpts.push([gx(e), gy(imOf(e, cv, st.a))]); if (sid !== 'eq') cpts.push([gx(e), gy(imOf(e, cc, st.a))]); if (sid === 'h2' && e >= eh) cpts.push([gx(e), gy(model(e, cv, st.a).i)]); }
+      const free = b => !obs.some(o => hit(b, o)) && !cpts.some(([px, py]) => px > b[0] && px < b[2] && py > b[1] && py < b[3]);
+      const wl = tw(dl, 23), cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+      // 가까운 자리부터 (dx, dy, 정렬). 멀리 떨어진 자리를 고르면 점에서 짧은 지시선을 긋는다
+      const cand = [[20, -26, 's'], [20, 44, 's'], [-20, -26, 'e'], [-20, 44, 'e'], [20, -64, 's'], [-20, -64, 'e'], [20, 84, 's'], [-20, 84, 'e'],
+        [20, -110, 's'], [-20, -110, 'e'], [70, 40, 's'], [140, 30, 's'], [20, -160, 's'], [-20, -160, 'e'], [200, 30, 's']].map(([dx, dy, an]) => {
+        const end = an === 'e', tx = end ? cl(x + dx, GX0 + wl + 6, GX1) : cl(x + dx, GX0 + 6, GX1 - wl - 6);
+        return [tx, cl(y + dy, GY1 + 44, GY0 - 14), end ? 'end' : 'start'];
+      });
+      const pick = cand.find(([tx, ty, an]) => free(bb(tx, ty, dl, 23, an))) || cand[0];
+      if (!(eq0 && sid === 'eq')){                                    // 평형 단계에서는 위 지시선 이름표가 대신한다
+        const far = Math.abs(pick[1] - y) > 50 || Math.abs(pick[0] - x) > 40;
+        const ax = pick[2] === 'end' ? pick[0] + 4 : pick[0] - 4, ay = pick[1] < y ? pick[1] + 4 : pick[1] - 22;
+        if (far){ const d = Math.hypot(ax - x, ay - y) || 1; dt += L(x + (ax - x) * 24 / d, y + (ay - y) * 24 / d, ax, ay, 's-lead'); }
+        dt += LB(T(pick[0], pick[1], dl, 't-warn', pick[2]));
+      }
       ctx.$('[data-v="dot"]').innerHTML = dt;
       ctx.$$('[data-v^="mbox"]').forEach((b, k) => b.setAttribute('class', k === z && !eq0 ? 'pl-box pl-on' : 'pl-box'));
       // 두 길 비교 (같은 평균 금속 전류에서) — ② 한계 근처부터는 공급(확산층)이 분포를 정하므로 계산하지 않는다
@@ -258,7 +277,7 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
     ctx.demo = sid => {
       const ep = window.EngrPlating;
       if (ep && ep.state.pres != null) touched = false;
-      if (touched) return ctx.refresh();
+      if (touched) return render();
       const [e, sp] = DEMO[sid] || DEMO.kin;
       ein.value = Math.round(e * 1000); st.e = e; ctx.out('e', Math.round(e * 1000) + ' mV');
       ain.value = 1; st.a = 1; ctx.out('a', '×1.00');
