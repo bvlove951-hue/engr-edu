@@ -149,7 +149,7 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
     sl += `<g data-v="paths"></g>`;
     sl += para(720, ['완만한 곡선 = 전류를 조금 더 흘리려면 훨씬 더 밀어야 한다 = 모든 길 입구에 같은 톨게이트(표면 저항) → 길 길이 차이가 덜 중요 → 고르게', '모양 그대로 옆으로 옮기기만 하면 → 쏠림 그대로']);
     sl += para(954, ['크기에 따라 주역이 다르다 (바그너 수)'], 't-warn');
-    sl += para(988, ['웨이퍼 반지름 150\u00a0mm (300\u00a0mm 웨이퍼): Wa\u00a0≈\u00a00.2 → 하드웨어 (실드 · 고저항판 = 인공\u00a0분극)', '범프 50\u00a0µm: Wa\u00a0≈\u00a0500 → 첨가제 · 공급'], 't-sub', 28);
+    sl += para(988, ['웨이퍼 반지름 150\u00a0mm (300\u00a0mm 웨이퍼): Wa\u00a0≈\u00a00.2 → 하드웨어 (실드\u00a0·\u00a0고저항판\u00a0=\u00a0인공\u00a0분극)', '범프 50\u00a0µm: Wa\u00a0≈\u00a0500 → 첨가제 · 공급'], 't-sub', 28);
     s += G(sl, only('slope'));
     return s;
   },
@@ -211,18 +211,20 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
         left ? bb(mx - 16, my - 12, cv.nm, 23, 'end') : bb(mx + 16, my + 30, cv.nm, 23, 'start'), left ? bb(qx + 16, qy + 30, cc.nm, 21, 'start') : bb(qx - 16, qy - 10, cc.nm, 21, 'end')];
       if (sid === 'kin') obs.push(bb(sPos[0], sPos[1], sLbl, 21, sPos[2]), [fx - 13, fy - 13, fx + 13, fy + 13]);
       if (sid === 'h2') obs.push(bb(GX0 + 10, ly > yL ? yL + 60 : yL - 46, '주황 점선 = 전체 (금속 + 수소)', 23, 'start'));
-      if (sid === 'eq') obs.push([EQL[0] - 4, EQL[1] - 52, EQL[0] + 240, EQL[1] + 8], [GX0, EQL[1], EQL[0], GY0 - 8]);
+      if (sid === 'eq') obs.push([EQL[0] - 4, EQL[1] - 52, EQL[0] + 240, EQL[1] + 8]);
       const cpts = [];
-      for (let e = 0; e <= EMAX; e += 0.004){ cpts.push([gx(e), gy(imOf(e, cv, st.a))]); if (sid !== 'eq') cpts.push([gx(e), gy(imOf(e, cc, st.a))]); if (sid === 'h2' && e >= eh) cpts.push([gx(e), gy(model(e, cv, st.a).i)]); }
-      const free = b => !obs.some(o => hit(b, o)) && !cpts.some(([px, py]) => px > b[0] && px < b[2] && py > b[1] && py < b[3]);
+      for (let e = 0; e <= EMAX; e += 0.002){ cpts.push([gx(e), gy(imOf(e, cv, st.a))]); if (sid !== 'eq') cpts.push([gx(e), gy(imOf(e, cc, st.a))]); if (sid === 'h2' && e >= eh) cpts.push([gx(e), gy(model(e, cv, st.a).i)]); }
+      if (sid === 'eq') for (let t = 0; t <= 1; t += 0.05) cpts.push([GX0 + 6 + (EQL[0] - 14 - GX0) * t, GY0 - 10 + (EQL[1] + 22 - GY0) * t]);   // 평형 지시선
+      const cost = b => obs.filter(o => hit(b, o)).length * 50 + cpts.filter(([px, py]) => px > b[0] && px < b[2] && py > b[1] && py < b[3]).length;   // 0 = 빈 자리
       const wl = tw(dl, 23), cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
       // 가까운 자리부터 (dx, dy, 정렬). 멀리 떨어진 자리를 고르면 점에서 짧은 지시선을 긋는다
       const cand = [[20, -26, 's'], [20, 44, 's'], [-20, -26, 'e'], [-20, 44, 'e'], [20, -64, 's'], [-20, -64, 'e'], [20, 84, 's'], [-20, 84, 'e'],
-        [20, -110, 's'], [-20, -110, 'e'], [70, 40, 's'], [140, 30, 's'], [20, -160, 's'], [-20, -160, 'e'], [200, 30, 's']].map(([dx, dy, an]) => {
+        [20, -110, 's'], [-20, -110, 'e'], [70, 40, 's'], [140, 30, 's'], [20, -160, 's'], [-20, -160, 'e'], [200, 30, 's'], [-20, 130, 'e'], [-20, 180, 'e'], [-120, 60, 'e'], [-120, -60, 'e'], [20, -230, 's'], [20, -290, 's']].map(([dx, dy, an]) => {
         const end = an === 'e', tx = end ? cl(x + dx, GX0 + wl + 6, GX1) : cl(x + dx, GX0 + 6, GX1 - wl - 6);
         return [tx, cl(y + dy, GY1 + 44, GY0 - 14), end ? 'end' : 'start'];
       });
-      const pick = cand.find(([tx, ty, an]) => free(bb(tx, ty, dl, 23, an))) || cand[0];
+      let pick = cand[0], best = Infinity;                          // 빈 자리가 없으면 가장 덜 겹치는 자리
+      for (const c of cand){ const v = cost(bb(c[0], c[1], dl, 23, c[2])); if (v < best){ best = v; pick = c; } if (!v) break; }
       if (!(eq0 && sid === 'eq')){                                    // 평형 단계에서는 위 지시선 이름표가 대신한다
         const far = Math.abs(pick[1] - y) > 50 || Math.abs(pick[0] - x) > 40;
         const ax = pick[2] === 'end' ? pick[0] + 4 : pick[0] - 4, ay = pick[1] < y ? pick[1] + 4 : pick[1] - 22;
@@ -257,7 +259,7 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
       const f2 = v => v.toFixed(2), eqs = f2(sk) === f2(skc) ? '=' : '≈';
       let msg = `<b>${ZN[z].t}</b> — ${ZN[z].d}.`;
       if (z === 0 && st.e < 0.04) msg = `<b>${ZN[0].t} — 아주 약하게 민 구간</b> — 전류가 미는 만큼 비례해서 늡니다. 이렇게 약하면 씨앗(핵)이 적어 결정이 굵어질 수 있습니다 (06장).`;
-      if (z === 1) msg += ' 여기부터는 곡선의 기울기보다 공급(확산층)이 분포를 정해, 튀어나온 곳 · 흐름이 센 곳이 앞섭니다. 더 밀어도 고르게 되지 않습니다.';
+      if (z === 1) msg += ' 여기부터는 곡선의 기울기보다 공급(확산층)이 분포를 정합니다 — 더 밀어도 고르게 되지 않습니다.';
       else if (z === 2) msg += ' 이 구간은 곡선이 평평해 보여도 공급이 분포를 정해, 튀어나온 곳이 더 빨리 자랍니다.';
       else if (z === 3) msg += ' 분포는 공급이 정하고, 거품이 붙은 자리는 덜 쌓입니다.';
       else if (st.sup === 'shift') msg += Math.abs(sk / skc - 1) < 0.015 ? ` 같은 전류에서 쏠림 ×${f2(sk)} ${eqs} 억제제 없음 ×${f2(skc)} — 옆으로 옮기기만 해서는 고르게 되지 않습니다(기울기가 같다).`
