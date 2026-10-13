@@ -35,7 +35,7 @@ function agSplit(J, agit, conc){
 const PD = {x0: 420, x1: 1110, y0: 1050, y1: 760, t0: 200, t1: 300};   // 상태도 영역
 const px = a => PD.x0 + Math.min(AMAX, a) / AMAX * (PD.x1 - PD.x0), py = t => PD.y0 - (t - PD.t0) / (PD.t1 - PD.t0) * (PD.y0 - PD.y1);
 const BATHS = [
-  {id: 'cu', x: 40, nm: 'Cu 도금액', ions: ['cu', 'so4', 'h', 'cl'], lines: ['황산구리 + 황산 + Cl⁻ (수십 ppm)', '+ 첨가제 3종 (05장)', '양극(+): 인 함유 구리 (녹아서 보충)', '역할: 범프의 몸통 · 높이 · 전기 길', '관리: Cu · 산 · Cl · 첨가제 · 양극 피막'], layer: 'cu'},
+  {id: 'cu', x: 40, nm: 'Cu 도금액', ions: ['cu', 'so4', 'h', 'cl'], lines: ['황산구리 + 황산 + Cl⁻ (수십 ppm)', '+ 첨가제 3종 (05장)', '양극(애노드, +): 인 함유 구리 (녹아서 보충)', '역할: 범프의 몸통 · 높이 · 전기 길', '관리: Cu · 산 · Cl · 첨가제 · 양극 피막'], layer: 'cu'},
   {id: 'ni', x: 560, nm: 'Ni 도금액', ions: ['ni', 'h', 'cl'], lines: ['설파민산 니켈 + 붕산 (pH 완충)', '+ 소량 염화물 · 습윤제', '양극(+): 니켈 (녹아서 보충)', '역할: Cu와 솔더 사이 방벽', '관리: pH · 온도 · 응력 · 표면 산화'], layer: 'ni'},
   {id: 'snag', x: 1080, nm: 'SnAg 도금액', ions: ['sn', 'ag', 'ms', 'sn4'], lines: ['메탄설폰산(MSA) + Sn²⁺ + Ag⁺', '+ 착화제 (Ag⁺를 붙잡아 둔다)', '양극(+): 불용성 또는 Sn + 분리막', '역할: 녹아서 붙는 솔더', '관리: Sn²⁺ · Ag · 산 · Sn⁴⁺ · 착화제'], layer: 'sn'}
 ];
@@ -47,10 +47,10 @@ const BATHS = [
   one: '범프의 세 층은 각자 맡은 일이 있고, 도금액도 관리할 것도 다릅니다. 특히 SnAg는 두 금속이 함께 쌓이는 합금이라, 조건이 조금만 달라져도 조성(Ag %)이 달라지고 녹는 모습과 굳은 뒤 속 모양이 달라집니다.',
   ana: '<b>세 층 케이크</b> — Cu는 키를 세우는 시트, Ni는 시트에 크림이 스며들지 않게 막는 얇은 막, SnAg는 녹아서 다른 칩에 붙는 맨 위 크림입니다. 크림 배합(Ag %)이 바뀌면 녹는 모습이 바뀝니다. 다만 케이크와 달리, 크림(솔더)과 막(Ni)은 맞닿은 곳에서 서로 반응해 새 층(IMC)을 만들며 조금씩 먹어 들어갑니다.',
   steps: [
-    {id: 'cu', t: 'Cu — 몸통', d: '황산구리 + 황산 + 아주 적은 Cl⁻ + 첨가제로 범프의 높이와 전기 · 열의 길을 만듭니다. 양극(+)은 인이 조금 든 구리로, 녹아서 Cu²⁺를 보충합니다. 양극 표면의 검은 피막이 구리 가루(슬러지)를 줄입니다.'},
+    {id: 'cu', t: 'Cu — 몸통', d: '황산구리 + 황산 + 아주 적은 Cl⁻ + 첨가제로 범프의 높이와 전기 · 열의 길을 만듭니다. 양극(애노드, +)은 인이 조금 든 구리로, 녹아서 Cu²⁺를 보충합니다. 양극 표면의 검은 피막이 구리 가루(슬러지)를 줄입니다.'},
     {id: 'ni', t: 'Ni — 방벽', d: '설파민산 니켈 + 붕산(pH 완충)으로 Cu와 솔더 사이에 얇은 방벽을 만듭니다. Ni는 솔더와 천천히 반응해 Cu가 솔더에 빨리 먹히는 것을 막습니다. pH · 온도 · 응력을 지키고, 표면이 산화되기 전에 SnAg로 넘깁니다.'},
     {id: 'snag', t: 'SnAg — 솔더', d: 'Sn과 Ag를 함께 쌓는 합금 도금입니다. Ag는 Sn보다 전자를 훨씬 잘 받아(표준 전위가 높음) 그냥 두면 먼저 · 저절로 석출되므로 착화제로 붙잡아 둡니다. Sn²⁺는 공기 · 양극에서 Sn⁴⁺로 바뀌어 뿌연 찌꺼기가 됩니다.'},
-    {id: 'comp', t: 'SnAg 조성과 녹는 모습', d: '보통 전류밀도를 올리면 Ag %가 내려가고, 교반 · 액의 Ag 농도를 올리면 올라갑니다. Ag가 공정점(共晶, 3.5 %)을 넘으면 다 녹는 온도가 가파르게 오르지만 221 °C만 넘으면 대부분 녹습니다. 더 흔한 문제는 식을 때 자라는 큰 Ag₃Sn 판입니다.'}
+    {id: 'comp', t: 'SnAg 조성과 녹는 모습', d: '보통 전류밀도를 올리면 Ag %가 내려가고, 교반 · 액의 Ag 농도를 올리면 올라갑니다. Ag가 공정점(共晶, 3.5 %)을 넘으면 다 녹는 온도가 가파르게 오르지만, 보통 리플로우 온도(240~260 °C)에서는 고체로 남는 Ag₃Sn이 몇 %뿐입니다. 더 흔한 문제는 식을 때 자라는 큰 Ag₃Sn 판입니다.'}
   ],
   icon(K){
     const {R} = K;
@@ -112,7 +112,7 @@ const BATHS = [
     ni += LB(T(nx(4), ny(65) + 7, '너무 뜨거움 → 설파민산 분해 · 응력↑', 't-dim') + T(nx(3), ny(44), 'pH 낮음', 't-dim') + T(nx(3), ny(44) + 26, '→ 분해', 't-dim') + T(nx(5.25), ny(44), '응력↑', 't-dim') + T(nx(4), ny(45) + 7, '권장 창', 'pl-hdg3'));
     const NR = [['pl-hdg', '붕산 — 표면 pH 완충', '음극에서 수소가 조금 나오면 표면 pH가 올라 수산화물이 막에 섞입니다(거칠고 단단해짐). 붕산이 이것을 막습니다.'],
       ['pl-hdg', '염화물 — 양극을 잘 녹게', '모자라면 Ni 양극이 막혀(부동태) 전압이 오르고 pH가 내려갑니다. 양극에서 설파민산이 분해되면 응력도 변합니다.'],
-      ['pl-hdg', '효율 차이 — 서서히 오른다', '음극 효율 약 90~97 %, 양극 약 100 % → Ni 농도와 pH가 서서히 오릅니다. 분석해서 맞춥니다.'],
+      ['pl-hdg', '효율 차이 — 서서히 오른다', '음극 효율 약 95~99 %(설파민산 · 조건에 따라), 양극 약 100 % → Ni 농도와 pH가 서서히 오릅니다. 분석해서 맞춥니다.'],
       ['pl-hdg2', 'Ni 표면은 금방 산화된다', '공기 · 물에 닿으면 얇은 산화막이 생겨 SnAg가 잘 붙지 않습니다 → Ni에서 SnAg까지 대기 시간을 짧게 (09장).']];
     NR.forEach(([c, h, d], k) => {
       const x = k < 2 ? 680 : 1130, y = 790 + (k % 2) * 150;
@@ -150,13 +150,14 @@ const BATHS = [
     pd += L(PD.x0, PD.y0, PD.x1 + 10, PD.y0, 's-axis') + L(PD.x0, PD.y0, PD.x0, PD.y1 - 10, 's-axis');
     for (let a = 0; a <= AMAX; a += 1) pd += L(px(a), PD.y0, px(a), PD.y0 + 8, 's-axis') + (a % 2 ? '' : T(px(a), PD.y0 + 30, String(a), 't-dim'));
     for (let t = 200; t <= 300; t += 20) pd += L(PD.x0 - 8, py(t), PD.x0, py(t), 's-axis') + T(PD.x0 - 14, py(t) + 7, String(t), 't-dim', 'end');
-    pd += LB(T((PD.x0 + PD.x1) / 2, PD.y0 + 54, 'Ag (무게 %)', 't-sub') + T(PD.x0 - 14, PD.y1 - 18, '°C', 't-dim', 'end'));
+    pd += LB(T((PD.x0 + PD.x1) / 2, PD.y0 + 54, 'Ag (무게 %)', 't-sub') + T(PD.x0 + 8, PD.y1 - 6, '°C', 't-dim', 'start'));
     pd += R(px(1.5), PD.y1, px(2.5) - px(1.5), PD.y0 - PD.y1, 'p10-tgt', tip('범프 SnAg의 Ag 목표 — 보통 1.5~2.5 wt% (공정점보다 적게)'));
     let lq = '';
     for (let a = 0; a <= AMAX + 1e-4; a += 0.1) lq += (lq ? ' L' : 'M') + px(a).toFixed(1) + ',' + py(liq(a)).toFixed(1);
     pd += P(lq + ` L${px(AMAX)},${py(PD.t1)} L${px(0)},${py(PD.t1)} Z`, 'pl-liqz') + P(lq, 's-curve', tip('액상선 — 이 온도 위에서 다 녹는다 (근삿값)'));
     pd += L(px(0), py(TE), px(AMAX), py(TE), 's-dash') + C(px(EU), py(TE), 7, 'k-acc2', tip('공정점(共晶) — Ag 3.5 %, 221 °C. 한 온도에서 한꺼번에 녹는다'));
-    pd += LB(T(px(0.3), py(291), '다 녹음 (액체)', 't-sub', 'start') + T(px(8.3), py(208), '고체 (Sn + Ag₃Sn)', 't-dim') + T(px(EU), py(TE) + 28, '공정점(共晶)', 'p10-eu') + T(px(EU), py(TE) + 50, '3.5 % · 221 °C', 'p10-eu'));
+    pd += LB(T(px(8.3), py(208), '고체 (Sn + Ag₃Sn)', 't-dim'), {'data-v': 'l3'});      // 최고 온도가 낮아 이름표와 겹치면 숨긴다
+    pd += LB(T(px(0.3), py(291), '다 녹음 (액체)', 't-sub', 'start') + T(px(EU), py(TE) + 28, '공정점(共晶)', 'p10-eu') + T(px(EU), py(TE) + 50, '3.5 % · 221 °C', 'p10-eu'));
     pd += LB(T(px(8.3), py(229), '액체 + 고체 Ag₃Sn', 't-dim'), {'data-v': 'l2'});        // 최고 온도 이름표와 겹치면 숨긴다
     pd += K.lead(px(1.6), py(224.6), px(0.3), py(268), '액체 + 고체 Sn', 'start', 't-dim') + LB(T(px(2), PD.y1 - 10, '보통 목표', 'p10-tg'));
     pd += `<g data-v="pd"></g><g data-v="bump"></g>`;
@@ -177,8 +178,8 @@ const BATHS = [
     const agMul = v => 0.5 * Math.pow(4, v / 100);          // ×0.5 ~ ×2
     function render(){
       const sp = agSplit(st.j, agMul(st.a), st.c), ag = sp.wt, m = melt(ag, st.pk);
-      const fsP = Math.round(m.fs * 100);
-      const word = m.k === 'liq' ? '다 녹음' : m.k === 'solid' ? '안 녹음' : (m.fs < 0.5 ? '대부분 녹음' : '일부만 녹음');
+      const fsP = Math.round(m.fs * 100), fsT = fsP < 1 ? '1 % 미만' : '약 ' + fsP + ' %';
+      const word = m.k === 'liq' ? '다 녹음' : m.k === 'solid' ? '안 녹음' : m.fs < 0.1 ? '대부분 녹음' : m.fs < 0.5 ? '덜 녹음' : '일부만 녹음';
       const cls = m.k === 'solid' || (m.k === 'two' && m.fs >= 0.1) ? 'ng' : (m.k === 'two' || ag > EU) ? 'warn' : 'ok';
       const xa = px(ag);
       // 상태도 위: Ag 위치 · 최고 온도 · 지금 상태 점 · 고체가 남으면 지렛대(이음선)
@@ -190,26 +191,44 @@ const BATHS = [
         pd += L(px(m.cl), py(st.pk), x1, py(st.pk), 'p10-tie', tip(`지렛대: 액체(Ag ${m.cl.toFixed(1)} %) ↔ 고체 ${m.ph}`)) + C(px(m.cl), py(st.pk), 6, 'k-acc');
       }
       pd += C(xa, py(st.pk), 11, 'k-' + cls) + C(xa, py(st.pk), 20, 'co-ring');
-      const right = ag > 6.5;
-      pd += LB(T(xa + (right ? -18 : 18), py(m.tl) - 14, `${ag.toFixed(1)} % → ${m.tl.toFixed(0)} °C`, 't-warn', right ? 'end' : 'start'));
+      // 「x % → y °C」 이름표: 액상선 점의 오른쪽 · 왼쪽 위에서 곡선 · 상태 점 · 축 글자 · 다른 이름표와 안 겹치는 첫 자리
+      const lt = `${ag.toFixed(1)} % → ${m.tl.toFixed(0)} °C`, lw = lt.length * 12.6, yPk = py(st.pk);
+      const busy = [[60, 700, 730, 730], [426, 736, 452, 760], [515, 732, 601, 756], [436, 764, 580, 796], [436, 834, 572, 860], [600, 998, 724, 1046], [978, yPk - 30, 1110, yPk - 4]];
+      if (!(st.pk > 216 && st.pk < 238)) busy.push([914, 946, 1072, 974]);
+      if (st.pk >= 217) busy.push([914, 1006, 1072, 1034]);
+      const cost = (x0, yb) => {
+        const x1 = x0 + lw, y0 = yb - 20, y1 = yb + 6;
+        if (x0 < PD.x0 + 6 || x1 > 1150 || y0 < 700) return 1e6;
+        let c = 0;
+        for (let x = x0; x <= x1; x += 5){ const yc = py(liq((x - PD.x0) / (PD.x1 - PD.x0) * AMAX)); if (yc > y0 - 4 && yc < y1 + 4){ c += 100; break; } }
+        busy.forEach(([a0, b0, a1, b1]) => { if (x0 < a1 && x1 > a0 && y0 < b1 && y1 > b0) c += 100; });
+        const nx = Math.max(x0, Math.min(xa, x1)), ny = Math.max(y0, Math.min(yPk, y1));
+        if (Math.hypot(nx - xa, ny - yPk) < 22) c += 100;                 // 상태 점
+        if (yPk > y0 && yPk < y1) c += 1;                                  // 최고 온도 점선 (지나가도 읽히지만 피하면 좋다)
+        return c;
+      };
+      let lp = null, lc = Infinity;
+      [30, 60, 90, 120].forEach(dy => [[xa + 24, py(m.tl) - dy, dy], [xa - 24 - lw, py(m.tl) - dy, dy]].forEach(([x0, yb, dy]) => { const c = cost(x0, yb); if (c < lc){ lc = c; lp = [x0, yb, dy]; } }));
+      if (lp[2] > 30){ const lx = Math.max(lp[0] + 8, Math.min(xa, lp[0] + lw - 8)); pd += L(lx, lp[1] + 8, xa + (lx > xa ? 4 : -4), py(m.tl) - 7, 'p10-agk'); }   // 멀리 놓이면 점까지 가는 가는 선
+      pd += LB(T(lp[0], lp[1], lt, 'p10-agl', 'start'));
       ctx.$('[data-v="pd"]').innerHTML = pd;
       ctx.$('[data-v="l2"]').classList.toggle('hide', st.pk > 216 && st.pk < 238);
+      ctx.$('[data-v="l3"]').classList.toggle('hide', st.pk < 217);
       // 범프 단면 (리플로우 뒤, 예시)
       const bx = 96, bw = 180, by = 1000;
       let b = R(bx - 30, by + 50, bw + 60, 14, 'f-seed2') + R(bx, by - 60, bw, 110, 'f-cu2') + R(bx, by - 78, bw, 18, 'f-ni');
       const dome = `M${bx},${by - 78} C${bx - 10},${by - 120} ${bx},${by - 190} ${bx + bw / 2},${by - 196} C${bx + bw},${by - 190} ${bx + bw + 10},${by - 120} ${bx + bw},${by - 78} Z`;
-      if (m.k === 'solid') b += P(`M${bx},${by - 78} L${bx},${by - 170} L${bx + 40},${by - 182} L${bx + 70},${by - 168} L${bx + 120},${by - 186} L${bx + 160},${by - 170} L${bx + bw},${by - 178} L${bx + bw},${by - 78} Z`, 'f-sn2', tip('녹지 않은 솔더 — 도금한 모양 그대로'));
-      else {
-        b += P(dome, 'f-sn2', tip(m.k === 'liq' ? '다 녹아 둥글어진 솔더' : '대부분 녹아 둥글다 — 고체 알갱이가 일부 남음'));
-        if (m.k === 'two'){
-          const n = Math.max(1, Math.min(8, Math.round(m.fs * 40)));
-          const r = K.rng(11);
-          for (let k = 0; k < n; k++) b += R(bx + 30 + r() * 130, by - 170 + r() * 80, 14, 9, m.ph === 'Ag₃Sn' ? 'pl-ag3' : 'p10-snc', tip(m.ph === 'Ag₃Sn' ? '녹지 않고 남은 고체 Ag₃Sn' : '녹지 않고 남은 고체 Sn'));
-        }
-        if (ag > EU){
-          b += R(bx + 24, by - 128, 150, 9, 'pl-ag3', W(tip('식을 때 자란 큰 Ag₃Sn 판 — 균열이 지나가기 쉬운 길'), {transform: `rotate(-14 ${bx + 99} ${by - 124})`}));
-          if (ag > 5) b += R(bx + 40, by - 104, 120, 8, 'pl-ag3', {transform: `rotate(10 ${bx + 100} ${by - 100})`});
-        }
+      const rough = m.k === 'solid' || (m.k === 'two' && m.fs >= 0.5);     // 고체가 절반 넘게 남으면 둥글어지지 못한다
+      if (rough) b += P(`M${bx},${by - 78} L${bx},${by - 170} L${bx + 40},${by - 182} L${bx + 70},${by - 168} L${bx + 120},${by - 186} L${bx + 160},${by - 170} L${bx + bw},${by - 178} L${bx + bw},${by - 78} Z`, 'f-sn2', tip(m.k === 'solid' ? '녹지 않은 솔더 — 도금한 모양 그대로' : `덜 녹은 솔더 — 고체 ${m.ph}이 ${fsT} 남아 둥글어지지 못함`));
+      else b += P(dome, 'f-sn2', tip(m.k === 'liq' ? '다 녹아 둥글어진 솔더' : `고체 ${m.ph}이 ${fsT} 남은 채 둥글어짐`));
+      if (m.k === 'two'){
+        const n = Math.max(1, Math.min(8, Math.round(m.fs * 40)));
+        const r = K.rng(11);
+        for (let k = 0; k < n; k++) b += R(bx + 30 + r() * 130, by - 170 + r() * 80, 14, 9, m.ph === 'Ag₃Sn' ? 'pl-ag3' : 'p10-snc', tip(m.ph === 'Ag₃Sn' ? '녹지 않고 남은 고체 Ag₃Sn' : '녹지 않고 남은 고체 Sn'));
+      }
+      if (!rough && ag > EU){
+        b += R(bx + 24, by - 128, 150, 9, 'pl-ag3', W(tip('식을 때 자란 큰 Ag₃Sn 판 — 균열이 지나가기 쉬운 길'), {transform: `rotate(-14 ${bx + 99} ${by - 124})`}));
+        if (ag > 5) b += R(bx + 40, by - 104, 120, 8, 'pl-ag3', {transform: `rotate(10 ${bx + 100} ${by - 100})`});
       }
       b += T(bx + bw / 2, 772, word, cls === 'ok' ? 't-sub' : 'pl-warn') + T(bx + bw / 2, 798, '리플로우 뒤 (예시)', 't-dim');
       ctx.$('[data-v="bump"]').innerHTML = b;
@@ -218,19 +237,21 @@ const BATHS = [
       let vy = 848;
       const line = (t, c) => { const ln = wrap(t, 17.6); v += TT(1180, vy, ln, c, 'start', 26); vy += ln.length * 26 + 8; };
       line(`Ag\u00a0${ag.toFixed(1)}\u00a0% · 액상선\u00a0${m.tl.toFixed(0)}\u00a0°C · 최고\u00a0${st.pk}\u00a0°C`, 't-dim');
-      if (m.k === 'two') line(`+ 고체 ${m.ph} 약 ${Math.max(1, fsP)} % (지렛대 규칙 · 노란 선)`, 't-sub');
+      if (m.k === 'two') line(`+ 고체 ${m.ph} ${fsT.replace(/ /g, '\u00a0')} (지렛대 규칙 · 노란\u00a0선)`, 't-sub');
       if (m.k === 'solid') line('최고 온도가 공정점(共晶) 221 °C보다 낮다', 't-sub');
-      if (ag > EU) line('⚠ Ag > 3.5 % — 식을 때 큰 Ag₃Sn 판이 자란다 → 균열 길', 'p10-wn');
-      else if (ag < 1) line('Ag가 너무 적다 → 녹는 온도가 Sn 쪽(232\u00a0°C)으로 오르고 Ag의 이점(강도 · 위스커 억제)이 준다', 'p10-wn');
-      else if (ag >= 1.5 && ag <= 2.5) line('✓ 보통 목표(1.5~2.5 %) 안', 'p10-okt');
-      v += TT(1180, 1030, wrap('덜 녹아 보이면 보통 산화막 · 유기물 · 낮은 최고 온도가 먼저입니다 (12장)', 19.5), 't-dim', 'start', 25);
+      if (ag > EU) line('⚠ Ag > 3.5 % — 식을 때 큰 Ag₃Sn 판이 자라기 쉽다 → 균열 길', 'p10-wn');
+      else if (ag > 2.5) line('목표보다 높음 — 마이크로범프는 3.5\u00a0% 아래에서도 판이 보고됨', 'p10-wn');
+      else if (ag < 1) line('Ag < 1 % → 녹는 온도↑(232 °C 쪽), 강도 · 위스커 억제↓', 'p10-wn');
+      else if (ag >= 1.5) line('✓ 보통 목표(1.5~2.5 %) 안', 'p10-okt');
+      v += TT(1180, Math.max(1030, vy + 22), wrap('덜 녹아 보이면 보통 산화막 · 유기물 · 낮은 최고 온도가 먼저입니다 (12장)', 19.5), 't-dim', 'start', 25);
       ctx.$('[data-v="verdict"]').innerHTML = v;
       ctx.out('k-ag', ag.toFixed(1) + ' %'); ctx.out('k-tl', m.tl.toFixed(0) + ' °C'); ctx.out('k-v', word);
       const kv = ctx.card.querySelector('[data-o="k-v"]').parentNode;
       ['ok', 'warn', 'ng'].forEach(c => kv.classList.toggle(c, cls === c));
       let msg = `Ag에 쓰인 전류 <b>${(sp.x * 100).toFixed(1)} %</b> → Ag <b>${ag.toFixed(1)} %</b> (Ag⁺는 전자 1개, Sn²⁺는 2개라 같은 전기로 약 1.8배 무겁게 쌓입니다). `;
-      msg += m.k === 'liq' ? `다 녹는 온도 ${m.tl.toFixed(0)} °C보다 높아 다 녹습니다.` : m.k === 'solid' ? '최고 온도가 공정점(共晶) 221 °C보다 낮아 녹지 않습니다.' : `액상선 ${m.tl.toFixed(0)} °C보다 낮아 고체 ${m.ph}이 약 ${Math.max(1, fsP)} % 남습니다.`;
+      msg += m.k === 'liq' ? `다 녹는 온도 ${m.tl.toFixed(0)} °C보다 높아 다 녹습니다.` : m.k === 'solid' ? '최고 온도가 공정점(共晶) 221 °C보다 낮아 녹지 않습니다.' : `액상선 ${m.tl.toFixed(0)} °C보다 낮아 고체 ${m.ph}이 ${fsT} 남습니다.`;
       if (ag > EU) msg += ' <b>Ag가 공정점(共晶) 3.5 %보다 많아 식을 때 큰 Ag₃Sn 판이 자랄 수 있습니다(균열 길).</b>';
+      else if (ag > 2.5) msg += ' Ag가 보통 목표(1.5~2.5 %)보다 높습니다. 마이크로범프는 솔더가 적어 3.5 % 아래에서도 큰 Ag₃Sn 판이 보고됩니다.';
       else if (ag < 1) msg += ' Ag가 너무 적으면 녹는 온도가 Sn(232 °C) 쪽으로 오르고 Ag의 이점이 줄어듭니다.';
       ctx.q('[data-o=msg]').innerHTML = msg;
       ctx.refresh();
@@ -284,7 +305,9 @@ const BATHS = [
 .pl-svg .p10-bt{font-size:22px;font-weight:800;fill:#f8fafc !important}
 .pl-svg .p10-tgt{fill:rgba(34,197,94,.10)}
 .pl-svg .p10-tg{font-size:18px;font-weight:800;fill:#86efac !important}
-.pl-svg .p10-eu{font-size:20px;font-weight:800;fill:#fbbf24 !important}
+.pl-svg .p10-eu{font-size:20px;font-weight:800;fill:#fbbf24 !important;paint-order:stroke;stroke:#0b1220;stroke-width:5px;stroke-linejoin:round}
+.pl-svg .p10-agk{stroke:#fbbf24;stroke-width:1.6;stroke-dasharray:3 4;opacity:.75}
+.pl-svg .p10-agl{font-size:23px;font-weight:800;fill:#fbbf24 !important;paint-order:stroke;stroke:#0b1220;stroke-width:6px;stroke-linejoin:round}
 .pl-svg .p10-tie{stroke:#fde68a;stroke-width:3}
 .pl-svg .p10-snc{fill:#e2e8f0;stroke:#64748b;stroke-width:1}
 .pl-svg .p10-vok{font-size:30px;font-weight:900;fill:#4ade80 !important}

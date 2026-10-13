@@ -58,7 +58,7 @@ function sim(p, K){
   one: '도금액은 매일 변합니다. 금속은 양극에 따라 늘거나 줄고, 첨가제는 쓰이고 쪼개지며, 분해산물은 쌓입니다. 그래서 재고, 보충하고, 덜어 내는 일이 도금 공정 관리의 절반입니다.',
   ana: '<b>국물 요리</b> — 끓이면 국물이 졸고(증발 → 모든 농도↑), 양념 맛은 날아가고(첨가제 분해), 찌꺼기는 쌓입니다(분해산물). 맛을 보고(분석) 간을 맞추고(보충), 너무 탁해지면 일부를 덜어 내고 새 육수를 붓습니다(bleed & feed). 한계: 도금액은 혀가 아니라 분석기로 재고, 그 값에도 오차가 있어 한 번에 크게 간을 바꾸지 않습니다.',
   steps: [
-    {id: 'metal', t: '금속 — 양극에 따라 늘거나 준다', d: '가용성 양극(애노드)이면 금속은 보통 서서히 늡니다. 양극은 거의 100 % 녹는데 웨이퍼(음극, 캐소드)에는 수소 몫만큼 덜 쌓이고, 쉬는 동안에도 양극이 조금 녹기 때문입니다(Ni는 pH도 ↑). 불용성 양극은 쓴 만큼 줄고 산이 늡니다.'},
+    {id: 'metal', t: '금속 — 양극에 따라 늘거나 준다', d: '가용성 양극(애노드, +)이면 금속은 보통 서서히 늡니다. 양극은 거의 100 % 녹는데 음극(캐소드, −)인 웨이퍼에는 수소 몫만큼 덜 쌓이고, 쉬는 동안에도 양극이 조금 녹기 때문입니다(Ni는 pH도 ↑). 불용성 양극은 쓴 만큼 줄고 산이 늡니다.'},
     {id: 'add', t: '첨가제 — 전기량 몫 + 시간 몫', d: '첨가제는 대부분 흘린 전기량(Ah)만큼 줄고, 쉬는 동안에도 조금씩 분해됩니다. 그래서 Ah 기준과 시간 기준을 함께 쓰고(Ah + 시간), 분석값으로 작게 보정합니다.'},
     {id: 'byp', t: '분해산물 — 쌓이면 덜어 낸다', d: '분해 조각은 계속 쌓입니다. bleed & feed는 정상 수준(g·Ah/b)에서 멈추게 하지만 거기까지 약 3/b일이 걸립니다. 활성탄 처리는 좋은 첨가제도 빼앗으므로 처리 뒤 첨가제를 다시 맞춥니다.'},
     {id: 'ana', t: '분석과 판정', d: '액마다 적정 · CVS · ICP · HPLC로 재어 관리도에 찍습니다. 한 점이 튀었다고 크게 보충하지 않습니다(과보정). 다시 재고 추세와 관리도 규칙으로 보충 · 홀드 · 원인 분석을 정합니다.'}
@@ -143,7 +143,7 @@ function sim(p, K){
       ${K.seg('prod', [['flat', '일정'], ['var', '들쭉날쭉 (한가한 주 포함)']], 'var', '생산량')}
       ${K.ctl('b', 'bleed & feed (%/일)', 0, 10, 0.5, 0)}
       ${K.seg('an', [['cu', 'Cu 가용성'], ['ni', 'Ni 가용성'], ['ins', '불용성'], ['pas', '양극 부동태']], 'cu', '양극')}
-      ${K.kpis([['첨가제 이탈', 'k-out', '30일 중'], ['분해산물 30일째', 'k-b', '교체 기준 대비'], ['정상 수준', 'k-ss', 'bleed가 멈추는 곳'], ['95 % 도달', 'k-t95', '약 3/b일']])}
+      ${K.kpis([['첨가제 이탈', 'k-out', '30일 중'], ['분해산물 30일째', 'k-b', '교체 기준 대비'], ['정상 수준', 'k-ss', 'bleed가 멈추는 곳'], ['정상 수준의 95 %', 'k-t95', '도달까지 · 약 3/b일']])}
       <p class="pl-msg p11-msg" data-o="msg"></p>
       ${K.model('첨가제 소모 = Ah 몫 + 쉬는 동안의 시간 몫(작게). 보충은 고른 방식대로 넣고, bleed & feed는 목표 농도의 새 액으로 당깁니다. 분해산물 B(다음 날) = B × (1 − b) + g × Ah. 금속은 양극 종류별 하루 변화를 가정했습니다. 숫자는 상대값 · 예시입니다.')}</div>`;
   },
@@ -164,9 +164,10 @@ function sim(p, K){
         g += L(x, y - 6, x + 26, y - 6, 'p11-lg p11-c' + i + (on ? ' on' : '')) + T(x + 34, y, lb, 'p11-glt p11-c' + i + (on ? ' on' : ''), 'start');
         xs[row] += 34 + em(lb) * 18.5 + 26;
       });
-      // 지금 설정 (위젯 값) — 굵은 선
+      // 지금 설정 (위젯 값) — 굵은 선. 범례가 모두 아래 줄이면 같은 줄에 (위쪽은 곡선이 지나가는 자리)
       const cur = id === 'byp' ? `지금 설정 (${st.bleed} %/일)` : '지금 설정';
-      g += L(xs.top, l.y + 20, xs.top + 26, l.y + 20, id === 'byp' ? 's-curve2' : 's-curve') + T(xs.top + 34, l.y + 26, cur, 'p11-glt p11-cur', 'start');
+      const row = list.every(x => x[3] === 'bot') ? 'bot' : 'top', cy = row === 'top' ? l.y + 26 : l.y + l.h - 14;
+      g += L(xs[row], cy - 6, xs[row] + 26, cy - 6, id === 'byp' ? 's-curve2' : 's-curve') + T(xs[row] + 34, cy, cur, 'p11-glt p11-cur', 'start');
       return G(g, only(id));
     }
     function render(){
@@ -176,15 +177,20 @@ function sim(p, K){
       const gm = ghosts('metal', Object.keys(AN).map(k => [k, sim(Object.assign({}, st, {an: k}), K).M, AN[k].lb, AN[k].a > 0 ? 'top' : 'bot']), st.an);
       ctx.$('[data-v="metal"]').innerHTML = gm + PL(pts('metal', r.M), 's-curve', tip('금속 농도 — ' + AN[st.an].lb));
       // ② 첨가제
-      const ga = ghosts('add', Object.keys(DOSE).map(k => [k, sim(Object.assign({}, st, {dose: k}), K).A, DOSE[k]]), st.dose);
+      const ga = ghosts('add', Object.keys(DOSE).map(k => [k, sim(Object.assign({}, st, {dose: k}), K).A, DOSE[k], 'bot']), st.dose);
       ctx.$('[data-v="add"]').innerHTML = ga + PL(pts('add', r.A), 's-curve', tip('첨가제 농도 — ' + DOSE[st.dose])) + r.A.map((v, d) => (v < 0.9 || v > 1.1) ? C(dx(d), yOf('add', v), 6, 'k-ng') : '').join('');
       // ③ 분해산물
       let bb = ghosts('byp', BG.map(v => ['b' + v, sim(Object.assign({}, st, {bleed: v}), K).B, v ? `bleed ${v} %/일` : 'bleed 없음']), 'b' + st.bleed);
       bb += PL(pts('byp', r.B), 's-curve2', tip('분해산물'));
-      if (r.cross >= 0) bb += C(dx(r.cross), yOf('byp', 1), 9, 'k-ng') + T(dx(r.cross), yOf('byp', 1) - 16, `${r.cross}일째 교체 기준`, 'pl-warn', r.cross > 24 ? 'end' : 'middle');
-      if (isFinite(r.ss) && r.ss < 1.4) bb += L(X0, yOf('byp', r.ss), X1, yOf('byp', r.ss), 'pl-ss') + T(X0 + 10, yOf('byp', r.ss) - 8, `정상 수준 ${(r.ss * 100).toFixed(0)} %`, 'pl-sst', 'start');
-      // 시간 상수: 1/b일(63 %), 3/b일(95 %)
-      if (b > 0) [[1, '1/b · 63 %'], [3, '3/b · 95 %']].forEach(([n, t]) => { const d = n / b; if (d <= DAYS) bb += L(dx(d), LANES[2].y + 4, dx(d), LANES[2].y + LANES[2].h - 4, 'p11-tau') + T(dx(d) + 6, LANES[2].y + LANES[2].h - 10, `${t} (${Math.round(d)}일)`, 'p11-taut', 'start'); });
+      // 기준선에 닿는 날: 글은 점의 왼쪽 위 (위쪽 범례 줄과 겹치지 않게, 곡선은 닿기 전까지 기준선 아래)
+      if (r.cross >= 0) bb += C(dx(r.cross), yOf('byp', 1), 9, 'k-ng') + T(dx(r.cross) - 14, yOf('byp', 1) - 7, `${r.cross}일째 교체 기준`, 'p11-crt', 'end');
+      // 정상 수준: 교체 기준보다 낮으면 선, 높으면(그래프 위쪽 범례 자리이거나 그래프 밖) 기준선 아래에 경고 글
+      if (isFinite(r.ss) && r.ss < 1){ const ys = yOf('byp', r.ss), up = ys - yOf('byp', 1) > 32;          // 기준선에 가까우면 글을 선 아래로
+        bb += L(X0, ys, X1, ys, 'pl-ss') + T(X0 + 10, up ? ys - 8 : ys + 22, `정상 수준 ${(r.ss * 100).toFixed(0)} %`, 'pl-sst', 'start'); }
+      else if (isFinite(r.ss)) bb += T(X0 + 10, yOf('byp', 1) + 26, `정상 수준 ${(r.ss * 100).toFixed(0)} % ↑ — 교체 기준보다 높음 (bleed 부족)`, 'p11-ssng', 'start');
+      // 시간 상수: 1/b일(남은 차이의 63 %), 3/b일(95 %). 선은 범례 줄 아래에서 시작, 글은 오른쪽 끝에 가까우면 선의 왼쪽에
+      if (b > 0) [[1, '1/b일 · 차이 63 %'], [3, '3/b일 · 차이 95 %']].forEach(([n, t]) => { const d = n / b; if (d > DAYS) return; const e = dx(d) > X1 - 230;
+        bb += L(dx(d), LANES[2].y + 34, dx(d), LANES[2].y + LANES[2].h - 4, 'p11-tau') + T(e ? dx(d) - 6 : dx(d) + 6, LANES[2].y + LANES[2].h - 10, `${t} (${Math.round(d)}일)`, 'p11-taut', e ? 'end' : 'start'); });
       ctx.$('[data-v="byp"]').innerHTML = bb;
       // 생산량
       let pr = '';
@@ -205,11 +211,15 @@ function sim(p, K){
       ctx.out('k-ss', isFinite(r.ss) ? `${Math.round(r.ss * 100)} %` : '계속 증가'); ctx.out('k-t95', b > 0 ? `${Math.round(3 / b)}일` : '—');
       const ko = ctx.card.querySelector('[data-o="k-out"]').parentNode; ko.classList.toggle('ok', r.out === 0); ko.classList.toggle('ng', r.out > 0);
       const kb = ctx.card.querySelector('[data-o="k-b"]').parentNode; kb.classList.toggle('ok', r.B[DAYS] < 0.8); kb.classList.toggle('ng', r.B[DAYS] >= 1);
+      const ks = ctx.card.querySelector('[data-o="k-ss"]').parentNode; ks.classList.toggle('ok', r.ss < 0.8); ks.classList.toggle('ng', r.ss >= 1);
       const msgs = [];
       msgs.push(st.dose === 'time' ? (st.var ? '<b>시간 기준</b>은 바쁜 날 모자라고 한가한 주에 남아 첨가제가 크게 흔들립니다.' : '생산량이 일정하면 시간 기준도 맞습니다.')
         : st.dose === 'ah' ? (st.var ? '<b>Ah 기준</b>은 생산량을 따라가지만, 쉬는 동안의 분해(시간 몫)를 못 따라가 한가한 주에 조금씩 모자랍니다.' : 'Ah 기준: 생산량이 일정하면 맞습니다.')
         : '<b>Ah + 시간</b>은 두 몫을 모두 따라가 목표에 머뭅니다(실제로는 오차가 있어 분석값으로 작게 보정).');
-      msgs.push(st.bleed > 0 ? `bleed ${st.bleed} %/일 → 분해산물이 ${Math.round(r.ss * 100)} % 근처에서 멈춥니다. 63 %까지 약 ${Math.round(1 / b)}일, 95 %까지 약 ${Math.round(3 / b)}일 — 처음 한동안 오르는 것은 정상입니다.` : '분해산물은 덜어 내지 않으면 계속 쌓여 결국 교체 기준에 닿습니다.');
+      const tau = `정상 수준까지 남은 차이의 63 %를 메우는 데 약 ${Math.round(1 / b)}일, 95 %는 약 ${Math.round(3 / b)}일`;
+      msgs.push(st.bleed <= 0 ? '분해산물은 덜어 내지 않으면 계속 쌓여 결국 교체 기준에 닿습니다.'
+        : r.ss >= 1 ? `bleed ${st.bleed} %/일 → 분해산물이 ${Math.round(r.ss * 100)} % 근처에서 멈춥니다 — 교체 기준보다 높아 이 bleed로는 부족합니다(교체 · bleed↑). ${tau}.`
+        : `bleed ${st.bleed} %/일 → 분해산물이 ${Math.round(r.ss * 100)} % 근처에서 멈춥니다. ${tau} — 처음 한동안 오르는 것은 정상입니다.`);
       msgs.push({cu: 'Cu 가용성 양극: 거의 균형이지만 쉬는 동안의 용해로 Cu가 조금씩 늡니다.', ni: 'Ni 가용성 양극: 음극 효율이 100 %보다 낮아 Ni와 pH가 함께 오릅니다(희석 · bleed, pH는 설파민산).', ins: `불용성 양극: 금속이 쌓인 만큼 줄어 분석 뒤 ${r.metalDose}번 보충했습니다. 대신 산이 늡니다.`, pas: '양극 부동태: 양극이 덜 녹아 금속(Ni는 pH도)이 내려가고 전압이 오릅니다 → 양극 · 염화물 점검.'}[st.an]);
       ctx.q('[data-o=msg]').innerHTML = msgs.join(' ');
       ctx.refresh();
@@ -264,7 +274,7 @@ function sim(p, K){
       <ul><li><b>가용성 양극의 금속 증가</b> — 양극은 거의 100 % 녹고, 음극은 수소 몫만큼 덜 쌓입니다(Ni 음극 효율은 설파민산 Ni 대략 95~99 %, 일반 Ni 90~97 %). Ni는 pH도 함께 오르므로 설파민산으로 낮춥니다. 양극이 부동태가 되면(예: Ni 액의 염화물 부족) 금속과 pH가 내려가고 전압이 오릅니다. 불용성 양극은 2H₂O → O₂ + 4H⁺ + 4e⁻ 이라 금속이 준 만큼 산이 늡니다.</li>
       <li><b>전류효율 추적</b> — 실측 두께 ÷ 패러데이 예측 두께(또는 µm/Ah)를 추세로 봅니다. 이 값이 변하면 효율 변화(Sn⁴⁺ 증가 · Ni pH 변화), 열린 면적 입력 오류, 계측 이상 중 하나입니다 (<a data-go="faraday.eff">02장</a>).</li>
       <li><b>액 나이와 물 수지</b> — Ah/L로 수명을 말합니다. 증발 · 드래그아웃 · 보충으로 부피가 변하므로 분석 때 액위도 함께 봅니다. 불용성 양극 SnAg는 Sn을 어떤 형태로 보충하느냐에 따라 산(MSA)이 쌓일 수 있습니다.</li>
-      <li><b>헐셀</b> — 표준 헐셀(267 mL, 2 A)은 판 한 장에서 약 0.1~8 ASD를 한 번에 보여 줍니다. 탐 · 무광 · 검은 부분의 위치로 첨가제 균형과 오염을 분석값보다 먼저 알아챕니다.</li></ul>`);
+      <li><b>헐셀</b> — 표준 헐셀(267 mL, 2 A)은 판 한 장에서 약 0.5~12 ASD(헐셀 식으로 계산한 예시)를 한 번에 보여 줍니다. 탐 · 무광 · 검은 부분의 위치로 첨가제 균형과 오염을 분석값보다 먼저 알아챕니다.</li></ul>`);
   },
   css: `.jc.p11-card .steps li.open em{min-height:90px}
 .jc .p11-msg{min-height:140px}
@@ -276,13 +286,15 @@ function sim(p, K){
 .pl-svg .p11-lg.on{stroke-width:5;stroke-dasharray:none}
 .pl-svg .p11-ghost.p11-c0,.pl-svg .p11-lg.p11-c0{stroke:rgba(251,191,36,.75)}.pl-svg .p11-glt.p11-c0{fill:#fcd34d !important}
 .pl-svg .p11-ghost.p11-c1,.pl-svg .p11-lg.p11-c1{stroke:rgba(196,181,253,.85)}.pl-svg .p11-glt.p11-c1{fill:#c4b5fd !important}
-.pl-svg .p11-ghost.p11-c2,.pl-svg .p11-lg.p11-c2{stroke:rgba(134,239,172,.8)}.pl-svg .p11-glt.p11-c2{fill:#86efac !important}
+.pl-svg .p11-ghost.p11-c2,.pl-svg .p11-lg.p11-c2{stroke:rgba(94,234,212,.85)}.pl-svg .p11-glt.p11-c2{fill:#5eead4 !important}
 .pl-svg .p11-ghost.p11-c3,.pl-svg .p11-lg.p11-c3{stroke:rgba(252,165,165,.8)}.pl-svg .p11-glt.p11-c3{fill:#fca5a5 !important}
 .pl-svg .p11-tick{font-size:16px;fill:#7c8da8 !important}
 .pl-svg .p11-qband{fill:rgba(167,139,250,.09)}
 .pl-svg .p11-qt{font-size:18px;font-weight:800;fill:#c4b5fd !important}
 .pl-svg .p11-tau{fill:none;stroke:#86efac;stroke-width:1.8;stroke-dasharray:3 5}
 .pl-svg .p11-taut{font-size:16px;font-weight:700;fill:#86efac !important}
+.pl-svg .p11-ssng{font-size:18px;font-weight:800;fill:#fca5a5 !important}
+.pl-svg .p11-crt{font-size:19px;font-weight:800;fill:#fbbf24 !important}
 .pl-svg .p11-frag{fill:#8a6a4e;stroke:#c4a07c;stroke-width:.8}
 .pl-svg .p11-call{font-size:18px;font-weight:800;fill:#fca5a5 !important}`
 });
