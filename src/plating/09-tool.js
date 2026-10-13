@@ -45,12 +45,12 @@ const HOME = {};                                                    // 부품 �
 Object.keys(STEP_PARTS).forEach(s => STEP_PARTS[s].forEach(p => { if (!HOME[p]) HOME[p] = s; }));
 
 // 헤드 · 컵 · 웨이퍼 · 콘택트 · 립씰 묶음. part 를 주면 눌러지는 부품, 없으면 장식용 복사본(기울여 넣기 · 들어 올리기)
-// 바깥에서 안쪽으로: 웨이퍼 끝 → 콘택트(마른 곳) → 립씰 → 액
-function stack(K, part){
+// 바깥에서 안쪽으로: 웨이퍼 끝 → 콘택트(마른 곳) → 립씰 → 액. lift: 들어 올린 만큼 축이 짧아진다 (축 윗끝은 그대로)
+function stack(K, part, lift = 0){
   const {R, P, T, tip} = K;
   const g = part || ((id, inner) => inner);
   let s = '';
-  s += g('head', R(530, 140, 40, 42, 'pl-headb') + R(320, 180, 460, 56, 'pl-headb', {rx: 12}) + R(314, 200, 16, 76, 'pl-headb') + R(770, 200, 16, 76, 'pl-headb') + R(314, 262, 76, 14, 'pl-headb') + R(710, 262, 76, 14, 'pl-headb'));
+  s += g('head', R(530, 140 + lift, 40, 42 - lift, 'pl-headb') + R(320, 180, 460, 56, 'pl-headb', {rx: 12}) + R(314, 200, 16, 76, 'pl-headb') + R(770, 200, 16, 76, 'pl-headb') + R(314, 262, 76, 14, 'pl-headb') + R(710, 262, 76, 14, 'pl-headb'));
   s += R(336, 236, 428, 12, 'f-wafer', part ? tip('웨이퍼 = 음극(캐소드, −) — 앞면(시드)이 아래') : null) + R(336, 248, 428, 4, 'f-seed2');
   s += g('contact', R(340, 252, 12, 10, 'f-contact') + R(748, 252, 12, 10, 'f-contact'));
   s += g('seal', R(356, 252, 28, 12, 'f-seal', {rx: 4}) + R(716, 252, 28, 12, 'f-seal', {rx: 4}));
@@ -101,7 +101,7 @@ function stack(K, part){
     const rot = P('M600,156 A80,12 0 0 1 740,156', 's-arr', K.mk('s-arr')) + T(754, 164, '회전', 't-dim', 'start');
     s += G(stack(K, part) + rot, only('head cell uni loop'));
     s += G(G(stack(K), {transform: 'translate(0 -10) rotate(-3 764 252)'}), only('entry'));
-    s += G(G(stack(K), {transform: 'translate(0 -18)'}), only('seq'));
+    s += G(G(stack(K, null, 18), {transform: 'translate(0 -18)'}), only('seq'));
     s += part('rect', R(50, 140, 200, 96, 'f-psu', {rx: 10}) + T(150, 176, '정류기', 't-lbl') + T(150, 204, '(−) → 웨이퍼', 't-dim') + T(150, 228, '(+) → 애노드', 't-dim'));
     // ── 액 순환
     s += part('tank', P('M60,960 L60,1090 L330,1090 L330,960', 'f-tank') + R(63, 985, 264, 102, 'f-bath') + T(195, 1046, '탱크', 't-lbl')

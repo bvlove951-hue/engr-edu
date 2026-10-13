@@ -191,9 +191,10 @@ const BATHS = [
         pd += L(px(m.cl), py(st.pk), x1, py(st.pk), 'p10-tie', tip(`지렛대: 액체(Ag ${m.cl.toFixed(1)} %) ↔ 고체 ${m.ph}`)) + C(px(m.cl), py(st.pk), 6, 'k-acc');
       }
       pd += C(xa, py(st.pk), 11, 'k-' + cls) + C(xa, py(st.pk), 20, 'co-ring');
-      // 「x % → y °C」 이름표: 액상선 점의 오른쪽 · 왼쪽 위에서 곡선 · 상태 점 · 축 글자 · 다른 이름표와 안 겹치는 첫 자리
+      // 「x % → y °C」 이름표: 액상선 점의 오른쪽 · 왼쪽 위에서 곡선 · 상태 점 · 축 글자 · 다른 이름표와 안 겹치는 첫 자리 (글자 폭은 어림값)
       const lt = `${ag.toFixed(1)} % → ${m.tl.toFixed(0)} °C`, lw = lt.length * 12.6, yPk = py(st.pk);
-      const busy = [[60, 700, 730, 730], [426, 736, 452, 760], [515, 732, 601, 756], [436, 764, 580, 796], [436, 834, 572, 860], [600, 998, 724, 1046], [978, yPk - 30, 1110, yPk - 4]];
+      // 비워 둘 곳 [x0, y0, x1, y1]: 제목 · °C · 보통 목표 · 다 녹음 · 액체+고체 Sn · 공정점 · 최고 온도 이름표
+      const busy = [[60, 700, 730, 730], [426, 736, 452, 760], [515, 732, 601, 756], [436, 764, 580, 796], [436, 834, 584, 860], [600, 998, 724, 1046], [978, yPk - 30, 1110, yPk - 4]];
       if (!(st.pk > 216 && st.pk < 238)) busy.push([914, 946, 1072, 974]);
       if (st.pk >= 217) busy.push([914, 1006, 1072, 1034]);
       const cost = (x0, yb) => {
@@ -208,8 +209,14 @@ const BATHS = [
         return c;
       };
       let lp = null, lc = Infinity;
-      [30, 60, 90, 120].forEach(dy => [[xa + 24, py(m.tl) - dy, dy], [xa - 24 - lw, py(m.tl) - dy, dy]].forEach(([x0, yb, dy]) => { const c = cost(x0, yb); if (c < lc){ lc = c; lp = [x0, yb, dy]; } }));
-      if (lp[2] > 30){ const lx = Math.max(lp[0] + 8, Math.min(xa, lp[0] + lw - 8)); pd += L(lx, lp[1] + 8, xa + (lx > xa ? 4 : -4), py(m.tl) - 7, 'p10-agk'); }   // 멀리 놓이면 점까지 가는 가는 선
+      [30, 60, 90, 120].forEach(dy => {
+        const gx = dy > 30 ? 36 : 24;                                      // 오른쪽으로 높이 올릴 때는 상태 점에서 더 띄운다
+        [xa + gx, xa - 24 - lw].forEach(x0 => { const c = cost(x0, py(m.tl) - dy); if (c < lc){ lc = c; lp = [x0, py(m.tl) - dy, dy]; } });
+      });
+      if (lp[2] > 30){                                                     // 점에서 멀리 놓이면 점까지 가는 가는 선
+        const lx = Math.max(lp[0] + 8, Math.min(xa, lp[0] + lw - 8));
+        pd += L(lx, lp[1] + 8, xa + (lx > xa ? 4 : -4), py(m.tl) - 7, 'p10-agk');
+      }
       pd += LB(T(lp[0], lp[1], lt, 'p10-agl', 'start'));
       ctx.$('[data-v="pd"]').innerHTML = pd;
       ctx.$('[data-v="l2"]').classList.toggle('hide', st.pk > 216 && st.pk < 238);
@@ -237,7 +244,7 @@ const BATHS = [
       let vy = 848;
       const line = (t, c) => { const ln = wrap(t, 17.6); v += TT(1180, vy, ln, c, 'start', 26); vy += ln.length * 26 + 8; };
       line(`Ag\u00a0${ag.toFixed(1)}\u00a0% · 액상선\u00a0${m.tl.toFixed(0)}\u00a0°C · 최고\u00a0${st.pk}\u00a0°C`, 't-dim');
-      if (m.k === 'two') line(`+ 고체 ${m.ph} ${fsT.replace(/ /g, '\u00a0')} (지렛대 규칙 · 노란\u00a0선)`, 't-sub');
+      if (m.k === 'two') line(`+ 고체 ${m.ph} ${fsT.replace(/ /g, '\u00a0')} (지렛대\u00a0규칙\u00a0·\u00a0노란\u00a0선)`, 't-sub');
       if (m.k === 'solid') line('최고 온도가 공정점(共晶) 221 °C보다 낮다', 't-sub');
       if (ag > EU) line('⚠ Ag > 3.5 % — 식을 때 큰 Ag₃Sn 판이 자라기 쉽다 → 균열 길', 'p10-wn');
       else if (ag > 2.5) line('목표보다 높음 — 마이크로범프는 3.5\u00a0% 아래에서도 판이 보고됨', 'p10-wn');
