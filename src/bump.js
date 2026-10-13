@@ -647,8 +647,8 @@ function onScroll(){
     if (b.states[sub] !== cur) apply(b.states[sub]);
   });
 }
-let scrollAnim = null;
-function cancelScrollAnim(){ if (scrollAnim){ cancelAnimationFrame(scrollAnim); scrollAnim = null; } }
+let scrollAnim = null, restoreTok = 0;
+function cancelScrollAnim(){ restoreTok++; if (scrollAnim){ cancelAnimationFrame(scrollAnim); scrollAnim = null; } }
 function scrollViewTo(top, animate){
   cancelScrollAnim();
   top = clamp(top, 0, Math.max(0, VIEW.scrollHeight - VIEW.clientHeight));
@@ -685,8 +685,26 @@ function exitPres(fromFs){
   toggleAuto(false);
   pres = null;
   root.classList.remove('pres');
-  if (!fromFs && document.fullscreenElement) try { document.exitFullscreen(); } catch (e){}
-  requestAnimationFrame(() => { fitView(); measure(); if (bt){ measure(); VIEW.scrollTop = Math.max(0, bt.b.top + (bt.sub + 0.5) / bt.b.n * bt.b.h - anchorOffset()); } });
+  if (!bt) return;
+  // 전체 화면이 다 풀린 뒤에 제자리로 (풀리는 중에는 스크롤 영역 높이가 0이라 맨 위로 잘린다)
+  if (!fromFs && document.fullscreenElement){
+    let p = null;
+    try { p = document.exitFullscreen(); } catch (e){}
+    if (p && p.then) p.then(() => restoreBeat(bt), () => restoreBeat(bt)); else restoreBeat(bt);
+  } else restoreBeat(bt);
+}
+function restoreBeat(bt){
+  // 몇 프레임 동안 자리가 그대로인지 확인한다. 사용자가 스크롤하면 그만둔다
+  const tok = ++restoreTok;
+  let n = 0, same = 0;
+  const tick = () => {
+    if (pres || tok !== restoreTok) return;
+    fitView(); measure();
+    const top = Math.max(0, bt.b.top + (bt.sub + 0.5) / bt.b.n * bt.b.h - anchorOffset());
+    if (Math.abs(VIEW.scrollTop - top) > 2){ VIEW.scrollTop = top; same = 0; } else same++;
+    if (same < 6 && ++n < 90) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }
 function presApply(){
   const bt = beats[pres.k];
