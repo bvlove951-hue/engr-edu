@@ -36,8 +36,8 @@ const PD = {x0: 420, x1: 1110, y0: 1050, y1: 760, t0: 200, t1: 300};   // 상태
 const px = a => PD.x0 + Math.min(AMAX, a) / AMAX * (PD.x1 - PD.x0), py = t => PD.y0 - (t - PD.t0) / (PD.t1 - PD.t0) * (PD.y0 - PD.y1);
 const BATHS = [
   {id: 'cu', x: 40, nm: 'Cu 도금액', ions: ['cu', 'so4', 'h', 'cl'], lines: ['황산구리 + 황산 + Cl⁻ (수십 ppm)', '+ 첨가제 3종 (05장)', '양극(애노드, +): 인 함유 구리 (녹아서 보충)', '역할: 범프의 몸통 · 높이 · 전기 길', '관리: Cu · 산 · Cl · 첨가제 · 양극 피막'], layer: 'cu'},
-  {id: 'ni', x: 560, nm: 'Ni 도금액', ions: ['ni', 'h', 'cl'], lines: ['설파민산 니켈 + 붕산 (pH 완충)', '+ 소량 염화물 · 습윤제', '양극(+): 니켈 (녹아서 보충)', '역할: Cu와 솔더 사이 방벽', '관리: pH · 온도 · 응력 · 표면 산화'], layer: 'ni'},
-  {id: 'snag', x: 1080, nm: 'SnAg 도금액', ions: ['sn', 'ag', 'ms', 'sn4'], lines: ['메탄설폰산(MSA) + Sn²⁺ + Ag⁺', '+ 착화제 (Ag⁺를 붙잡아 둔다)', '양극(+): 불용성 또는 Sn + 분리막', '역할: 녹아서 붙는 솔더', '관리: Sn²⁺ · Ag · 산 · Sn⁴⁺ · 착화제'], layer: 'sn'}
+  {id: 'ni', x: 560, nm: 'Ni 도금액', ions: ['ni', 'h', 'cl'], lines: ['설파민산 니켈 + 붕산 (pH 완충)', '+ 소량 염화물 · 습윤제', '양극(애노드, +): 니켈 (녹아서 보충)', '역할: Cu와 솔더 사이 방벽', '관리: pH · 온도 · 응력 · 표면 산화'], layer: 'ni'},
+  {id: 'snag', x: 1080, nm: 'SnAg 도금액', ions: ['sn', 'ag', 'ms', 'sn4'], lines: ['메탄설폰산(MSA) + Sn²⁺ + Ag⁺', '+ 착화제 (Ag⁺를 붙잡아 둔다)', '양극(애노드, +): 불용성 또는 Sn + 분리막', '역할: 녹아서 붙는 솔더', '관리: Sn²⁺ · Ag · 산 · Sn⁴⁺ · 착화제'], layer: 'sn'}
 ];
 
 (window.EngrPlatingChapters = window.EngrPlatingChapters || []).push({

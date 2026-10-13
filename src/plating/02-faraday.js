@@ -5,7 +5,7 @@ const F = 96485;
 const MET = {
   cu: {nm: 'Cu', ion: 'Cu²⁺', M: 63.55, n: 2, rho: 8.96, cls: 'f-cu2', e0: 100, gAh: 1.19, eff: '산성 Cu: 보통 98~100 %'},
   ni: {nm: 'Ni', ion: 'Ni²⁺', M: 58.69, n: 2, rho: 8.91, cls: 'f-ni', e0: 96, gAh: 1.10, eff: 'Ni(설파민산): 보통 95~99 % — 수소가 조금씩 함께 나옵니다'},
-  sn: {nm: 'SnAg', ion: 'Sn²⁺', M: 118.71, n: 2, rho: 7.29, cls: 'f-sn2', e0: 95, gAh: 2.21, eff: 'SnAg(MSA): 보통 90 % 이상 — Sn 기준으로 계산 (Ag는 전기의 약 1 % 안팎 — Ag 1.5~2.5 wt% ≈ 전기의 0.8~1.4 %)'}
+  sn: {nm: 'SnAg', ion: 'Sn²⁺', M: 118.71, n: 2, rho: 7.29, cls: 'f-sn2', e0: 95, gAh: 2.21, eff: 'SnAg(MSA): 보통 90 % 이상 — Sn 기준으로 계산 (Ag 1.5~2.5 wt%에 쓰이는 전기는 약 0.8~1.4 %)'}
 };
 const PR_UM = 60, PX = 10;                 // PR 높이(예시) 60 µm, 1 µm = 10 px
 const OX = 1270, OW = 250, BASE = 1000, PRT = BASE - PR_UM * PX;

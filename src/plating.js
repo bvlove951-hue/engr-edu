@@ -276,7 +276,16 @@ function sizeWraps(){
     b.hMax = b.card.offsetHeight;
     b.card.classList.remove('pl-all');
     b.mb = parseFloat(getComputedStyle(b.card).marginBottom) || 0;
-    b.el.style.minHeight = Math.round(b.hMax + b.mb + vh * (b.n * 0.36 + SLACK)) + 'px';
+    // 붙기 시작하는 높이 t0: 보통 화면 위 11 %, 머리가 긴 카드는 1단계 글이 화면 안에 다 들어오는 높이까지 올라간 뒤
+    const lis = [...b.card.querySelectorAll('.steps li')];
+    b.t0 = vh * 0.11;
+    if (lis.length){
+      const saved = lis.map(li => li.className);
+      lis.forEach((li, j) => li.classList.toggle('open', j === 0));
+      b.t0 = Math.min(b.t0, vh - 20 - (lis[0].getBoundingClientRect().bottom - b.card.getBoundingClientRect().top));
+      lis.forEach((li, j) => { li.className = saved[j]; });
+    }
+    b.el.style.minHeight = Math.round(b.hMax + b.mb + Math.max(vh * b.n * 0.36, b.hMax - vh * 0.89 + 34) + vh * (SLACK + 0.11) - b.t0) + 'px';
   });
 }
 // 따라 붙는 카드의 위치: 붙어 있는 동안 진행에 맞춰 천천히 올라가(긴 카드는 아래쪽 위젯까지 보이게) 지금 단계 글은 늘 화면 안에 둔다
@@ -286,7 +295,8 @@ function pinCards(){
   const tops = blocks.map(b => {
     if (b.n < 2 || st) return null;
     const c = b.card.offsetHeight, r = stuckR(b), p = r ? clamp((VIEW.scrollTop - r.s0) / r.len) : 0;
-    let t = lerp(vh * 0.11, Math.min(vh * 0.11, vh - c - 14), p);
+    const t0 = b.t0 == null ? vh * 0.11 : b.t0;
+    let t = lerp(t0, Math.min(t0, vh - c - 14), p);
     const li = b.card.querySelector('.steps li.on');
     if (li){
       const o = li.getBoundingClientRect().top - b.card.getBoundingClientRect().top;
@@ -294,7 +304,20 @@ function pinCards(){
     }
     return Math.round(Math.min(t, vh * 0.11));
   });
-  blocks.forEach((b, i) => { if (b.n > 1) b.card.style.top = tops[i] == null ? '' : tops[i] + 'px'; });
+  blocks.forEach((b, i) => {
+    if (b.n < 2) return;
+    if (tops[i] == null){ b.pinTop = null; b.card.style.top = ''; return; }
+    b.pinTo = tops[i];
+    if (b.pinTop == null || reduced || Math.abs(b.pinTo - b.pinTop) <= 24){ b.pinTop = b.pinTo; b.card.style.top = b.pinTo + 'px'; return; }
+    if (b.pinAnim) return;                                   // 한 번에 크게 바뀌면(단계 글 길이 차이) 0.2초쯤에 걸쳐 따라간다
+    const step = () => {
+      b.pinTop += (b.pinTo - b.pinTop) * 0.3;
+      if (Math.abs(b.pinTo - b.pinTop) < 1) b.pinTop = b.pinTo;
+      b.card.style.top = Math.round(b.pinTop) + 'px';
+      b.pinAnim = b.pinTop !== b.pinTo ? requestAnimationFrame(step) : null;
+    };
+    b.pinAnim = requestAnimationFrame(step);
+  });
 }
 
 // 보기 영역 (단계마다 확대할 수 있다)
@@ -316,11 +339,19 @@ function fitView(){
   const ox = ins.l + (sw - f.w * k) / 2 - f.x * k, oy = ins.t + (sh - f.h * k) / 2 - f.y * k;
   VB = {k, ox, oy};
   svg.setAttribute('viewBox', `${q1(-ox / k)} ${q1(-oy / k)} ${q1(r.width / k)} ${q1(r.height / k)}`);
+  // 확대 상자 밖 자르기 (viewN 일 때만)
+  const cr = svg.querySelector('#pl-fclip rect'), cg = cur && SC[ST[cur].ch ? ST[cur].ch.id : 'intro'];
+  Object.keys(SC).forEach(id => { if (!cg || SC[id] !== cg || !fto.clip) SC[id].g.removeAttribute('clip-path'); });
+  if (cr && cg && fto.clip){
+    cr.setAttribute('x', q1(f.x)); cr.setAttribute('y', q1(f.y)); cr.setAttribute('width', q1(f.w)); cr.setAttribute('height', q1(f.h));
+    cg.g.setAttribute('clip-path', 'url(#pl-fclip)');
+  }
 }
 // 단계의 확대 영역. 세로로 긴 무대(좁은 화면)에서는 장 파일이 따로 준 viewN 을 먼저 쓴다
 function focusOf(ch, step){
-  const narrow = stage && stage.clientWidth / Math.max(1, stage.clientHeight) < 1.15;
-  return (narrow && (step.viewN || ch.viewN)) || step.view || ch.view || null;
+  const vn = stacked() && stage.clientWidth / Math.max(1, stage.clientHeight) < 1.15 && (step.viewN || ch.viewN);
+  if (vn){ vn.clip = true; return vn; }       // 좁은 화면 전용 확대: 상자 밖은 잘라 HUD 밑으로 글이 깔리지 않게
+  return step.view || ch.view || null;
 }
 function setFocus(v){
   const to = v || FULL;
@@ -354,6 +385,7 @@ function build(){
     scenes += `<g class="pl-scene" data-ch="${esc(ch.id)}">${inner}</g>`;
   });
   svg.innerHTML = `<defs>
+    <clipPath id="pl-fclip"><rect x="0" y="0" width="${W0}" height="${H0}"/></clipPath>
     <filter id="pl-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
     <filter id="pl-soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter>
     <filter id="pl-hi" x="-30%" y="-30%" width="160%" height="160%"><feMorphology in="SourceAlpha" operator="dilate" radius="4" result="d"/><feFlood flood-color="#fbbf24"/><feComposite in2="d" operator="in" result="o"/><feGaussianBlur in="o" stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -407,6 +439,7 @@ function build(){
     if (!a) return;
     ev.preventDefault(); ev.stopPropagation();
     gotoChapter(a.getAttribute('data-go'));
+    if (!a.isConnected) try { VIEW.focus({preventScroll: true}); } catch (e){}   // 차례 장면이 떼어지면 초점을 보기 영역으로
   });
   root.addEventListener('click', ev => {
     const a = ev.target.closest && ev.target.closest('[data-go]');
@@ -416,7 +449,7 @@ function build(){
     gotoChapter(cid, sid);
   });
   VIEW.addEventListener('scroll', onScroll, {passive: true});
-  ['wheel', 'touchstart', 'mousedown'].forEach(t => VIEW.addEventListener(t, cancelScrollAnim, {passive: true}));
+  ['wheel', 'touchstart', 'mousedown'].forEach(t => VIEW.addEventListener(t, ev => { if (ev.type !== 'wheel' && ev.target.closest && ev.target.closest('.jz-tools,.jz-pres')) return; cancelScrollAnim(); }, {passive: true}));
   VIEW.addEventListener('keydown', ev => { if (['PageUp', 'PageDown', 'Home', 'End', ' ', 'ArrowUp', 'ArrowDown'].includes(ev.key)) cancelScrollAnim(); });
   window.addEventListener('resize', relayout);
   if (window.ResizeObserver){
@@ -432,7 +465,7 @@ function build(){
   setDeep(!!store.get('engr-edu.plating.deep', false));
   fitView();
   apply('intro');
-  if (reduced) try { svg.pauseAnimations(); } catch (e){}   // 움직임 줄이기: 이온 · 거품도 멈춘다
+  if (reduced) try { svg.pauseAnimations(); svg.setCurrentTime(5.5); } catch (e){}   // 움직임 줄이기: 이온 · 거품도 멈춘다 (결정이 다 자란 뒤의 한 장면)
 }
 
 function chapterCard(ch){
@@ -461,7 +494,7 @@ function buildCards(){
     card.querySelectorAll('.steps li').forEach(li => {
       li.tabIndex = 0; li.setAttribute('role', 'button');
       li.addEventListener('click', () => gotoSub(b, +li.dataset.k));
-      li.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); gotoSub(b, +li.dataset.k); } });
+      li.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); ev.stopPropagation(); gotoSub(b, +li.dataset.k); } });
     });
     return card;
   };
@@ -538,8 +571,9 @@ function anchorOffset(){
 // 데스크톱: 카드가 실제로 붙어 있는 스크롤 구간 [s0, s0 + len] 을 단계 수로 고르게 나눈다 (다 펼친 높이 기준이라 단계가 바뀌어도 구간이 그대로)
 function stuckR(b){
   if (b.n < 2 || !b.hMax || stacked()) return null;
-  const len = b.h - b.hMax - (b.mb || 0) - VIEW.clientHeight * SLACK;
-  return len > 40 ? {s0: b.top - VIEW.clientHeight * 0.11, len} : null;
+  const vh = VIEW.clientHeight, t0 = b.t0 == null ? vh * 0.11 : b.t0;
+  const len = b.h - b.hMax - (b.mb || 0) - vh * (SLACK + 0.11) + t0;
+  return len > 40 ? {s0: b.top - t0, len} : null;
 }
 // 좁은 화면(카드가 장면 아래로 흐른다): 장면 아래 보이는 영역의 45 % 줄을 넘은 마지막 단계가 지금 단계
 function liLine(){ const sh = stage.offsetHeight; return sh + (VIEW.clientHeight - sh) * 0.45; }
@@ -578,8 +612,10 @@ function resolvePos(){
   return {b, sub};
 }
 let ticking = false, activeCard = null;
+let lastTop = -1;
 function onScroll(){
-  hideTip();
+  if (!VIEW.classList.contains('active') || !VIEW.clientHeight) return;   // 다른 탭에 있는 동안(보이지 않음)은 자리를 셈하지 않는다
+  if (VIEW.scrollTop !== lastTop){ lastTop = VIEW.scrollTop; hideTip(); }
   if (ticking || pres || scrollAnim) return;          // 코드가 스크롤을 옮기는 중에는 지나가는 단계를 켜지 않는다 (목표 단계는 이미 켜 둠)
   ticking = true;
   requestAnimationFrame(() => {
@@ -640,7 +676,8 @@ function goState(s){
   // 그 단계 구간 안으로 가장 짧게 옮긴다 (위젯을 쥐고 있는 손 아래에서 카드가 크게 움직이지 않게)
   const bt = beats[k]; measure();
   const [lo, hi] = subRange(bt.b, bt.sub);
-  scrollViewTo(clamp(VIEW.scrollTop, lo, Math.max(lo, hi)), true);
+  const m = Math.max(0, hi - lo) * 0.25;
+  scrollViewTo(clamp(VIEW.scrollTop, lo + m, Math.max(lo + m, hi - m)), true);
   if (scrollAnim) navTo = {b: bt.b, sub: bt.sub};
 }
 function curBeat(){
@@ -656,6 +693,8 @@ function enterPres(){
   if (pres) return;
   pres = {k: curBeat()};
   root.classList.add('pres');
+  const nx = stage.querySelector('.jz-pres [data-act=next]');
+  if (nx) try { nx.focus({preventScroll: true}); } catch (e){}
   try { if (root.requestFullscreen) root.requestFullscreen().catch(() => {}); } catch (e){}
   presApply();
 }
@@ -680,7 +719,7 @@ function restoreBeat(bt){
   let n = 0, same = 0;
   const tick = () => {
     if (pres || tok !== restoreTok) return;
-    if (!n) sizeWraps();
+    if (!n){ sizeWraps(); if (document.activeElement === document.body) try { VIEW.focus({preventScroll: true}); } catch (e){} }
     fitView(); measure();
     const top = beatPos(bt.b, bt.sub);
     if (Math.abs(VIEW.scrollTop - top) > 2){ VIEW.scrollTop = top; same = 0; } else same++;
@@ -757,11 +796,15 @@ function relayout(){
   if (!keep){ const bt = beats.find(x => x.s === cur); if (bt) keep = {b: bt.b, sub: bt.sub}; }
   const sc = ST[cur];
   if (sc) setFocus(sc.ch ? focusOf(sc.ch, sc.ch.steps[sc.k]) : null);
-  fitView(); sizeWraps(); measure();
+  fitView(); pinCards(); sizeWraps(); measure();          // pinCards 먼저: 좁은 화면으로 바뀌면 데스크톱 top 값을 지운 뒤 잰다
   if (keep){ cancelScrollAnim(); VIEW.scrollTop = beatPos(keep.b, keep.sub); }
   pinCards(); onScroll();
 }
-document.addEventListener('engr:tab', ev => { if (ev.detail === 'plating') activateTab(); else if (svg) try { svg.pauseAnimations(); } catch (e){} });   // 다른 탭에서는 움직임을 멈춘다
+document.addEventListener('engr:tab', ev => {
+  if (ev.detail === 'plating') return activateTab();
+  if (scrollAnim){ cancelAnimationFrame(scrollAnim); scrollAnim = null; navTo = null; }   // 옮겨 가던 중이면 목표 단계(cur)를 그대로 두고 멈춘다
+  if (svg) try { svg.pauseAnimations(); } catch (e){}                                    // 다른 탭에서는 움직임을 멈춘다
+});
 if (VIEW.classList.contains('active')) activateTab();
 window.EngrPlating = {
   get state(){ const st = ST[cur] || {}; return {state: cur, chapter: st.ch ? st.ch.id : 'intro', step: st.ch ? st.ch.steps[st.k].id : null, pres: pres ? pres.k : null, beats: beats.length, auto: !!auto, deep: !!(root && root.classList.contains('deep'))}; },

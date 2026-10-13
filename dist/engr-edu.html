@@ -1109,6 +1109,7 @@ details.menu .menu-pop.left{left:0;right:auto}
   .pl-line button,.pl-line .pt{flex:none}
   .pl .jcw.multi{min-height:0 !important}
   .jc.pl-card .steps li em{display:block}   /* 좁은 화면은 카드가 흘러가므로 단계 설명을 모두 펼쳐 둔다 (펼침이 바뀌며 글이 밀리지 않게) */
+  .pl .jc.pl-card .steps li.open em{min-height:0}   /* 장 파일이 데스크톱용으로 둔 최소 높이는 여기서 뺀다 */
   .jc .pl-terms dl{grid-template-columns:1fr}
   .jc .pl-terms dt{white-space:normal}
 }
@@ -5559,7 +5560,7 @@ const F = 96485;
 const MET = {
   cu: {nm: 'Cu', ion: 'Cu²⁺', M: 63.55, n: 2, rho: 8.96, cls: 'f-cu2', e0: 100, gAh: 1.19, eff: '산성 Cu: 보통 98~100 %'},
   ni: {nm: 'Ni', ion: 'Ni²⁺', M: 58.69, n: 2, rho: 8.91, cls: 'f-ni', e0: 96, gAh: 1.10, eff: 'Ni(설파민산): 보통 95~99 % — 수소가 조금씩 함께 나옵니다'},
-  sn: {nm: 'SnAg', ion: 'Sn²⁺', M: 118.71, n: 2, rho: 7.29, cls: 'f-sn2', e0: 95, gAh: 2.21, eff: 'SnAg(MSA): 보통 90 % 이상 — Sn 기준으로 계산 (Ag는 전기의 약 1 % 안팎 — Ag 1.5~2.5 wt% ≈ 전기의 0.8~1.4 %)'}
+  sn: {nm: 'SnAg', ion: 'Sn²⁺', M: 118.71, n: 2, rho: 7.29, cls: 'f-sn2', e0: 95, gAh: 2.21, eff: 'SnAg(MSA): 보통 90 % 이상 — Sn 기준으로 계산 (Ag 1.5~2.5 wt%에 쓰이는 전기는 약 0.8~1.4 %)'}
 };
 const PR_UM = 60, PX = 10;                 // PR 높이(예시) 60 µm, 1 µm = 10 px
 const OX = 1270, OW = 250, BASE = 1000, PRT = BASE - PR_UM * PX;
@@ -6012,7 +6013,7 @@ const STAGE = r => r < 0.7 ? 0 : r < 1 ? 1 : r < 1.3 ? 2 : 3;
       <li><b>고속 도금액</b>은 Cu를 높이고 산을 낮춘 경우가 많습니다. 한계전류가 농도에 비례하니 같은 교반에서 더 빨리 쌓을 수 있기 때문입니다(산이 많으면 녹일 수 있는 Cu도 줄어듭니다). 대신 전도도가 낮아집니다.</li>
       <li><b>큰 모양 vs 작은 모양</b> — 확산층보다 훨씬 큰 높낮이(웨이퍼 두께 분포, mm 이상)는 전기 저항과 분극이 정하고(→ 07장), 확산층과 비슷하거나 작은 높낮이(범프 윗면 굴곡 · 거칠기)는 공급과 첨가제가 정합니다(→ 05 · 08장).</li>
       <li>J/iL이 커질수록 튀어나온 곳(확산 거리가 짧은 곳)이 이온을 먼저 잡아 더 튀어나옵니다(불안정 성장). 그래서 한계에 다가가면 거칠어지고, 한계에서 덴드라이트가 뻗습니다.</li>
-      <li>헐 셀 — 비스듬한 판 하나에 낮은~높은 전류밀도가 한 번에 걸려, 탄 자리 · 무광 자리로 액 상태를 눈으로 빠르게 보는 시험입니다(일반 도금에서 널리 쓰고, 웨이퍼 라인에서는 보조 도구).</li></ul>`);
+      <li>헐셀 — 비스듬한 판 하나에 낮은~높은 전류밀도가 한 번에 걸려, 탄 자리 · 무광 자리로 액 상태를 눈으로 빠르게 보는 시험입니다(일반 도금에서 널리 쓰고, 웨이퍼 라인에서는 보조 도구).</li></ul>`);
   },
   css: `.pl-svg .p03-thin{stroke-width:2.6}
 .pl-svg .p03-s1{opacity:.5;animation-duration:2.2s}
@@ -6177,10 +6178,10 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
     s += G(hh, only('h2'));
     // slope: 두 길과 톨게이트 (막대 · 수치는 위젯이 그린다)
     let sl = T(TX, 166, '고르게 퍼지려면 — 기울기', 't-acc', 'start');
-    sl += R(RX + 60, 206, 130, 24, 'f-anode', tip('양극 (애노드, +)')) + T(RX + 200, 224, '양극 (애노드, +)', 't-dim', 'start');
+    sl += R(RX + 60, 206, 130, 24, 'f-anode', tip('양극(애노드, +)')) + T(RX + 200, 224, '양극(애노드, +)', 't-dim', 'start');
     sl += P(`M${RX + 125},232 L${RX + 125},400`, 's-flow') + P(`M${RX + 160},232 C${RX + 240},250 ${RX + 330},300 ${RX + 355},400`, 's-flow');
     sl += LB(T(RX + 110, 330, '짧은 길', 't-sub', 'end') + T(RX + 300, 286, '긴 길 (액 저항 ×3)', 't-sub', 'start'));
-    sl += R(RX + 40, 520, 400, 30, 'f-cu2') + T(RX + 240, 572, '음극 (캐소드, −) — 도금되는 표면', 't-dim');
+    sl += R(RX + 40, 520, 400, 30, 'f-cu2') + T(RX + 240, 572, '음극(캐소드, −) — 도금되는 표면', 't-dim');
     sl += `<g data-v="paths"></g>`;
     sl += para(720, ['완만한 곡선 = 전류를 조금 더 흘리려면 훨씬 더 밀어야 한다 = 모든 길 입구에 같은 톨게이트(표면 저항) → 길 길이 차이가 덜 중요 → 고르게', '모양 그대로 옆으로 옮기기만 하면 → 쏠림 그대로']);
     sl += para(922, ['크기에 따라 주역이 다르다 (바그너 수)'], 't-warn');
@@ -6625,8 +6626,8 @@ const cuFill = (r, k) => `fill:hsl(${22 + (k % 5) * 3},${48 + Math.round(r() * 1
 // 전류밀도(한계전류 대비) → 씨앗 수와 표면 상태 (개념 모델)
 //  한계보다 충분히 낮으면: 세게 밀수록(과전압↑) 씨앗이 많아 결정이 곱다
 //  한계에 가까우면: 공급이 모자라 튀어나온 곳이 앞서 거칠어지고, 더 가까우면 가루 · 나뭇가지
-function regime(cd){ return cd > 0.92 ? 'dend' : cd > 0.75 ? 'rough' : 'fine'; }
-function seeds(cd, add){ return Math.round((8 + 46 * Math.min(cd, 0.75) / 0.75) * (add ? 1.5 : 1)); }
+function regime(cd){ return cd > 0.93 ? 'dend' : cd >= 0.7 ? 'rough' : 'fine'; }   // 03 · 04장과 같은 경계 (0.7 · 0.93)
+function seeds(cd, add){ return Math.round((8 + 46 * Math.min(cd, 0.7) / 0.7) * (add ? 1.5 : 1)); }
 // 발표 모드 · 손대기 전: 단계마다 보여 줄 [전류밀도 %, 첨가제, 자기 풀림 뒤]
 const DEMO = {nuc: {cd: 40, add: true, age: false}, grain: {cd: 40, add: true, age: false}, imp: {cd: 40, add: true, age: false}, stress: {cd: 40, add: true, age: true}};
 
@@ -6639,7 +6640,7 @@ const DEMO = {nuc: {cd: 40, add: true, age: false}, grain: {cd: 40, add: true, a
   steps: [
     {id: 'nuc', t: '핵생성과 성장', d: '다른 금속 위(Cu 위 Ni, Ni 위 SnAg)에서는 씨앗(핵)이 새로 생겨 자라 만나야 하므로 표면 상태(산화막)가 중요합니다. 같은 금속 위(Cu 위 Cu)는 시드 결정을 이어 자라는 몫이 큽니다. 한계보다 충분히 낮은 범위에서는 세게 밀수록 씨앗이 많아 결정이 곱습니다.'},
     {id: 'grain', t: '결정립 — 막 속의 모자이크', d: '결정은 기둥 모양(주상)으로 자라기도 하고 작은 알갱이로 자라기도 합니다. 첨가제가 있으면 자라는 중에도 새 씨앗이 생겨 결정이 작게 유지됩니다. 결정 크기에 따라 굳기 · 전기 저항 · 식각 속도 · 솔더와의 반응이 달라집니다.'},
-    {id: 'imp', t: '불순물 — 막에 갇힌 것들', d: '첨가제 조각(S · Cl · C 등)이 결정 사이에 갇힐 수 있습니다. 갇힌 S(촉진제에서 옴)는, Cu가 솔더와 직접 붙는 곳(Ni 방벽이 없는 곳)을 고온에 오래 두면 계면에 작은 구멍(커켄달 보이드)을 키운다는 보고가 있습니다. 그래서 첨가제는 "많을수록 좋다"가 아닙니다.'},
+    {id: 'imp', t: '불순물 — 막에 갇힌 것들', d: '첨가제 조각(S · Cl · C 등)이 결정 사이에 갇힐 수 있습니다. Cu가 솔더와 직접 붙는 곳(Ni 방벽이 없는 곳)을 고온에 오래 두면, 막에 갇힌 S(촉진제에서 옴)가 계면의 작은 구멍(커켄달 보이드)을 키운다는 보고가 있습니다. 그래서 첨가제는 "많을수록 좋다"가 아닙니다.'},
     {id: 'stress', t: '응력과 자기 풀림', d: '막에 남은 힘(내부 응력)은 웨이퍼 전체에 깔린 막에서는 휨으로, 섬처럼 나뉜 범프에서는 크랙(당김) · 들뜸(밂)으로 나타납니다(Ni에서 특히 관리). Cu는 도금 뒤 상온에서도 결정이 커집니다(자기 풀림, 수 시간~수 주, 저항 약 10~20 %↓).'}
   ],
   icon(K){
@@ -6740,7 +6741,7 @@ const DEMO = {nuc: {cd: 40, add: true, age: false}, grain: {cd: 40, add: true, a
     const {voronoi, rng, PG, C, G, P} = K;
     const st = {cd: 0.4, add: true, age: false};
     function render(){
-      const rg = regime(st.cd), n = seeds(st.cd, st.add), rough = rg === 'fine' ? 0 : (st.cd - 0.75) / 0.25;
+      const rg = regime(st.cd), n = seeds(st.cd, st.add), rough = rg === 'fine' ? 0 : (st.cd - 0.7) / 0.3;
       // 위에서 본 표면: 같은 주기로 자라 만나는 칸
       const r = rng(31), pts = [];
       for (let k = 0; k < n; k++) pts.push([TV.x + r() * TV.w, TV.y + r() * TV.h]);
@@ -6888,13 +6889,15 @@ function sci(v){
 }
 // 위젯이 권하는 손잡이: 지금 꺼져 있거나 더 움직일 수 있는 것 중, 이 모델에서 실제로 균일도가 좋아지는 것만
 const KDN = {hi: 'mid', mid: 'lo'}, KUP = {lo: 'mid', mid: 'hi'};
-function levers(st, now){
+function levers(st, now, kind){
+  // 터미널 효과가 큰데 전도도↑ 를 권할 때는 왜 그런지 함께 적는다 (전도도↑ 는 터미널 효과를 키우지만 가장자리 꼬리를 더 줄인다)
+  const why = kind === 'terminal' ? '(중심은 조금 더 얇아지지만 가장자리 꼬리가 더 줄어 전체 범위는 줄어듭니다)' : '';
   const L = [
     [!st.plate, {plate: true}, ['고저항판을 넣거나', '고저항판을 넣어 보세요']],
     [!st.shield, {shield: true}, ['실드를 켜거나', '실드를 켜 보세요']],
     [st.j > 2, {j: Math.max(2, Math.round(st.j / 2))}, ['전류밀도를 낮추거나', '전류밀도를 낮춰 보세요']],
     [!!KDN[st.k], {k: KDN[st.k]}, ['전도도를 낮추거나', '전도도를 낮춰 보세요']],
-    [!!KUP[st.k], {k: KUP[st.k]}, ['전도도를 높이거나', '전도도를 높여 보세요']]
+    [!!KUP[st.k], {k: KUP[st.k]}, ['전도도를 높이거나' + why, '전도도를 높여 보세요' + why]]
   ];
   const good = L.filter(l => l[0]).map(l => [l[2], profile(Object.assign({}, st, l[1])).unif]).filter(x => x[1] < now - 0.3).sort((a, b) => a[1] - b[1]).slice(0, 2);
   return good.length ? good.map((x, i) => x[0][i < good.length - 1 ? 0 : 1]).join(' ') + '.'
@@ -6915,9 +6918,9 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 앞 공정 · 
   ana: '<b>구멍이 숭숭 뚫린 물호스</b> — 수도꼭지(가장자리 접점)에서 들어온 물(전류)이 가는 내내 구멍(도금액 쪽)으로 샙니다. 꼭지에 가까운 구멍은 세게, 먼 끝(웨이퍼 중심)은 약하게 나옵니다. 호스가 굵으면(시드가 두꺼우면) 끝까지 고르고, 구멍마다 좁은 노즐(고저항판 · 억제제)을 달아도 고르게 됩니다. <i>한계: 중요한 것은 시드 저항과 "새는 길" 저항의 비율이고, 모서리로 몰리는 가장자리 효과는 이 비유에 없습니다.</i>',
   // viewN: 좁은(세로) 무대에서만 쓸 확대 영역 — 단면(왼쪽 위) · 맵 읽기(왼쪽 아래). 엔진이 step.viewN을 읽을 때만 쓰인다
   steps: [
-    {id: 'prim', t: '1차 분포 — 모서리에 몰린다', d: '반응 저항(04장의 표면 저항 · 톨게이트 — 곡선이 완만할수록 크다)이 없다고 보면(1차 분포, 최악의 경우) 전류선이 웨이퍼 모서리로 몰려 가장자리가 두꺼워집니다. 억제제 · 낮은 전류밀도로 반응 저항이 크면 덜 몰립니다. 범프 웨이퍼에서는 가장자리 다이가 외톨이 범프처럼 전류를 더 받기도 합니다.', viewN: VN_XS},
+    {id: 'prim', t: '1차 분포 — 모서리에 몰린다', d: '반응 저항(04장의 톨게이트 — 곡선이 완만할수록 큽니다)이 없는 최악의 경우(1차 분포)에는 전류선이 웨이퍼 모서리로 몰려 가장자리가 두꺼워집니다. 억제제 · 낮은 전류밀도로 반응 저항이 크면 덜 몰립니다. 범프 웨이퍼에서는 가장자리 다이가 외톨이 범프처럼 전류를 더 받기도 합니다.', viewN: VN_XS},
     {id: 'term', t: '터미널 효과 — 구멍 뚫린 호스', d: '전류는 가장자리 접점에서 들어와 얇은 시드를 타고 중심으로 가면서 내내 액 쪽으로 새어 나갑니다. 시드가 얇을수록(저항이 클수록) 중심에 닿기 전에 전압을 잃어 중심이 얇아집니다.', viewN: VN_XS},
-    {id: 'fix', t: '고르게 만드는 방법', d: '두 가지 원리입니다. 모든 길에 같은 큰 저항을 더하거나(고저항판 · 억제제 · 낮은 전류밀도), 몰리는 가장자리 전류를 직접 덜어 냅니다(실드 · 보조 음극 · 구역 양극(애노드, +)). 회전은 둘레 방향만 평균하고 반지름 방향 차이는 못 고칩니다.', viewN: VN_XS},
+    {id: 'fix', t: '고르게 만드는 방법', d: '두 가지 원리입니다. 모든 길에 같은 큰 저항을 더하거나(고저항판 · 억제제 · 낮은 전류밀도), 몰리는 가장자리 전류를 직접 덜어 냅니다 — 실드 · 보조 음극 · 구역 양극(애노드, +). 회전은 둘레 방향만 평균하고 반지름 방향 차이는 못 고칩니다.', viewN: VN_XS},
     {id: 'map', t: '웨이퍼 맵 읽기', d: '웨이퍼는 돌면서 도금되므로 무늬 모양이 원인 자리를 알려 줍니다. ① 고리 — 셀에 고정된 부품, 또는 시드 · PR 두께처럼 둘레 방향으로 고른 원인. ② 한쪽 · 부채꼴 — 웨이퍼와 함께 도는 것의 치우침(접점 하나 · 립씰 · 비뚤게 앉은 웨이퍼). ③ 직선 줄무늬 — 노광 · PR 도포 · 패들 · 기포. 먼저 앞 공정 맵과 겹쳐 봅니다.', viewN: VN_MAP}
   ],
   css: `
@@ -6943,6 +6946,7 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 앞 공정 · 
 .jc .p07-w .kpi .s{font-size:10px;line-height:1.3;letter-spacing:-.3px}
 .jc .p07-msg{min-height:80px}
 @media (max-width:520px){.jc .p07-two{grid-template-columns:1fr}.jc .p07-w .kpi{flex:1 1 40%}}
+@media (min-width:1001px) and (max-width:1280px){.jc .p07-two{grid-template-columns:1fr}.jc .p07-w .kpi{flex:1 1 40%}}
 .pl-svg .p07-b{font-weight:800}`,
   icon(K){
     const {P, E} = K;
@@ -7100,9 +7104,9 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 앞 공정 · 
       const basis = (a, b) => `효과 하나만 있을 때 가장자리가 중심보다 두꺼운 정도는 ${a} · ${b}입니다(위 칸의 %는 평균 대비라 다릅니다).`;
       ctx.q('[data-o=msg]').innerHTML = pr.unif < 3 ? '고른 편입니다 (이 모델 기준). 시드가 바뀌거나 개구율이 다른 제품이 오면 다시 확인합니다.'
         : st.shield && pr.edge < Math.min(pr.center, 0.97) ? '<b>가장자리가 얇습니다</b> — 실드가 너무 많이 가립니다(과보정). 시드 · 개구율이 바뀌면 실드 설정도 다시 맞춰야 합니다.'
-        : tc > 1.5 * pr.E ? `<b>중심이 얇습니다</b> — 터미널 효과가 더 큽니다. ${basis(tT, tE)} ${levers(st, pr.unif)}`
-        : pr.E > 1.5 * tc ? `<b>가장자리가 두껍습니다</b> — 가장자리 효과가 더 큽니다. ${basis(tE, tT)} ${levers(st, pr.unif)}`
-        : `<b>두 효과가 비슷합니다.</b> ${basis(tT, tE)} ${levers(st, pr.unif)}`;
+        : tc > 1.5 * pr.E ? `<b>중심이 얇습니다</b> — 터미널 효과가 더 큽니다. ${basis(tT, tE)} ${levers(st, pr.unif, 'terminal')}`
+        : pr.E > 1.5 * tc ? `<b>가장자리가 두껍습니다</b> — 가장자리 효과가 더 큽니다. ${basis(tE, tT)} ${levers(st, pr.unif, 'edge')}`
+        : `<b>두 효과가 비슷합니다.</b> ${basis(tT, tE)} ${levers(st, pr.unif, 'both')}`;
       ctx.refresh();
     }
     ctx.range('seed', v => { st.seed = seedOf(v); render(); return st.seed.toFixed(2) + ' µm'; });
@@ -7733,8 +7737,8 @@ const PD = {x0: 420, x1: 1110, y0: 1050, y1: 760, t0: 200, t1: 300};   // 상태
 const px = a => PD.x0 + Math.min(AMAX, a) / AMAX * (PD.x1 - PD.x0), py = t => PD.y0 - (t - PD.t0) / (PD.t1 - PD.t0) * (PD.y0 - PD.y1);
 const BATHS = [
   {id: 'cu', x: 40, nm: 'Cu 도금액', ions: ['cu', 'so4', 'h', 'cl'], lines: ['황산구리 + 황산 + Cl⁻ (수십 ppm)', '+ 첨가제 3종 (05장)', '양극(애노드, +): 인 함유 구리 (녹아서 보충)', '역할: 범프의 몸통 · 높이 · 전기 길', '관리: Cu · 산 · Cl · 첨가제 · 양극 피막'], layer: 'cu'},
-  {id: 'ni', x: 560, nm: 'Ni 도금액', ions: ['ni', 'h', 'cl'], lines: ['설파민산 니켈 + 붕산 (pH 완충)', '+ 소량 염화물 · 습윤제', '양극(+): 니켈 (녹아서 보충)', '역할: Cu와 솔더 사이 방벽', '관리: pH · 온도 · 응력 · 표면 산화'], layer: 'ni'},
-  {id: 'snag', x: 1080, nm: 'SnAg 도금액', ions: ['sn', 'ag', 'ms', 'sn4'], lines: ['메탄설폰산(MSA) + Sn²⁺ + Ag⁺', '+ 착화제 (Ag⁺를 붙잡아 둔다)', '양극(+): 불용성 또는 Sn + 분리막', '역할: 녹아서 붙는 솔더', '관리: Sn²⁺ · Ag · 산 · Sn⁴⁺ · 착화제'], layer: 'sn'}
+  {id: 'ni', x: 560, nm: 'Ni 도금액', ions: ['ni', 'h', 'cl'], lines: ['설파민산 니켈 + 붕산 (pH 완충)', '+ 소량 염화물 · 습윤제', '양극(애노드, +): 니켈 (녹아서 보충)', '역할: Cu와 솔더 사이 방벽', '관리: pH · 온도 · 응력 · 표면 산화'], layer: 'ni'},
+  {id: 'snag', x: 1080, nm: 'SnAg 도금액', ions: ['sn', 'ag', 'ms', 'sn4'], lines: ['메탄설폰산(MSA) + Sn²⁺ + Ag⁺', '+ 착화제 (Ag⁺를 붙잡아 둔다)', '양극(애노드, +): 불용성 또는 Sn + 분리막', '역할: 녹아서 붙는 솔더', '관리: Sn²⁺ · Ag · 산 · Sn⁴⁺ · 착화제'], layer: 'sn'}
 ];
 
 (window.EngrPlatingChapters = window.EngrPlatingChapters || []).push({
@@ -8375,7 +8379,7 @@ const DEF = [
     f: '습윤제 보충 · 탈기, 공기 흡입 차단, 전류밀도 · 교반 조정'},
   {id: 'nodule', nm: '노듈 (혹)', sn: '노듈', def: '표면에 솟은 혹 — 현장에서는 액 속 입자가 씨앗인 경우가 많다', st: [0, 1],
     map: '무작위(입자) · 같은 액을 쓰는 셀에서 함께 늘어남',
-    c: [['bath', '액 속 입자 — Cu 양극(애노드, +) 피막 조각 · Cu⁺에서 생긴 구리 가루 · Sn⁴⁺가 만든 산화주석 미세 입자 · 첨가제 분해물 · 첨가제 부족'], ['eq', '필터 막힘 · 파손, 분리막 손상'], ['cond', '한계전류에 가까운 전류밀도'], ['up', '시드 · PR 표면의 입자']],
+    c: [['bath', '액 속 입자 — Cu 양극(애노드, +) 피막 조각 · Cu⁺에서 생긴 구리 가루 · Sn⁴⁺가 만든 산화주석 미세 입자 · 첨가제 분해물'], ['bath', '첨가제 부족 — 억제 · 평탄이 약해 튀어나온 곳이 더 빨리 자람'], ['eq', '필터 막힘 · 파손, 분리막 손상'], ['cond', '한계전류에 가까운 전류밀도'], ['up', '시드 · PR 표면의 입자']],
     k: [COMMON, '노듈을 잘라 가운데 씨앗 입자의 성분을 EDS로', '액의 입자 수 · 탁도, 필터 ΔP · 교체 이력', 'Sn⁴⁺ · 첨가제 분석값, 같은 액의 다른 셀과 비교'],
     f: '필터 · 순환 점검, 양극 · 분리막 관리, 액 나이 관리(bleed · 교체)'},
   {id: 'burnt', nm: '탄 도금 (거친 면)', sn: '탄 도금', def: '불에 탄 것이 아니다 — 전류가 너무 세서(한계전류 근처 · 초과) 금속이 가루처럼 어둡고 거칠게 쌓인 것', st: [0],
@@ -9181,7 +9185,16 @@ function sizeWraps(){
     b.hMax = b.card.offsetHeight;
     b.card.classList.remove('pl-all');
     b.mb = parseFloat(getComputedStyle(b.card).marginBottom) || 0;
-    b.el.style.minHeight = Math.round(b.hMax + b.mb + vh * (b.n * 0.36 + SLACK)) + 'px';
+    // 붙기 시작하는 높이 t0: 보통 화면 위 11 %, 머리가 긴 카드는 1단계 글이 화면 안에 다 들어오는 높이까지 올라간 뒤
+    const lis = [...b.card.querySelectorAll('.steps li')];
+    b.t0 = vh * 0.11;
+    if (lis.length){
+      const saved = lis.map(li => li.className);
+      lis.forEach((li, j) => li.classList.toggle('open', j === 0));
+      b.t0 = Math.min(b.t0, vh - 20 - (lis[0].getBoundingClientRect().bottom - b.card.getBoundingClientRect().top));
+      lis.forEach((li, j) => { li.className = saved[j]; });
+    }
+    b.el.style.minHeight = Math.round(b.hMax + b.mb + Math.max(vh * b.n * 0.36, b.hMax - vh * 0.89 + 34) + vh * (SLACK + 0.11) - b.t0) + 'px';
   });
 }
 // 따라 붙는 카드의 위치: 붙어 있는 동안 진행에 맞춰 천천히 올라가(긴 카드는 아래쪽 위젯까지 보이게) 지금 단계 글은 늘 화면 안에 둔다
@@ -9191,7 +9204,8 @@ function pinCards(){
   const tops = blocks.map(b => {
     if (b.n < 2 || st) return null;
     const c = b.card.offsetHeight, r = stuckR(b), p = r ? clamp((VIEW.scrollTop - r.s0) / r.len) : 0;
-    let t = lerp(vh * 0.11, Math.min(vh * 0.11, vh - c - 14), p);
+    const t0 = b.t0 == null ? vh * 0.11 : b.t0;
+    let t = lerp(t0, Math.min(t0, vh - c - 14), p);
     const li = b.card.querySelector('.steps li.on');
     if (li){
       const o = li.getBoundingClientRect().top - b.card.getBoundingClientRect().top;
@@ -9199,7 +9213,20 @@ function pinCards(){
     }
     return Math.round(Math.min(t, vh * 0.11));
   });
-  blocks.forEach((b, i) => { if (b.n > 1) b.card.style.top = tops[i] == null ? '' : tops[i] + 'px'; });
+  blocks.forEach((b, i) => {
+    if (b.n < 2) return;
+    if (tops[i] == null){ b.pinTop = null; b.card.style.top = ''; return; }
+    b.pinTo = tops[i];
+    if (b.pinTop == null || reduced || Math.abs(b.pinTo - b.pinTop) <= 24){ b.pinTop = b.pinTo; b.card.style.top = b.pinTo + 'px'; return; }
+    if (b.pinAnim) return;                                   // 한 번에 크게 바뀌면(단계 글 길이 차이) 0.2초쯤에 걸쳐 따라간다
+    const step = () => {
+      b.pinTop += (b.pinTo - b.pinTop) * 0.3;
+      if (Math.abs(b.pinTo - b.pinTop) < 1) b.pinTop = b.pinTo;
+      b.card.style.top = Math.round(b.pinTop) + 'px';
+      b.pinAnim = b.pinTop !== b.pinTo ? requestAnimationFrame(step) : null;
+    };
+    b.pinAnim = requestAnimationFrame(step);
+  });
 }
 
 // 보기 영역 (단계마다 확대할 수 있다)
@@ -9221,11 +9248,19 @@ function fitView(){
   const ox = ins.l + (sw - f.w * k) / 2 - f.x * k, oy = ins.t + (sh - f.h * k) / 2 - f.y * k;
   VB = {k, ox, oy};
   svg.setAttribute('viewBox', `${q1(-ox / k)} ${q1(-oy / k)} ${q1(r.width / k)} ${q1(r.height / k)}`);
+  // 확대 상자 밖 자르기 (viewN 일 때만)
+  const cr = svg.querySelector('#pl-fclip rect'), cg = cur && SC[ST[cur].ch ? ST[cur].ch.id : 'intro'];
+  Object.keys(SC).forEach(id => { if (!cg || SC[id] !== cg || !fto.clip) SC[id].g.removeAttribute('clip-path'); });
+  if (cr && cg && fto.clip){
+    cr.setAttribute('x', q1(f.x)); cr.setAttribute('y', q1(f.y)); cr.setAttribute('width', q1(f.w)); cr.setAttribute('height', q1(f.h));
+    cg.g.setAttribute('clip-path', 'url(#pl-fclip)');
+  }
 }
 // 단계의 확대 영역. 세로로 긴 무대(좁은 화면)에서는 장 파일이 따로 준 viewN 을 먼저 쓴다
 function focusOf(ch, step){
-  const narrow = stage && stage.clientWidth / Math.max(1, stage.clientHeight) < 1.15;
-  return (narrow && (step.viewN || ch.viewN)) || step.view || ch.view || null;
+  const vn = stacked() && stage.clientWidth / Math.max(1, stage.clientHeight) < 1.15 && (step.viewN || ch.viewN);
+  if (vn){ vn.clip = true; return vn; }       // 좁은 화면 전용 확대: 상자 밖은 잘라 HUD 밑으로 글이 깔리지 않게
+  return step.view || ch.view || null;
 }
 function setFocus(v){
   const to = v || FULL;
@@ -9259,6 +9294,7 @@ function build(){
     scenes += `<g class="pl-scene" data-ch="${esc(ch.id)}">${inner}</g>`;
   });
   svg.innerHTML = `<defs>
+    <clipPath id="pl-fclip"><rect x="0" y="0" width="${W0}" height="${H0}"/></clipPath>
     <filter id="pl-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
     <filter id="pl-soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter>
     <filter id="pl-hi" x="-30%" y="-30%" width="160%" height="160%"><feMorphology in="SourceAlpha" operator="dilate" radius="4" result="d"/><feFlood flood-color="#fbbf24"/><feComposite in2="d" operator="in" result="o"/><feGaussianBlur in="o" stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -9312,6 +9348,7 @@ function build(){
     if (!a) return;
     ev.preventDefault(); ev.stopPropagation();
     gotoChapter(a.getAttribute('data-go'));
+    if (!a.isConnected) try { VIEW.focus({preventScroll: true}); } catch (e){}   // 차례 장면이 떼어지면 초점을 보기 영역으로
   });
   root.addEventListener('click', ev => {
     const a = ev.target.closest && ev.target.closest('[data-go]');
@@ -9321,7 +9358,7 @@ function build(){
     gotoChapter(cid, sid);
   });
   VIEW.addEventListener('scroll', onScroll, {passive: true});
-  ['wheel', 'touchstart', 'mousedown'].forEach(t => VIEW.addEventListener(t, cancelScrollAnim, {passive: true}));
+  ['wheel', 'touchstart', 'mousedown'].forEach(t => VIEW.addEventListener(t, ev => { if (ev.type !== 'wheel' && ev.target.closest && ev.target.closest('.jz-tools,.jz-pres')) return; cancelScrollAnim(); }, {passive: true}));
   VIEW.addEventListener('keydown', ev => { if (['PageUp', 'PageDown', 'Home', 'End', ' ', 'ArrowUp', 'ArrowDown'].includes(ev.key)) cancelScrollAnim(); });
   window.addEventListener('resize', relayout);
   if (window.ResizeObserver){
@@ -9337,7 +9374,7 @@ function build(){
   setDeep(!!store.get('engr-edu.plating.deep', false));
   fitView();
   apply('intro');
-  if (reduced) try { svg.pauseAnimations(); } catch (e){}   // 움직임 줄이기: 이온 · 거품도 멈춘다
+  if (reduced) try { svg.pauseAnimations(); svg.setCurrentTime(5.5); } catch (e){}   // 움직임 줄이기: 이온 · 거품도 멈춘다 (결정이 다 자란 뒤의 한 장면)
 }
 
 function chapterCard(ch){
@@ -9366,7 +9403,7 @@ function buildCards(){
     card.querySelectorAll('.steps li').forEach(li => {
       li.tabIndex = 0; li.setAttribute('role', 'button');
       li.addEventListener('click', () => gotoSub(b, +li.dataset.k));
-      li.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); gotoSub(b, +li.dataset.k); } });
+      li.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); ev.stopPropagation(); gotoSub(b, +li.dataset.k); } });
     });
     return card;
   };
@@ -9443,8 +9480,9 @@ function anchorOffset(){
 // 데스크톱: 카드가 실제로 붙어 있는 스크롤 구간 [s0, s0 + len] 을 단계 수로 고르게 나눈다 (다 펼친 높이 기준이라 단계가 바뀌어도 구간이 그대로)
 function stuckR(b){
   if (b.n < 2 || !b.hMax || stacked()) return null;
-  const len = b.h - b.hMax - (b.mb || 0) - VIEW.clientHeight * SLACK;
-  return len > 40 ? {s0: b.top - VIEW.clientHeight * 0.11, len} : null;
+  const vh = VIEW.clientHeight, t0 = b.t0 == null ? vh * 0.11 : b.t0;
+  const len = b.h - b.hMax - (b.mb || 0) - vh * (SLACK + 0.11) + t0;
+  return len > 40 ? {s0: b.top - t0, len} : null;
 }
 // 좁은 화면(카드가 장면 아래로 흐른다): 장면 아래 보이는 영역의 45 % 줄을 넘은 마지막 단계가 지금 단계
 function liLine(){ const sh = stage.offsetHeight; return sh + (VIEW.clientHeight - sh) * 0.45; }
@@ -9483,8 +9521,10 @@ function resolvePos(){
   return {b, sub};
 }
 let ticking = false, activeCard = null;
+let lastTop = -1;
 function onScroll(){
-  hideTip();
+  if (!VIEW.classList.contains('active') || !VIEW.clientHeight) return;   // 다른 탭에 있는 동안(보이지 않음)은 자리를 셈하지 않는다
+  if (VIEW.scrollTop !== lastTop){ lastTop = VIEW.scrollTop; hideTip(); }
   if (ticking || pres || scrollAnim) return;          // 코드가 스크롤을 옮기는 중에는 지나가는 단계를 켜지 않는다 (목표 단계는 이미 켜 둠)
   ticking = true;
   requestAnimationFrame(() => {
@@ -9545,7 +9585,8 @@ function goState(s){
   // 그 단계 구간 안으로 가장 짧게 옮긴다 (위젯을 쥐고 있는 손 아래에서 카드가 크게 움직이지 않게)
   const bt = beats[k]; measure();
   const [lo, hi] = subRange(bt.b, bt.sub);
-  scrollViewTo(clamp(VIEW.scrollTop, lo, Math.max(lo, hi)), true);
+  const m = Math.max(0, hi - lo) * 0.25;
+  scrollViewTo(clamp(VIEW.scrollTop, lo + m, Math.max(lo + m, hi - m)), true);
   if (scrollAnim) navTo = {b: bt.b, sub: bt.sub};
 }
 function curBeat(){
@@ -9561,6 +9602,8 @@ function enterPres(){
   if (pres) return;
   pres = {k: curBeat()};
   root.classList.add('pres');
+  const nx = stage.querySelector('.jz-pres [data-act=next]');
+  if (nx) try { nx.focus({preventScroll: true}); } catch (e){}
   try { if (root.requestFullscreen) root.requestFullscreen().catch(() => {}); } catch (e){}
   presApply();
 }
@@ -9585,7 +9628,7 @@ function restoreBeat(bt){
   let n = 0, same = 0;
   const tick = () => {
     if (pres || tok !== restoreTok) return;
-    if (!n) sizeWraps();
+    if (!n){ sizeWraps(); if (document.activeElement === document.body) try { VIEW.focus({preventScroll: true}); } catch (e){} }
     fitView(); measure();
     const top = beatPos(bt.b, bt.sub);
     if (Math.abs(VIEW.scrollTop - top) > 2){ VIEW.scrollTop = top; same = 0; } else same++;
@@ -9662,11 +9705,15 @@ function relayout(){
   if (!keep){ const bt = beats.find(x => x.s === cur); if (bt) keep = {b: bt.b, sub: bt.sub}; }
   const sc = ST[cur];
   if (sc) setFocus(sc.ch ? focusOf(sc.ch, sc.ch.steps[sc.k]) : null);
-  fitView(); sizeWraps(); measure();
+  fitView(); pinCards(); sizeWraps(); measure();          // pinCards 먼저: 좁은 화면으로 바뀌면 데스크톱 top 값을 지운 뒤 잰다
   if (keep){ cancelScrollAnim(); VIEW.scrollTop = beatPos(keep.b, keep.sub); }
   pinCards(); onScroll();
 }
-document.addEventListener('engr:tab', ev => { if (ev.detail === 'plating') activateTab(); else if (svg) try { svg.pauseAnimations(); } catch (e){} });   // 다른 탭에서는 움직임을 멈춘다
+document.addEventListener('engr:tab', ev => {
+  if (ev.detail === 'plating') return activateTab();
+  if (scrollAnim){ cancelAnimationFrame(scrollAnim); scrollAnim = null; navTo = null; }   // 옮겨 가던 중이면 목표 단계(cur)를 그대로 두고 멈춘다
+  if (svg) try { svg.pauseAnimations(); } catch (e){}                                    // 다른 탭에서는 움직임을 멈춘다
+});
 if (VIEW.classList.contains('active')) activateTab();
 window.EngrPlating = {
   get state(){ const st = ST[cur] || {}; return {state: cur, chapter: st.ch ? st.ch.id : 'intro', step: st.ch ? st.ch.steps[st.k].id : null, pres: pres ? pres.k : null, beats: beats.length, auto: !!auto, deep: !!(root && root.classList.contains('deep'))}; },

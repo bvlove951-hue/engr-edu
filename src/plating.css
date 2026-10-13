@@ -315,6 +315,7 @@
   .pl-line button,.pl-line .pt{flex:none}
   .pl .jcw.multi{min-height:0 !important}
   .jc.pl-card .steps li em{display:block}   /* 좁은 화면은 카드가 흘러가므로 단계 설명을 모두 펼쳐 둔다 (펼침이 바뀌며 글이 밀리지 않게) */
+  .pl .jc.pl-card .steps li.open em{min-height:0}   /* 장 파일이 데스크톱용으로 둔 최소 높이는 여기서 뺀다 */
   .jc .pl-terms dl{grid-template-columns:1fr}
   .jc .pl-terms dt{white-space:normal}
 }

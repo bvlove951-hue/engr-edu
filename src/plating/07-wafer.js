@@ -40,13 +40,15 @@ function sci(v){
 }
 // 위젯이 권하는 손잡이: 지금 꺼져 있거나 더 움직일 수 있는 것 중, 이 모델에서 실제로 균일도가 좋아지는 것만
 const KDN = {hi: 'mid', mid: 'lo'}, KUP = {lo: 'mid', mid: 'hi'};
-function levers(st, now){
+function levers(st, now, kind){
+  // 터미널 효과가 큰데 전도도↑ 를 권할 때는 왜 그런지 함께 적는다 (전도도↑ 는 터미널 효과를 키우지만 가장자리 꼬리를 더 줄인다)
+  const why = kind === 'terminal' ? '(중심은 조금 더 얇아지지만 가장자리 꼬리가 더 줄어 전체 범위는 줄어듭니다)' : '';
   const L = [
     [!st.plate, {plate: true}, ['고저항판을 넣거나', '고저항판을 넣어 보세요']],
     [!st.shield, {shield: true}, ['실드를 켜거나', '실드를 켜 보세요']],
     [st.j > 2, {j: Math.max(2, Math.round(st.j / 2))}, ['전류밀도를 낮추거나', '전류밀도를 낮춰 보세요']],
     [!!KDN[st.k], {k: KDN[st.k]}, ['전도도를 낮추거나', '전도도를 낮춰 보세요']],
-    [!!KUP[st.k], {k: KUP[st.k]}, ['전도도를 높이거나', '전도도를 높여 보세요']]
+    [!!KUP[st.k], {k: KUP[st.k]}, ['전도도를 높이거나' + why, '전도도를 높여 보세요' + why]]
   ];
   const good = L.filter(l => l[0]).map(l => [l[2], profile(Object.assign({}, st, l[1])).unif]).filter(x => x[1] < now - 0.3).sort((a, b) => a[1] - b[1]).slice(0, 2);
   return good.length ? good.map((x, i) => x[0][i < good.length - 1 ? 0 : 1]).join(' ') + '.'
@@ -67,9 +69,9 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 앞 공정 · 
   ana: '<b>구멍이 숭숭 뚫린 물호스</b> — 수도꼭지(가장자리 접점)에서 들어온 물(전류)이 가는 내내 구멍(도금액 쪽)으로 샙니다. 꼭지에 가까운 구멍은 세게, 먼 끝(웨이퍼 중심)은 약하게 나옵니다. 호스가 굵으면(시드가 두꺼우면) 끝까지 고르고, 구멍마다 좁은 노즐(고저항판 · 억제제)을 달아도 고르게 됩니다. <i>한계: 중요한 것은 시드 저항과 "새는 길" 저항의 비율이고, 모서리로 몰리는 가장자리 효과는 이 비유에 없습니다.</i>',
   // viewN: 좁은(세로) 무대에서만 쓸 확대 영역 — 단면(왼쪽 위) · 맵 읽기(왼쪽 아래). 엔진이 step.viewN을 읽을 때만 쓰인다
   steps: [
-    {id: 'prim', t: '1차 분포 — 모서리에 몰린다', d: '반응 저항(04장의 표면 저항 · 톨게이트 — 곡선이 완만할수록 크다)이 없다고 보면(1차 분포, 최악의 경우) 전류선이 웨이퍼 모서리로 몰려 가장자리가 두꺼워집니다. 억제제 · 낮은 전류밀도로 반응 저항이 크면 덜 몰립니다. 범프 웨이퍼에서는 가장자리 다이가 외톨이 범프처럼 전류를 더 받기도 합니다.', viewN: VN_XS},
+    {id: 'prim', t: '1차 분포 — 모서리에 몰린다', d: '반응 저항(04장의 톨게이트 — 곡선이 완만할수록 큽니다)이 없는 최악의 경우(1차 분포)에는 전류선이 웨이퍼 모서리로 몰려 가장자리가 두꺼워집니다. 억제제 · 낮은 전류밀도로 반응 저항이 크면 덜 몰립니다. 범프 웨이퍼에서는 가장자리 다이가 외톨이 범프처럼 전류를 더 받기도 합니다.', viewN: VN_XS},
     {id: 'term', t: '터미널 효과 — 구멍 뚫린 호스', d: '전류는 가장자리 접점에서 들어와 얇은 시드를 타고 중심으로 가면서 내내 액 쪽으로 새어 나갑니다. 시드가 얇을수록(저항이 클수록) 중심에 닿기 전에 전압을 잃어 중심이 얇아집니다.', viewN: VN_XS},
-    {id: 'fix', t: '고르게 만드는 방법', d: '두 가지 원리입니다. 모든 길에 같은 큰 저항을 더하거나(고저항판 · 억제제 · 낮은 전류밀도), 몰리는 가장자리 전류를 직접 덜어 냅니다(실드 · 보조 음극 · 구역 양극(애노드, +)). 회전은 둘레 방향만 평균하고 반지름 방향 차이는 못 고칩니다.', viewN: VN_XS},
+    {id: 'fix', t: '고르게 만드는 방법', d: '두 가지 원리입니다. 모든 길에 같은 큰 저항을 더하거나(고저항판 · 억제제 · 낮은 전류밀도), 몰리는 가장자리 전류를 직접 덜어 냅니다 — 실드 · 보조 음극 · 구역 양극(애노드, +). 회전은 둘레 방향만 평균하고 반지름 방향 차이는 못 고칩니다.', viewN: VN_XS},
     {id: 'map', t: '웨이퍼 맵 읽기', d: '웨이퍼는 돌면서 도금되므로 무늬 모양이 원인 자리를 알려 줍니다. ① 고리 — 셀에 고정된 부품, 또는 시드 · PR 두께처럼 둘레 방향으로 고른 원인. ② 한쪽 · 부채꼴 — 웨이퍼와 함께 도는 것의 치우침(접점 하나 · 립씰 · 비뚤게 앉은 웨이퍼). ③ 직선 줄무늬 — 노광 · PR 도포 · 패들 · 기포. 먼저 앞 공정 맵과 겹쳐 봅니다.', viewN: VN_MAP}
   ],
   css: `
@@ -95,6 +97,7 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 앞 공정 · 
 .jc .p07-w .kpi .s{font-size:10px;line-height:1.3;letter-spacing:-.3px}
 .jc .p07-msg{min-height:80px}
 @media (max-width:520px){.jc .p07-two{grid-template-columns:1fr}.jc .p07-w .kpi{flex:1 1 40%}}
+@media (min-width:1001px) and (max-width:1280px){.jc .p07-two{grid-template-columns:1fr}.jc .p07-w .kpi{flex:1 1 40%}}
 .pl-svg .p07-b{font-weight:800}`,
   icon(K){
     const {P, E} = K;
@@ -252,9 +255,9 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 앞 공정 · 
       const basis = (a, b) => `효과 하나만 있을 때 가장자리가 중심보다 두꺼운 정도는 ${a} · ${b}입니다(위 칸의 %는 평균 대비라 다릅니다).`;
       ctx.q('[data-o=msg]').innerHTML = pr.unif < 3 ? '고른 편입니다 (이 모델 기준). 시드가 바뀌거나 개구율이 다른 제품이 오면 다시 확인합니다.'
         : st.shield && pr.edge < Math.min(pr.center, 0.97) ? '<b>가장자리가 얇습니다</b> — 실드가 너무 많이 가립니다(과보정). 시드 · 개구율이 바뀌면 실드 설정도 다시 맞춰야 합니다.'
-        : tc > 1.5 * pr.E ? `<b>중심이 얇습니다</b> — 터미널 효과가 더 큽니다. ${basis(tT, tE)} ${levers(st, pr.unif)}`
-        : pr.E > 1.5 * tc ? `<b>가장자리가 두껍습니다</b> — 가장자리 효과가 더 큽니다. ${basis(tE, tT)} ${levers(st, pr.unif)}`
-        : `<b>두 효과가 비슷합니다.</b> ${basis(tT, tE)} ${levers(st, pr.unif)}`;
+        : tc > 1.5 * pr.E ? `<b>중심이 얇습니다</b> — 터미널 효과가 더 큽니다. ${basis(tT, tE)} ${levers(st, pr.unif, 'terminal')}`
+        : pr.E > 1.5 * tc ? `<b>가장자리가 두껍습니다</b> — 가장자리 효과가 더 큽니다. ${basis(tE, tT)} ${levers(st, pr.unif, 'edge')}`
+        : `<b>두 효과가 비슷합니다.</b> ${basis(tT, tE)} ${levers(st, pr.unif, 'both')}`;
       ctx.refresh();
     }
     ctx.range('seed', v => { st.seed = seedOf(v); render(); return st.seed.toFixed(2) + ' µm'; });

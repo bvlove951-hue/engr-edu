@@ -6,8 +6,8 @@ const cuFill = (r, k) => `fill:hsl(${22 + (k % 5) * 3},${48 + Math.round(r() * 1
 // 전류밀도(한계전류 대비) → 씨앗 수와 표면 상태 (개념 모델)
 //  한계보다 충분히 낮으면: 세게 밀수록(과전압↑) 씨앗이 많아 결정이 곱다
 //  한계에 가까우면: 공급이 모자라 튀어나온 곳이 앞서 거칠어지고, 더 가까우면 가루 · 나뭇가지
-function regime(cd){ return cd > 0.92 ? 'dend' : cd > 0.75 ? 'rough' : 'fine'; }
-function seeds(cd, add){ return Math.round((8 + 46 * Math.min(cd, 0.75) / 0.75) * (add ? 1.5 : 1)); }
+function regime(cd){ return cd > 0.93 ? 'dend' : cd >= 0.7 ? 'rough' : 'fine'; }   // 03 · 04장과 같은 경계 (0.7 · 0.93)
+function seeds(cd, add){ return Math.round((8 + 46 * Math.min(cd, 0.7) / 0.7) * (add ? 1.5 : 1)); }
 // 발표 모드 · 손대기 전: 단계마다 보여 줄 [전류밀도 %, 첨가제, 자기 풀림 뒤]
 const DEMO = {nuc: {cd: 40, add: true, age: false}, grain: {cd: 40, add: true, age: false}, imp: {cd: 40, add: true, age: false}, stress: {cd: 40, add: true, age: true}};
 
@@ -20,7 +20,7 @@ const DEMO = {nuc: {cd: 40, add: true, age: false}, grain: {cd: 40, add: true, a
   steps: [
     {id: 'nuc', t: '핵생성과 성장', d: '다른 금속 위(Cu 위 Ni, Ni 위 SnAg)에서는 씨앗(핵)이 새로 생겨 자라 만나야 하므로 표면 상태(산화막)가 중요합니다. 같은 금속 위(Cu 위 Cu)는 시드 결정을 이어 자라는 몫이 큽니다. 한계보다 충분히 낮은 범위에서는 세게 밀수록 씨앗이 많아 결정이 곱습니다.'},
     {id: 'grain', t: '결정립 — 막 속의 모자이크', d: '결정은 기둥 모양(주상)으로 자라기도 하고 작은 알갱이로 자라기도 합니다. 첨가제가 있으면 자라는 중에도 새 씨앗이 생겨 결정이 작게 유지됩니다. 결정 크기에 따라 굳기 · 전기 저항 · 식각 속도 · 솔더와의 반응이 달라집니다.'},
-    {id: 'imp', t: '불순물 — 막에 갇힌 것들', d: '첨가제 조각(S · Cl · C 등)이 결정 사이에 갇힐 수 있습니다. 갇힌 S(촉진제에서 옴)는, Cu가 솔더와 직접 붙는 곳(Ni 방벽이 없는 곳)을 고온에 오래 두면 계면에 작은 구멍(커켄달 보이드)을 키운다는 보고가 있습니다. 그래서 첨가제는 "많을수록 좋다"가 아닙니다.'},
+    {id: 'imp', t: '불순물 — 막에 갇힌 것들', d: '첨가제 조각(S · Cl · C 등)이 결정 사이에 갇힐 수 있습니다. Cu가 솔더와 직접 붙는 곳(Ni 방벽이 없는 곳)을 고온에 오래 두면, 막에 갇힌 S(촉진제에서 옴)가 계면의 작은 구멍(커켄달 보이드)을 키운다는 보고가 있습니다. 그래서 첨가제는 "많을수록 좋다"가 아닙니다.'},
     {id: 'stress', t: '응력과 자기 풀림', d: '막에 남은 힘(내부 응력)은 웨이퍼 전체에 깔린 막에서는 휨으로, 섬처럼 나뉜 범프에서는 크랙(당김) · 들뜸(밂)으로 나타납니다(Ni에서 특히 관리). Cu는 도금 뒤 상온에서도 결정이 커집니다(자기 풀림, 수 시간~수 주, 저항 약 10~20 %↓).'}
   ],
   icon(K){
@@ -121,7 +121,7 @@ const DEMO = {nuc: {cd: 40, add: true, age: false}, grain: {cd: 40, add: true, a
     const {voronoi, rng, PG, C, G, P} = K;
     const st = {cd: 0.4, add: true, age: false};
     function render(){
-      const rg = regime(st.cd), n = seeds(st.cd, st.add), rough = rg === 'fine' ? 0 : (st.cd - 0.75) / 0.25;
+      const rg = regime(st.cd), n = seeds(st.cd, st.add), rough = rg === 'fine' ? 0 : (st.cd - 0.7) / 0.3;
       // 위에서 본 표면: 같은 주기로 자라 만나는 칸
       const r = rng(31), pts = [];
       for (let k = 0; k < n; k++) pts.push([TV.x + r() * TV.w, TV.y + r() * TV.h]);
