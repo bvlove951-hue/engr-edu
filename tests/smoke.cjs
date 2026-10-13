@@ -425,11 +425,13 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   const pk0 = await page.evaluate(() => window.EngrPlating.state.pres);
   await page.keyboard.press('ArrowRight');
   await page.waitForTimeout(400);
-  const pk1 = await page.evaluate(() => ({ k: window.EngrPlating.state.pres, cap: document.querySelector('#view-plating .jz-cap .t').textContent }));
+  const pk1 = await page.evaluate(() => ({ k: window.EngrPlating.state.pres, s: window.EngrPlating.state.state, cap: document.querySelector('#view-plating .jz-cap .t').textContent }));
   await page.screenshot({ path: path.join(OUT, '10-plating-pres.png') });
   await page.keyboard.press('Escape');
-  await page.waitForTimeout(400);
-  ok(pk1.k === pk0 + 1 && pk1.cap.length > 3 && (await page.evaluate(() => window.EngrPlating.state.pres)) === null, `발표 모드: → 로 다음 (${pk1.cap}), Esc로 닫기`);
+  await page.waitForFunction(() => !document.fullscreenElement, null, {timeout: 6000}).catch(() => {});
+  await page.waitForTimeout(600);
+  const pkOut = await page.evaluate(() => ({ pres: window.EngrPlating.state.pres, s: window.EngrPlating.state.state, top: document.getElementById('view-plating').scrollTop }));
+  ok(pk1.k === pk0 + 1 && pk1.cap.length > 3 && pkOut.pres === null && pkOut.s === pk1.s && pkOut.top > 0, `발표 모드: → 로 다음 (${pk1.cap}), Esc로 닫으면 그 단계 자리로 (${pkOut.s})`);
   // 위젯 계산 — 슬라이더 · 버튼을 움직이면 숫자가 원리대로 바뀐다
   const plSet = (ch, id, v) => page.evaluate(([ch, id, v]) => { const i = window.EngrPlating.ctx(ch).card.querySelector(`input[data-i="${id}"]`); i.value = v; i.dispatchEvent(new Event('input', {bubbles: true})); }, [ch, id, v]);
   const plSeg = (ch, g, v) => page.evaluate(([ch, g, v]) => { const c = window.EngrPlating.ctx(ch); (c.card.querySelector(`.pl-seg[data-g="${g}"] button[data-v="${v}"]`) || c.note.querySelector(`.pl-seg[data-g="${g}"] button[data-v="${v}"]`)).click(); }, [ch, g, v]);
