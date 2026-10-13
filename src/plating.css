@@ -34,7 +34,7 @@
 .pl-line button.on{background:var(--j-acc2);border-color:var(--j-acc2);color:#1b1203;font-weight:800;box-shadow:0 0 14px rgba(245,158,11,.45)}
 .jz.pres.pl .pl-line{bottom:auto;top:72px;left:20px;right:20px}
 .jz.pres.pl .pl-head .sb{display:none}
-.jz.pres.pl .jz-cap{bottom:24px}
+.jz.pres.pl .jz-cap{bottom:20px;left:20px;transform:none;width:min(880px,calc(100% - 400px))}
 
 /* 카드 */
 /* 단계 설명은 지금 단계만 펼친다 (카드가 화면을 넘지 않게). 노트 · 발표 모드 자막에는 모두 나온다 */
@@ -291,15 +291,22 @@
 @media (min-width: 1001px) and (max-width: 1280px){
   /* 무대가 좁으면 도구 단추를 제목 아래 줄로 */
   .pl-head{max-width:calc(100% - 28px)}
-  .pl .jz-tools{top:74px;right:14px}
+  .jz.pl{grid-template-columns:minmax(0,1fr) 380px}
+  .pl .jz-tools{top:84px;right:14px}
   .jz.pres.pl .jz-tools{top:14px}
 }
 @media (max-width: 1000px){
   .pl-head{max-width:calc(100% - 16px);left:8px;top:8px}
   .pl-head .no{font-size:22px;line-height:36px;padding:0 8px}
   .pl-head .nm{font-size:15px}
-  .pl-head .sb{display:none}
-  .pl .jz-tools{top:auto;bottom:44px;right:8px;left:auto;z-index:2}
+  .pl-head .sb{font-size:12px}
+  .pl .jz-tools{top:auto;bottom:52px;right:8px;left:auto;z-index:2}
+  .jz.pres.pl .jz-tools{display:none}
+  .jz.pres.pl .pl-line{top:58px;left:8px;right:8px}
+  .jz.pres.pl .jz-cap{left:8px;right:8px;width:auto;transform:none;bottom:54px;max-height:34vh;overflow:auto;padding:10px 12px;pointer-events:auto}
+  .jz.pres.pl .jz-cap .t{font-size:17px}
+  .jz.pres.pl .jz-cap .d{font-size:13px}
+  .jz.pres.pl .jz-pres{left:8px;right:8px;bottom:10px;justify-content:flex-end;flex-wrap:wrap}
   .pl .jz-tools .tl{display:none}
   .pl .jz-tools .ts{display:inline}
   .pl .jz-tools button{font-size:11px;padding:3px 7px}
@@ -307,10 +314,25 @@
   .pl-line .chipsr::-webkit-scrollbar{display:none}
   .pl-line button,.pl-line .pt{flex:none}
   .pl .jcw.multi{min-height:0 !important}
+  .jc.pl-card .steps li em{display:block}   /* 좁은 화면은 카드가 흘러가므로 단계 설명을 모두 펼쳐 둔다 (펼침이 바뀌며 글이 밀리지 않게) */
   .jc .pl-terms dl{grid-template-columns:1fr}
   .jc .pl-terms dt{white-space:normal}
 }
+/* 휴대폰: 장 제목을 두 줄까지 (질문이 잘리지 않게) */
+@media (max-width: 500px){
+  .pl-head .nm{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:14px;line-height:1.25}
+}
+/* 손가락으로 누르는 화면: 단추를 크게 */
+@media (pointer: coarse){
+  .jc .pl-seg button,.jc .pl-chips button{min-height:34px;padding:6px 10px}
+  .jc .pl-seg{gap:6px}
+  .pl-line button{min-height:32px}
+  .pl .jz-tools button{min-height:32px;padding:6px 9px}
+  .jc .pl-w input[type=range]{height:28px}
+  .jz-pres button{min-height:34px}
+}
 @media (prefers-reduced-motion: reduce){
+  .pl-svg *{animation:none !important}
   .pl-scene.cur{animation:none}
   .pl-svg .gy{transition:none}
   .s-flow,.s-flow2{animation:none}

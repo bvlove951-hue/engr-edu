@@ -165,7 +165,7 @@ function drawCover(){
   s += L(X0, Y, X1, Y, 's-edge');
   [[1e-9, '1 nm'], [1e-6, '1 µm'], [1e-3, '1 mm'], [1, '1 m']].forEach(([v, t]) => { s += L(lg(v), Y - 8, lg(v), Y + 8, 's-edge') + T(lg(v), Y + 30, t, 't-dim'); });
   // [장id, 크기(m), 이름, 위(true) / 아래] — 가까운 표시끼리 위아래로 엇갈리게
-  const marks = [['additive', 2e-9, '분자', true], ['grain', 2e-7, '결정', false], ['surface', 2e-5, '표면', true], ['pattern', 6e-5, '범프', false], ['defects', 4e-3, '다이', true], ['cell', 0.08, '비커', true], ['wafer', 0.3, '웨이퍼', false], ['tool', 2.2, '장비', true]];
+  const marks = [['additive', 2e-9, '분자', true], ['grain', 2e-7, '결정', false], ['surface', 2e-5, '표면', true], ['defects', 6e-5, '범프 단면', false], ['pattern', 4e-3, '다이', true], ['cell', 0.08, '비커', true], ['wafer', 0.3, '웨이퍼', false], ['tool', 2.2, '장비', true]];
   marks.forEach(([id, v, t, up]) => {
     const ch = BYID[id]; if (!ch) return;
     const x = lg(v);
@@ -181,13 +181,24 @@ function drawCover(){
       t += T(x + 20, y + 56, ch.no, 'pl-tno', 'start') + T(x + 88, y + 48, ch.short || ch.title, 't-lbl', 'start') + T(x + 88, y + 80, ch.scale || '', 't-dim', 'start');
       t += T(x + 22, y + 114, ch.hook || '', 'pl-hook', 'start');
       if (ch.icon) t += G(ch.icon(K), {transform: `translate(${x + TILE.w - 92} ${y + 18}) scale(1.1)`});
-      s += G(t, {class: 'pl-go', 'data-go': ch.id, 'data-tip': ch.title + '\n' + (ch.one || '')});
+      s += G(t, {class: 'pl-go', 'data-go': ch.id, 'data-tip': ch.title + '\n' + (ch.one || ''), tabindex: '0', role: 'link', 'aria-label': `${ch.no} ${ch.title}`});
     });
   });
   return s;
 }
 
 /* ---------------- 4. 엔진 ---------------- */
+let tipEl = null;
+function hideTip(){ if (tipEl) tipEl.style.display = 'none'; }
+function showTip(ev){
+  const t = ev.target.closest && ev.target.closest('[data-tip]');
+  if (!t || t.closest('.off')) return hideTip();
+  tipEl.textContent = t.getAttribute('data-tip');
+  tipEl.style.display = 'block';
+  const r = stage.getBoundingClientRect();
+  tipEl.style.left = Math.max(8, Math.min(ev.clientX - r.left + 14, r.width - tipEl.offsetWidth - 8)) + 'px';
+  tipEl.style.top = Math.max(8, Math.min(ev.clientY - r.top + 14, r.height - tipEl.offsetHeight - 8)) + 'px';
+}
 let built = false, root, stage, svg, SC = {}, blocks = [], beats = [], pres = null, auto = null, cur = null, VB = {k: 1, ox: 0, oy: 0};
 const CTX = {};
 const reduced = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e){ return false; } })();
@@ -199,13 +210,23 @@ function apply(s){
   const prev = cur, st = ST[s], ch = st.ch;
   cur = s;
   const sid = ch ? ch.id : 'intro';
-  if (!prev || ST[prev].ch !== ch) Object.keys(SC).forEach(id => SC[id].g.classList.toggle('cur', id === sid));
+  if (!prev || ST[prev].ch !== ch){
+    hideTip();
+    // 지금 장면만 SVG에 둔다: 숨은 장면의 움직임(SMIL · CSS)이 돌지 않게. 위젯은 떼어 둔 장면도 그대로 고칠 수 있다
+    Object.keys(SC).forEach(id => {
+      const sc = SC[id], on = id === sid;
+      sc.g.classList.toggle('cur', on);
+      if (!sc.ph) sc.ph = document.createComment('pl-scene ' + id);
+      if (on && !sc.g.isConnected && sc.ph.isConnected) sc.ph.replaceWith(sc.g);
+      else if (!on && sc.g.isConnected) sc.g.replaceWith(sc.ph);
+    });
+  }
   if (ch){
     const sc = SC[ch.id], k = st.k, step = ch.steps[k];
     sc.g.dataset.step = step.id;
     vis(ch, k);
     if (ch.onStep) try { ch.onStep(K, CTX[ch.id], step.id); } catch (e){ console.error(e); }
-    setFocus(step.view || ch.view || null);
+    setFocus(focusOf(ch, step));
   } else setFocus(null);
   hud();
   syncCards();
@@ -227,10 +248,13 @@ function hud(){
   head.querySelector('.no').textContent = ch ? ch.no : '00';
   head.querySelector('.nm').textContent = ch ? ch.title : '전해도금 — 쉽게, 그러나 깊게';
   head.querySelector('.tl2').textContent = ch ? `${ch.part}부 ${PARTS[ch.part]} · ${ch.scale}` : `13장 · 3부`;
-  head.querySelector('.sb').textContent = ch ? `${st.k + 1}/${ch.steps.length} ${ch.steps[st.k].t}` : '위의 차례에서 장을 누르거나 스크롤하세요';
+  head.querySelector('.sb').textContent = ch ? `${st.k + 1}/${ch.steps.length} ${ch.steps[st.k].t}` : '아래 차례 타일이나 칩을 누르거나 스크롤하세요';
   const ci = ch ? CHS.indexOf(ch) : -1;
   stage.querySelectorAll('.pl-line button').forEach(b => { const k = +b.dataset.k; b.classList.toggle('on', k === ci); b.classList.toggle('past', k < ci); });
   stage.querySelector('.pl-line .bar i').style.width = (100 * ORDER.indexOf(cur) / (ORDER.length - 1)) + '%';
+  // 칩 줄이 옆으로 넘치면(좁은 화면) 지금 장 칩을 가운데로
+  const row = stage.querySelector('.pl-line .chipsr'), onb = row && row.querySelector('button.on');
+  if (onb && row.scrollWidth > row.clientWidth + 2){ const rr = row.getBoundingClientRect(), br = onb.getBoundingClientRect(); row.scrollLeft += (br.left + br.width / 2) - (rr.left + rr.width / 2); }
 }
 function syncCards(){
   const st = ST[cur];
@@ -241,26 +265,36 @@ function syncCards(){
   });
   pinCards();
 }
-// 단계 카드 블록의 높이: 단계 수만큼 스크롤 길이 + 카드를 다 펼친 높이보다 길게 (단계 설명을 펼치고 접어도 블록 길이가 그대로이게)
+// 단계 카드 블록의 높이: 카드가 화면에 붙어 있는 구간에서 단계마다 0.36 화면씩 + 카드를 다 펼친 높이 + 카드 아래 여백 + 여유
+const SLACK = 0.1;
 function sizeWraps(){
+  if (pres) return;                                   // 발표 모드에서는 카드가 숨어 있어 잴 수 없다
   const vh = VIEW.clientHeight;
   blocks.forEach(b => {
     if (b.n < 2) return;
     b.card.classList.add('pl-all');
-    const hMax = b.card.offsetHeight;
+    b.hMax = b.card.offsetHeight;
     b.card.classList.remove('pl-all');
-    b.el.style.minHeight = Math.round(Math.max(vh * (b.n * 0.36 + 0.44), hMax + vh * 0.25)) + 'px';
+    b.mb = parseFloat(getComputedStyle(b.card).marginBottom) || 0;
+    b.el.style.minHeight = Math.round(b.hMax + b.mb + vh * (b.n * 0.36 + SLACK)) + 'px';
   });
 }
-// 따라 붙는 카드가 화면보다 길면 아래쪽(위젯)이 보이도록 카드 아래 끝을 화면 아래에 맞춘다
+// 따라 붙는 카드의 위치: 붙어 있는 동안 진행에 맞춰 천천히 올라가(긴 카드는 아래쪽 위젯까지 보이게) 지금 단계 글은 늘 화면 안에 둔다
 function pinCards(){
+  if (pres || !blocks.length) return;
   const vh = VIEW.clientHeight, st = stacked();
-  blocks.forEach(b => {
-    if (b.n < 2) return;
-    if (st){ b.card.style.top = ''; return; }
-    const top = Math.min(vh * 0.11, vh - b.card.offsetHeight - 14);
-    b.card.style.top = Math.round(top) + 'px';
+  const tops = blocks.map(b => {
+    if (b.n < 2 || st) return null;
+    const c = b.card.offsetHeight, r = stuckR(b), p = r ? clamp((VIEW.scrollTop - r.s0) / r.len) : 0;
+    let t = lerp(vh * 0.11, Math.min(vh * 0.11, vh - c - 14), p);
+    const li = b.card.querySelector('.steps li.on');
+    if (li){
+      const o = li.getBoundingClientRect().top - b.card.getBoundingClientRect().top;
+      t = Math.max(Math.min(t, vh - 20 - o - li.offsetHeight), 8 - o);
+    }
+    return Math.round(Math.min(t, vh * 0.11));
   });
+  blocks.forEach((b, i) => { if (b.n > 1) b.card.style.top = tops[i] == null ? '' : tops[i] + 'px'; });
 }
 
 // 보기 영역 (단계마다 확대할 수 있다)
@@ -269,19 +303,24 @@ let fcur = Object.assign({}, FULL), fto = FULL, fanim = null;
 function fitView(){
   const r = stage.getBoundingClientRect();
   if (!r.width || !r.height) return;
-  const ins = stacked() ? {l: 4, t: 56, r: 4, b: 84} : pres ? {l: 20, t: 124, r: 20, b: 176} : {l: 10, t: 74, r: 10, b: 70};
-  if (!stacked()){
-    // 위쪽 제목 · 도구, 아래(발표 모드에서는 위) 칩 줄이 실제로 차지한 만큼 비운다
-    const hud = ['.pl-head', '.jz-tools'].concat(pres ? ['.pl-line'] : []).map(q => stage.querySelector(q)).filter(Boolean);
-    hud.forEach(e => { if (e.offsetHeight) ins.t = Math.max(ins.t, e.offsetTop + e.offsetHeight + 8); });
-    const line = stage.querySelector('.pl-line');
-    if (!pres && line && line.offsetHeight) ins.b = Math.max(ins.b, r.height - line.offsetTop + 8);
-  }
+  const st = stacked();
+  const ins = pres ? (st ? {l: 6, t: 112, r: 6, b: 70} : {l: 20, t: 124, r: 20, b: 176}) : st ? {l: 4, t: 56, r: 4, b: 84} : {l: 10, t: 74, r: 10, b: 70};
+  // 위쪽 제목(· 넓은 화면의 도구 · 발표 모드의 칩 줄), 아래쪽 칩 줄 · 좁은 화면의 도구 · 발표 자막이 실제로 차지한 만큼 비운다
+  const q = sel => stage.querySelector(sel);
+  ['.pl-head'].concat(st ? [] : ['.jz-tools']).concat(pres ? ['.pl-line'] : []).map(q).filter(Boolean)
+    .forEach(e => { if (e.offsetHeight) ins.t = Math.max(ins.t, e.offsetTop + e.offsetHeight + 8); });
+  (pres ? ['.jz-cap'] : ['.pl-line'].concat(st ? ['.jz-tools'] : [])).map(q).filter(Boolean)
+    .forEach(e => { if (e.offsetHeight) ins.b = Math.max(ins.b, r.height - e.offsetTop + 8); });
   const f = fcur, sw = Math.max(80, r.width - ins.l - ins.r), sh = Math.max(80, r.height - ins.t - ins.b);
   const k = Math.min(sw / f.w, sh / f.h);
   const ox = ins.l + (sw - f.w * k) / 2 - f.x * k, oy = ins.t + (sh - f.h * k) / 2 - f.y * k;
   VB = {k, ox, oy};
   svg.setAttribute('viewBox', `${q1(-ox / k)} ${q1(-oy / k)} ${q1(r.width / k)} ${q1(r.height / k)}`);
+}
+// 단계의 확대 영역. 세로로 긴 무대(좁은 화면)에서는 장 파일이 따로 준 viewN 을 먼저 쓴다
+function focusOf(ch, step){
+  const narrow = stage && stage.clientWidth / Math.max(1, stage.clientHeight) < 1.15;
+  return (narrow && (step.viewN || ch.viewN)) || step.view || ch.view || null;
 }
 function setFocus(v){
   const to = v || FULL;
@@ -347,28 +386,28 @@ function build(){
   });
   hudEl.querySelector('[data-act=pres]').addEventListener('click', enterPres);
   hudEl.querySelector('[data-act=deep]').addEventListener('click', () => setDeep(!root.classList.contains('deep')));
-  hudEl.querySelector('[data-act=auto]').addEventListener('click', () => { if (!pres) enterPres(); toggleAuto(true); });
+  hudEl.querySelector('[data-act=auto]').addEventListener('click', () => { if (pres && auto) return toggleAuto(false); if (!pres) enterPres(); toggleAuto(true); });
   hudEl.querySelector('[data-act=auto2]').addEventListener('click', () => toggleAuto());
   hudEl.querySelector('[data-act=prev]').addEventListener('click', () => presGo(pres.k - 1));
   hudEl.querySelector('[data-act=next]').addEventListener('click', () => presGo(pres.k + 1));
   hudEl.querySelector('[data-act=exit]').addEventListener('click', () => exitPres());
-  // 툴팁
-  const tipEl = hudEl.querySelector('.jz-tip');
-  svg.addEventListener('pointermove', ev => {
-    const t = ev.target.closest && ev.target.closest('[data-tip]');
-    if (!t || t.closest('.off')){ tipEl.style.display = 'none'; return; }
-    tipEl.textContent = t.getAttribute('data-tip');
-    tipEl.style.display = 'block';
-    const r = stage.getBoundingClientRect();
-    tipEl.style.left = Math.min(ev.clientX - r.left + 14, r.width - tipEl.offsetWidth - 8) + 'px';
-    tipEl.style.top = Math.min(ev.clientY - r.top + 14, r.height - tipEl.offsetHeight - 8) + 'px';
-  });
-  svg.addEventListener('pointerleave', () => { tipEl.style.display = 'none'; });
+  // 툴팁: 마우스는 올리면, 터치는 누르면
+  tipEl = hudEl.querySelector('.jz-tip');
+  svg.addEventListener('pointermove', ev => { if (ev.pointerType === 'mouse') showTip(ev); });
+  svg.addEventListener('pointerdown', ev => { if (ev.pointerType !== 'mouse') showTip(ev); });
+  svg.addEventListener('pointerleave', ev => { if (ev.pointerType === 'mouse') hideTip(); });
   root.appendChild(stage);
   root.appendChild(h('div', 'jz-cards'));
   VIEW.appendChild(root);
   buildCards();
   // 장으로 가는 링크: 무대(차례 타일)와 카드의 [data-go="장id"] 또는 "장id.단계id"
+  root.addEventListener('keydown', ev => {
+    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+    const a = ev.target.closest && ev.target.closest('.pl-go[data-go]');
+    if (!a) return;
+    ev.preventDefault(); ev.stopPropagation();
+    gotoChapter(a.getAttribute('data-go'));
+  });
   root.addEventListener('click', ev => {
     const a = ev.target.closest && ev.target.closest('[data-go]');
     if (!a || !root.contains(a)) return;
@@ -378,9 +417,14 @@ function build(){
   });
   VIEW.addEventListener('scroll', onScroll, {passive: true});
   ['wheel', 'touchstart', 'mousedown'].forEach(t => VIEW.addEventListener(t, cancelScrollAnim, {passive: true}));
-  window.addEventListener('resize', () => { if (VIEW.classList.contains('active')){ fitView(); sizeWraps(); pinCards(); measure(); onScroll(); } });
+  VIEW.addEventListener('keydown', ev => { if (['PageUp', 'PageDown', 'Home', 'End', ' ', 'ArrowUp', 'ArrowDown'].includes(ev.key)) cancelScrollAnim(); });
+  window.addEventListener('resize', relayout);
   if (window.ResizeObserver){
-    new ResizeObserver(() => { if (VIEW.classList.contains('active') && !pres){ measure(); onScroll(); } }).observe(root.querySelector('.jz-cards'));
+    new ResizeObserver(() => {
+      if (!VIEW.classList.contains('active') || pres) return;
+      if (blocks.some(b => b.n > 1 && b.hMax && b.card.offsetHeight > b.hMax)) sizeWraps();   // 위젯 글이 길어져 카드가 잰 높이를 넘으면 다시 잰다
+      measure(); onScroll();
+    }).observe(root.querySelector('.jz-cards'));
     new ResizeObserver(() => fitView()).observe(stage);
   }
   document.addEventListener('keydown', onKey);
@@ -388,6 +432,7 @@ function build(){
   setDeep(!!store.get('engr-edu.plating.deep', false));
   fitView();
   apply('intro');
+  if (reduced) try { svg.pauseAnimations(); } catch (e){}   // 움직임 줄이기: 이온 · 거품도 멈춘다
 }
 
 function chapterCard(ch){
@@ -413,13 +458,17 @@ function buildCards(){
     wrap.appendChild(card); col.appendChild(wrap);
     const b = Object.assign({el: wrap, card, states, n: states.length}, extra || {});
     blocks.push(b);
-    card.querySelectorAll('.steps li').forEach(li => li.addEventListener('click', () => scrollToBlock(b, (+li.dataset.k + 0.5) / b.n)));
+    card.querySelectorAll('.steps li').forEach(li => {
+      li.tabIndex = 0; li.setAttribute('role', 'button');
+      li.addEventListener('click', () => gotoSub(b, +li.dataset.k));
+      li.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); gotoSub(b, +li.dataset.k); } });
+    });
     return card;
   };
   add(`<div class="kick">전해도금 · 13장</div><div class="big">전기로 금속을 쌓는다</div><h3>원리부터 현장까지, 쉽게 — 그러나 깊게</h3>
     <p>도금은 <b>전자를 건네 금속 이온을 금속 원자로 바꾸는 일</b>입니다. 이 탭은 그 한 문장에서 출발해, 왜 가장자리가 두꺼운지, 왜 Ag 함량이 흔들리는지, 이 불량은 어디서 왔는지를 스스로 추론할 수 있게 13장으로 나눠 설명합니다.</p>
     <ul class="jl"><li><b>1부 원리</b> — 도금조, 패러데이 법칙, 이온이 오는 길, 과전압</li><li><b>2부 모양과 품질</b> — 첨가제, 막의 속, 웨이퍼 분포, 패턴 효과</li><li><b>3부 현장</b> — 장비 해부, Cu · Ni · SnAg 도금액, 도금액 관리, 불량 도감, 인자 지도</li></ul>
-    <ul class="jl"><li>스크롤 · ← → 키로 한 단계씩, 아래 칩이나 차례 타일로 바로 이동</li><li>카드의 <b>직접 해 보기</b>를 움직이면 장면이 바뀝니다</li><li><b>📖 깊게 보기</b> — 「한 걸음 더(전문)」를 모두 펼침 · <b>▶ 발표 모드</b> · <b>⏵ 자동 재생</b></li><li>장면의 이온 · 부품 · 층에 마우스를 올리면 이름과 역할</li></ul>
+    <ul class="jl"><li>스크롤 · ← → 키로 한 단계씩, 아래 칩이나 차례 타일로 바로 이동</li><li>카드의 <b>직접 해 보기</b>를 움직이면 장면이 바뀝니다</li><li><b>📖 깊게 보기</b> — 「한 걸음 더(전문)」를 모두 펼침 · <b>▶ 발표 모드</b> · <b>⏵ 자동 재생</b></li><li>장면의 이온 · 부품 · 층에 마우스를 올리거나 누르면 이름과 역할</li></ul>
     <p class="hint">수치는 교과서 · 공개 문헌 수준의 예시이고, 계산은 경향을 보여 주는 개념 모델입니다 (사내 공정 조건 아님). 범프를 만드는 전체 순서는 <a href="#go-bump">범프 공정</a> 탭, 공식과 계산기는 <a href="#go-edu-3">03 공학의 기초 7절</a>.</p>`, ['intro'], 'intro');
   CHS.forEach(ch => {
     const card = add(chapterCard(ch), ch.steps.map(s => key(ch, s.id)), 'pl-card', {ch});
@@ -466,7 +515,7 @@ function buildCards(){
 }
 function setDeep(v){
   // 카드 길이가 크게 바뀌므로 지금 보던 단계를 기억했다가 같은 자리로 돌아온다
-  const keep = built && !pres && blocks.length ? (measure(), resolvePos()) : null;
+  const keep = built && cur && !pres && blocks.length ? (scrollAnim && navTo ? navTo : (measure(), resolvePos())) : null;   // 처음 만들 때는 지킬 자리가 없다
   root.classList.toggle('deep', v);
   root.querySelectorAll('details.pl-deep').forEach(d => { d.open = v; });
   const b = stage.querySelector('[data-act=deep]');
@@ -474,7 +523,7 @@ function setDeep(v){
   store.set('engr-edu.plating.deep', v);
   if (built) requestAnimationFrame(() => {
     sizeWraps(); pinCards(); measure();
-    if (keep){ cancelScrollAnim(); VIEW.scrollTop = Math.max(0, keep.b.top + (keep.sub + 0.5) / keep.b.n * keep.b.h - anchorOffset()); }
+    if (keep){ cancelScrollAnim(); VIEW.scrollTop = beatPos(keep.b, keep.sub); }
     onScroll();
   });
 }
@@ -486,15 +535,51 @@ function anchorOffset(){
   if (stacked()){ const sh = stage.offsetHeight; return sh + (VIEW.clientHeight - sh) * 0.2; }
   return VIEW.clientHeight * 0.5;
 }
+// 데스크톱: 카드가 실제로 붙어 있는 스크롤 구간 [s0, s0 + len] 을 단계 수로 고르게 나눈다 (다 펼친 높이 기준이라 단계가 바뀌어도 구간이 그대로)
+function stuckR(b){
+  if (b.n < 2 || !b.hMax || stacked()) return null;
+  const len = b.h - b.hMax - (b.mb || 0) - VIEW.clientHeight * SLACK;
+  return len > 40 ? {s0: b.top - VIEW.clientHeight * 0.11, len} : null;
+}
+// 좁은 화면(카드가 장면 아래로 흐른다): 장면 아래 보이는 영역의 45 % 줄을 넘은 마지막 단계가 지금 단계
+function liLine(){ const sh = stage.offsetHeight; return sh + (VIEW.clientHeight - sh) * 0.45; }
+function liSub(b){
+  const line = VIEW.getBoundingClientRect().top + liLine();
+  let sub = 0;
+  b.card.querySelectorAll('.steps li').forEach((li, j) => { if (j < b.n && li.getBoundingClientRect().top <= line) sub = j; });
+  return sub;
+}
+// 블록 b 에서 frac(0~1) 자리의 스크롤 위치. 좁은 화면에서는 sub 단계 글이 기준 줄에 오는 자리, 한 칸짜리 카드는 카드 머리가 보이는 자리
+function posFor(b, frac, sub){
+  if (b.n < 2) return Math.max(0, b.top - (stacked() ? stage.offsetHeight + 8 : VIEW.clientHeight * 0.08));
+  if (stacked()){
+    const li = b.card.querySelectorAll('.steps li')[sub == null ? Math.min(b.n - 1, Math.floor(clamp(frac) * b.n)) : sub];
+    if (li) return VIEW.scrollTop + li.getBoundingClientRect().top - VIEW.getBoundingClientRect().top - liLine() + 2;
+  }
+  const r = stuckR(b);
+  return r ? r.s0 + frac * r.len : b.top + frac * b.h - anchorOffset();
+}
+const beatPos = (b, sub) => Math.max(0, posFor(b, (sub + 0.5) / b.n, sub));
+// sub 단계로 인정되는 스크롤 구간 (위젯이 단계를 바꿀 때 가장 짧게 옮기려고)
+function subRange(b, sub){
+  if (b.n < 2){ const q = posFor(b, 0); return [q, q]; }
+  if (stacked()){ const lo = posFor(b, 0, sub); return [lo, sub + 1 < b.n ? posFor(b, 0, sub + 1) - 4 : lo + VIEW.clientHeight * 0.3]; }
+  return [posFor(b, sub / b.n) + 2, posFor(b, (sub + 1) / b.n) - 2];
+}
 function resolvePos(){
   const a = VIEW.scrollTop + anchorOffset();
   let b = blocks.find(x => a >= x.top && a < x.top + x.h);
   if (!b){ let best = Infinity; for (const x of blocks){ const d = a < x.top ? x.top - a : a - (x.top + x.h); if (d < best){ best = d; b = x; } } }
-  const sub = b.n > 1 ? Math.min(b.n - 1, Math.floor(clamp((a - b.top) / b.h) * b.n)) : 0;
+  let sub = 0;
+  if (b.n > 1){
+    if (stacked()) sub = liSub(b);
+    else { const r = stuckR(b), f = r ? (VIEW.scrollTop - r.s0) / r.len : (a - b.top) / b.h; sub = Math.min(b.n - 1, Math.floor(clamp(f) * b.n)); }
+  }
   return {b, sub};
 }
 let ticking = false, activeCard = null;
 function onScroll(){
+  hideTip();
   if (ticking || pres || scrollAnim) return;          // 코드가 스크롤을 옮기는 중에는 지나가는 단계를 켜지 않는다 (목표 단계는 이미 켜 둠)
   ticking = true;
   requestAnimationFrame(() => {
@@ -502,10 +587,10 @@ function onScroll(){
     if (pres || scrollAnim) return;
     const {b, sub} = resolvePos();
     if (activeCard !== b){ if (activeCard) activeCard.card.classList.remove('active'); activeCard = b; b.card.classList.add('active'); }
-    if (b.states[sub] !== cur) apply(b.states[sub]);
+    if (b.states[sub] !== cur) apply(b.states[sub]); else pinCards();
   });
 }
-let scrollAnim = null, restoreTok = 0;
+let scrollAnim = null, restoreTok = 0, navTo = null;   // navTo: 코드가 옮겨 가는 중인 목표 (그동안 ← → 는 여기서부터 센다)
 function cancelScrollAnim(){ restoreTok++; if (scrollAnim){ cancelAnimationFrame(scrollAnim); scrollAnim = null; onScroll(); } }   // 멈춘 자리에 맞춘다
 function scrollViewTo(top, animate){
   cancelScrollAnim();
@@ -513,16 +598,31 @@ function scrollViewTo(top, animate){
   const from = VIEW.scrollTop, dist = top - from;
   if (!animate || reduced || Math.abs(dist) < 4){ VIEW.scrollTop = top; return; }
   const dur = clamp(Math.abs(dist) / Math.max(1, VIEW.clientHeight) * 300, 350, 1400), t0 = performance.now();
-  const step = now => { const t = clamp((now - t0) / dur); VIEW.scrollTop = from + dist * (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2); scrollAnim = t < 1 ? requestAnimationFrame(step) : null; if (t >= 1) onScroll(); };
+  const step = now => { const t = clamp((now - t0) / dur); VIEW.scrollTop = from + dist * (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2); scrollAnim = t < 1 ? requestAnimationFrame(step) : null; pinCards(); if (t >= 1){ navTo = null; onScroll(); } };
   scrollAnim = requestAnimationFrame(step);
 }
-function scrollToBlock(b, frac){ measure(); scrollViewTo(b.top + frac * b.h - anchorOffset(), true); }
+// 블록 b 의 sub 단계로: 그 단계를 바로 보여 주고, 스크롤은 뒤따라간다
+function gotoSub(b, sub){
+  const st = b.states[sub];
+  if (st !== cur) apply(st);
+  measure();
+  scrollViewTo(beatPos(b, sub), true);
+  if (scrollAnim) navTo = {b, sub};
+}
+// ← → : 노트 카드까지 포함해 한 칸씩
+function navStep(d){
+  const seq = [];
+  blocks.forEach(b => { for (let j = 0; j < b.n; j++) seq.push({b, sub: j}); });
+  const now = scrollAnim && navTo ? navTo : resolvePos();
+  const i = Math.max(0, seq.findIndex(x => x.b === now.b && x.sub === now.sub));
+  const t = seq[clamp(i + d, 0, seq.length - 1)];
+  gotoSub(t.b, t.sub);
+}
 function gotoBeat(k){
   k = clamp(k, 0, beats.length - 1);
   if (pres) return presGo(k);
   const bt = beats[k];
-  if (bt.s !== cur) apply(bt.s);                       // 목표 단계를 바로 보여 주고, 스크롤은 뒤따라간다
-  scrollToBlock(bt.b, (bt.sub + 0.5) / bt.b.n);
+  gotoSub(bt.b, bt.sub);
 }
 function gotoChapter(cid, sid){
   const ch = BYID[cid]; if (!ch) return;
@@ -536,11 +636,16 @@ function goState(s){
   const k = beats.findIndex(x => x.s === s);
   if (pres){ if (k >= 0){ pres.k = k; presApply(); } return; }
   apply(s);
-  if (k >= 0){ const bt = beats[k]; measure(); scrollViewTo(bt.b.top + (bt.sub + 0.5) / bt.b.n * bt.b.h - anchorOffset(), true); }
+  if (k < 0) return;
+  // 그 단계 구간 안으로 가장 짧게 옮긴다 (위젯을 쥐고 있는 손 아래에서 카드가 크게 움직이지 않게)
+  const bt = beats[k]; measure();
+  const [lo, hi] = subRange(bt.b, bt.sub);
+  scrollViewTo(clamp(VIEW.scrollTop, lo, Math.max(lo, hi)), true);
+  if (scrollAnim) navTo = {b: bt.b, sub: bt.sub};
 }
 function curBeat(){
   if (pres) return pres.k;
-  const {b, sub} = resolvePos();
+  const {b, sub} = scrollAnim && navTo ? navTo : resolvePos();
   const k = beats.findIndex(x => x.b === b && x.sub === sub);
   if (k >= 0) return k;
   return Math.max(0, beats.findIndex(x => x.s === b.states[sub]));
@@ -560,6 +665,7 @@ function exitPres(fromFs){
   toggleAuto(false);
   pres = null;
   root.classList.remove('pres');
+  try { VIEW.focus({preventScroll: true}); } catch (e){}   // 닫은 뒤에도 ↑ ↓ · PageDown 이 스크롤에 먹도록
   if (!bt) return;
   // 전체 화면이 다 풀린 뒤에 제자리로 (풀리는 중에는 스크롤 영역 높이가 0이라 맨 위로 잘린다)
   if (!fromFs && document.fullscreenElement){
@@ -574,10 +680,11 @@ function restoreBeat(bt){
   let n = 0, same = 0;
   const tick = () => {
     if (pres || tok !== restoreTok) return;
+    if (!n) sizeWraps();
     fitView(); measure();
-    const top = Math.max(0, bt.b.top + (bt.sub + 0.5) / bt.b.n * bt.b.h - anchorOffset());
+    const top = beatPos(bt.b, bt.sub);
     if (Math.abs(VIEW.scrollTop - top) > 2){ VIEW.scrollTop = top; same = 0; } else same++;
-    if (bt.s !== cur) apply(bt.s);
+    if (bt.s !== cur) apply(bt.s); else pinCards();
     if (same < 6 && ++n < 90) requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
@@ -600,6 +707,7 @@ function presApply(){
     cap.querySelector('.d').textContent = '1부 원리 → 2부 모양과 품질 → 3부 현장. ← → 키로 넘기고 Esc로 닫습니다.';
   }
   stage.querySelector('.jz-pres .cnt').textContent = `${pres.k + 1} / ${beats.length}`;
+  fitView();
 }
 function presGo(k){
   if (!pres) return;
@@ -620,10 +728,12 @@ function onKey(ev){
   if (!pres){
     if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft'){
       if (document.activeElement && document.activeElement.type === 'range') return;   // 슬라이더는 ← → 로 값을 바꾼다
-      ev.preventDefault(); gotoBeat(curBeat() + (ev.key === 'ArrowRight' ? 1 : -1));
+      ev.preventDefault(); navStep(ev.key === 'ArrowRight' ? 1 : -1);
     }
     return;
   }
+  const ctrl = document.activeElement && root.contains(document.activeElement) && /^(BUTTON|A|INPUT|SUMMARY)$/.test(document.activeElement.tagName);
+  if ((ev.key === ' ' || ev.key === 'Enter') && ctrl) return;   // 단추에 초점이 있으면 그 단추를 누른다
   if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(ev.key)){ ev.preventDefault(); toggleAuto(false); presGo(pres.k + 1); }
   else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(ev.key)){ ev.preventDefault(); toggleAuto(false); presGo(pres.k - 1); }
   else if (ev.key === 'Home'){ ev.preventDefault(); presGo(0); }
@@ -635,14 +745,29 @@ function onKey(ev){
 function activateTab(){
   if (!built) build();
   if (!VIEW.contains(document.activeElement)) try { VIEW.focus({preventScroll: true}); } catch (e){}
-  requestAnimationFrame(() => { fitView(); sizeWraps(); pinCards(); measure(); onScroll(); });
+  if (svg && !reduced) try { svg.unpauseAnimations(); } catch (e){}
+  requestAnimationFrame(relayout);
 }
-document.addEventListener('engr:tab', ev => { if (ev.detail === 'plating') activateTab(); });
+// 크기가 바뀌어도(창 크기 · 확대 · 탭 전환) 보던 단계 그대로
+function relayout(){
+  if (!built || !VIEW.classList.contains('active')) return;
+  if (pres){ const sc = ST[cur]; if (sc) setFocus(sc.ch ? focusOf(sc.ch, sc.ch.steps[sc.k]) : null); fitView(); return; }
+  let keep = scrollAnim && navTo ? navTo : null;
+  if (!keep && activeCard && activeCard.note) keep = {b: activeCard, sub: 0};
+  if (!keep){ const bt = beats.find(x => x.s === cur); if (bt) keep = {b: bt.b, sub: bt.sub}; }
+  const sc = ST[cur];
+  if (sc) setFocus(sc.ch ? focusOf(sc.ch, sc.ch.steps[sc.k]) : null);
+  fitView(); sizeWraps(); measure();
+  if (keep){ cancelScrollAnim(); VIEW.scrollTop = beatPos(keep.b, keep.sub); }
+  pinCards(); onScroll();
+}
+document.addEventListener('engr:tab', ev => { if (ev.detail === 'plating') activateTab(); else if (svg) try { svg.pauseAnimations(); } catch (e){} });   // 다른 탭에서는 움직임을 멈춘다
 if (VIEW.classList.contains('active')) activateTab();
 window.EngrPlating = {
   get state(){ const st = ST[cur] || {}; return {state: cur, chapter: st.ch ? st.ch.id : 'intro', step: st.ch ? st.ch.steps[st.k].id : null, pres: pres ? pres.k : null, beats: beats.length, auto: !!auto, deep: !!(root && root.classList.contains('deep'))}; },
   chapters: CHS.map(c => ({id: c.id, no: c.no, part: c.part, title: c.title, steps: c.steps.map(s => s.id)})),
   apply: s => apply(s), gotoChapter: (c, s) => gotoChapter(c, s), gotoBeat: k => gotoBeat(k), enterPres: () => enterPres(), exitPres: () => exitPres(),
-  order: ORDER, blocks: () => blocks, ctx: id => CTX[id], kit: K
+  order: ORDER, blocks: () => blocks, ctx: id => CTX[id], kit: K,
+  scenes: () => Object.keys(SC), pos: st => { const bt = beats.find(x => x.s === st); if (!bt) return null; measure(); return beatPos(bt.b, bt.sub); }
 };
 })();

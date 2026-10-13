@@ -387,14 +387,14 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   await page.waitForSelector('#view-plating.active .pl-svg');
   ok(await page.evaluate(() => window.EngrEdu.state.tab) === 'plating', '03 모듈의 링크로 전해도금 탭 열기');
   const pl = await page.evaluate(() => ({ ch: window.EngrPlating.chapters, beats: window.EngrPlating.state.beats,
-    scenes: document.querySelectorAll('#view-plating .pl-scene').length, chips: document.querySelectorAll('#view-plating .pl-line button').length,
+    scenes: window.EngrPlating.scenes().length, attached: document.querySelectorAll('#view-plating .pl-scene').length, chips: document.querySelectorAll('#view-plating .pl-line button').length,
     tiles: document.querySelectorAll('#view-plating .pl-scene[data-ch="intro"] .pl-go').length }));
   const plParts = [1, 2, 3].map(p => pl.ch.filter(c => c.part === p).length).join('/');
-  ok(pl.ch.length === 13 && pl.scenes === 14 && pl.chips === 13 && plParts === '4/4/5', `13장 (부별 ${plParts}) · 장면 ${pl.scenes} · 칩 ${pl.chips}`);
+  ok(pl.ch.length === 13 && pl.scenes === 14 && pl.attached === 1 && pl.chips === 13 && plParts === '4/4/5', `13장 (부별 ${plParts}) · 장면 ${pl.scenes} (지금 장면만 붙어 있음) · 칩 ${pl.chips}`);
   ok(pl.beats >= 50 && pl.tiles >= 13, `단계 ${pl.beats}개 · 차례 타일 ${pl.tiles}개`);
   // 각 상태로 스크롤해서 그 상태 · 그 장면이 되는지
   const plAt = async s => {
-    await page.evaluate(s => { const b = window.EngrPlating.blocks().find(x => !x.note && x.states.includes(s)); const V = document.getElementById('view-plating'); V.scrollTop = b.top + (b.states.indexOf(s) + 0.5) / b.n * b.h - V.clientHeight * 0.5; }, s);
+    await page.evaluate(s => { document.getElementById('view-plating').scrollTop = window.EngrPlating.pos(s); }, s);
     await page.waitForTimeout(120);
     return page.evaluate(() => window.EngrPlating.state.state);
   };
@@ -463,7 +463,7 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   await plSet('bath', 'b', 5); const ss5 = await plOut('bath', 'k-ss'), t95 = await plOut('bath', 'k-t95');
   await plSeg('bath', 'dose', 'time'); const outT = plNum(await plOut('bath', 'k-out'));
   await plSeg('bath', 'dose', 'mix'); const outM = plNum(await plOut('bath', 'k-out'));
-  ok(/계속/.test(ss0) && /\d+ %/.test(ss5) && plNum(t95) === 60 && outM < outT, `11 도금액 관리: bleed 0 → ${ss0}, 5 %/일 → 정상 수준 ${ss5} · 95 % 도달 ${t95}, 첨가제 이탈 시간 기준 ${outT}일 → Ah + 시간 ${outM}일`);
+  ok(/계속/.test(ss0) && /\d+ %/.test(ss5) && plNum(t95) === 60 && outM < outT, `11 도금액 관리: bleed 0 → ${ss0}, 5 %/일 → 멈추는 수준 ${ss5} · 95 % 도달 ${t95}, 첨가제 이탈 시간 기준 ${outT}일 → Ah + 시간 ${outM}일`);
   await page.screenshot({ path: path.join(OUT, '09-plating.png') });
   await page.click('[data-tab="map"]');
 
