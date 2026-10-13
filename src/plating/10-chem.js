@@ -1,41 +1,63 @@
 /* 전해도금 10 — 금속별 도금액: Cu · Ni · SnAg (도금액 3종) */
 (function(){
-// Sn–Ag 액상선 (wt% Ag, °C) — 개략. Sn 231.9 °C, 공정점 약 3.5 wt% · 221 °C, Ag가 많은 쪽은 가파르게 오른다
-const LIQ = [[0, 231.9], [1, 228.8], [2, 225.7], [3, 222.6], [3.5, 221], [4, 229], [5, 244], [6, 257], [7, 268], [8, 278]];
-const liq = x => { x = Math.max(0, Math.min(8, x)); for (let k = 1; k < LIQ.length; k++) if (x <= LIQ[k][0]){ const [a, ta] = LIQ[k - 1], [b, tb] = LIQ[k]; return ta + (tb - ta) * (x - a) / (b - a); } return LIQ[LIQ.length - 1][1]; };
-// 개념 모델: Ag 부분 전류 = 반응 몫 + 공급 한계 몫(교반의 제곱근에 비례), 나머지는 Sn
-function agWt(J, agit, conc){
-  const iAg = 0.004 * J * conc + 0.0595 * Math.sqrt(agit) * conc * J / (J + 1);
-  const mAg = iAg * 107.87, mSn = Math.max(1e-9, J - iAg) * 118.71 / 2;
-  return 100 * mAg / (mAg + mSn);
+// Sn–Ag 액상선 (wt% Ag, °C) — 공개 자료 수준의 근삿값(±3~5 °C). Sn 231.9 °C, 공정점(共晶) 3.5 wt% · 221 °C
+// Ag가 적은 쪽(Sn 쪽)은 완만하게 내려가고, 많은 쪽(Ag₃Sn 쪽)은 가파르게 오른다
+const LIQ = [[0, 231.9], [1, 229], [1.8, 226], [2.5, 224], [3, 222], [3.5, 221], [4, 230], [5, 243], [6, 260], [7, 270], [8, 280], [9, 289], [10, 298]];
+const AMAX = 10, EU = 3.5, TE = 221, AG3 = 73.2;                     // Ag₃Sn = Ag 73.2 wt%
+const liq = x => { x = Math.max(0, Math.min(AMAX, x)); for (let k = 1; k < LIQ.length; k++) if (x <= LIQ[k][0]){ const [a, ta] = LIQ[k - 1], [b, tb] = LIQ[k]; return ta + (tb - ta) * (x - a) / (b - a); } return LIQ[LIQ.length - 1][1]; };
+// 온도 T에서 액체의 조성 (side: 'sn' = 공정점 왼쪽, 'ag' = 오른쪽)
+function liqInv(T, side){
+  const seg = side === 'sn' ? LIQ.filter(p => p[0] <= EU) : LIQ.filter(p => p[0] >= EU);
+  for (let k = 1; k < seg.length; k++){
+    const [a, ta] = seg[k - 1], [b, tb] = seg[k];
+    if ((T - ta) * (T - tb) <= 0) return a + (b - a) * (T - ta) / (tb - ta);
+  }
+  return side === 'sn' ? 0 : AMAX;
 }
-const PD = {x0: 520, x1: 1130, y0: 1060, y1: 740, t0: 200, t1: 300, a1: 8};   // 상태도 영역
-const px = a => PD.x0 + a / PD.a1 * (PD.x1 - PD.x0), py = t => PD.y0 - (t - PD.t0) / (PD.t1 - PD.t0) * (PD.y0 - PD.y1);
+// 리플로우 최고 온도에서의 상태: 다 녹음 / 고체가 일부 남음(지렛대 규칙) / 안 녹음
+function melt(ag, pk){
+  const tl = liq(ag);
+  if (pk < TE) return {k: 'solid', tl, fs: 1, ph: ''};
+  if (pk >= tl) return {k: 'liq', tl, fs: 0, ph: ''};
+  if (ag > EU){ const cl = liqInv(pk, 'ag'); return {k: 'two', tl, cl, fs: Math.max(0, (ag - cl) / (AG3 - cl)), ph: 'Ag₃Sn'}; }
+  const cl = liqInv(pk, 'sn');
+  return {k: 'two', tl, cl, fs: Math.max(0, (cl - ag) / cl), ph: 'Sn'};
+}
+// 개념 모델: Ag 부분 전류 = 공급 한계 몫(액의 Ag 농도 · √교반에 비례) × J/(J+1) + 작은 반응 몫. 나머지 전류는 Sn
+// 예: Ag 0.5 g/L, 착이온 D 약 4×10⁻¹⁰ m²/s, δ 30 µm → Ag 한계전류 약 0.06 ASD
+const IL0 = 0.055, K0 = 0.002;
+function agSplit(J, agit, conc){
+  const iAg = conc * (IL0 * Math.sqrt(agit) * J / (J + 1) + K0 * J);
+  const x = Math.min(0.5, iAg / J);                                     // Ag에 쓰인 전류 몫
+  const mAg = x * 107.87, mSn = (1 - x) * 118.71 / 2;                   // Ag⁺는 전자 1개, Sn²⁺는 2개
+  return {x, wt: 100 * mAg / (mAg + mSn)};
+}
+const PD = {x0: 420, x1: 1110, y0: 1050, y1: 760, t0: 200, t1: 300};   // 상태도 영역
+const px = a => PD.x0 + Math.min(AMAX, a) / AMAX * (PD.x1 - PD.x0), py = t => PD.y0 - (t - PD.t0) / (PD.t1 - PD.t0) * (PD.y0 - PD.y1);
 const BATHS = [
-  {id: 'cu', x: 40, nm: 'Cu 도금액', ions: ['cu', 'so4', 'h', 'cl'], lines: ['황산구리 + 황산 + Cl⁻ (ppm)', '+ 첨가제 3종 (05장)', '양극: 인 함유 구리 — 녹아서 보충', '역할: 범프의 몸통 · 높이 · 전기 길', '관리: Cu · 산 · Cl · 첨가제 · 양극'], layer: 'cu'},
-  {id: 'ni', x: 560, nm: 'Ni 도금액', ions: ['ni', 'h', 'cl'], lines: ['설파민산 니켈 + 붕산 (pH 완충)', '+ 소량 염화물 · 습윤제', '양극: 니켈 — 녹아서 보충', '역할: Cu와 솔더 사이 방벽', '관리: pH · 온도 · 응력 · 표면 산화'], layer: 'ni'},
-  {id: 'snag', x: 1080, nm: 'SnAg 도금액', ions: ['sn', 'ag', 'ms', 'sn4'], lines: ['메탄설폰산(MSA) + Sn²⁺ + Ag⁺', '+ 착화제 (Ag를 붙잡아 둔다)', '양극: 불용성 + 분리막 (약품 보충)', '역할: 녹아서 붙는 솔더', '관리: Sn²⁺ · Ag · 산 · Sn⁴⁺ · 착화제'], layer: 'sn'}
+  {id: 'cu', x: 40, nm: 'Cu 도금액', ions: ['cu', 'so4', 'h', 'cl'], lines: ['황산구리 + 황산 + Cl⁻ (수십 ppm)', '+ 첨가제 3종 (05장)', '양극(+): 인 함유 구리 (녹아서 보충)', '역할: 범프의 몸통 · 높이 · 전기 길', '관리: Cu · 산 · Cl · 첨가제 · 양극 피막'], layer: 'cu'},
+  {id: 'ni', x: 560, nm: 'Ni 도금액', ions: ['ni', 'h', 'cl'], lines: ['설파민산 니켈 + 붕산 (pH 완충)', '+ 소량 염화물 · 습윤제', '양극(+): 니켈 (녹아서 보충)', '역할: Cu와 솔더 사이 방벽', '관리: pH · 온도 · 응력 · 표면 산화'], layer: 'ni'},
+  {id: 'snag', x: 1080, nm: 'SnAg 도금액', ions: ['sn', 'ag', 'ms', 'sn4'], lines: ['메탄설폰산(MSA) + Sn²⁺ + Ag⁺', '+ 착화제 (Ag⁺를 붙잡아 둔다)', '양극(+): 불용성 또는 Sn + 분리막', '역할: 녹아서 붙는 솔더', '관리: Sn²⁺ · Ag · 산 · Sn⁴⁺ · 착화제'], layer: 'sn'}
 ];
-const DEMO = {comp: null};
 
 (window.EngrPlatingChapters = window.EngrPlatingChapters || []).push({
   no: '10', id: 'chem', part: 3, short: 'Cu · Ni · SnAg', scale: '도금액 3종',
-  title: '금속별 도금액 — Cu · Ni · SnAg',
-  hook: 'Ag 몇 %가 녹는 온도를 바꾼다',
-  one: '범프의 세 층은 각자 맡은 일이 있고, 도금액도 관리할 것도 다릅니다. 특히 SnAg는 두 금속이 함께 쌓이는 합금이라, 조건이 조금만 달라져도 조성(Ag %)과 녹는 온도가 달라집니다.',
-  ana: '<b>세 층 케이크</b> — Cu는 키를 세우는 시트, Ni는 시트에 크림이 스며들지 않게 막는 얇은 막, SnAg는 녹아서 다른 칩에 붙는 맨 위 크림입니다. 크림 배합(Ag %)이 바뀌면 녹는 온도가 바뀝니다.',
+  title: 'Cu · Ni · SnAg — 금속마다 무엇이 다를까?',
+  hook: 'Ag 몇 %가 녹는 모습을 바꾼다',
+  one: '범프의 세 층은 각자 맡은 일이 있고, 도금액도 관리할 것도 다릅니다. 특히 SnAg는 두 금속이 함께 쌓이는 합금이라, 조건이 조금만 달라져도 조성(Ag %)이 달라지고 녹는 모습과 굳은 뒤 속 모양이 달라집니다.',
+  ana: '<b>세 층 케이크</b> — Cu는 키를 세우는 시트, Ni는 시트에 크림이 스며들지 않게 막는 얇은 막, SnAg는 녹아서 다른 칩에 붙는 맨 위 크림입니다. 크림 배합(Ag %)이 바뀌면 녹는 모습이 바뀝니다. 다만 케이크와 달리, 크림(솔더)과 막(Ni)은 맞닿은 곳에서 서로 반응해 새 층(IMC)을 만들며 조금씩 먹어 들어갑니다.',
   steps: [
-    {id: 'cu', t: 'Cu — 몸통', d: '황산구리 + 황산 + 아주 적은 Cl⁻ + 첨가제. 인이 조금 든 구리 양극이 녹아 이온을 보충하고, 양극 표면의 검은 피막이 고르게 녹도록 돕습니다. 범프의 높이와 전기 · 열의 길을 만듭니다.'},
-    {id: 'ni', t: 'Ni — 방벽', d: '설파민산 니켈 + 붕산(pH 완충). Cu가 솔더와 지나치게 반응(IMC 과성장)하는 것을 늦추는 방벽입니다. pH · 온도 · 응력을 관리하고, Ni 표면이 산화되면 다음 층이 잘 붙지 않으니 빨리 넘깁니다.'},
-    {id: 'snag', t: 'SnAg — 솔더', d: 'Ag는 Sn보다 훨씬 귀한 금속이라 그냥 두면 Ag만 먼저 · 저절로 석출됩니다 → 착화제로 붙잡아 둡니다. Sn²⁺는 공기 · 양극에서 Sn⁴⁺로 산화되어 뿌연 슬러지가 됩니다.'},
-    {id: 'comp', t: 'SnAg 조성과 녹는 온도', d: 'Ag는 농도가 낮아 공급(확산)에 좌우되고 Sn은 전류에 좌우됩니다 → 전류밀도↑ Ag %↓, 교반↑ Ag %↑. Ag가 공정 조성(약 3.5 %)보다 많으면 다 녹는 온도가 빠르게 올라 리플로우에서 덜 녹을 수 있습니다.'}
+    {id: 'cu', t: 'Cu — 몸통', d: '황산구리 + 황산 + 아주 적은 Cl⁻ + 첨가제로 범프의 높이와 전기 · 열의 길을 만듭니다. 양극(+)은 인이 조금 든 구리로, 녹아서 Cu²⁺를 보충합니다. 양극 표면의 검은 피막이 구리 가루(슬러지)를 줄입니다.'},
+    {id: 'ni', t: 'Ni — 방벽', d: '설파민산 니켈 + 붕산(pH 완충)으로 Cu와 솔더 사이에 얇은 방벽을 만듭니다. Ni는 솔더와 천천히 반응해 Cu가 솔더에 빨리 먹히는 것을 막습니다. pH · 온도 · 응력을 지키고, 표면이 산화되기 전에 SnAg로 넘깁니다.'},
+    {id: 'snag', t: 'SnAg — 솔더', d: 'Sn과 Ag를 함께 쌓는 합금 도금입니다. Ag는 Sn보다 전자를 훨씬 잘 받아(표준 전위가 높음) 그냥 두면 먼저 · 저절로 석출되므로 착화제로 붙잡아 둡니다. Sn²⁺는 공기 · 양극에서 Sn⁴⁺로 바뀌어 뿌연 찌꺼기가 됩니다.'},
+    {id: 'comp', t: 'SnAg 조성과 녹는 모습', d: '보통 전류밀도를 올리면 Ag %가 내려가고, 교반 · 액의 Ag 농도를 올리면 올라갑니다. Ag가 공정점(共晶, 3.5 %)을 넘으면 다 녹는 온도가 가파르게 오르지만 221 °C만 넘으면 대부분 녹습니다. 더 흔한 문제는 식을 때 자라는 큰 Ag₃Sn 판입니다.'}
   ],
   icon(K){
     const {R} = K;
     return R(16, 30, 36, 32, 'f-cu2') + R(16, 22, 36, 8, 'f-ni') + R(14, 4, 40, 18, 'f-sn2');
   },
   draw(K){
-    const {R, C, L, P, T, G, LB, tip, only, on, W, TT} = K;
+    const {R, C, L, P, T, G, LB, tip, only, W, TT, wrap} = K;
     let s = '';
     BATHS.forEach((b, i) => {
       let g = R(b.x, 130, 500, 520, 'pl-panel', {rx: 16}) + R(b.x, 130, 500, 520, 'pl-hlbox', W({rx: 16}, only(b.id === 'snag' ? 'snag comp' : b.id)));
@@ -51,55 +73,168 @@ const DEMO = {comp: null};
       g += TT(b.x + 24, 456, b.lines, 't-sub', 'start', 38);
       s += G(g, tip(b.nm));
     });
-    // 아래: SnAg 조성
+    // ── 아래 패널: 단계마다 다른 그림
     s += R(40, 680, 1540, 440, 'pl-panel', {rx: 16}) + R(40, 680, 1540, 440, 'pl-hlbox', W({rx: 16}, only('comp')));
-    s += T(64, 722, 'SnAg 조성 → 녹는 온도 (개략 상태도)', 't-acc', 'start');
-    // 상태도 축
-    s += L(PD.x0, PD.y0, PD.x1 + 10, PD.y0, 's-axis') + L(PD.x0, PD.y0, PD.x0, PD.y1 - 10, 's-axis');
-    for (let a = 0; a <= 8; a += 1) s += L(px(a), PD.y0, px(a), PD.y0 + 8, 's-axis') + T(px(a), PD.y0 + 30, String(a), 't-dim');
-    for (let t = 200; t <= 300; t += 20) s += L(PD.x0 - 8, py(t), PD.x0, py(t), 's-axis') + T(PD.x0 - 14, py(t) + 7, String(t), 't-dim', 'end');
-    s += LB(T((PD.x0 + PD.x1) / 2, PD.y0 + 54, 'Ag (무게 %)', 't-sub') + T(PD.x0 - 14, PD.y1 - 22, '°C', 't-dim', 'end'));
+
+    // cu: 인 함유 구리 양극의 검은 피막 — 얇음 · 알맞음 · 두꺼움
+    let cu = T(64, 722, '인 함유 구리 양극 — 검은 피막이 하는 일', 'pl-hdg', 'start') + T(64, 752, 'P 약 0.04~0.065 % · 전류와 Cl⁻가 있어야 피막이 생긴다', 't-dim', 'start');
+    const film = (x0, kind) => {
+      const fw = {thin: 3, good: 12, thick: 34}[kind];
+      let g = R(x0, 822, 46, 140, 'f-anode', tip('인 함유 구리 양극')) + R(x0 + 46, 822, fw, 140, 'p10-film', tip('검은 피막')) + R(x0 + 46 + fw, 822, 400 - fw, 140, 'f-bath');
+      if (kind === 'good') for (let k = 0; k < 3; k++) g += K.ionPath(`M${x0 + 80},${852 + k * 40} L${x0 + 420},${852 + k * 40}`, 'cu', 3.4, k * 1.1);
+      if (kind === 'thin'){
+        g += K.ionPath(`M${x0 + 70},852 L${x0 + 420},852`, 'cu', 3.4, 0.4) + C(x0 + 82, 912, 16, 'p10-cup') + T(x0 + 82, 917, 'Cu⁺', 'p10-ct') + K.arrow(x0 + 102, 912, x0 + 176, 924, 's-arrr');
+        const r = K.rng(7);
+        for (let k = 0; k < 16; k++) g += C(x0 + 190 + r() * 220, 900 + r() * 56, 3 + r() * 2.5, 'p10-dust');
+        g += LB(T(x0 + 300, 892, '구리 가루', 't-dim'));
+      }
+      if (kind === 'thick'){
+        g += P(`M${x0 + 58},850 l14,18 M${x0 + 64},900 l16,-10 M${x0 + 56},935 l20,10`, 'p10-crack') + K.ionPath(`M${x0 + 96},852 L${x0 + 420},852`, 'cu', 3.4, 0.8);
+        [[130, 902, 20], [190, 934, -15], [250, 912, 35], [320, 944, -30]].forEach(([dx, y, a]) => { g += R(x0 + dx, y, 22, 8, 'p10-film', {transform: `rotate(${a} ${x0 + dx + 11} ${y + 4})`}); });
+        g += LB(T(x0 + 230, 892, '떨어진 조각', 't-dim'));
+      }
+      return g;
+    };
+    const FC = [[64, 'thin', 'pl-hdg2', '① 피막이 얇거나 없음', 'Cu⁺가 생겨 구리 가루(슬러지)가 된다 → 입자 · 노듈, 첨가제도 더 쓴다'], [584, 'good', 'pl-hdg3', '② 알맞은 검은 피막', 'Cu⁺를 줄여 Cu²⁺로 고르게 녹는다 → 찌꺼기 · 첨가제 소모가 적다'], [1104, 'thick', 'pl-hdg2', '③ 피막이 너무 두꺼움', '피막이 떨어져 나와 입자가 된다 · 전압이 오른다']];
+    FC.forEach(([x0, kind, c, h, d]) => { cu += T(x0, 800, h, c, 'start') + film(x0, kind) + TT(x0, 994, wrap(d, 22.5), 't-dim', 'start', 26); });
+    cu += T(64, 1090, '새 양극 · 오래 쉰 뒤에는 더미 도금으로 피막을 다시 만든다 · 분리막이 있으면 입자는 대부분 막에 걸린다 (09장)', 't-sub', 'start');
+    s += G(cu, only('cu'));
+
+    // ni: 설파민산 Ni 관리 창 + 꼭 알아 둘 네 가지
+    const nx = ph => 150 + (ph - 2.5) / 3 * 450, ny = t => 1040 - (t - 25) / 45 * 260;
+    let ni = T(64, 722, '설파민산 Ni — 관리 창 (공개 자료 예시 · 약품마다 다름)', 'pl-hdg', 'start');
+    ni += R(nx(2.5), ny(70), 450, ny(60) - ny(70), 'p10-bad') + R(nx(2.5), ny(60), nx(3.5) - nx(2.5), ny(25) - ny(60), 'p10-bad') + R(nx(5), ny(60), nx(5.5) - nx(5), ny(25) - ny(60), 'p10-warn');
+    ni += R(nx(3.5), ny(55), nx(4.5) - nx(3.5), ny(35) - ny(55), 'p10-ok', tip('pH 약 3.5~4.5 · 약 35~55 °C'));
+    ni += L(nx(2.5), ny(25), nx(5.5) + 8, ny(25), 's-axis') + L(nx(2.5), ny(25), nx(2.5), ny(70) - 8, 's-axis');
+    [3, 4, 5].forEach(v => { ni += L(nx(v), ny(25), nx(v), ny(25) + 8, 's-axis') + T(nx(v), ny(25) + 30, String(v), 't-dim'); });
+    [30, 40, 50, 60, 70].forEach(v => { ni += L(nx(2.5) - 8, ny(v), nx(2.5), ny(v), 's-axis') + T(nx(2.5) - 14, ny(v) + 7, String(v), 't-dim', 'end'); });
+    ni += LB(T(nx(5.5), ny(25) + 56, 'pH', 't-sub', 'end') + T(nx(2.5) - 14, ny(70) - 18, '°C', 't-dim', 'end'));
+    ni += LB(T(nx(4), ny(65) + 7, '너무 뜨거움 → 설파민산 분해 · 응력↑', 't-dim') + T(nx(3), ny(44), 'pH 낮음', 't-dim') + T(nx(3), ny(44) + 26, '→ 분해', 't-dim') + T(nx(5.25), ny(44), '응력↑', 't-dim') + T(nx(4), ny(45) + 7, '권장 창', 'pl-hdg3'));
+    const NR = [['pl-hdg', '붕산 — 표면 pH 완충', '음극에서 수소가 조금 나오면 표면 pH가 올라 수산화물이 막에 섞입니다(거칠고 단단해짐). 붕산이 이것을 막습니다.'],
+      ['pl-hdg', '염화물 — 양극을 잘 녹게', '모자라면 Ni 양극이 막혀(부동태) 전압이 오르고 pH가 내려갑니다. 양극에서 설파민산이 분해되면 응력도 변합니다.'],
+      ['pl-hdg', '효율 차이 — 서서히 오른다', '음극 효율 약 90~97 %, 양극 약 100 % → Ni 농도와 pH가 서서히 오릅니다. 분석해서 맞춥니다.'],
+      ['pl-hdg2', 'Ni 표면은 금방 산화된다', '공기 · 물에 닿으면 얇은 산화막이 생겨 SnAg가 잘 붙지 않습니다 → Ni에서 SnAg까지 대기 시간을 짧게 (09장).']];
+    NR.forEach(([c, h, d], k) => {
+      const x = k < 2 ? 680 : 1130, y = 790 + (k % 2) * 150;
+      ni += T(x, y, h, c, 'start') + TT(x, y + 30, wrap(d, 21.5), 't-dim', 'start', 26);
+    });
+    s += G(ni, only('ni'));
+
+    // snag: 착화제와 양극
+    const vy = v => 836 + (0.9 - v) * 210;
+    let sa = T(64, 722, 'SnAg 액이 까다로운 이유 — 착화제와 양극', 'pl-hdg', 'start');
+    sa += T(64, 790, '전자를 받는 힘 (표준 전위)', 't-sub', 'start') + L(100, vy(0.9), 100, vy(-0.3), 's-axis');
+    sa += L(92, vy(0.8), 108, vy(0.8), 's-axis') + L(92, vy(-0.14), 108, vy(-0.14), 's-axis') + C(100, vy(0.8), 7, 'k-acc2') + C(100, vy(-0.14), 7, 'k-acc');
+    sa += LB(T(120, vy(0.8) + 7, 'Ag⁺/Ag +0.80 V', 't-sub', 'start') + T(120, vy(-0.14) + 7, 'Sn²⁺/Sn −0.14 V', 't-sub', 'start') + T(120, (vy(0.8) + vy(-0.14)) / 2 - 10, '약 0.94 V 차이', 't-dim', 'start'));
+    sa += K.arrow(300, vy(0.8) + 22, 300, vy(-0.14) - 24, 's-arr3') + LB(T(312, (vy(0.8) + vy(-0.14)) / 2 + 22, '착화제', 'p10-cx', 'start') + T(312, (vy(0.8) + vy(-0.14)) / 2 + 48, '→ 가깝게', 't-dim', 'start'));
+    sa += T(420, 790, '착화제가 없으면', 'pl-hdg2', 'start');
+    let sy = 822;
+    ['① Ag가 먼저 · 많이 쌓여 Ag가 많은 나뭇가지(덴드라이트) 막이 된다', '② 액 속에서 Sn²⁺가 Ag⁺에게 전자를 줘 Ag 알갱이가 가라앉는다 (Ag 손실 · 입자)', '③ Sn 양극 · 갓 쌓은 Sn · Ni · Cu 표면에 Ag가 전기 없이 붙는다 (치환 석출)'].forEach(t => {
+      const ln = wrap(t, 24.5); sa += TT(420, sy, ln, 't-dim', 'start', 25); sy += ln.length * 25 + 12;
+    });
+    sa += TT(420, sy + 14, wrap('착화제가 떨어지거나 분해되면 → Ag %가 튀고 액이 흐려진다', 24.5), 'p10-cx', 'start', 25);
+    sa += T(950, 790, '양극(+) 두 방식 — 둘 다 분리막 뒤에', 't-sub', 'start');
+    const abox = (x, h, lines) => {
+      let g = R(x, 808, 300, 192, 'pl-box', {rx: 12}) + T(x + 16, 840, h, 'p10-bt', 'start');
+      let yy = 872;
+      lines.forEach(t => { const ln = wrap(t, 14.6); g += TT(x + 16, yy, ln, 't-dim', 'start', 24); yy += ln.length * 24 + 6; });
+      return g;
+    };
+    sa += abox(950, 'Sn 양극', ['Sn이 녹아서 보충', '양극액엔 Ag를 넣지 않음 (Sn 양극에 Ag가 치환 석출)', 'Sn이 조금씩 늘기 쉽다']);
+    sa += abox(1264, '불용성 양극', ['산소가 나와 Sn²⁺ · 첨가제를 산화 → 분리막으로 나눔', 'Sn 농축액으로 보충 → 산(MSA)이 쌓인다']);
+    sa += T(950, 1034, 'Sn²⁺ → Sn⁴⁺ (공기 · 양극 · 높은 온도)', 'pl-hdg2', 'start') + TT(950, 1062, ['→ SnO₂ 알갱이(100 nm 이하) → 막에 섞여 노듈 · 리플로우 무너짐', '→ 공기 접촉 · 온도를 줄이고 필터 · Sn⁴⁺ 분석'], 't-dim', 'start', 26);
+    s += G(sa, only('snag'));
+
+    // comp: Sn–Ag 상태도 + 범프 + 판정
+    let pd = T(64, 722, 'SnAg 조성 → 리플로우에서 녹는 모습 (개략 상태도)', 't-acc', 'start');
+    pd += L(PD.x0, PD.y0, PD.x1 + 10, PD.y0, 's-axis') + L(PD.x0, PD.y0, PD.x0, PD.y1 - 10, 's-axis');
+    for (let a = 0; a <= AMAX; a += 1) pd += L(px(a), PD.y0, px(a), PD.y0 + 8, 's-axis') + (a % 2 ? '' : T(px(a), PD.y0 + 30, String(a), 't-dim'));
+    for (let t = 200; t <= 300; t += 20) pd += L(PD.x0 - 8, py(t), PD.x0, py(t), 's-axis') + T(PD.x0 - 14, py(t) + 7, String(t), 't-dim', 'end');
+    pd += LB(T((PD.x0 + PD.x1) / 2, PD.y0 + 54, 'Ag (무게 %)', 't-sub') + T(PD.x0 - 14, PD.y1 - 18, '°C', 't-dim', 'end'));
+    pd += R(px(1.5), PD.y1, px(2.5) - px(1.5), PD.y0 - PD.y1, 'p10-tgt', tip('범프 SnAg의 Ag 목표 — 보통 1.5~2.5 wt% (공정점보다 적게)'));
     let lq = '';
-    for (let a = 0; a <= 8.0001; a += 0.1) lq += (lq ? ' L' : 'M') + px(a).toFixed(1) + ',' + py(liq(a)).toFixed(1);
-    s += P(lq + ` L${px(8)},${py(PD.t1)} L${px(0)},${py(PD.t1)} Z`, 'pl-liqz') + P(lq, 's-curve', tip('액상선 — 이 온도 위에서 다 녹는다 (개략)'));
-    s += L(px(0), py(221), px(8), py(221), 's-dash') + C(px(3.5), py(221), 7, 'k-acc2', tip('공정점 — 약 3.5 % Ag, 221 °C. 한 온도에서 한꺼번에 녹는다'));
-    s += LB(T(px(0.3), py(290), '다 녹음 (액체)', 't-sub', 'start') + T(px(6.4), py(230), '고체 Ag₃Sn + 액체', 't-dim', 'middle') + T(px(1.6), py(212), '고체', 't-dim') + T(px(3.5), py(221) + 30, '3.5 % · 221 °C', 't-warn'));
-    s += `<g data-v="pd"></g><g data-v="bump"></g>`;
+    for (let a = 0; a <= AMAX + 1e-4; a += 0.1) lq += (lq ? ' L' : 'M') + px(a).toFixed(1) + ',' + py(liq(a)).toFixed(1);
+    pd += P(lq + ` L${px(AMAX)},${py(PD.t1)} L${px(0)},${py(PD.t1)} Z`, 'pl-liqz') + P(lq, 's-curve', tip('액상선 — 이 온도 위에서 다 녹는다 (근삿값)'));
+    pd += L(px(0), py(TE), px(AMAX), py(TE), 's-dash') + C(px(EU), py(TE), 7, 'k-acc2', tip('공정점(共晶) — Ag 3.5 %, 221 °C. 한 온도에서 한꺼번에 녹는다'));
+    pd += LB(T(px(0.3), py(291), '다 녹음 (액체)', 't-sub', 'start') + T(px(8.3), py(208), '고체 (Sn + Ag₃Sn)', 't-dim') + T(px(EU), py(TE) + 28, '공정점(共晶)', 'p10-eu') + T(px(EU), py(TE) + 50, '3.5 % · 221 °C', 'p10-eu'));
+    pd += LB(T(px(8.3), py(229), '액체 + 고체 Ag₃Sn', 't-dim'), {'data-v': 'l2'});        // 최고 온도 이름표와 겹치면 숨긴다
+    pd += K.lead(px(1.6), py(224.6), px(0.3), py(268), '액체 + 고체 Sn', 'start', 't-dim') + LB(T(px(2), PD.y1 - 10, '보통 목표', 'p10-tg'));
+    pd += `<g data-v="pd"></g><g data-v="bump"></g>`;
+    pd += R(1160, 740, 396, 360, 'pl-box', {rx: 12}) + T(1180, 774, '판정 (개념 예시)', 'pl-hdg', 'start') + `<g data-v="verdict"></g>`;
+    s += G(pd, only('comp'));
     return s;
   },
   body(K){
-    return `<div class="pl-w"><div class="hd">직접 해 보기 — SnAg 조성</div>
-      ${K.ctl('j', '전류밀도 (ASD)', 1, 15, 0.5, 5)}${K.ctl('a', '교반 (배수)', 0, 100, 1, 50)}${K.ctl('c', '액의 Ag 농도 (목표 대비)', 0.6, 1.4, 0.05, 1)}${K.ctl('pk', '리플로우 최고 온도 (°C, 예시)', 230, 270, 1, 250)}
-      ${K.kpis([['Ag', 'k-ag', '무게 %'], ['다 녹는 온도', 'k-tl', '액상선'], ['판정', 'k-v', '']])}
+    return `<div class="pl-w"><div class="hd">직접 해 보기 — SnAg 조성과 리플로우</div>
+      ${K.ctl('j', '전류밀도 (ASD)', 2, 15, 0.5, 5)}${K.ctl('a', '교반 (흐름 · 회전, 배수)', 0, 100, 1, 50)}${K.ctl('c', '액의 Ag 농도 (목표 대비)', 0.5, 2, 0.05, 1)}${K.ctl('pk', '리플로우 최고 온도 (°C, 예시)', 210, 270, 1, 250)}
+      ${K.kpis([['Ag', 'k-ag', '무게 %'], ['다 녹는 온도', 'k-tl', '액상선'], ['리플로우 뒤', 'k-v', '']])}
       <p class="pl-msg" data-o="msg"></p>
-      ${K.model('Ag 부분 전류 = 작은 반응 몫 + 공급 한계 몫(√교반에 비례) × J/(J+1). 상태도는 개략입니다. 실제 경향 · 값은 약품 · 장비마다 다르니 사내 데이터로 확인하세요.')}</div>`;
+      ${K.model('Ag 부분 전류 = 공급 한계 몫(액의 Ag 농도 · √교반에 비례) × J/(J+1) + 작은 반응 몫, 나머지는 Sn. 경향을 보이는 모델이고, 실제 액은 착화제로 덜 민감하게 설계됩니다. 상태도는 근삿값(±3~5 °C)이고, 고체 몫은 지렛대 규칙으로 계산합니다. 내 액의 실험 데이터로 확인하세요.')}</div>`;
   },
   mount(K, ctx){
-    const {R, C, L, P, T, G, LB, tip} = K;
+    const {R, C, L, P, T, G, LB, TT, tip, wrap, W} = K;
     const st = {j: 5, a: 50, c: 1, pk: 250};
-    const agMul = v => 0.25 * Math.pow(16, v / 100);          // ×0.25 ~ ×4
+    const agMul = v => 0.5 * Math.pow(4, v / 100);          // ×0.5 ~ ×2
     function render(){
-      const ag = agWt(st.j, agMul(st.a), st.c), tl = liq(ag), margin = st.pk - tl;
-      const v = margin >= 15 ? ['다 녹음 — 여유 있음', 'ok'] : margin >= 0 ? ['다 녹음 — 여유 적음', 'warn'] : ['덜 녹음 — 비용융 위험', 'ng'];
-      let pd = L(px(Math.min(8, ag)), PD.y0, px(Math.min(8, ag)), py(tl), 's-dash') + L(px(0), py(st.pk), px(8), py(st.pk), 'pl-peak');
-      pd += LB(T(px(8) - 4, py(st.pk) - 10, `리플로우 최고 ${st.pk} °C`, 'pl-pkt', 'end'));
-      pd += C(px(Math.min(8, ag)), py(tl), 11, v[1] === 'ok' ? 'k-ok' : v[1] === 'warn' ? 'k-warn' : 'k-ng') + C(px(Math.min(8, ag)), py(tl), 20, 'co-ring');
-      pd += LB(T(px(Math.min(8, ag)) + (ag > 6 ? -18 : 18), py(tl) - 22, `${ag.toFixed(1)} % → ${tl.toFixed(0)} °C`, 't-warn', ag > 6 ? 'end' : 'start'));
+      const sp = agSplit(st.j, agMul(st.a), st.c), ag = sp.wt, m = melt(ag, st.pk);
+      const fsP = Math.round(m.fs * 100);
+      const word = m.k === 'liq' ? '다 녹음' : m.k === 'solid' ? '안 녹음' : (m.fs < 0.5 ? '대부분 녹음' : '일부만 녹음');
+      const cls = m.k === 'solid' || (m.k === 'two' && m.fs >= 0.1) ? 'ng' : (m.k === 'two' || ag > EU) ? 'warn' : 'ok';
+      const xa = px(ag);
+      // 상태도 위: Ag 위치 · 최고 온도 · 지금 상태 점 · 고체가 남으면 지렛대(이음선)
+      let pd = L(xa, PD.y0, xa, py(Math.max(m.tl, st.pk)), 's-dash') + L(px(0), py(st.pk), px(AMAX), py(st.pk), 'pl-peak');
+      pd += LB(T(px(AMAX) - 4, py(st.pk) - 10, `최고 ${st.pk} °C`, 'pl-pkt', 'end'));
+      pd += C(xa, py(m.tl), 6, 'k-acc', tip(`다 녹는 온도(액상선) ${m.tl.toFixed(0)} °C`));
+      if (m.k === 'two'){
+        const x1 = m.ph === 'Ag₃Sn' ? px(AMAX) : px(0);
+        pd += L(px(m.cl), py(st.pk), x1, py(st.pk), 'p10-tie', tip(`지렛대: 액체(Ag ${m.cl.toFixed(1)} %) ↔ 고체 ${m.ph}`)) + C(px(m.cl), py(st.pk), 6, 'k-acc');
+      }
+      pd += C(xa, py(st.pk), 11, 'k-' + cls) + C(xa, py(st.pk), 20, 'co-ring');
+      const right = ag > 6.5;
+      pd += LB(T(xa + (right ? -18 : 18), py(m.tl) - 14, `${ag.toFixed(1)} % → ${m.tl.toFixed(0)} °C`, 't-warn', right ? 'end' : 'start'));
       ctx.$('[data-v="pd"]').innerHTML = pd;
-      // 범프 단면: 녹았는가
-      const bx = 140, bw = 200, by = 1000;
+      ctx.$('[data-v="l2"]').classList.toggle('hide', st.pk > 216 && st.pk < 238);
+      // 범프 단면 (리플로우 뒤, 예시)
+      const bx = 96, bw = 180, by = 1000;
       let b = R(bx - 30, by + 50, bw + 60, 14, 'f-seed2') + R(bx, by - 60, bw, 110, 'f-cu2') + R(bx, by - 78, bw, 18, 'f-ni');
-      if (v[1] !== 'ng') b += P(`M${bx},${by - 78} C${bx - 10},${by - 120} ${bx},${by - 190} ${bx + bw / 2},${by - 196} C${bx + bw},${by - 190} ${bx + bw + 10},${by - 120} ${bx + bw},${by - 78} Z`, 'f-sn2', tip('다 녹아 둥글어진 솔더'));
-      else { b += P(`M${bx},${by - 78} L${bx},${by - 170} L${bx + 40},${by - 182} L${bx + 70},${by - 168} L${bx + 120},${by - 186} L${bx + 160},${by - 170} L${bx + bw},${by - 178} L${bx + bw},${by - 78} Z`, 'f-sn2', tip('덜 녹은 솔더 — 모양이 둥글지 않다')); for (let k = 0; k < 4; k++) b += R(bx + 24 + k * 44, by - 160 + (k % 2) * 30, 30, 8, 'pl-ag3', W2(tip('고체로 남은 Ag₃Sn 판'), {transform: `rotate(${k * 25 - 30} ${bx + 39 + k * 44} ${by - 156 + (k % 2) * 30})`})); }
-      b += T(bx + bw / 2, 760, v[0], v[1] === 'ng' ? 'pl-warn' : 't-sub') + T(bx + bw / 2, 790, '리플로우 뒤 (예시)', 't-dim');
+      const dome = `M${bx},${by - 78} C${bx - 10},${by - 120} ${bx},${by - 190} ${bx + bw / 2},${by - 196} C${bx + bw},${by - 190} ${bx + bw + 10},${by - 120} ${bx + bw},${by - 78} Z`;
+      if (m.k === 'solid') b += P(`M${bx},${by - 78} L${bx},${by - 170} L${bx + 40},${by - 182} L${bx + 70},${by - 168} L${bx + 120},${by - 186} L${bx + 160},${by - 170} L${bx + bw},${by - 178} L${bx + bw},${by - 78} Z`, 'f-sn2', tip('녹지 않은 솔더 — 도금한 모양 그대로'));
+      else {
+        b += P(dome, 'f-sn2', tip(m.k === 'liq' ? '다 녹아 둥글어진 솔더' : '대부분 녹아 둥글다 — 고체 알갱이가 일부 남음'));
+        if (m.k === 'two'){
+          const n = Math.max(1, Math.min(8, Math.round(m.fs * 40)));
+          const r = K.rng(11);
+          for (let k = 0; k < n; k++) b += R(bx + 30 + r() * 130, by - 170 + r() * 80, 14, 9, m.ph === 'Ag₃Sn' ? 'pl-ag3' : 'p10-snc', tip(m.ph === 'Ag₃Sn' ? '녹지 않고 남은 고체 Ag₃Sn' : '녹지 않고 남은 고체 Sn'));
+        }
+        if (ag > EU){
+          b += R(bx + 24, by - 128, 150, 9, 'pl-ag3', W(tip('식을 때 자란 큰 Ag₃Sn 판 — 균열이 지나가기 쉬운 길'), {transform: `rotate(-14 ${bx + 99} ${by - 124})`}));
+          if (ag > 5) b += R(bx + 40, by - 104, 120, 8, 'pl-ag3', {transform: `rotate(10 ${bx + 100} ${by - 100})`});
+        }
+      }
+      b += T(bx + bw / 2, 772, word, cls === 'ok' ? 't-sub' : 'pl-warn') + T(bx + bw / 2, 798, '리플로우 뒤 (예시)', 't-dim');
       ctx.$('[data-v="bump"]').innerHTML = b;
-      ctx.out('k-ag', ag.toFixed(1) + ' %'); ctx.out('k-tl', tl.toFixed(0) + ' °C'); ctx.out('k-v', v[0].split(' — ')[0]);
+      // 판정 상자
+      let v = T(1180, 816, word, cls === 'ok' ? 'p10-vok' : 'p10-vng', 'start');
+      let vy = 848;
+      const line = (t, c) => { const ln = wrap(t, 17.6); v += TT(1180, vy, ln, c, 'start', 26); vy += ln.length * 26 + 8; };
+      line(`Ag\u00a0${ag.toFixed(1)}\u00a0% · 액상선\u00a0${m.tl.toFixed(0)}\u00a0°C · 최고\u00a0${st.pk}\u00a0°C`, 't-dim');
+      if (m.k === 'two') line(`+ 고체 ${m.ph} 약 ${Math.max(1, fsP)} % (지렛대 규칙 · 노란 선)`, 't-sub');
+      if (m.k === 'solid') line('최고 온도가 공정점(共晶) 221 °C보다 낮다', 't-sub');
+      if (ag > EU) line('⚠ Ag > 3.5 % — 식을 때 큰 Ag₃Sn 판이 자란다 → 균열 길', 'p10-wn');
+      else if (ag < 1) line('Ag가 너무 적다 → 녹는 온도가 Sn 쪽(232\u00a0°C)으로 오르고 Ag의 이점(강도 · 위스커 억제)이 준다', 'p10-wn');
+      else if (ag >= 1.5 && ag <= 2.5) line('✓ 보통 목표(1.5~2.5 %) 안', 'p10-okt');
+      v += TT(1180, 1030, wrap('덜 녹아 보이면 보통 산화막 · 유기물 · 낮은 최고 온도가 먼저입니다 (12장)', 19.5), 't-dim', 'start', 25);
+      ctx.$('[data-v="verdict"]').innerHTML = v;
+      ctx.out('k-ag', ag.toFixed(1) + ' %'); ctx.out('k-tl', m.tl.toFixed(0) + ' °C'); ctx.out('k-v', word);
       const kv = ctx.card.querySelector('[data-o="k-v"]').parentNode;
-      ['ok', 'warn', 'ng'].forEach(c => kv.classList.toggle(c, v[1] === c));
-      ctx.q('[data-o=msg]').innerHTML = `전류밀도를 올리면 Ag %가 내려가고, 교반을 세게 하면 올라갑니다. ${ag > 3.5 ? `Ag가 공정 조성(3.5 %)보다 많아 <b>다 녹는 온도가 ${tl.toFixed(0)} °C</b>로 올랐습니다.` : `공정 조성(3.5 %)보다 적은 쪽은 녹는 온도가 천천히 변합니다(Sn 232 °C → 221 °C).`}`;
+      ['ok', 'warn', 'ng'].forEach(c => kv.classList.toggle(c, cls === c));
+      let msg = `Ag에 쓰인 전류 <b>${(sp.x * 100).toFixed(1)} %</b> → Ag <b>${ag.toFixed(1)} %</b> (Ag⁺는 전자 1개, Sn²⁺는 2개라 같은 전기로 약 1.8배 무겁게 쌓입니다). `;
+      msg += m.k === 'liq' ? `다 녹는 온도 ${m.tl.toFixed(0)} °C보다 높아 다 녹습니다.` : m.k === 'solid' ? '최고 온도가 공정점(共晶) 221 °C보다 낮아 녹지 않습니다.' : `액상선 ${m.tl.toFixed(0)} °C보다 낮아 고체 ${m.ph}이 약 ${Math.max(1, fsP)} % 남습니다.`;
+      if (ag > EU) msg += ' <b>Ag가 공정점(共晶) 3.5 %보다 많아 식을 때 큰 Ag₃Sn 판이 자랄 수 있습니다(균열 길).</b>';
+      else if (ag < 1) msg += ' Ag가 너무 적으면 녹는 온도가 Sn(232 °C) 쪽으로 오르고 Ag의 이점이 줄어듭니다.';
+      ctx.q('[data-o=msg]').innerHTML = msg;
       ctx.refresh();
     }
-    const W2 = (...os) => Object.assign({}, ...os);
     const go = () => { if (ctx.step() && ctx.step() !== 'comp') ctx.go('comp'); };
     ctx.range('j', v => { st.j = v; render(); return v.toFixed(1); });
     ctx.range('a', v => { st.a = v; render(); return '×' + agMul(v).toFixed(2); });
@@ -109,24 +244,52 @@ const DEMO = {comp: null};
   },
   notes(K){
     return K.terms([
-      ['인 함유 구리 양극', '인(P)이 아주 조금 든 구리. 표면에 검은 피막이 생겨 고르게 녹고 찌꺼기가 줄어든다'],
-      ['설파민산 니켈', '응력이 낮은 Ni 도금액. 붕산이 표면 근처 pH가 오르는 것을 막는다'],
+      ['인 함유 구리 양극', 'P 약 0.04~0.065 %. 전류 · Cl⁻가 있으면 표면에 검은 피막이 생겨 Cu⁺(구리 가루의 원인)를 줄인다'],
+      ['설파민산 니켈', '응력이 낮은 Ni 도금액. 붕산이 표면 pH 상승을 막고, 염화물이 양극을 잘 녹게 한다'],
+      ['부동태', '금속 표면에 얇은 산화막이 생겨 녹거나 붙는 반응이 잘 안 되는 상태'],
       ['MSA', '메탄설폰산. SnAg 도금액의 산. 금속염이 잘 녹고 비교적 다루기 쉽다'],
-      ['착화제', '금속 이온을 감싸 붙잡아 두는 분자. Ag가 혼자 먼저 석출되는 것을 막는다'],
-      ['치환 석출', '전류 없이 귀한 금속(Ag)이 덜 귀한 금속(Sn) 위에 저절로 석출되는 것'],
-      ['공정 조성', '한 온도에서 한꺼번에 녹는 조성. Sn–Ag는 약 3.5 % Ag, 221 °C'],
-      ['액상선', '이 온도 위에서는 다 녹는 선. 공정 조성에서 멀어질수록 오른다']
+      ['착화제', '금속 이온을 감싸 붙잡아 두는 분자. Ag가 혼자 먼저 · 저절로 석출되는 것을 막는다'],
+      ['치환 석출', '전류 없이 Ag⁺가 Sn · Ni · Cu 같은 금속 표면에서 전자를 빼앗아 저절로 붙는 것'],
+      ['wt %', '무게 기준 퍼센트. Ag 2 wt% = 솔더 100 g에 Ag 2 g'],
+      ['공정점(共晶)', '두 금속이 섞여 한 온도에서 한꺼번에 녹는 조성. Sn–Ag는 Ag 3.5 wt%, 221 °C. 공정(工程)과 다른 말'],
+      ['액상선', '이 온도 위에서는 다 녹는 선. 공정점(共晶)에서 멀어질수록 오른다'],
+      ['Ag₃Sn', 'Ag 약 73 wt%인 단단한 화합물. 공정점보다 Ag가 많으면 액체에서 먼저 굳어 판으로 자란다']
     ]) + K.field([
-      '<b>Ag 함량은 공급(확산)에 민감합니다.</b> 장비마다 흐름 방식이 다르거나 같은 웨이퍼 안에서도 흐름이 다르면 Ag가 달라질 수 있습니다. 비용융(덜 녹음)이 보이면 Ag 분포와 흐름 · 전류밀도를 함께 봅니다.',
-      'Sn²⁺가 Sn⁴⁺로 산화되면 Sn이 줄고 슬러지(입자)가 생깁니다. 공기 접촉 · 온도 · 양극 반응을 줄이고, 필터와 Sn⁴⁺ 분석을 관리합니다.',
-      'Ni 도금 뒤 시간이 지나면 Ni 표면이 산화(부동태)되어 SnAg가 잘 붙지 않을 수 있습니다. 층 사이 린스 · 대기 시간 · 활성화를 관리합니다.',
-      'Cu → Ni → SnAg 순서는 같아도 층마다 두께 목적이 다릅니다: Cu는 높이, Ni는 방벽 두께(소모량 고려), SnAg는 접합에 필요한 솔더 양.'
+      '<b>Ag % 맵은 두께 맵과 반대로 움직이기 쉽습니다.</b> 국부 전류밀도가 높은 곳(가장자리 · 고립 범프)은 두껍고 Ag가 낮습니다. 제품이 바뀌어 개구율이 달라지면 같은 전류에서도 실제 전류밀도가 바뀌어 Ag %가 바뀝니다 (<a data-go="wafer">07</a> · <a data-go="pattern">08장</a>).',
+      '<b>온도</b>를 올리면 보통 Ag 공급이 빨라져 Ag %가 오르고, Sn²⁺ 산화(Sn⁴⁺ 찌꺼기)도 빨라집니다. 열교환기 이상은 SnAg에서 두께보다 조성으로 먼저 보일 수 있습니다 (<a data-go="tool.loop">09장</a>).',
+      '<b>저알파 주석</b> — Sn 원료 · 양극 · 약품에 아주 적은 방사성 불순물(예: Po-210)이 있으면 알파 입자가 나와 메모리 셀의 데이터를 뒤집을 수 있습니다(소프트 에러). 메모리 범프용 Sn 약품은 알파 방출 규격으로 관리하고, 공급처 · 등급 변경은 변경관리 대상입니다.',
+      '비용융(덜 녹음)이 보이면 Ag %보다 먼저 표면 산화막 · 막 속 유기물 · 리플로우 최고 온도와 시간을 봅니다. Ag 때문에 고체가 많이 남는 것은 Ag가 크게 벗어났을 때(착화제 · 첨가제 고장 등)입니다 (<a data-go="defects.melt">12장</a>).',
+      'Ni 도금 뒤 시간이 지나면 Ni 표면이 산화(부동태)되어 SnAg가 잘 붙지 않습니다. 층 사이 린스 · 대기 시간 · 활성화를 관리합니다 (<a data-go="tool.seq">09장</a>).',
+      '따뜻한 Ni 액이나 산성 SnAg 액이 PR을 붓게 하거나 들뜨게 하면 PR 밑으로 도금이 번지고, PR 성분이 녹아 나와 액을 오염시키기도 합니다. PR을 바꾸면 도금액과의 궁합도 확인합니다.'
     ]) + K.deep(`<ul>
-      <li><b>왜 Ag가 공급에 민감한가</b> — Ag는 Sn보다 훨씬 쉽게 석출되는(귀한) 금속인데 액 속 농도는 Sn보다 훨씬 낮습니다. 그래서 Ag는 표면에 오는 대로 거의 다 쌓이는 "공급 한계"에 가깝고, Sn은 전류가 정합니다. 전류를 올리면 Sn만 늘어 Ag 비율이 줄고, 교반을 세게 하면 Ag 공급이 늘어 비율이 오릅니다. 착화제는 이 민감도를 줄이는 쪽으로 작용합니다.</li>
-      <li><b>Sn–Ag 상태도</b> — Sn 쪽에서 Ag가 늘면 녹는 온도가 232 → 221 °C로 내려가고(공정점 약 3.5 %), 그보다 많아지면 고체 Ag₃Sn이 먼저 생기며 다 녹는 온도가 가파르게 오릅니다. 리플로우 최고 온도가 액상선보다 낮으면 Ag₃Sn이 고체로 남아 모양이 덜 둥글고 접합이 나빠질 수 있습니다.</li>
-      <li><b>Ag₃Sn 판</b> — Ag가 많으면 냉각 중 큰 판 모양 Ag₃Sn이 자라 기계적 성질에 영향을 줄 수 있습니다.</li>
-      <li><b>Ni의 역할과 소모</b> — Ni는 Sn과 반응해 Ni₃Sn₄ 등을 만들며 조금씩 소모됩니다. 다 소모되면 Cu가 솔더와 직접 반응하므로, 리플로우 횟수 · 고온 이력을 고려해 두께를 정합니다.</li>
-      <li><b>양극과 분리막</b> — SnAg에서 불용성 양극을 쓰면 Sn · Ag를 약품으로 보충합니다. 분리막은 Ag가 양극 쪽에서 반응하거나 첨가제 · Sn²⁺가 양극에서 산화되는 것을 줄입니다.</li></ul>`);
-  }
+      <li><b>왜 Ag가 공급에 민감한가</b> — Ag는 Sn보다 훨씬 쉽게 석출되는 금속인데, 액 속 농도는 Sn의 약 1/50~1/100입니다. 그래서 Sn이 쌓일 만큼 세게 밀면 Ag는 "오는 만큼" 다 쌓이고(확산 한계 근처), Sn은 전류가 시키는 만큼 쌓입니다. 예: Ag 0.5 g/L, 착이온 확산계수 약 4×10⁻¹⁰ m²/s, 확산층 30 µm이면 Ag 한계전류는 약 0.06 ASD로, 6 ASD에서 전류의 약 1 %가 Ag에 쓰입니다. Ag⁺는 전자 1개, Sn²⁺는 2개라 전류 1 %가 Ag 약 1.8 wt%가 됩니다. 상용 액은 착화제로 Ag 석출을 Sn 쪽으로 끌어내려 이 민감도를 줄이도록 설계되어, 실제 기울기는 액마다 다릅니다. 펄스 도금에서 쉬는 시간을 늘리면 보통 Ag %가 오르고, 범프 높이 방향으로도 Ag가 조금 달라질 수 있습니다(리플로우로 대부분 섞임).</li>
+      <li><b>Sn–Ag 상태도와 지렛대 규칙</b> — 액상선 근삿값: Ag 1 % 229 · 1.8 % 226 · 2.5 % 224 · 3 % 222 · 3.5 % 221(공정점) · 4 % 230 · 5 % 약 243 · 6 % 260 · 8 % 280 °C. 공정점 오른쪽에서 먼저 굳는 것은 Sn이 아니라 Ag₃Sn(Ag 73.2 wt%)입니다. 고체 몫 = (내 Ag % − 그 온도의 액체 Ag %) ÷ (73.2 − 액체 Ag %). 예: Ag 8 % 범프를 250 °C로 올리면 액체는 Ag 약 5.4 %를 품고, 고체 Ag₃Sn은 약 4 %만 남습니다. 그래서 Ag가 조금 높아도 "안 녹음"은 드뭅니다. 리플로우 최고 온도는 보통 액상선보다 약 20~40 °C 높게(SnAg 범프 약 240~260 °C), 액상선 위에 머무는 시간은 약 30~90초로 잡습니다. 온도 · 시간이 늘면 IMC가 더 자랍니다.</li>
+      <li><b>큰 Ag₃Sn 판</b> — Ag가 많고 천천히 식으면 솔더 안에 판 모양 Ag₃Sn이 크게 자라 균열이 지나가는 길이 됩니다. 그래서 마이크로범프 SnAg는 보통 Ag를 공정점보다 적게(약 1.5~2.5 wt%) 잡고 상한을 관리합니다. 마이크로범프는 솔더가 적어, 리플로우 · 본딩을 여러 번 하면 Sn이 IMC로 소모되고 남은 솔더의 Ag가 진해져 처음엔 2.5 %였어도 판이 생길 수 있습니다.</li>
+      <li><b>Ag를 넣는 이유 · 너무 적을 때</b> — Ag는 녹는 온도를 낮추고(221 °C), 미세한 Ag₃Sn 그물로 솔더를 단단하게 하며, 위스커를 줄입니다. Ag가 약 1 % 근처로 너무 낮으면 녹는 온도가 Sn(232 °C) 쪽으로 오르고 위스커가 보고된 예도 있습니다. 그래서 Ag %는 위아래 규격으로 관리합니다.</li>
+      <li><b>IMC와 Ni 소모</b> — 리플로우 · 본딩 때 솔더의 Sn이 Ni와 반응해 Ni₃Sn₄(Cu가 섞이면 (Cu,Ni)₆Sn₅) 층이 생기며 Ni를 조금씩 먹습니다. 마이크로범프는 솔더가 적어 열을 여러 번 받으면 많은 부분이 IMC로 바뀔 수 있고, 적층에서 아래쪽 다이일수록 열을 더 많이 받습니다. Ni 두께는 "모든 열 이력 뒤에도 남아 있어야 할 양"으로 정합니다.</li>
+      <li><b>Sn 위스커</b> — 주로 순수 Sn 무광 도금 마감(리드 등)의 문제입니다. 리플로우된 SnAg 마이크로범프는 합금이고, 녹았다 굳었으며, 언더필 · 몰드로 덮이므로 위험이 낮은 편입니다.</li>
+      <li><b>양극 방식과 산 · 금속 수지</b> — Sn 양극은 녹는 양이 쌓이는 양보다 조금 많아 Sn이 늘기 쉽습니다. 불용성 양극은 금속을 Sn 농축액(Sn-MSA)으로 보충하므로 산(MSA)이 계속 쌓입니다. 그래서 일부를 버리고 새 액을 넣거나(bleed & feed) 산이 없는 보충제(예: 산화주석 분말)로 맞춥니다 (<a data-go="bath.metal">11장</a>).</li>
+      <li><b>Ni 응력과 양극</b> — 설파민산 Ni 양극이 잘 녹지 않으면(염화물 부족 등) 양극에서 설파민산이 분해되어 황 성분 부산물이 생기고 막의 응력이 바뀔 수 있습니다. Ni 크랙 · 들뜸(12장)이 보이면 응력 측정값과 함께 양극 상태 · 염화물 농도를 봅니다.</li>
+      <li><b>고속 Cu 액</b> — 범프용 고속 Cu 액은 보통 구리 농도를 높여 한계전류를 키웁니다. 03장의 iL = nFDC/δ에서 C를 키우는 것과 같습니다.</li></ul>`);
+  },
+  css: `.pl-svg .p10-film{fill:#1b1b1f;stroke:#4b5563;stroke-width:1}
+.pl-svg .p10-cup{fill:#fdba74;stroke:#9a3412;stroke-width:1.2}
+.pl-svg .p10-ct{font-size:14px;font-weight:900;fill:#1b1203 !important;stroke:none !important}
+.pl-svg .p10-dust{fill:#c2410c;opacity:.85}
+.pl-svg .p10-crack{fill:none;stroke:#94a3b8;stroke-width:1.6}
+.pl-svg .p10-bad{fill:rgba(239,68,68,.14)}
+.pl-svg .p10-warn{fill:rgba(245,158,11,.14)}
+.pl-svg .p10-ok{fill:rgba(34,197,94,.18);stroke:#4ade80;stroke-width:2}
+.pl-svg .p10-cx{font-size:21px;font-weight:800;fill:#c4b5fd !important}
+.pl-svg .p10-bt{font-size:22px;font-weight:800;fill:#f8fafc !important}
+.pl-svg .p10-tgt{fill:rgba(34,197,94,.10)}
+.pl-svg .p10-tg{font-size:18px;font-weight:800;fill:#86efac !important}
+.pl-svg .p10-eu{font-size:20px;font-weight:800;fill:#fbbf24 !important}
+.pl-svg .p10-tie{stroke:#fde68a;stroke-width:3}
+.pl-svg .p10-snc{fill:#e2e8f0;stroke:#64748b;stroke-width:1}
+.pl-svg .p10-vok{font-size:30px;font-weight:900;fill:#4ade80 !important}
+.pl-svg .p10-vng{font-size:30px;font-weight:900;fill:#fbbf24 !important}
+.pl-svg .p10-wn{font-size:21px;font-weight:800;fill:#fca5a5 !important}
+.pl-svg .p10-okt{font-size:21px;font-weight:800;fill:#86efac !important}`
 });
 })();
