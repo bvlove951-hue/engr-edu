@@ -451,7 +451,11 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   await plSet('chem', 'c', 1); await plSet('chem', 'pk', 212); const cold = await plOut('chem', 'k-v');
   await plSet('chem', 'pk', 250);
   ok(agHiJ < agMid && agMid < agLoJ && agHiC > agMid && /안 녹음/.test(cold), `10 SnAg: 전류밀도 2 → 5 → 15 ASD에 Ag ${agLoJ} → ${agMid} → ${agHiJ} %, Ag 농도 ×2 → ${agHiC} %, 최고 212 °C → ${cold}`);
-  /*@PLATING_WIDGET_TESTS@*/
+  await plSet('bath', 'b', 0); const ss0 = await plOut('bath', 'k-ss');
+  await plSet('bath', 'b', 5); const ss5 = await plOut('bath', 'k-ss'), t95 = await plOut('bath', 'k-t95');
+  await plSeg('bath', 'dose', 'time'); const outT = plNum(await plOut('bath', 'k-out'));
+  await plSeg('bath', 'dose', 'mix'); const outM = plNum(await plOut('bath', 'k-out'));
+  ok(/계속/.test(ss0) && /\d+ %/.test(ss5) && plNum(t95) === 60 && outM < outT, `11 도금액 관리: bleed 0 → ${ss0}, 5 %/일 → 정상 수준 ${ss5} · 95 % 도달 ${t95}, 첨가제 이탈 시간 기준 ${outT}일 → Ah + 시간 ${outM}일`);
   await page.screenshot({ path: path.join(OUT, '09-plating.png') });
   await page.click('[data-tab="map"]');
 
