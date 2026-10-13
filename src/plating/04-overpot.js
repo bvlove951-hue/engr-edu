@@ -100,7 +100,7 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
     s += R(RX, 120, 480, 1000, 'pl-panel', {rx: 16});
     // eq: 오가는 화살표
     let eq = T(TX, 166, '평형 — 오가는 양이 같다', 't-acc', 'start');
-    eq += R(RX + 40, 210, 400, 330, 'f-bath') + R(RX + 40, 540, 400, 70, 'f-cu2') + T(RX + 240, 640, '금속 (전극) — 전류 0', 't-dim');
+    eq += R(RX + 40, 210, 400, 330, 'f-bath') + R(RX + 40, 540, 400, 70, 'f-cu2') + T(RX + 240, 584, '금속 (전극)', 't-lbl');
     for (let k = 0; k < 4; k++){
       const x = RX + 80 + k * 90;
       eq += K.ionPath(`M${x},300 L${x},520`, 'cu', 2.8, k * 0.7, null) + K.ionPath(`M${x + 30},520 L${x + 30},300`, 'cu', 2.8, k * 0.7 + 1.4, null);
@@ -136,10 +136,10 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
     s += G(hh, only('h2'));
     // slope: 두 길과 톨게이트 (막대 · 수치는 위젯이 그린다)
     let sl = T(TX, 166, '고르게 퍼지려면 — 기울기', 't-acc', 'start');
-    sl += R(RX + 60, 206, 130, 24, 'f-anode', tip('양극 (+)')) + T(RX + 200, 224, '양극 (+)', 't-dim', 'start');
+    sl += R(RX + 60, 206, 130, 24, 'f-anode', tip('양극 (애노드, +)')) + T(RX + 200, 224, '양극 (애노드, +)', 't-dim', 'start');
     sl += P(`M${RX + 125},232 L${RX + 125},400`, 's-flow') + P(`M${RX + 160},232 C${RX + 240},250 ${RX + 330},300 ${RX + 355},400`, 's-flow');
     sl += LB(T(RX + 110, 330, '짧은 길', 't-sub', 'end') + T(RX + 300, 286, '긴 길 (액 저항 ×3)', 't-sub', 'start'));
-    sl += R(RX + 40, 520, 400, 30, 'f-cu2') + T(RX + 240, 572, '음극 (−) 표면', 't-dim');
+    sl += R(RX + 40, 520, 400, 30, 'f-cu2') + T(RX + 240, 572, '음극 (캐소드, −) — 도금되는 표면', 't-dim');
     sl += `<g data-v="paths"></g>`;
     sl += para(720, ['완만한 곡선 = 전류를 조금 더 흘리려면 훨씬 더 밀어야 한다 = 모든 길 입구에 같은 톨게이트(표면 저항) → 길 길이 차이가 덜 중요 → 고르게', '모양 그대로 옆으로 옮기기만 하면 → 쏠림 그대로']);
     sl += para(954, ['크기에 따라 주역이 다르다 (바그너 수)'], 't-warn');
@@ -179,9 +179,9 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
       // 이름표: 왼쪽에 있는 곡선(억제제 없음)은 왼쪽 위, 오른쪽 곡선은 오른쪽 아래에
       const left = st.sup === 'none', [mx, my] = at(cv, 0.8);
       cv2 += G(LB(left ? T(mx - 16, my - 12, cv.nm, 't-acc', 'end') : T(mx + 16, my + 30, cv.nm, 't-acc', 'start')), K.on('kin'));
-      const ly = gy(st.a) - 12 > GY1 + 44 ? gy(st.a) - 12 : gy(st.a) + 30;                     // 한계전류 이름표 (위가 좁으면 아래로)
+      const ly = gy(st.a) - 46 > GY1 + 44 ? gy(st.a) - 12 : gy(st.a) + 30;                     // 한계전류 이름표 (위가 좁으면 아래로)
       const eh = 0.42 + 0.04 * Math.log(0.0025 * st.a / 0.002);                                  // 수소가 눈에 띄기 시작하는 곳부터
-      cv2 += G(P(pts(e => model(e, cv, st.a).i, eh), 's-curve2', tip('전체 전류 = 금속 + 수소')) + LB(T(GX0 + 10, ly > gy(st.a) ? gy(st.a) + 60 : gy(st.a) + 34, '주황 점선 = 전체 (금속 + 수소)', 't-warn', 'start')), K.only('h2'));
+      cv2 += G(P(pts(e => model(e, cv, st.a).i, eh), 's-curve2', tip('전체 전류 = 금속 + 수소')) + LB(T(GX0 + 10, ly > gy(st.a) ? gy(st.a) + 60 : gy(st.a) - 46, '주황 점선 = 전체 (금속 + 수소)', 't-warn', 'start')), K.only('h2'));
       const [qx, qy] = at(cc, 0.5);
       cv2 += G(P(pts(e => imOf(e, cc, st.a)), 'pl-cmp', tip(cn === 'sup' ? '억제제가 있을 때 — 오른쪽으로 옮겨지고 완만해진다(기울기가 눕는다)' : '억제제가 없을 때')) + LB(left ? T(qx + 16, qy + 30, cc.nm, 'pl-cmpt', 'start') : T(qx - 16, qy - 10, cc.nm, 'pl-cmpt', 'end')), K.on('kin'));
       cv2 += L(GX0, gy(st.a), GX1, gy(st.a), 's-dash') + LB(T(GX0 + 10, ly, '한계전류 iL', 't-warn', 'start'));
@@ -192,9 +192,10 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
       // 지금 점
       const r = model(st.e, cv, st.a), z = zone(r), x = gx(st.e), y = gy(r.i);
       let dt = L(x, GY0, x, y, 's-dash') + C(x, gy(r.im), 9, 'k-acc') + C(x, y, 13, ZN[z].c) + C(x, y, 22, 'co-ring');
-      dt += LB(T(Math.min(x + 20, GX1 - 190), Math.max(GY1 + 50, y - 26), ZN[z].t, 't-warn', 'start'));
+      const eq0 = st.e < 0.0025;                                 // 미는 힘 0 = 평형
+      dt += LB(T(Math.min(x + 20, GX1 - 190), Math.max(GY1 + 50, y - 26), eq0 ? '평형 (알짜 전류 0)' : ZN[z].t, 't-warn', 'start'));
       ctx.$('[data-v="dot"]').innerHTML = dt;
-      ctx.$$('[data-v^="mbox"]').forEach((b, k) => b.setAttribute('class', k === z ? 'pl-box pl-on' : 'pl-box'));
+      ctx.$$('[data-v^="mbox"]').forEach((b, k) => b.setAttribute('class', k === z && !eq0 ? 'pl-box pl-on' : 'pl-box'));
       // 두 길 비교 (같은 평균 금속 전류에서) — 한계 근처는 공급이 분포를 정하므로 계산하지 않는다
       const iop = Math.max(0.02 * st.a, r.im), lim = z >= 2;
       const [a1, a2] = lim ? [0, 0] : split(iop, cv, st.a), [b1, b2] = lim ? [0, 0] : split(iop, cc, st.a);
@@ -210,7 +211,6 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
         pa += LB(T(RX_ + 24, 620, `쏠림 ×${sk.toFixed(2)} (${cv.nm})`, 't-acc', 'start') + T(RX_ + 24, 652, `비교: ${cc.nm} ×${skc.toFixed(2)}`, 'pl-cmpt', 'start'));
       }
       ctx.$('[data-v="paths"]').innerHTML = pa;
-      const eq0 = st.e < 0.0025;                                 // 미는 힘 0 = 평형
       ctx.out('k-z', eq0 ? '평형' : ZN[z].t);
       ctx.out('k-m', `${Math.round(r.im / r.iL * 100)} %`);
       ctx.out('k-eff', r.i < 1e-4 ? '–' : `${Math.round(r.im / r.i * 100)} %`);
@@ -248,7 +248,7 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
       ['교환전류 (i₀)', '평형에서 쌓이고 녹는 반응이 오가는 양. 클수록 조금만 밀어도 많이 흐른다'],
       ['타펠 구역', '전류가 과전압에 지수적으로 느는 구간 (보통 수십 mV 이상 밀었을 때)'],
       ['한계전류 (iL)', '공급(확산)이 따라갈 수 있는 최대 전류 → 03장'],
-      ['바그너 수 (Wa)', '곡선의 완만함 ÷ 크기만큼의 액 저항. 클수록 전류가 고르게 퍼진다']
+      ['바그너 수 (Wa)', '곡선의 완만함 ÷ 크기만큼의 액 저항. 클수록 전류가 고르게 퍼진다(균일전착성이 좋다)']
     ]) + K.field([
       '실무에서는 <b>반응 지배 구역</b>, 한계전류보다 충분히 낮은 곳에서 운전합니다. 처리량을 늘리려고 전류를 올릴 때는 먼저 한계전류와의 거리를 봅니다.',
       '<b>균일도는 곡선의 기울기가 정합니다.</b> 기울기가 완만할수록 전류가 저항이 작은 길(가장자리 · 튀어나온 곳)로 쏠리지 않습니다. 억제제는 곡선을 옮기면서 눕혀서 돕습니다 — 모양 그대로 옆으로만 옮겨지면 거의 도움이 되지 않습니다.',
