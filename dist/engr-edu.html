@@ -5287,7 +5287,7 @@ window.EngrBump = {
   title: '도금조 — 전기를 흘리면 왜 금속이 쌓일까?',
   hook: '전자를 건네면 이온이 금속이 된다',
   one: '전기로 금속 이온에 전자를 건네 주면, 이온이 금속 원자가 되어 표면에 쌓입니다. 도금의 전부는 이 한 문장에서 시작합니다.',
-  ana: '도금은 <b>무인 택배함</b>과 같습니다. 정류기가 웨이퍼 표면의 택배함에 전자를 채워 둡니다. 액 속을 떠돌던 Cu²⁺가 택배함 앞까지 오면 전자 2개를 꺼내 가고, 그 자리에 구리 원자로 앉습니다. 정류기는 전자를 새로 만들지 않고, 양극에서 받아 온 만큼만 웨이퍼로 옮깁니다. 그래서 양극이 내놓는 전자 수와 웨이퍼가 쓰는 전자 수는 늘 같습니다. <i>(비유의 한계: 이온은 택배함을 찾아오는 것이 아니라 흐름과 확산에 실려 표면에 닿습니다. 전자는 액 속으로 나가지 않고 웨이퍼 표면 "문 앞"까지만 갑니다. 원자는 바로 앉지 않고 표면을 조금 돌아다니다 자리 좋은 곳에 앉습니다.)</i>',
+  ana: '도금은 <b>무인 택배함</b>과 같습니다. 정류기가 웨이퍼 표면의 택배함에 전자를 채워 두면, 액 속을 떠돌던 Cu²⁺가 택배함 앞까지 와서 전자 2개를 꺼내 가고 그 자리에 구리 원자로 앉습니다. 정류기는 전자를 새로 만들지 않고 양극에서 받아 온 만큼만 옮기므로, 양극이 내놓는 전자 수와 웨이퍼가 쓰는 전자 수는 늘 같습니다. <i>(비유의 한계: 이온은 택배함을 찾아오지 않고 흐름과 확산에 실려 닿습니다. 전자는 액 속으로 나가지 않고 표면 "문 앞"까지만 갑니다. 원자는 표면을 조금 돌아다니다 자리 잡습니다.)</i>',
   steps: [
     {id: 'goal', t: '우리가 만드는 것', d: 'HBM 칩을 위아래로 잇는 작은 금속 기둥(마이크로범프)을 도금으로 만듭니다. 아래부터 Cu 기둥 · 얇은 Ni 방벽 · SnAg 솔더 모자. 실제 장비는 비커가 아니라 웨이퍼를 얼굴이 아래로 향하게 담그는 셀입니다(→ <a data-go="tool">09장</a>).'},
     {id: 'bath', t: '도금액 — 이온의 바다', d: '황산구리와 황산을 물에 녹이면 Cu²⁺(전자 2개를 잃은 구리) · H⁺ · SO₄²⁻로 나뉩니다. +와 −의 전하가 딱 맞아 액 전체는 중성입니다. 물만으로는 전기가 거의 안 통하고, 이온이 있어야 통합니다.'},
@@ -5312,30 +5312,30 @@ window.EngrBump = {
     g0 += R(110, 972, 600, 8, 'f-seed2', tip('시드층 — 웨이퍼 전면에 미리 깔아 둔 아주 얇은 금속막. 전기가 흐르는 길이자 도금이 붙는 바닥'));
     g0 += T(130, 1050, '칩 (Si) · 패드', 't-sub', 'start');
     // PR 틀과 그 안의 세 층
-    g0 += R(110, 470, 170, 502, 'f-pr', tip('PR(감광막) 틀 — 범프 자리만 구멍을 뚫어 둔 틀. 도금 뒤 벗긴다')) + R(540, 470, 170, 502, 'f-pr', tip('PR(감광막) 틀'));
-    g0 += R(280, 690, 260, 282, 'f-cu2', tip('Cu 기둥 — 높이를 만들고 전기 · 열을 나른다'));
-    g0 += R(280, 656, 260, 34, 'f-ni', tip('Ni 방벽 — 얇은 층. Cu와 솔더가 서로 섞이지 않게 막는다'));
-    g0 += R(280, 500, 260, 156, 'f-sn2', tip('SnAg 솔더 모자 — 리플로우 때 녹아 위 칩의 범프와 붙는다'));
-    g0 += T(410, 452, 'PR 구멍 안에서 아래부터 위로 자란다', 't-dim');
-    g0 += T(195, 735, 'PR', 't-lbl') + T(625, 735, 'PR', 't-lbl');
+    g0 += R(110, 330, 170, 642, 'f-pr', tip('PR(감광막) 틀 — 범프 자리만 구멍을 뚫어 둔 틀. 도금 뒤 벗긴다')) + R(540, 330, 170, 642, 'f-pr', tip('PR(감광막) 틀'));
+    g0 += R(280, 650, 260, 322, 'f-cu2', tip('Cu 기둥 — 높이를 만들고 전기 · 열을 나른다'));
+    g0 += R(280, 610, 260, 40, 'f-ni', tip('Ni 방벽 — 얇은 층. Cu와 솔더가 서로 섞이지 않게 막는다'));
+    g0 += R(280, 380, 260, 230, 'f-sn2', tip('SnAg 솔더 모자 — 리플로우 때 녹아 위 칩의 범프와 붙는다'));
+    g0 += T(410, 312, 'PR 구멍 안에서 아래부터 위로 자란다', 't-dim');
+    g0 += T(195, 520, 'PR', 't-lbl') + T(625, 520, 'PR', 't-lbl');
     // 역할 라벨 (지시선 + 두 줄)
     const role = (px, py, ty, name, desc) => LB(P(`M${px},${py} L752,${ty}`, 's-lead') + C(px, py, 4, 'k-lead') + T(764, ty + 8, name, 't-lbl', 'start') + T(764, ty + 38, desc, 't-dim', 'start'));
-    g0 += role(480, 560, 520, 'SnAg 솔더 모자', '녹아서 위 칩의 범프와 붙는다');
-    g0 += role(500, 673, 618, 'Ni 방벽 (얇다)', 'Cu와 솔더가 섞이지 않게 막는다');
-    g0 += role(500, 830, 716, 'Cu 기둥', '높이를 만들고 전기 · 열을 나른다');
-    g0 += role(680, 780, 814, 'PR (감광막) 틀', '구멍 안에만 도금 · 도금 뒤 벗긴다');
-    g0 += role(690, 976, 912, '시드층 (아주 얇다)', '전기가 흐르는 바닥 · 도금 시작점');
+    g0 += role(480, 470, 420, 'SnAg 솔더 모자', '녹아서 위 칩의 범프와 붙는다');
+    g0 += role(500, 630, 548, 'Ni 방벽 (얇다)', 'Cu와 솔더가 섞이지 않게 막는다');
+    g0 += role(500, 800, 676, 'Cu 기둥', '높이를 만들고 전기 · 열을 나른다');
+    g0 += role(680, 820, 804, 'PR (감광막) 틀', '구멍 안에만 도금 · 도금 뒤 벗긴다');
+    g0 += role(690, 976, 932, '시드층 (아주 얇다)', '전기가 흐르는 바닥 · 도금 시작점');
     // 오른쪽: 실제 장비는 비커가 아니라 셀
     g0 += R(1130, 124, 440, 990, 'pl-panel', {rx: 16});
     g0 += T(1150, 170, '실제 장비는 비커가 아니다', 't-warn', 'start');
-    g0 += arrowP('M1290,206 A62,10 0 0 1 1412,206', 's-arr') + T(1424, 210, '회전', 't-dim', 'start');
+    g0 += arrowP('M1250,206 A62,10 0 0 1 1374,206', 's-arr') + T(1396, 210, '회전', 't-dim', 'start');
     g0 += P('M1180,236 L1180,560 Q1180,576 1196,576 L1504,576 Q1520,576 1520,560 L1520,236', 'f-tank');
     g0 += R(1183, 268, 334, 305, 'f-bath');
     g0 += R(1200, 214, 300, 40, 'pl-headb', W({rx: 8}, tip('헤드 — 웨이퍼를 잡고 돌린다 (→ 09장)'))) + T(1350, 241, '헤드 + 웨이퍼', 't-dim');
     g0 += R(1215, 254, 270, 10, 'f-wafer') + R(1215, 264, 270, 4, 'f-seed2', tip('도금면 — 아래(액 쪽)를 향한다'));
-    g0 += T(1350, 300, '↑ 도금면이 아래를 향한다', 't-dim');
+    g0 += T(1350, 300, '도금면(아래쪽 면)이 액에 닿는다', 't-dim');
     for (const x of [1240, 1460]) g0 += arrowP(`M${x},420 C${x},380 ${x + (x < 1350 ? 30 : -30)},350 ${x + (x < 1350 ? 30 : -30)},318`, 's-arr');
-    g0 += P('M1300,420 C1320,380 1380,380 1400,330', 's-flow') + T(1350, 400, '액 흐름', 't-dim');
+    g0 += T(1350, 380, '액 흐름', 't-dim');
     g0 += R(1183, 440, 334, 8, 'f-mem', tip('분리막 — 양극 쪽 액과 웨이퍼 쪽 액을 나눈다')) + T(1350, 474, '분리막', 't-dim');
     g0 += R(1240, 524, 220, 26, 'f-anode', W({rx: 4}, tip('양극'))) + T(1350, 514, '양극 (+)', 't-dim');
     g0 += TT(1150, 624, wrap('웨이퍼를 도금면이 아래로 향하게 헤드에 잡고 도금액에 담급니다. 웨이퍼가 돌고, 아래에 양극과 분리막이 있습니다.', 18), 't-sub', 'start', 30);
@@ -5387,8 +5387,8 @@ window.EngrBump = {
     for (let k = 0; k < 18; k++){ const x = 580 + (k % 6) * 88 + r() * 30, y = 520 + Math.floor(k / 6) * 150 + r() * 50; idle += jiggle(x, y, k % 3 === 2 ? 'so4' : 'cu', k + 3, 10); }
     for (let k = 0; k < 4; k++) idle += jiggle(640 + k * 130, 960 - (k % 2) * 30, 'h', k + 40, 10);
     b += G(idle, only('bath'));
-    b += G(lead(842, 566, 930, 500, 'Cu²⁺ 구리 이온') + lead(700, 875, 600, 930, 'SO₄²⁻ 황산 이온', 'end') + lead(770, 960, 860, 1012, 'H⁺ (황산에서)'), only('bath'));
-    b += G(LB(T(1080, 1040, '+ 전하 = − 전하 → 액 전체는 중성', 't-dim', 'end')), only('bath'));
+    b += G(lead(842, 566, 930, 500, 'Cu²⁺ 구리 이온') + lead(784, 872, 690, 930, 'SO₄²⁻ 황산 이온', 'end') + lead(640, 962, 700, 1014, 'H⁺ 수소 이온'), only('bath'));
+    b += G(LB(T(800, 1104, '+ 전하 = − 전하 → 액 전체는 중성 · 물만으로는 전기가 거의 안 통한다', 't-dim')), only('bath'));
     // 켜져 있을 때: 흐름(교반)이 이온을 실어 나른다 — 일직선 행진이 아님
     let fl = '';
     const flows = ['M1060,560 C900,470 760,640 580,560', 'M580,720 C720,800 900,640 1060,740', 'M1060,880 C900,800 760,960 600,880'];
@@ -5486,8 +5486,7 @@ window.EngrBump = {
     ]) + K.field([
       '정류기는 보통 <b>전류를 일정하게</b> 제어하고 전압은 따라 움직입니다. 같은 레시피인데 전압이 평소보다 높다면 접점(콘택트) · 도금액 · 분리막 · 양극 상태를 의심해 보는 신호입니다.',
       '웨이퍼 표면은 대부분 절연막이라 그대로는 도금되지 않습니다. 먼저 전면에 <b>시드층</b>을 깔아 전기가 통하게 합니다 (<a href="#go-bump">범프 공정</a> 01 PVD).',
-      '얇은 Cu 시드는 전류 없이 산성 도금액에 닿으면 조금씩 <b>녹을 수 있습니다</b>. 그래서 보통 작은 전류 · 전압을 건 채로 웨이퍼를 넣습니다(입수 전류, 핫 엔트리 → <a data-go="tool.seq">09장</a>).',
-      '기억법: <b>캐소드 = 전자를 받는 곳(환원) = 도금되는 웨이퍼</b>. 배터리 용어와 섞이지 않게 「양극(애노드, +) · 음극(캐소드, −)」을 짝으로 씁니다.'
+      '얇은 Cu 시드는 전류 없이 산성 도금액에 닿으면 조금씩 <b>녹을 수 있습니다</b>. 그래서 보통 작은 전류 · 전압을 건 채로 웨이퍼를 넣습니다(입수 전류, 핫 엔트리 → <a data-go="tool.seq">09장</a>).'
     ]) + K.deep(`<ul>
       <li><b>전자와 전류의 방향</b> — 정류기는 전자를 새로 만들지 않고 옮깁니다. 전자는 양극 → 전선 → 정류기 → 전선 → 음극으로 흐르고, 양극에서 나간 전자 수만큼 음극으로 들어갑니다. 회로도에 그리는 '전류'(+ → −)는 관례상 전자와 <b>반대 방향</b>으로 정한 약속입니다. 장면의 하늘색 점은 전자이고, 전류 화살표는 그리지 않았습니다.</li>
       <li><b>액 속의 전기</b> — 액에는 떠다니는 전자가 없습니다. +이온과 −이온이 서로 반대로 움직이며 전기를 나르고, 전자는 금속 표면에서만 이온과 주고받습니다. 산이 많은 액에서는 수가 많고 빠른 H⁺와 음이온이 전류 대부분을 나르고, Cu²⁺는 주로 흐름과 확산으로 표면에 옵니다(→ <a data-go="surface">03장</a>).</li>
@@ -5505,91 +5504,150 @@ window.EngrBump = {
 
 </script>
 <script>
-/* 전해도금 02 — 패러데이 법칙: 전기량이 곧 두께 (범프 하나 · µm) */
+/* 전해도금 02 — 패러데이 법칙: 얼마나 흘리면 얼마나 쌓일까 (범프 하나 · µm) */
 (function(){
 const F = 96485;
-// 금속별 상수: 몰질량 M(g/mol), 이온 전하수 n, 밀도 ρ(g/cm³)
+// 금속별 상수: 몰질량 M(g/mol), 이온 전하수 n, 밀도 ρ(g/cm³), 효율 기본값(예시 %), 소모량 g/Ah
 const MET = {
-  cu: {nm: 'Cu', ion: 'Cu²⁺', M: 63.55, n: 2, rho: 8.96, cls: 'f-cu2', eff: '산성 Cu: 거의 100 %'},
-  ni: {nm: 'Ni', ion: 'Ni²⁺', M: 58.69, n: 2, rho: 8.91, cls: 'f-ni', eff: 'Ni: 수소가 함께 나와 보통 95 % 안팎'},
-  sn: {nm: 'SnAg', ion: 'Sn²⁺', M: 118.71, n: 2, rho: 7.29, cls: 'f-sn2', eff: 'SnAg: Sn 기준으로 계산 (Ag는 몇 % 뿐)'}
+  cu: {nm: 'Cu', ion: 'Cu²⁺', M: 63.55, n: 2, rho: 8.96, cls: 'f-cu2', e0: 100, gAh: 1.19, eff: '산성 Cu: 보통 98~100 %'},
+  ni: {nm: 'Ni', ion: 'Ni²⁺', M: 58.69, n: 2, rho: 8.91, cls: 'f-ni', e0: 96, gAh: 1.10, eff: 'Ni(설파민산): 보통 95~99 % — 수소가 조금씩 함께 나온다'},
+  sn: {nm: 'SnAg', ion: 'Sn²⁺', M: 118.71, n: 2, rho: 7.29, cls: 'f-sn2', e0: 95, gAh: 2.21, eff: 'SnAg(MSA): 보통 90 % 이상 — Sn 기준으로 계산 (Ag는 전기의 약 1~2 %)'}
 };
 const PR_UM = 60, PX = 10;                 // PR 높이(예시) 60 µm, 1 µm = 10 px
 const OX = 1270, OW = 250, BASE = 1000, PRT = BASE - PR_UM * PX;
+const WAF = 7.07;                          // 300 mm 웨이퍼 면적 (dm²)
+const WX = 300, WY = 452, WR = 214, WS = 24;   // 레시피 단계: 웨이퍼 윗면 그림 (중심 · 반지름 · 구멍 간격)
 const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor(Math.log10(Math.abs(v))), m = v / Math.pow(10, e); return `${m.toFixed(2)}×10${String(e).replace('-', '⁻').replace(/\d/g, d => '⁰¹²³⁴⁵⁶⁷⁸⁹'[d])}`; };
 
 (window.EngrPlatingChapters = window.EngrPlatingChapters || []).push({
   no: '02', id: 'faraday', part: 1, short: '패러데이 법칙', scale: '범프 하나 · µm',
-  title: '패러데이 법칙 — 전기량이 곧 두께',
+  title: '패러데이 법칙 — 얼마나 흘리면 얼마나 쌓일까?',
   hook: '흘린 전기만큼 쌓인다',
   one: '흘린 전기량(전류 × 시간)만큼 금속이 쌓입니다. 그래서 두께는 계산으로 미리 알 수 있고, 계산과 실측이 다르면 무언가 새고 있다는 뜻입니다.',
-  ana: '<b>수도꼭지와 양동이</b> — 틀어 둔 세기(전류)와 시간을 곱하면 받은 물(전기량)이 나옵니다. 도금에서는 받은 전기량이 곧 쌓인 금속의 양입니다. 물이 조금 새면(수소 거품) 양동이는 덜 찹니다.',
+  ana: '<b>수도꼭지와 컵</b> — 전류는 수도꼭지에서 1초에 나오는 물의 양, 시간은 틀어 둔 시간, 전기량은 받은 물의 총량입니다. 같은 양의 물이라도 <b>바닥이 좁은 컵</b>에 부으면 더 높이 찹니다. 범프 도금에서 컵 바닥 넓이는 <b>PR이 열린 면적</b>입니다. 옆으로 튄 물(수소 같은 곁반응)은 높이에 보태지지 않습니다 — 이것이 전류효율입니다. <i>(비유의 한계: 금속은 물처럼 컵 안에서 저절로 평평해지지 않습니다. 어디에 얼마나 쌓이는지는 전류 분포가 정합니다 → 07 · 08장.)</i>',
   steps: [
-    {id: 'q', t: '전류 × 시간 = 전기량', d: '흘린 전기의 총량(쿨롱, C)이 쌓이는 양을 정합니다. 범프에서는 면적당 전류인 <b>전류밀도</b>로 말합니다. ASD = A/dm², 1 ASD = 10 mA/cm².'},
+    {id: 'q', t: '전류 × 시간 = 전기량', d: '흘린 전기의 총량(쿨롱, C)이 쌓이는 양을 정합니다. 범프에서는 면적당 전류인 <b>전류밀도</b>로 말합니다. ASD = A/dm²(가로세로 10 cm 면적에 흐르는 암페어), 1 ASD = 10 mA/cm².'},
     {id: 'n', t: '전자 n개마다 원자 하나', d: 'Cu²⁺ · Ni²⁺ · Sn²⁺는 전자 2개, Ag⁺는 1개를 받아 원자 하나가 됩니다. 전기량 ÷ 패러데이 상수(96,485 C/mol) ÷ n = 쌓인 원자의 몰수.'},
-    {id: 't', t: '원자 수 → 두께', d: '몰수 × 몰질량 ÷ 밀도 = 부피, 부피 ÷ 면적 = 두께. 한 줄로 쓰면 속도 v = J·M / (n·F·ρ). Cu는 1 ASD에서 1분에 약 0.22 µm 자랍니다.'},
-    {id: 'eff', t: '전류효율 — 새는 전기', d: '전기의 일부는 수소 거품처럼 다른 반응에 쓰입니다. 산성 Cu는 거의 100 %, Ni는 조금 낮습니다. 계산값 × 효율 = 실제 두께.'}
+    {id: 't', t: '원자 수 → 두께', d: '몰수 × 몰질량 ÷ 밀도 = 부피, 부피 ÷ 면적 = 두께. 한 줄로 쓰면 속도 v = J·M / (n·F·ρ). 1 ASD에서 1분에 Cu는 약 0.22 µm, SnAg는 약 0.51 µm 자랍니다.'},
+    {id: 'eff', t: '전류효율 — 새는 전기', d: '전기의 일부는 수소 발생처럼 금속이 아닌 반응에 쓰입니다. 산성 Cu는 거의 100 %, Ni는 보통 90 % 대 중후반, SnAg는 보통 90 % 이상. 계산값 × 효율 = 실제 두께.'},
+    {id: 'recipe', t: '레시피 전류 = 목표 전류밀도 × 열린 면적', d: '정류기는 웨이퍼 전체에 전류(A)를 줍니다. 도금은 PR이 열린 곳에만 쌓이므로 전류 = 목표 전류밀도 × 열린 면적. 열린 면적이 절반인 제품은 같은 전류로 두 배 빨리 자랍니다. 제품(마스크)이 바뀌면 전류를 다시 계산합니다.'}
   ],
   icon(K){
     const {R, P} = K;
     return R(4, 4, 18, 56, 'f-pr') + R(46, 4, 18, 56, 'f-pr') + R(22, 26, 24, 34, 'f-cu2') + P('M30,20 L34,6 L38,20 M34,6 L34,24', 's-arr2');
   },
   draw(K){
-    const {R, C, L, P, T, G, LB, tip, only, on, W, ionPath, lead, ion} = K;
+    const {R, C, L, P, T, TT, G, LB, tip, only, on, W, ion, arrow, wrap} = K;
     let s = '';
-    // 왼쪽: 계산 기계 (다섯 줄)
+    // 왼쪽: 계산 기계 (다섯 줄) — 레시피 단계에서는 숨김
     const rows = [
       {st: 'q', y: 150, h: 'Q = J × t', t: '① 전기량', sub: '전류밀도 × 시간 (1 cm²당)', v: 'q'},
       {st: 'n', y: 330, h: '÷ F', t: '② 전자의 몰수', sub: 'F = 96,485 C/mol (전자 1몰의 전기량)', v: 'e'},
       {st: 'n', y: 510, h: '÷ n', t: '③ 원자의 몰수', sub: '', v: 'a'},
       {st: 't', y: 690, h: '× M ÷ ρ', t: '④ 두께', sub: '', v: 'th'},
-      {st: 'eff', y: 870, h: '× 효율', t: '⑤ 실제 두께', sub: '나머지 전기는 수소 거품 등으로 샌다', v: 'real'}
+      {st: 'eff', y: 870, h: '× 효율', t: '⑤ 실제 두께', sub: '나머지 전기는 수소 거품 등 곁반응으로 샌다', v: 'real'}
     ];
+    let calc = '';
     rows.forEach((r, k) => {
       let g = R(40, r.y, 880, 150, 'pl-box', {rx: 14});
       g += R(40, r.y, 880, 150, 'pl-hlbox', W({rx: 14}, only(r.st)));
       g += R(62, r.y + 26, 168, 98, 'pl-op', {rx: 12}) + T(146, r.y + 88, r.h, 'pl-opt');
       g += T(256, r.y + 48, r.t, 't-lbl', 'start') + T(256, r.y + 80, r.sub, 't-dim', 'start', {'data-v': r.v + '-sub'});
       g += T(256, r.y + 124, '', 'pl-val', 'start', {'data-v': r.v});
-      if (k < rows.length - 1) g += K.arrow(146, r.y + 150, 146, r.y + 180, 's-arr');
-      s += G(g, tip(r.t + ' — ' + r.h));
+      if (k < rows.length - 1) g += arrow(146, r.y + 150, 146, r.y + 180, 's-arr');
+      calc += G(g, tip(r.t + ' — ' + r.h));
     });
     // ③ 옆: 전자 2개 + 이온 → 원자
-    s += G(ion(700, 552, 'e') + ion(726, 552, 'e') + T(756, 559, '+', 't-lbl') + `<g data-v="ion">${ion(794, 552, 'cu')}</g>` + T(830, 559, '→', 't-lbl') + C(868, 552, 15, 'f-atom'), on('n'));
+    calc += G(ion(700, 552, 'e') + ion(726, 552, 'e') + T(756, 559, '+', 't-lbl') + `<g data-v="ion">${ion(794, 552, 'cu')}</g>` + T(830, 559, '→', 't-lbl') + C(868, 552, 15, 'f-atom'), on('n'));
     // 오른쪽: PR 구멍 속에서 자라는 범프 (단면)
-    s += R(960, 130, 620, 960, 'pl-panel', {rx: 16}) + T(984, 172, '범프 하나 (단면) — 계산한 두께만큼 자란다', 't-acc', 'start');
-    s += R(990, BASE + 16, 560, 60, 'f-si') + R(990, BASE + 4, 560, 12, 'f-pas') + R(OX - OW / 2 - 20, BASE + 4, OW + 40, 12, 'f-al');
-    s += R(990, BASE, 560, 4, 'f-seed2', tip('시드층 — 여기서부터 도금이 쌓인다'));
-    s += R(1010, PRT, OX - OW / 2 - 1010, BASE - PRT, 'f-pr', tip(`PR(감광막) 틀 — 높이 예시 ${PR_UM} µm`)) + R(OX + OW / 2, PRT, 1530 - OX - OW / 2, BASE - PRT, 'f-pr');
+    calc += R(960, 130, 620, 960, 'pl-panel', {rx: 16}) + T(984, 172, '범프 하나 (단면) — 계산한 두께만큼 자란다', 't-acc', 'start');
+    calc += R(990, BASE + 16, 560, 60, 'f-si') + R(990, BASE + 4, 560, 12, 'f-pas') + R(OX - OW / 2 - 20, BASE + 4, OW + 40, 12, 'f-al');
+    calc += R(990, BASE, 560, 4, 'f-seed2', tip('시드층 — 여기서부터 도금이 쌓인다'));
+    calc += R(1010, PRT, OX - OW / 2 - 1010, BASE - PRT, 'f-pr', tip(`PR(포토레지스트, 감광막) 틀 — 범프 자리만 구멍을 뚫어 둔 틀. 높이 예시 ${PR_UM} µm`)) + R(OX + OW / 2, PRT, 1530 - OX - OW / 2, BASE - PRT, 'f-pr');
     // 범프 (높이는 위젯이 정한다)
-    s += `<g data-v="bump">${R(OX - OW / 2, BASE - 100, OW, 100, 'f-cu2', W({'data-v': 'col'}, tip('도금된 금속 — 위로 자란다')))}<path data-v="cap" class="f-cu2" d=""/></g>`;
+    calc += `<g data-v="bump">${R(OX - OW / 2, BASE - 100, OW, 100, 'f-cu2', W({'data-v': 'col'}, tip('도금된 금속 — 위로 자란다')))}<path data-v="cap" class="f-cu2" d=""/></g>`;
     // 금속 이온이 구멍으로, 거품이 위로 (범프 윗면을 따라 움직인다)
-    s += `<g data-v="ions"></g>`;
+    calc += `<g data-v="ions"></g>`;
     let bub = '';
     for (let k = 0; k < 9; k++) bub += `<g data-v="b${k}">${K.bubble(OX - 100 + k * 25, -6, 6 + (k % 3) * 2, 360, 2.4 + (k % 4) * 0.3, k * 0.29)}</g>`;
-    s += `<g data-v="bubs" transform="translate(0 ${BASE - 100})">${bub}</g>`;
+    calc += `<g data-v="bubs" transform="translate(0 ${BASE - 100})">${bub}</g>`;
     // 눈금 (µm)
     let sc = L(992, PRT - 60, 992, BASE, 's-edge');
     for (let u = 0; u <= PR_UM + 5; u += 10) sc += L(986, BASE - u * PX, 998, BASE - u * PX, 's-edge') + T(980, BASE - u * PX + 7, String(u), 't-dim', 'end');
-    s += LB(sc + T(980, PRT - 70, 'µm', 't-dim', 'end'));
-    s += LB(T(1006, PRT - 18, `PR ${PR_UM} µm (예시)`, 't-dim', 'start') + T(OX - OW / 2 - 70, PRT + 50, 'PR', 't-lbl') + T(OX + OW / 2 + 70, PRT + 50, 'PR', 't-lbl'));
-    s += T(OX, BASE + 112, '', 'pl-warn', 'middle', {'data-v': 'warn'});
-    s += G(LB(T(OX, 260, '거품 = 수소 (효율이 낮을수록 많다)', 't-dim')), only('eff'));
+    calc += LB(sc + T(980, PRT - 70, 'µm', 't-dim', 'end'));
+    calc += LB(T(1006, PRT - 18, `PR ${PR_UM} µm (예시)`, 't-dim', 'start') + T(OX - OW / 2 - 70, PRT + 50, 'PR', 't-lbl') + T(OX + OW / 2 + 70, PRT + 50, 'PR', 't-lbl'));
+    calc += T(OX, BASE + 112, '', 'pl-warn', 'middle', {'data-v': 'warn'});
+    calc += G(LB(T(OX, 208, '거품 = 수소 · 효율을 낮추면 늘어난다 (산성 Cu는 거의 없다)', 't-dim')), only('eff'));
+    s += G(calc, on('q', 'recipe'));
+
+    /* ---- 레시피 단계: 웨이퍼 윗면 · 공식 · 좁은 컵 · 여러 단계 ---- */
+    let rc = '';
+    // ① 웨이퍼 윗면 — 열린 곳(구멍)만 도금된다. 구멍 크기는 개구율에 맞춰 위젯이 바꾼다
+    rc += R(40, 130, 520, 640, 'pl-panel', {rx: 16}) + T(64, 172, '웨이퍼를 위에서 보면', 't-acc', 'start') + T(64, 202, '보라 = PR로 덮인 곳 · 주황 점 = 열린 곳', 't-dim', 'start');
+    rc += `<clipPath id="pl2-wf"><circle cx="${WX}" cy="${WY}" r="${WR}"/></clipPath>`;
+    let holes = '';
+    for (let y = WY - WR + WS / 2; y < WY + WR; y += WS) for (let x = WX - WR + WS / 2; x < WX + WR; x += WS){
+      if (Math.hypot(x - WX, y - WY) > WR - 8) continue;
+      holes += C(x, y, 6, 'f-seed2');
+    }
+    let grid = '';
+    for (let k = -3; k <= 3; k++) grid += L(WX + k * 64, WY - WR, WX + k * 64, WY + WR, 'p02-grid') + L(WX - WR, WY + k * 64, WX + WR, WY + k * 64, 'p02-grid');
+    rc += G(C(WX, WY, WR, 'f-pr') + `<g data-v="holes">${holes}</g>` + grid, W({'clip-path': 'url(#pl2-wf)'}, tip('웨이퍼 윗면 — 다이(네모)마다 범프 자리만 PR이 열려 있다. 점 크기는 개구율(예시)에 맞춘 그림')));
+    rc += C(WX, WY, WR, 's-edge');
+    rc += T(WX, WY + WR + 40, '', 't-sub', 'middle', {'data-v': 'wlbl'});
+    rc += T(WX, WY + WR + 70, '정류기 전류는 이 열린 면적에만 나뉘어 흐른다', 't-dim');
+    // ② 공식 (위젯 값으로 숫자가 바뀐다)
+    rc += R(590, 130, 970, 410, 'pl-panel', {rx: 16}) + T(616, 176, '레시피 전류 = 목표 전류밀도 × 열린 면적', 't-acc', 'start');
+    rc += T(616, 232, 'I = J × A(열린)', 'p02-eq', 'start');
+    rc += T(616, 290, '', 'pl-val', 'start', {'data-v': 'r-a'}) + T(616, 334, '', 'pl-val', 'start', {'data-v': 'r-i'});
+    rc += T(616, 386, '', 't-warn', 'start', {'data-v': 'r-x'});
+    rc += T(616, 432, '', 't-sub', 'start', {'data-v': 'r-ah'});
+    rc += T(616, 470, '', 't-dim', 'start', {'data-v': 'r-g'});
+    rc += T(616, 512, '개구율 · 전류밀도 · 시간은 카드의 직접 해 보기 값 (예시)', 't-dim', 'start');
+    // ③ 좁은 컵 — 같은 물이라도 바닥이 좁으면 더 높이 찬다
+    rc += R(40, 800, 760, 312, 'pl-panel', {rx: 16}) + T(64, 840, '같은 물(전기량)이라도 좁은 컵은 더 높이 찬다', 't-acc', 'start');
+    const cup = (x, w, lvl, nm, sub) => {
+      let g = R(x, 1066 - lvl, w, lvl, 'p02-water') + P(`M${x - 4},930 L${x - 4},1070 L${x + w + 4},1070 L${x + w + 4},930`, 'p02-cup');
+      g += L(x + w / 2, 900, x + w / 2, 1066 - lvl, 'p02-pour');
+      g += T(x + w / 2, 890, nm, 't-sub') + T(x + w + 16, 1072 - lvl, sub, 't-warn', 'start');
+      return g;
+    };
+    rc += cup(90, 240, 60, '열린 면적 넓음', '높이 1');
+    rc += cup(430, 120, 120, '열린 면적 절반', '높이 2배');
+    // 튄 물 = 곁반응 (높이에 보태지지 않음)
+    for (let k = 0; k < 4; k++) rc += C(566 + k * 16, 914 - k * 10 + (k % 2) * 8, 4 + (k % 2), 'p02-drop');
+    rc += T(640, 880, '튄 물 = 곁반응(수소)', 't-dim', 'start') + T(640, 906, '→ 높이에 안 보탬', 't-dim', 'start');
+    rc += T(420, 1098, '컵 바닥 = PR이 열린 면적 · 물 = 전기량', 't-dim');
+    // ④ 레시피는 보통 여러 단계 (예시 · Cu)
+    rc += R(830, 570, 730, 542, 'pl-panel', {rx: 16}) + T(856, 612, '레시피는 보통 여러 단계 (예시 · Cu)', 't-acc', 'start');
+    const AX0 = 900, AX1 = 1520, AY0 = 920, AY1 = 660, mx = m => AX0 + m / 14 * (AX1 - AX0), my = j => AY0 - j / 10 * (AY0 - AY1);
+    rc += L(AX0, AY0, AX1, AY0, 's-axis') + L(AX0, AY0, AX0, AY1, 's-axis');
+    rc += T(AX0 - 10, AY1 + 6, 'ASD', 't-dim', 'end');
+    [0, 3, 13].forEach(m => { rc += L(mx(m), AY0, mx(m), AY0 + 8, 's-axis') + T(mx(m), AY0 + 30, m ? m + '분' : '0', 't-dim'); });
+    [1, 8].forEach(j => { rc += L(AX0 - 8, my(j), AX0, my(j), 's-axis') + T(AX0 - 14, my(j) + 7, String(j), 't-dim', 'end'); });
+    rc += R(mx(0), my(1), mx(3) - mx(0), AY0 - my(1), 'pl-bar', tip('① 낮은 전류로 시작 — 바닥을 고르게 덮는다'));
+    rc += R(mx(3), my(8), mx(13) - mx(3), AY0 - my(8), 'pl-bar', tip('② 본 전류 — 빠르게 쌓는다'));
+    rc += T(mx(1.5), my(1) - 14, '①', 't-lbl') + T(mx(8), my(8) + 40, '② 본 전류 8 ASD × 10분', 't-sub');
+    rc += TT(856, 980, ['① 0.22 µm/분 × 1 ASD × 3분 = 0.66 µm', '② 0.22 µm/분 × 8 ASD × 10분 = 17.6 µm'], 't-sub', 'start', 30);
+    rc += T(856, 1046, '합 ≈ 18.3 µm (효율 100 %) — 단계마다 전류 × 시간을 더한다', 't-warn', 'start');
+    rc += T(856, 1080, '흔히 처음은 낮은 전류로 고르게 덮고, 다음에 본 전류로 빠르게', 't-dim', 'start');
+    s += G(rc, only('recipe'));
     return s;
   },
   body(K){
     return `<div class="pl-w"><div class="hd">직접 해 보기 — 두께 계산기</div>
       ${K.seg('m', [['cu', 'Cu'], ['ni', 'Ni'], ['sn', 'SnAg']], 'cu', '금속')}
-      ${K.ctl('j', '전류밀도 (ASD)', 0.5, 20, 0.5, 5)}${K.ctl('t', '시간 (분)', 1, 60, 1, 10)}${K.ctl('eff', '전류효율 (%)', 70, 100, 1, 100)}
-      ${K.kpis([['두께', 'k-th', '계산 × 효율'], ['속도', 'k-v', 'µm/분'], ['전기량', 'k-q', 'C/cm²']])}
+      ${K.ctl('j', '전류밀도 (ASD)', 0.5, 20, 0.5, 5)}${K.ctl('t', '시간 (분)', 1, 60, 1, 10)}${K.ctl('eff', '전류효율 (%, 금속별 예시 기본값)', 70, 100, 1, 100)}
+      ${K.kpis([['두께', 'k-th', '계산 × 효율'], ['속도', 'k-v', 'µm/분'], ['전기량', 'k-q', 'C/cm²'], ['정류기 전류', 'k-i', 'A · 300 mm']])}
       <p class="pl-msg" data-o="msg"></p>
       ${K.ctl('f', '개구율 — PR이 열린 면적 비율 (%)', 5, 60, 1, 20)}
       <p class="pl-msg" data-o="amp"></p>
-      ${K.model('수치는 순수 금속의 교과서 값입니다. 실제 두께는 계측으로 확인하고, 계산과 꾸준히 다르면 효율 · 전류 · 면적 중 무엇이 다른지 찾습니다.')}</div>`;
+      ${K.model('수치는 순수 금속의 교과서 값이고, 효율 기본값(Cu 100 · Ni 96 · SnAg 95 %)은 예시입니다. 실제 두께는 계측으로 확인하고, 계산과 꾸준히 다르면 효율 · 전류 · 면적 중 무엇이 다른지 찾습니다.')}</div>`;
   },
   mount(K, ctx){
     let m = 'cu';
     const st = {};
+    const effIn = ctx.card.querySelector('input[data-i=eff]');
     const upd = () => {
       const M = MET[m], J = st.j || 5, tm = st.t || 10, eff = (st.eff || 100) / 100;
       const q = J / 100 * tm * 60;                         // C/cm²
@@ -5612,81 +5670,113 @@ const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor
       cap.setAttribute('d', over > 0 ? `M${OX - OW / 2},${PRT} L${OX - OW / 2 - c},${PRT} Q${OX - OW / 2 - c},${PRT - c} ${OX},${PRT - c * 1.05} Q${OX + OW / 2 + c},${PRT - c} ${OX + OW / 2 + c},${PRT} L${OX + OW / 2},${PRT} Z` : '');
       const top = BASE - hpx - (over > 0 ? c : 0);
       let fall = '';
-      for (let k = 0; k < 6; k++) fall += K.ionPath(`M${OX - 60 + k * 24},200 L${OX - 50 + k * 20},${Math.max(240, top - 24)}`, m, 2.6, k * 0.43, null);
+      for (let k = 0; k < 6; k++){ const x0 = OX - 60 + k * 24, x1 = OX - 50 + k * 20, y1 = Math.max(240, top - 24); fall += K.ionPath(`M${x0},200 Q${x0 + (k % 2 ? 46 : -46)},${((200 + y1) / 2).toFixed(0)} ${x1},${y1}`, m, 2.6, k * 0.43, null); }
       ctx.$('[data-v="ions"]').innerHTML = fall;
       ctx.$('[data-v="bubs"]').setAttribute('transform', `translate(0 ${top})`);
       const nb = Math.round(K.clamp((1 - eff) / 0.3) * 9);
       for (let k = 0; k < 9; k++) ctx.$(`[data-v="b${k}"]`).style.display = k < nb ? '' : 'none';
       ctx.$('[data-v="warn"]').textContent = over > 0 ? `⚠ PR 높이를 넘었습니다 → 옆으로 퍼진 버섯 모양 (오버 도금)` : `범프 높이 ${real.toFixed(1)} µm / PR ${PR_UM} µm`;
-      ctx.out('k-th', `${real.toFixed(1)} µm`); ctx.out('k-v', v.toFixed(3)); ctx.out('k-q', q.toFixed(0));
-      ctx.q('[data-o=msg]').innerHTML = `${MET[m].eff}. 1 ASD당 ${(1 / 100 * 60 / F / M.n * M.M / M.rho * 1e4).toFixed(3)} µm/분 (효율 100 %).`;
-      const f = (st.f || 20) / 100, I = J * 7.07 * f;
-      ctx.q('[data-o=amp]').innerHTML = `300 mm 웨이퍼(약 7.07 dm²)에서 개구율 ${Math.round(f * 100)} % → 정류기 전류 ≈ <b>${I.toFixed(1)} A</b>. 같은 전류를 개구율 ${Math.round(f * 50)} % 제품에 흘리면 전류밀도가 2배 → <b>2배 빨리</b> 자랍니다.`;
+      const v1 = 1 / 100 * 60 / F / M.n * M.M / M.rho * 1e4;           // 1 ASD, 효율 100 %일 때 µm/분
+      ctx.q('[data-o=msg]').innerHTML = `${M.eff}. 1 ASD당 ${v1.toFixed(3)} µm/분 (효율 100 %). 1 Ah마다 ${M.nm === 'SnAg' ? 'Sn' : M.nm} 약 <b>${M.gAh.toFixed(2)} g</b>이 액에서 빠져 쌓입니다.`;
+      // 레시피: 전류 = 목표 전류밀도 × 열린 면적
+      const f = (st.f || 20) / 100, A = WAF * f, I = J * A, ah = I * tm / 60, grams = ah * M.gAh * eff;
+      ctx.out('k-th', `${real.toFixed(1)} µm`); ctx.out('k-v', v.toFixed(3)); ctx.out('k-q', q.toFixed(0)); ctx.out('k-i', I.toFixed(1));
+      ctx.q('[data-o=amp]').innerHTML = `300 mm 웨이퍼(약 ${WAF} dm²)에서 개구율 ${Math.round(f * 100)} % → 열린 면적 ${A.toFixed(2)} dm² → 레시피 전류 ≈ <b>${I.toFixed(1)} A</b>. 같은 전류를 개구율 ${Math.round(f * 50)} % 제품에 흘리면 전류밀도가 2배 → <b>2배 빨리</b> 자랍니다.`;
+      const rr = WS * Math.sqrt(f / Math.PI);                            // 점 넓이 비율 = 개구율
+      ctx.$$('[data-v="holes"] circle').forEach(e => e.setAttribute('r', rr.toFixed(2)));
+      $('wlbl').textContent = `300 mm 웨이퍼 ≈ ${WAF} dm² · 개구율 ${Math.round(f * 100)} %`;
+      $('r-a').textContent = `A = ${WAF} dm² × ${Math.round(f * 100)} % = ${A.toFixed(2)} dm²`;
+      $('r-i').textContent = `I = ${J} ASD × ${A.toFixed(2)} dm² = ${I.toFixed(1)} A`;
+      $('r-x').textContent = `같은 ${I.toFixed(1)} A를 개구율 ${Math.round(f * 50)} % 제품에 → ${(J * 2).toFixed(1)} ASD → 2배 빨리`;
+      $('r-ah').textContent = `${I.toFixed(1)} A × ${tm}분 = ${ah.toFixed(2)} Ah → ${M.nm === 'SnAg' ? 'Sn' : M.nm} 약 ${grams.toFixed(2)} g이 액에서 빠진다`;
+      $('r-g').textContent = `(${M.nm === 'SnAg' ? 'Sn' : M.nm} ${M.gAh.toFixed(2)} g/Ah × 효율 ${Math.round(eff * 100)} % · 웨이퍼 한 장 · 한 단계)`;
     };
-    ctx.seg('m', v => { m = v; upd(); });
+    ctx.seg('m', (v, user) => {
+      m = v;
+      // 금속을 바꾸면 효율 기본값(예시)도 바꾼다
+      if (user && effIn){ effIn.value = MET[m].e0; st.eff = MET[m].e0; ctx.out('eff', MET[m].e0 + ' %'); }
+      upd();
+    });
     ctx.range('j', v => { st.j = v; upd(); return v.toFixed(1); });
     ctx.range('t', v => { st.t = v; upd(); return v + ' 분'; });
     ctx.range('eff', v => { st.eff = v; upd(); return v + ' %'; });
     ctx.range('f', v => { st.f = v; upd(); return v + ' %'; });
+    // 개구율을 손으로 움직이면 레시피 단계를 보여 준다
+    const fin = ctx.card.querySelector('input[data-i=f]');
+    if (fin) fin.addEventListener('input', () => { const sid = ctx.step(); if (sid && sid !== 'recipe') ctx.go('recipe'); });
   },
   notes(K){
     return K.terms([
       ['전기량 (C, 쿨롱)', '전류(A) × 시간(s). 1 A를 1초 흘리면 1 C'],
-      ['전류밀도 (ASD)', '면적당 전류. A/dm², 1 ASD = 10 mA/cm² = 100 A/m²'],
+      ['전류밀도 (ASD)', '면적당 전류. A/dm² = 가로세로 10 cm 면적에 흐르는 암페어. 1 ASD = 10 mA/cm² = 100 A/m²'],
       ['패러데이 상수 F', '전자 1몰이 가진 전기량, 약 96,485 C/mol'],
       ['몰질량 M · 밀도 ρ', 'Cu 63.55 g/mol · 8.96 g/cm³, Ni 58.69 · 8.91, Sn 118.71 · 7.29'],
-      ['전류효율', '흘린 전기 중 목표 금속을 쌓는 데 쓰인 비율']
+      ['전류효율', '흘린 전기 중 목표 금속을 쌓는 데 쓰인 비율'],
+      ['PR (포토레지스트)', '범프 자리만 구멍을 뚫어 둔 감광막 틀'],
+      ['개구율', '웨이퍼 면적 가운데 PR이 열려 도금되는 면적의 비율']
     ]) + K.field([
-      '<b>범프는 열린 곳에만 쌓입니다.</b> 전류밀도 = 정류기 전류 ÷ (웨이퍼 면적 × 개구율). 제품마다 개구율이 달라 레시피 전류가 다른 이유입니다.',
-      '계산 두께와 실측이 <b>꾸준히</b> 다르면 효율(수소 · 부반응), 실제 전류(정류기 · 접점), 실제 면적(PR 구멍 크기)을 차례로 의심합니다. 한 번만 다르면 계측부터 다시.',
+      '<b>레시피 전류 = 목표 전류밀도 × 열린 면적</b>입니다. 실측 두께가 계산보다 작으면, 효율을 의심하기 전에 <b>면적 정보(마스크 · 개구율)</b>부터 확인합니다.',
+      '<b>µm/Ah 추세</b> — 실측 두께 ÷ 패러데이 예측(또는 Ah당 µm)을 추세로 봅니다. 이 값이 움직이면 효율 변화(Sn⁴⁺ 증가, Ni pH 변화), 열린 면적 입력 오류, 계측 이상 중 하나입니다. 한 번만 다르면 계측부터 다시 봅니다.',
+      '레시피는 보통 <b>여러 단계 전류</b>로 짭니다. 흔히 처음은 낮은 전류로 고르게 덮고, 다음에 본 전류로 빠르게 쌓습니다. 단계마다 전류 × 시간을 더하면 전체 두께입니다.',
       '단위 실수가 가장 흔합니다. "1분에 22 µm" 같은 값이 나오면 ASD와 A/cm²를 섞었는지 먼저 봅니다 (<a href="#go-edu-1">01 엔지니어의 마인드</a> 원칙 2).'
     ]) + K.deep(`<p>한 줄 공식: <b>두께 = J · t · M · 효율 / (n · F · ρ)</b>, 속도 v = J·M/(n·F·ρ).</p>
-      ${K.eq('Cu, 1 ASD = 100 A/m²: v = 100 × 63.55 / (2 × 96485 × 8.96×10⁶) ≈ 3.7×10⁻⁹ m/s ≈ 0.22 µm/분')}
-      <ul><li>같은 전기량이면 Sn은 Cu보다 약 2.3배 두껍게 쌓입니다 (원자가 무겁고 덜 빽빽하므로 M/ρ가 큼).</li>
-      <li><b>합금(SnAg)</b>은 금속마다 몫(부분 전류)을 나눠 계산합니다: i = i(Sn) + i(Ag). Ag는 전자 1개로 원자 하나지만 전체 전류에서 차지하는 몫이 작습니다 (10장).</li>
+      ${K.eq('Cu: 100 × 63.55 ÷ (2 × 96485 × 8.96×10⁶)')}${K.eq('  ≈ 3.7×10⁻⁹ m/s ≈ 0.22 µm/분 (1 ASD)')}
+      <ul><li>같은 ASD라도 속도는 같지 않습니다. 1 ASD에서 Cu ≈ 0.22, Ni ≈ 0.20, SnAg ≈ 0.51 µm/분(효율 100 %). Sn은 원자 하나가 차지하는 부피가 크고 전자는 똑같이 2개라서, SnAg는 Cu보다 약 2.3배 빨리 자랍니다.</li>
+      <li><b>합금(SnAg)</b>은 금속마다 몫(부분 전류)을 나눠 계산합니다: i = i(Sn) + i(Ag). Ag 2.5 wt%는 전기의 약 1.4 %만 씁니다. 그래서 Ag 함량은 전기량보다 Ag 공급(확산)에 좌우됩니다 (→ <a data-go="chem.comp">10장</a>).</li>
+      <li><b>전기량당 금속 소모량</b> — Cu 1.19 · Ni 1.10 · Sn 2.21 · Ag 4.03 g/Ah (= M ÷ (n × 26.8 Ah/mol)). 가용성 양극이면 양극이 이만큼 닳고, 불용성 양극이면 이만큼을 약품으로 보충합니다 (→ <a data-go="bath.metal">11장</a>).</li>
+      <li>효율을 깎는 것은 수소만이 아닙니다. 액에 녹은 산소의 환원, Sn⁴⁺ → Sn²⁺처럼 한 단계만 일어나는 반응도 전기를 조금 씁니다.</li>
+      <li>개구율이 작을수록 같은 전류에서 국부 전류밀도가 올라갑니다. 그러면 한계전류(→ <a data-go="surface.limit">03장</a>)에 가까워져 거칠어짐 · 조성 변화 · 탄 도금 위험도 커집니다. 제품이 바뀔 때 전류를 면적 비례로만 바꾸면 안 되는 이유입니다.</li>
       <li>효율 100 % 계산값은 <b>상한</b>입니다. 실측이 그보다 크면 계측 · 면적 · 전류 중 무언가가 틀렸습니다.</li>
       <li>다른 계산기: <a href="#go-edu-3">03 공학의 기초 7절</a>의 도금 두께 계산기.</li></ul>`);
-  }
+  },
+  css: `.pl-svg .p02-eq{font-family:var(--mono) !important;font-size:32px;font-weight:900;fill:#7dd3fc !important}
+.p02-grid{stroke:rgba(15,23,42,.55);stroke-width:2}
+.p02-water{fill:rgba(56,189,248,.45);stroke:#7dd3fc;stroke-width:1}
+.p02-cup{fill:none;stroke:#cbd5e1;stroke-width:4;stroke-linejoin:round}
+.p02-pour{stroke:#7dd3fc;stroke-width:5;stroke-dasharray:10 8;animation:jzflow .9s linear infinite;opacity:.8}
+.p02-drop{fill:#7dd3fc;opacity:.85}`
 });
 })();
 
 </script>
 <script>
-/* 전해도금 03 — 표면 가까이: 이온은 어떻게 도착하나 (표면 · 수십 µm) */
+/* 전해도금 03 — 이온이 오는 길: 이온은 어떻게 표면까지 올까 (표면 · 수십 µm) */
 (function(){
 const SURF = 1000, X0 = 40, X1 = 1090, PXUM = 4;       // 표면 y, 장면 가로 범위, 1 µm = 4 px
 const GX0 = 1170, GX1 = 1520;                          // 농도 그래프 가로 (0 → 벌크 농도)
-const D = 7e-10, F = 96485, N = 2, D0 = 60;            // 확산계수(m²/s), 교반 ×1일 때 확산층 60 µm (예시)
+const D = 7e-10, F = 96485, N = 2, D0 = 60;            // 확산계수(m²/s, 묽은 용액 25 °C 예시), 교반 ×1일 때 확산층 60 µm (예시)
 const DEMO = {bulk: 5, diff: 5, surf: 5, limit: 16};   // 손대지 않았을 때 단계마다 보여 줄 전류밀도
+// 표면 모양 단계 (r = J / iL, 개념 예시): 고움 → 거칠어짐 → 덴드라이트(한계) → 가루 · 탄 도금(넘김, 수소 많이)
+const STAGE = r => r < 0.5 ? 0 : r < 1 ? 1 : r < 1.3 ? 2 : 3;
 
 (window.EngrPlatingChapters = window.EngrPlatingChapters || []).push({
   no: '03', id: 'surface', part: 1, short: '이온이 오는 길', scale: '표면 · 수십 µm',
-  title: '표면 가까이 — 이온은 어떻게 도착하나',
+  title: '이온이 오는 길 — 이온은 어떻게 표면까지 올까?',
   hook: '확산층이 공급의 상한을 정한다',
-  one: '멀리서는 흐름이 이온을 실어 나르고, 표면 바로 앞의 얇은 층은 이온이 스스로 퍼져서(확산) 건넙니다. 이 얇은 층이 "얼마나 빨리 쌓을 수 있나"의 상한을 정합니다.',
-  ana: '<b>고속도로와 골목길</b> — 이온은 흐름(고속도로)을 타고 빠르게 오다가, 표면 앞 확산층(골목길)부터는 걸어서 갑니다. 아무리 차를 많이 보내도 골목길을 걸어 들어오는 속도 이상으로는 배달할 수 없습니다. 교반을 세게 하면 골목길이 짧아집니다.',
+  one: '이온은 멀리서는 액의 흐름을 타고 오고, 표면 바로 앞 얇은 층에서는 주로 확산(진한 곳에서 묽은 곳으로 저절로 퍼지는 움직임)으로 건넙니다. 이 층이 얇을수록 이온이 빨리 도착합니다.',
+  ana: '<b>공항 무빙워크</b>와 같습니다. 멀리서는 무빙워크(액의 흐름)가 이온을 실어 오고, 표면 앞 마지막 구간은 걸어서(확산) 갑니다. 교반을 세게 하면 무빙워크가 표면 가까이까지 늘어나 걷는 구간(확산층)이 짧아집니다. 아무리 손님(전류)을 재촉해도 걷는 구간을 지나는 속도 이상으로는 도착하지 못합니다(한계전류). <i>(비유의 한계: 실제로는 무빙워크가 끝나는 선이 뚜렷하지 않고, 흐름이 표면에 가까울수록 점점 느려집니다. 확산층 두께 δ는 계산하기 쉽게 정한 "등가 두께"입니다.)</i>',
   steps: [
-    {id: 'bulk', t: '대류 — 흐름이 실어 나른다', d: '펌프 · 웨이퍼 회전 · 패들로 섞인 액이 이온을 표면 가까이까지 실어 나릅니다. 여기서는 농도가 어디나 같습니다.'},
-    {id: 'diff', t: '확산층 — 걸어서 건너는 구간', d: '표면 바로 앞(δ, 보통 수~수십 µm)은 흐름이 거의 멎어 이온이 진한 곳 → 묽은 곳으로 퍼져서만 건넙니다. 표면이 이온을 쓰므로 표면 농도가 낮아 기울기가 생깁니다.'},
-    {id: 'surf', t: '표면 — 전자를 받고 자리 찾기', d: '이온은 표면에 붙은 얇은 전기이중층(수 nm)을 건너며 전자를 받고, 원자는 표면을 옮겨 다니다 계단 모서리 · 꺾인 자리에 자리 잡습니다.', view: {x: 524, y: 812, w: 560, h: 300}},
-    {id: 'limit', t: '한계전류 — 더는 못 따라온다', d: '전류를 올려 표면 농도가 0이 되면 더 빨리 쌓을 수 없습니다(한계전류). 한계에 가까울수록 튀어나온 곳이 이온을 먼저 잡아 거칠어지고(노듈), 넘기면 수소가 나오고 가루처럼 타거나 나뭇가지(덴드라이트)처럼 자랍니다.'}
+    {id: 'bulk', t: '대류 — 흐름이 실어 나른다', d: '펌프 · 웨이퍼 회전 · 패들로 섞인 액이 이온을 표면 가까이까지 실어 나릅니다. 여기서는 농도가 어디나 같습니다. 산이 많은 액에서 전기에 끌려오는 몫(이동)은 작습니다.'},
+    {id: 'diff', t: '확산층 — 걸어서 건너는 구간', d: '표면 바로 앞(δ, 보통 10~100 µm)은 흐름이 점점 느려져 이온이 주로 확산으로 건넙니다. 표면이 이온을 쓰므로 표면 농도가 낮아지고, 그 기울기만큼 이온이 들어옵니다.'},
+    {id: 'surf', t: '표면 — 전자를 받고 자리 찾기', d: '표면에 도착한 이온은 금속 바로 앞의 아주 얇은 층(약 1 nm)을 건너며 전자를 받습니다. 원자가 된 뒤에는 표면에서 조금 움직이다 자리 잡기 좋은 곳에 앉습니다.', view: {x: 524, y: 812, w: 560, h: 300}},
+    {id: 'limit', t: '한계전류 — 더는 못 따라온다', d: '표면 농도가 0이 되면 공급이 더는 못 따라옵니다(한계전류). 정류기는 전류를 고정하므로 모자라는 몫은 수소가 가져가고 전압이 갑자기 오릅니다. 다가가면 먼저 거칠어지고, 한계에서 덴드라이트, 넘기면 가루 · 탄 도금이 됩니다.'}
   ],
   icon(K){
     const {R, P} = K;
     return R(2, 4, 62, 30, 'f-bath') + R(2, 34, 62, 18, 'f-dl') + R(2, 52, 62, 10, 'f-cu2') + P('M6,14 L58,14 M6,24 L58,24', 's-flow');
   },
   draw(K){
-    const {R, C, L, P, T, G, LB, tip, only, on, W} = K;
+    const {R, C, P, T, G, LB, tip, only} = K;
     let s = '';
     s += R(X0, 120, X1 - X0, SURF - 120, 'f-bath', tip('도금액'));
     s += `<g data-v="dl"></g>`;                                          // 확산층 띠 (위젯이 그린다)
     s += `<g data-v="flow"></g><g data-v="ions"></g>`;
-    s += R(X0, SURF - 14, X1 - X0, 14, 'pl-edl', tip('전기이중층 — 표면에 붙은 이온 · 물 분자의 얇은 층 (실제는 수 nm, 크게 과장)'));
+    s += R(X0, SURF - 14, X1 - X0, 14, 'pl-edl', tip('전기이중층 — 금속 바로 앞, 이온 · 물 분자가 늘어선 얇은 층 (실제는 약 1 nm — 그림은 크게 과장)'));
     s += `<g data-v="metal"></g>`;
     s += R(X0, SURF, X1 - X0, 120, 'f-cu2', tip('음극 표면 (금속)'));
     // 단계별 설명
-    s += G(LB(T(X0 + 24, 168, '대류 — 흐름이 이온을 실어 나른다 (농도가 어디나 같다)', 't-acc', 'start')), only('bulk'));
-    s += G(LB(T(X0 + 24, 168, '확산층 안에서는 걸어서 — 진한 곳에서 묽은 곳으로', 't-acc', 'start')), only('diff'));
+    s += G(LB(T(X0 + 24, 168, '대류 — 흐름이 이온을 실어 나른다 (농도가 어디나 같다)', 't-acc', 'start') + T(X0 + 24, 200, '전기에 끌려오는 몫(이동)은 작다 — 산(H⁺ · 음이온)이 전류 대부분을 나른다', 't-dim', 'start')), only('bulk'));
+    s += G(LB(T(X0 + 24, 168, '확산층 안에서는 주로 확산으로 — 진한 곳에서 묽은 곳으로', 't-acc', 'start') + T(X0 + 24, 200, '경계는 칼같이 나뉘지 않는다 — 흐름이 표면 쪽으로 점점 느려진다', 't-dim', 'start')), only('diff'));
     s += `<g data-v="brk"></g>`;
     // 표면 확대 (surf 단계) — x 530~1080, 글자는 확대에 맞춰 작게
     const AX = i => 532 + i * 23, ED = 12;                             // 위 계단은 ED번째 원자까지
@@ -5695,94 +5785,130 @@ const DEMO = {bulk: 5, diff: 5, surf: 5, limit: 16};   // 손대지 않았을 �
     for (let i = 0; i < ED; i++) z += C(AX(i) + 11, SURF - 8, 11.5, 'f-atom');
     const xi = AX(19), xk = AX(ED) + 11;
     z += `<circle r="11.5" class="f-atom2"><animateMotion dur="3.6s" repeatCount="indefinite" keyTimes="0;.35;.9;1" keyPoints="0;0;1;1" calcMode="linear" path="M${xi},${SURF - 8} L${xk},${SURF - 8}"/></circle>`;
-    z += K.ionPath(`M${xi},${SURF - 150} L${xi},${SURF - 10}`, 'cu', 3.6, 0, null, false).replace('<animateMotion', '<animate attributeName="opacity" values="1;1;0;0" keyTimes="0;.33;.36;1" dur="3.6s" repeatCount="indefinite"/><animateMotion keyTimes="0;.35;1" keyPoints="0;1;1" calcMode="linear"');
+    z += K.ionPath(`M${xi + 30},${SURF - 84} Q${xi - 14},${SURF - 50} ${xi},${SURF - 10}`, 'cu', 3.6, 0, null, false).replace('<animateMotion', '<animate attributeName="opacity" values="1;1;0;0" keyTimes="0;.33;.36;1" dur="3.6s" repeatCount="indefinite"/><animateMotion keyTimes="0;.35;1" keyPoints="0;1;1" calcMode="linear"');
     for (const dx of [-1, 1]) z += `<circle r="6" class="k-e"><animateMotion dur="3.6s" repeatCount="indefinite" keyTimes="0;.33;1" keyPoints="0;1;1" calcMode="linear" path="M${xi + dx * 30},${SURF + 40} L${xi + dx * 6},${SURF - 6}"/></circle>`;
-    const zl = (px, py, tx, ty, t) => LB(P(`M${px},${py} L${tx},${ty}`, 's-lead') + C(px, py, 3, 'k-lead') + T(tx + 6, ty + 5, t, 'pl-zt', 'start'));
-    z += zl(xi - 16, SURF - 40, 548, 836, '① 이중층을 건너며 전자 2개를 받는다 (전하 이동)');
-    z += zl(xi - 40, SURF - 14, 548, 870, '② 원자가 표면을 옮겨 다닌다');
-    z += zl(xk + 2, SURF - 18, 548, 904, '③ 계단 모서리 · 꺾인 자리에 자리 잡는다');
-    z += LB(T(1076, SURF - 20, '이중층 (수 nm, 과장)', 'pl-zt', 'end'));
+    // 설명 상자 (번호) + 장면 속 번호 표시 — 지시선이 글자를 가로지르지 않게
+    z += R(536, 822, 404, 96, 'pl-box', {rx: 8});
+    z += LB(T(548, 844, '① 아주 얇은 층(약 1 nm)을 건너며 전자 2개를 받는다', 'pl-zt', 'start') + T(548, 870, '② 원자가 된 뒤 표면에서 조금 움직인다', 'pl-zt', 'start') + T(548, 896, '③ 자리 잡기 좋은 곳(계단이 꺾인 자리)에 앉는다', 'pl-zt', 'start'));
+    z += LB(T(xi + 26, SURF - 40, '①', 'pl-zt', 'start') + T((xi + xk) / 2 + 20, SURF - 26, '②', 'pl-zt') + T(xk - 22, SURF - 26, '③', 'pl-zt'));
+    z += LB(T(1076, SURF + 46, '↑ 이중층: 실제는 약 1 nm (크게 과장 · 실제 비율 아님)', 'pl-zt', 'end') + T(1076, SURF + 68, '확산층(수십 µm)보다 만 배 넘게 얇다', 'pl-zt', 'end'));
     s += G(z, only('surf'));
     // 오른쪽: 농도 그래프 (세로 = 표면에서의 거리, 무대와 같은 눈금)
     s += R(GX0 - 40, 120, GX1 - GX0 + 80, SURF - 120 + 110, 'pl-panel', {rx: 14});
     s += LB(T(GX0 - 20, 156, '이온 농도', 't-acc', 'start') + T(GX0 - 20, 184, '(무대와 같은 높이 눈금)', 't-dim', 'start'));
-    s += L(GX0, 200, GX0, SURF, 's-axis') + L(GX0, SURF, GX1 + 10, SURF, 's-axis');
+    s += K.L(GX0, 200, GX0, SURF, 's-axis') + K.L(GX0, SURF, GX1 + 10, SURF, 's-axis');
     s += LB(T(GX0, SURF + 36, '0', 't-dim') + T(GX1, SURF + 36, '벌크 농도', 't-dim') + T(GX0 + 10, SURF + 72, '표면', 't-dim', 'start'));
     s += `<g data-v="prof"></g>`;
-    s += `<g data-v="msg"></g>`;
+    // 한계 단계: 모양 사다리 + 정전류에서 전류의 몫 (위젯이 그린다)
+    s += `<g data-v="lad"></g><g data-v="share"></g>`;
     return s;
   },
   body(K){
     return `<div class="pl-w"><div class="hd">직접 해 보기 — 공급의 상한</div>
-      ${K.ctl('a', '교반 세기 (흐름 · 회전)', 0, 100, 1, 33)}${K.ctl('j', '전류밀도 (ASD)', 1, 40, 0.5, 5)}${K.ctl('c', 'Cu²⁺ 농도 (mol/L, 예시)', 0.2, 1.0, 0.05, 0.6)}
+      ${K.ctl('a', '교반 세기 (흐름 · 회전)', 0, 99, 1, 33)}${K.ctl('j', '전류밀도 (ASD)', 1, 40, 0.5, 5)}${K.ctl('c', 'Cu²⁺ 농도 (mol/L, 예시)', 0.2, 1.0, 0.05, 0.6)}
       ${K.kpis([['확산층 δ', 'k-d', ''], ['한계전류', 'k-il', 'ASD'], ['J / 한계', 'k-r', ''], ['표면 농도', 'k-cs', '벌크 대비']])}
       <p class="pl-msg" data-o="msg"></p>
-      ${K.model('δ = 60 µm / √(교반 배수), iL = n·F·D·C / δ, D ≈ 7×10⁻¹⁰ m²/s. 실제 δ는 장비 · 흐름 방식 · 위치마다 다릅니다.')}</div>`;
+      ${K.model('δ = 60 µm / √(교반 배수), iL = n·F·D·C / δ, D = 7×10⁻¹⁰ m²/s (묽은 용액 25 °C 예시 · 실제 도금액은 5~7×10⁻¹⁰). 0.6 mol/L · δ 60 µm면 iL ≈ 13.5 ASD — 이 예시 조건에서 약 10~16 ASD입니다. 모양이 바뀌는 경계(J/iL 0.5 · 1 · 1.3)도 개념 예시이고, 실제 δ는 장비 · 흐름 방식 · 위치마다 다릅니다.')}</div>`;
   },
   mount(K, ctx){
     const {R, C, L, P, T, G, LB, tip, rng} = K;
     let touched = false;
     const st = {a: 33, j: 5, c: 0.6};
     const ain = ctx.card.querySelector('input[data-i=a]'), jin = ctx.card.querySelector('input[data-i=j]');
-    const mult = v => 0.25 * Math.pow(64, v / 100);                  // 교반 배수 ×0.25 ~ ×16
-    function morph(r){
-      // 표면 모양: r = J / iL
-      const g = rng(11);
-      let d = `M${X0},${SURF}`, extra = '';
-      if (r < 0.5){ for (let x = X0; x <= X1; x += 30) d += ` L${x},${SURF - 1.5 - g() * 2}`; }
-      else if (r < 0.8){ const a = 4 + (r - 0.5) / 0.3 * 10; for (let x = X0; x <= X1; x += 22) d += ` L${x},${(SURF - a * (0.5 + 0.5 * Math.sin(x / 37)) - g() * a * 0.6).toFixed(1)}`; }
+    const mult = v => 0.25 * Math.pow(64, v / 99);                   // 교반 배수 ×0.25 ~ ×16 (기본 33 → ×1)
+    // 작은 그림: 모양 단계 k (0 고움 · 1 거칠어짐 · 2 덴드라이트 · 3 가루 · 탄 도금), 바닥 y, 가로 x0~x1, 크기 sc
+    function shape(k, x0, x1, y, sc, seed){
+      const g = rng(seed);
+      let d = `M${x0},${y}`, extra = '';
+      if (k === 0){ for (let x = x0; x <= x1; x += 30 * sc) d += ` L${x.toFixed(0)},${(y - (1.5 + g() * 2) * sc).toFixed(1)}`; }
+      else if (k === 1){ for (let x = x0; x <= x1 - 30 * sc; x += 30 * sc){ const hh = (10 + g() * 14) * sc; d += ` L${x.toFixed(0)},${y} Q${(x + 15 * sc).toFixed(0)},${(y - hh * 1.6).toFixed(1)} ${(x + 30 * sc).toFixed(0)},${y}`; } }
       else {
-        const a = r < 1 ? 14 + (r - 0.8) / 0.2 * 18 : 30;
-        for (let x = X0; x <= X1; x += 40){ const hh = a * (0.5 + g()); d += ` L${x},${SURF} Q${x + 20},${(SURF - hh * 1.6).toFixed(1)} ${x + 40},${SURF}`; }
-        if (r >= 1){
-          for (let k = 0; k < 13; k++){
-            const x = X0 + 40 + k * 80 + g() * 30, hgt = 70 + g() * 90 * Math.min(2, r);
-            let br = `M${x.toFixed(0)},${SURF} L${(x + (g() - 0.5) * 20).toFixed(0)},${(SURF - hgt).toFixed(0)}`;
-            for (let b = 1; b <= 3; b++){ const yb = SURF - hgt * b / 4, sx = x + (g() - 0.5) * 10; br += ` M${sx.toFixed(0)},${yb.toFixed(0)} l${(b % 2 ? 1 : -1) * (14 + g() * 16)},${-(12 + g() * 14)}`; }
-            extra += P(br, 'pl-dend');
+        for (let x = x0; x <= x1 - 24 * sc; x += 24 * sc){ const hh = (6 + g() * 8) * sc; d += ` L${x.toFixed(0)},${y} Q${(x + 12 * sc).toFixed(0)},${(y - hh).toFixed(1)} ${(x + 24 * sc).toFixed(0)},${y}`; }
+        if (k === 2){
+          const n = Math.max(3, Math.round((x1 - x0) / (80 * sc)));
+          for (let i = 0; i < n; i++){
+            const x = x0 + (i + 0.5) * (x1 - x0) / n + (g() - 0.5) * 20 * sc, hgt = (70 + g() * 90) * sc;
+            let br = `M${x.toFixed(0)},${y} L${(x + (g() - 0.5) * 20 * sc).toFixed(0)},${(y - hgt).toFixed(0)}`;
+            for (let b = 1; b <= 3; b++){ const yb = y - hgt * b / 4, sx = x + (g() - 0.5) * 10 * sc; br += ` M${sx.toFixed(0)},${yb.toFixed(0)} l${((b % 2 ? 1 : -1) * (14 + g() * 16) * sc).toFixed(0)},${(-(12 + g() * 14) * sc).toFixed(0)}`; }
+            extra += P(br, sc < 1 ? 'pl-dend p03-thin' : 'pl-dend');
           }
-          for (let k = 0; k < 10; k++) extra += K.bubble(X0 + 60 + k * 100, SURF - 10, 6 + (k % 3) * 3, 300, 2.2 + (k % 3) * 0.4, k * 0.31);
+        } else {
+          // 가루 · 탄 도금: 검고 푸석한 알갱이 더미
+          const n = Math.round((x1 - x0) / (5 * sc));
+          for (let i = 0; i < n; i++){ const x = x0 + g() * (x1 - x0), hgt = g() * g() * 70 * sc; extra += C(x, y - 3 * sc - hgt, (2.5 + g() * 3.5) * sc, 'p03-pow'); }
         }
       }
-      d += ` L${X1},${SURF} L${X1},${SURF + 6} L${X0},${SURF + 6} Z`;
-      return P(d, 'f-cu2', tip(r < 0.5 ? '고르고 촘촘한 막' : r < 0.8 ? '튀어나온 곳이 조금씩 앞서 자란다' : r < 1 ? '노듈 — 튀어나온 곳이 이온을 먼저 잡는다' : '한계 초과 — 덴드라이트 · 가루 · 수소')) + extra;
+      d += ` L${x1},${y} L${x1},${y + 6} L${x0},${y + 6} Z`;
+      return P(d, k === 3 ? 'p03-pow' : 'f-cu2') + extra;
+    }
+    const NAME = ['고르고 촘촘한 막', '거칠어짐 — 울퉁불퉁 · 무광', '덴드라이트 — 나뭇가지처럼 뻗는다', '가루 · 탄 도금 — 수소가 많이 나온다'];
+    function morph(r){
+      const k = STAGE(r);
+      // 0.5~0.8 은 조금, 0.8~1 은 더 거칠게 (같은 '거칠어짐' 단계 안에서)
+      let out = k === 1 && r < 0.8 ? shape(1, X0, X1, SURF, 0.45 + (r - 0.5) / 0.3 * 0.4, 11) : shape(k, X0, X1, SURF, 1, 11);
+      if (k >= 2) for (let i = 0; i < (k === 3 ? 18 : 8); i++) out += K.bubble(X0 + 40 + i * (k === 3 ? 58 : 130), SURF - 10, 5 + (i % 3) * 3, 300, 2.0 + (i % 3) * 0.4, i * 0.27);
+      return G(out, tip(NAME[k]));
     }
     function render(){
       const m = mult(st.a), delta = D0 / Math.sqrt(m), iL = N * F * D * st.c * 1000 / (delta * 1e-6) / 100;   // ASD
-      const r = st.j / iL, cs = Math.max(0, 1 - r), top = SURF - delta * PXUM;
-      // 확산층 띠와 괄호
-      ctx.$('[data-v="dl"]').innerHTML = G(R(X0, top, X1 - X0, SURF - top, 'f-dl', tip(`확산층 δ ≈ ${delta.toFixed(0)} µm — 흐름이 거의 멎은 층`)) + P(`M${X0},${top} L${X1},${top}`, 's-dash'), K.on('diff'));
-      ctx.$('[data-v="brk"]').innerHTML = G(LB(P(`M${X0 + 16},${top} l-10,0 l0,${SURF - top} l10,0`, 's-acc2') + T(X0 + 20, top + 30, `δ ≈ ${delta.toFixed(0)} µm`, 't-warn', 'start')), K.on('diff', 'surf')) +
+      const r = st.j / iL, cs = Math.max(0, 1 - r), top = SURF - delta * PXUM, k = STAGE(r);
+      // 확산층 띠와 괄호. 띠 안의 흐름은 표면 쪽으로 갈수록 느리고 흐리다
+      let slow = '';
+      [[0.25, 'p03-s1'], [0.55, 'p03-s2']].forEach(([f, c]) => { const y = top + f * (SURF - top); slow += P(`M${X0 + 10},${y.toFixed(0)} C${X0 + 300},${(y - 12).toFixed(0)} ${X0 + 600},${(y + 12).toFixed(0)} ${X1 - 10},${y.toFixed(0)}`, 's-flow ' + c); });
+      ctx.$('[data-v="dl"]').innerHTML = G(R(X0, top, X1 - X0, SURF - top, 'f-dl', tip(`확산층 δ ≈ ${delta.toFixed(0)} µm — 흐름이 표면 쪽으로 점점 느려져 주로 확산으로 건너는 층`)) + P(`M${X0},${top} L${X1},${top}`, 's-dash') + slow, K.on('diff'));
+      ctx.$('[data-v="brk"]').innerHTML = G(LB(P(`M${X0 + 16},${top} l-10,0 l0,${SURF - top} l10,0`, 's-acc2') + T(X0 + 20, top + 30, `δ ≈ ${delta.toFixed(0)} µm (등가 두께)`, 't-warn', 'start')), K.on('diff', 'surf')) +
         G(LB(T(X0 + 20, top + 30, `δ ≈ ${delta.toFixed(0)} µm`, 't-warn', 'start')), K.only('limit'));
       // 흐름과 이온
       let fl = '';
-      for (let k = 0; k < 6; k++){ const y = 230 + k * (top - 290) / 5; if (y > top - 30) continue; fl += P(`M${X0 + 10},${y.toFixed(0)} C${X0 + 300},${(y - 30).toFixed(0)} ${X0 + 600},${(y + 30).toFixed(0)} ${X1 - 10},${y.toFixed(0)}`, 's-flow'); }
-      ctx.$('[data-v="flow"]').innerHTML = G(fl, W2(K.on('bulk'), tip('대류 — 흐르는 액이 이온을 실어 나른다')));
+      for (let q = 0; q < 6; q++){ const y = 230 + q * (top - 290) / 5; if (y > top - 30) continue; fl += P(`M${X0 + 10},${y.toFixed(0)} C${X0 + 300},${(y - 30).toFixed(0)} ${X0 + 600},${(y + 30).toFixed(0)} ${X1 - 10},${y.toFixed(0)}`, 's-flow'); }
+      ctx.$('[data-v="flow"]').innerHTML = G(fl, Object.assign(K.on('bulk'), tip('대류 — 흐르는 액이 이온을 실어 나른다')));
       const g = rng(5);
       let io = '';
-      for (let k = 0; k < 12; k++){ const y = 220 + g() * Math.max(20, top - 270); io += K.ionPath(`M${X0 + 20},${y.toFixed(0)} C${X0 + 350},${(y - 40).toFixed(0)} ${X0 + 700},${(y + 40).toFixed(0)} ${X1 - 20},${(y + 10).toFixed(0)}`, 'cu', 5 + g() * 3, g() * 6, null); }
+      for (let q = 0; q < 12; q++){ const y = 220 + g() * Math.max(20, top - 270); io += K.ionPath(`M${X0 + 20},${y.toFixed(0)} C${X0 + 350},${(y - 40).toFixed(0)} ${X0 + 700},${(y + 40).toFixed(0)} ${X1 - 20},${(y + 10).toFixed(0)}`, 'cu', 5 + g() * 3, g() * 6, null); }
       // 확산층 안: 아래로 느리게 (아래로 갈수록 드물다 — 표면 농도)
       let io2 = '';
       const nIn = Math.round(3 + 9 * (0.4 + 0.6 * cs));
-      for (let k = 0; k < nIn; k++){ const x = X0 + 60 + g() * (X1 - X0 - 120); io2 += K.ionPath(`M${x.toFixed(0)},${(top + 6).toFixed(0)} L${(x + (g() - 0.5) * 60).toFixed(0)},${SURF - 18}`, 'cu', 4 + g() * 2.5, g() * 6); }
+      for (let q = 0; q < nIn; q++){ const x = X0 + 60 + g() * (X1 - X0 - 120); io2 += K.ionPath(`M${x.toFixed(0)},${(top + 6).toFixed(0)} Q${(x + (g() - 0.5) * 90).toFixed(0)},${((top + SURF) / 2).toFixed(0)} ${(x + (g() - 0.5) * 60).toFixed(0)},${SURF - 18}`, 'cu', 4 + g() * 2.5, g() * 6); }
       ctx.$('[data-v="ions"]').innerHTML = G(io, K.on('bulk')) + G(io2, K.only('bulk diff limit'));
       // 표면 모양 (한계 단계에서만 위젯 값, 그 전에는 매끈)
       ctx.$('[data-v="metal"]').innerHTML = G(morph(r), K.only('limit')) + G(morph(0.2), K.on('bulk', 'limit'));
-      // 농도 그래프
+      // 농도 그래프 — C_표면 = C_액 × (1 − J/iL)
       const xs = GX0 + cs * (GX1 - GX0);
-      let pf = P(`M${GX1},200 L${GX1},${top.toFixed(0)} L${xs.toFixed(0)},${SURF}`, 's-curve', tip('농도 — 벌크에서는 일정, 확산층 안에서 표면 쪽으로 줄어든다'));
+      let pf = P(`M${GX1},200 L${GX1},${top.toFixed(0)} L${xs.toFixed(0)},${SURF}`, 's-curve', tip('농도 — 벌크에서는 일정, 확산층 안에서 표면 쪽으로 줄어든다.\n표면 농도 = 벌크 × (1 − J/한계)'));
       pf += L(GX0, top, GX1 + 10, top, 's-dash') + LB(T(GX1 + 6, top - 10, 'δ', 't-warn', 'end'));
       pf += C(xs, SURF, 8, cs <= 0 ? 'k-ng' : 'k-acc2') + LB(T(Math.max(GX0 + 70, xs), SURF - 20, cs <= 0 ? '표면 농도 0 — 한계' : `표면 ${Math.round(cs * 100)} %`, cs <= 0 ? 'pl-warn' : 't-warn', 'middle'));
       ctx.$('[data-v="prof"]').innerHTML = G(pf, K.on('diff'));
-      const msg = r < 0.5 ? ['고운 막 — 공급에 여유가 충분합니다', 'k-ok'] : r < 0.8 ? ['주의 — 튀어나온 곳이 앞서 자라기 시작', 'k-warn'] : r < 1 ? ['거칠어짐 — 노듈이 생기기 쉬운 구간', 'k-warn'] : ['한계 초과 — 수소 · 가루 · 덴드라이트 (탄 도금)', 'k-ng'];
-      ctx.$('[data-v="msg"]').innerHTML = G(R(X0 + 180, SURF - 88 - (r >= 1 ? 160 : 0), 600, 52, 'pl-box', {rx: 10}) + C(X0 + 212, SURF - 62 - (r >= 1 ? 160 : 0), 10, msg[1]) + T(X0 + 234, SURF - 54 - (r >= 1 ? 160 : 0), msg[0], 't-sub', 'start'), K.only('limit'));
+      // 한계 단계 ①: 모양 사다리 — 지금 어디인지 강조
+      const TW = 240, TX = q => 70 + q * (TW + 10);
+      const LAD = [['고운 막', 'J/한계 < 0.5'], ['거칠어짐 (무광)', '0.5 ~ 1 · 다가감'], ['덴드라이트', '≈ 1 ~ 1.3 · 한계'], ['가루 · 탄 도금', '> 1.3 · 수소 많이']];
+      let ld = R(56, 128, 1020, 222, 'p03-pan', {rx: 12}) + T(72, 160, '한계에 가까워질수록 모양이 이렇게 바뀐다 (J / 한계, 개념 예시)', 't-acc', 'start');
+      LAD.forEach(([nm, rg], q) => {
+        const x = TX(q);
+        ld += R(x, 174, TW, 160, q === k ? 'pl-hlbox' : 'pl-lane', {rx: 10});
+        ld += T(x + TW / 2, 202, nm, q === k ? 't-warn' : 't-sub') + T(x + TW / 2, 228, rg, 't-dim');
+        ld += `<clipPath id="pl3-t${q}"><rect x="${x + 4}" y="236" width="${TW - 8}" height="94"/></clipPath>`;
+        ld += G(R(x + 4, 312, TW - 8, 18, 'f-cu2') + shape(q, x + 4, x + TW - 4, 312, 0.42, 20 + q) + (q === 3 ? [0, 1, 2, 3, 4].map(i => C(x + 30 + i * 46, 270 - (i % 2) * 22, 5 + (i % 3) * 2, 'pl-bub')).join('') : ''), {'clip-path': `url(#pl3-t${q})`});
+      });
+      ctx.$('[data-v="lad"]').innerHTML = G(ld, K.only('limit'));
+      // 한계 단계 ②: 정전류 — 흘린 전류 가운데 Cu 몫과 수소 몫
+      const BX0 = 76, BX1 = 1050, jmax = Math.max(st.j, iL) * 1.25, bx = v => BX0 + v / jmax * (BX1 - BX0);
+      const cu = Math.min(st.j, iL), h2 = Math.max(0, st.j - iL);
+      let sh = R(56, 350, 1020, 170, 'p03-pan', {rx: 12}) + T(72, 384, '정류기는 전류를 고정한다 — 흘린 전류의 몫', 't-acc', 'start');
+      sh += R(BX0, 398, bx(cu) - BX0, 36, 'p03-cu', tip('Cu를 쌓는 몫 — 한계전류보다 클 수 없다'));
+      if (h2 > 0) sh += R(bx(cu), 398, bx(st.j) - bx(cu), 36, 'p03-h2', tip('모자라는 몫 — 수소 발생이 가져간다. 전압이 갑자기 오른다'));
+      if (bx(cu) - BX0 > 90) sh += T((BX0 + bx(cu)) / 2, 423, 'Cu 몫', 'p03-bt');
+      if (h2 > 0 && bx(st.j) - bx(cu) > 70) sh += T((bx(cu) + bx(st.j)) / 2, 423, '수소', 't-sub');
+      sh += L(bx(iL), 390, bx(iL), 442, 'p03-il') + T(bx(iL), 466, `한계 ${iL.toFixed(1)} ASD`, 't-warn');
+      const smsg = r < 0.5 ? `J ${st.j.toFixed(1)} ASD — 전부 Cu. 공급에 여유가 충분합니다` : r < 1 ? `J ${st.j.toFixed(1)} ASD — 아직 전부 Cu지만 표면 농도가 낮아 거칠어지기 시작` : `J ${st.j.toFixed(1)} ASD — Cu ${Math.round(cu / st.j * 100)} % · 수소 ${Math.round(h2 / st.j * 100)} % · 전압이 갑자기 오른다`;
+      sh += T(72, 504, smsg, r >= 1 ? 'pl-warn' : 't-sub', 'start');
+      ctx.$('[data-v="share"]').innerHTML = G(sh, K.only('limit'));
       ctx.refresh();
       ctx.out('k-d', `${delta.toFixed(0)} µm`); ctx.out('k-il', iL.toFixed(1)); ctx.out('k-r', `${Math.round(r * 100)} %`); ctx.out('k-cs', `${Math.round(cs * 100)} %`);
       const kr = ctx.card.querySelector('[data-o="k-r"]').parentNode;
       kr.classList.toggle('ok', r < 0.5); kr.classList.toggle('warn', r >= 0.5 && r < 1); kr.classList.toggle('ng', r >= 1);
-      ctx.q('[data-o=msg]').innerHTML = `${msg[0]}. 교반 ×${m.toFixed(2)} → δ ${delta.toFixed(0)} µm, 한계전류 ${iL.toFixed(1)} ASD. 실무에서는 한계보다 <b>충분히 낮게</b> 운전합니다.`;
+      const msg = ['고운 막 — 공급에 여유가 충분합니다', '거칠어짐 — 한계에 다가가며 울퉁불퉁 · 무광', '한계 — 모자라는 몫은 수소, 전압이 오르고 덴드라이트', '한계를 넘김 — 수소가 많이 나오고 가루 · 탄 도금'][k];
+      ctx.q('[data-o=msg]').innerHTML = `${msg}. 교반 ×${m.toFixed(2)} → δ ${delta.toFixed(0)} µm, 한계전류 ${iL.toFixed(1)} ASD. 실무에서는 한계보다 <b>충분히 낮게</b> 운전합니다.`;
     }
-    const W2 = (...os) => Object.assign({}, ...os);
     ctx.range('a', v => { st.a = v; render(); return '×' + mult(v).toFixed(2); });
     ctx.range('j', v => { st.j = v; render(); return v.toFixed(1); });
     ctx.range('c', v => { st.c = v; render(); return v.toFixed(2); });
@@ -5799,204 +5925,323 @@ const DEMO = {bulk: 5, diff: 5, surf: 5, limit: 16};   // 손대지 않았을 �
   notes(K){
     return K.terms([
       ['대류', '흐르는 액이 이온을 실어 나르는 것 (펌프 · 회전 · 패들)'],
-      ['확산', '진한 곳에서 묽은 곳으로 저절로 퍼지는 것'],
-      ['이동 (전기 이동)', '전기장이 이온을 끄는 것. 산이 많으면 전류 대부분을 H⁺가 나르고 Cu²⁺의 몫은 작다'],
-      ['확산층 (δ)', '표면 앞에서 흐름이 거의 멎어 확산으로만 건너는 층. 교반이 셀수록 얇다'],
-      ['전기이중층', '표면에 붙은 이온 · 물 분자의 수 nm 층. 전하 이동이 일어나는 곳'],
-      ['한계전류밀도 (iL)', '표면 농도가 0이 될 때의 전류밀도. 공급이 낼 수 있는 최대 속도']
+      ['확산', '진한 곳에서 묽은 곳으로 저절로 퍼지는 움직임'],
+      ['이동 (전기 이동)', '전기장이 이온을 끄는 것. 산이 많으면 전류 대부분을 H⁺ · 음이온이 나르고 Cu²⁺의 몫은 작다'],
+      ['확산층 (δ)', '표면 앞에서 흐름이 점점 느려져 주로 확산으로 건너는 층. 보통 10~100 µm, 교반이 셀수록 얇다'],
+      ['전기이중층', '금속 바로 앞, 이온 · 물 분자가 늘어선 약 1 nm 층. 전자를 주고받는 곳'],
+      ['한계전류밀도 (iL)', '표면 농도가 0이 될 때의 전류밀도. 공급이 낼 수 있는 최대 속도 (이 장의 예시 조건에서 약 10~16 ASD)'],
+      ['덴드라이트 · 노듈', '덴드라이트 = 나뭇가지처럼 뻗은 석출(한계에서). 노듈 = 표면의 작은 혹 — 현장에서는 액 속 입자가 씨앗인 경우가 많다']
     ]) + K.field([
       '교반(흐름 · 회전 · 패들)이 달라지면 δ가 달라지고, 한계전류뿐 아니라 <b>합금 조성</b>(SnAg의 Ag)도 달라집니다 → <a data-go="chem.comp">10장</a>. 장비마다 흐름 방식이 다르면 같은 레시피도 결과가 다를 수 있습니다.',
-      '온도가 오르면 확산이 빨라져 한계전류가 오르지만, 첨가제 분해 · 증발 · Sn 산화도 빨라집니다.',
+      '정류기는 전류를 고정하므로 한계를 넘기면 <b>전압이 갑자기 오릅니다</b>. 같은 레시피에서 전압이 튀거나 표면이 무광 · 거칠어지면 교반(유량 · 회전) · Cu 농도 · 온도부터 확인합니다. 거칠어짐은 한계보다 꽤 아래서 시작될 수 있어 보통 한계보다 충분히 낮게 운전합니다.',
+      '노듈(혹)은 전류가 높아서도 생기지만, 현장에서는 <b>액 속 입자</b>(양극 찌꺼기, 필터 문제)가 씨앗인 경우가 많습니다 → <a data-go="defects.surf">12장</a>.',
+      '온도가 1 °C 오르면 D가 약 2~3 % 커져 한계전류가 오르지만, 첨가제 분해 · 증발 · Sn 산화도 빨라집니다.',
       'PR 구멍 속은 <b>구멍 깊이만큼 확산 거리가 길어집니다</b>. 그래서 구멍이 가장 깊은 도금 초기가 가장 불리합니다 → <a data-go="pattern.deep">08장</a>.'
     ]) + K.deep(`<p>확산층을 건너는 이온의 흐름(픽의 법칙)과 전류는 같습니다:</p>
-      ${K.eq('i = n·F·D·(C_bulk − C_surface) / δ   →   C_surface = 0 일 때 iL = n·F·D·C_bulk / δ')}
-      <ul><li>예: Cu²⁺ 0.6 mol/L, D ≈ 7×10⁻¹⁰ m²/s, δ = 60 µm → iL ≈ 2 × 96485 × 7×10⁻¹⁰ × 600 / 6×10⁻⁵ ≈ 1,350 A/m² ≈ 13.5 ASD.</li>
-      <li>δ는 흐름이 셀수록 얇아집니다. 회전 원판 전극(RDE)에서는 δ ∝ 1/√(회전 속도) — 그래서 위젯도 √로 줄였습니다.</li>
-      <li>J/iL이 커질수록 튀어나온 곳(확산 거리가 짧은 곳)이 이온을 먼저 잡아 더 튀어나옵니다(불안정 성장). 노듈 · 덴드라이트가 생기는 이유입니다.</li>
-      <li>산(지지 전해질)이 많으면 전기장에 끌려오는 몫(이동)이 작아져, 공급은 주로 확산 · 대류로 정해집니다.</li></ul>`);
-  }
+      ${K.eq('i = n·F·D·(C_액 − C_표면) / δ')}${K.eq('C_표면 = 0 → iL = n·F·D·C_액 / δ')}
+      ${K.eq('C_표면 = C_액 × (1 − i / iL)')}
+      <ul><li>전류를 한계의 절반으로 흘리면 표면 농도는 액의 절반입니다. 위젯의 '표면 농도'가 이 식입니다.</li>
+      <li>예: Cu²⁺ 0.6 mol/L, D = 7×10⁻¹⁰ m²/s(묽은 용액 25 °C 예시), δ = 60 µm → iL ≈ 2 × 96485 × 7×10⁻¹⁰ × 600 / 6×10⁻⁵ ≈ 1,350 A/m² ≈ 13.5 ASD. 실제 도금액은 진하고 끈적해 D가 5~7×10⁻¹⁰이라, 이 예시 조건에서 약 10~16 ASD입니다. δ가 20 µm면 약 40 ASD, 10 µm면 약 80 ASD(D 7×10⁻¹⁰).</li>
+      <li><b>δ와 교반</b> — 회전 원판 전극(RDE)에서는 δ ≈ 1.61·D^⅓·ν^⅙·ω^−½, 즉 회전 속도의 제곱근에 반비례합니다(예: 100 rpm 약 44 µm, 1000 rpm 약 14 µm). 그래서 위젯도 √로 줄였습니다. 첨가제 분석(CVS)도 이 전극을 씁니다(→ <a data-go="bath.ana">11장</a>). 아주 세게 돌려도 δ는 수 µm보다 얇아지기 어렵습니다.</li>
+      <li><b>Cu²⁺는 전자 2개를 한꺼번에 받지 않습니다</b> — 먼저 1개를 받아 Cu⁺가 되고(느린 단계), 다시 1개를 받아 Cu가 됩니다. 원자가 된 뒤에는 평평한 면(테라스)을 옮겨 다니다 계단을 만나고, 계단이 꺾인 자리(킹크)에 앉습니다 — 이웃이 가장 많아 가장 안정한 자리입니다(→ <a data-go="grain.nuc">06장</a>).</li>
+      <li><b>전기이중층</b>은 진한 액에서 약 1 nm 이하(물 분자 몇 개 두께)로, 확산층보다 만~십만 배 얇습니다. 이 얇은 층에 수백 mV가 걸려 전기장이 아주 세고, 이 센 전기장이 전자를 건네는 반응을 밀어 줍니다(→ <a data-go="overpot">04장</a>).</li>
+      <li><b>지지 전해질</b> — 액 속(벌크)에서 전류를 주로 나르는 것은 H⁺와 음이온입니다. 하지만 표면에서 전자를 받는 것은 Cu²⁺입니다. H⁺는 표면에 와도 (수소가 나오기 전까지는) 반응하지 않고, 표면 쪽 순 흐름은 거의 0입니다. 이렇게 전류를 대신 날라 주는 이온(여기서는 황산)을 지지 전해질이라 하고, 산이 많을수록 Cu²⁺가 끌려오는 몫(이동)은 작습니다. 산이 적고 Cu가 많은 액에서는 그 몫이 무시할 만큼 작지 않아 한계전류를 조금 키웁니다.</li>
+      <li><b>고속 도금액</b>은 Cu를 높이고 산을 낮춘 경우가 많습니다. 한계전류가 농도에 비례하니 같은 교반에서 더 빨리 쌓을 수 있기 때문입니다(산이 많으면 녹일 수 있는 Cu도 줄어듭니다). 대신 전도도가 낮아집니다.</li>
+      <li><b>큰 모양 vs 작은 모양</b> — 확산층보다 훨씬 큰 높낮이(웨이퍼 두께 분포, mm 이상)는 전기 저항과 분극이 정하고(→ 07장), 확산층과 비슷하거나 작은 높낮이(범프 윗면 굴곡 · 거칠기)는 공급과 첨가제가 정합니다(→ 05 · 08장).</li>
+      <li>J/iL이 커질수록 튀어나온 곳(확산 거리가 짧은 곳)이 이온을 먼저 잡아 더 튀어나옵니다(불안정 성장). 그래서 한계에 다가가면 거칠어지고, 한계에서 덴드라이트가 뻗습니다.</li>
+      <li>헐 셀 — 비스듬한 판 하나에 낮은~높은 전류밀도가 한 번에 걸려, 탄 자리 · 무광 자리로 액 상태를 눈으로 빠르게 보는 시험입니다(일반 도금에서 널리 쓰고, 웨이퍼 라인에서는 보조 도구).</li></ul>`);
+  },
+  css: `.pl-svg .p03-thin{stroke-width:2.6}
+.pl-svg .p03-s1{opacity:.5;animation-duration:2.2s}
+.pl-svg .p03-s2{opacity:.28;animation-duration:4.5s}
+.p03-cu{fill:#d4874a;stroke:#f3b07a;stroke-width:1}
+.p03-pan{fill:rgba(6,12,24,.9);stroke:rgba(148,163,184,.3);stroke-width:1.2}
+.p03-pow{fill:#4a2f1f;stroke:#a0703f;stroke-width:1}
+.p03-h2{fill:rgba(226,232,240,.30);stroke:#e2e8f0;stroke-width:1.4;stroke-dasharray:6 4}
+.p03-il{stroke:#fbbf24;stroke-width:3;stroke-dasharray:6 5}
+.pl-svg .p03-bt{font-size:19px;font-weight:800;fill:#0b1222 !important;stroke:none !important;text-anchor:middle}`
 });
 })();
 
 </script>
 <script>
-/* 전해도금 04 — 과전압: 얼마나 세게 밀어야 하나 (분극 곡선) */
+/* 전해도금 04 — 과전압: 얼마나 세게 밀어야 할까? (분극 곡선 · 기울기와 균일도) */
 (function(){
 const GX0 = 130, GX1 = 1040, GY0 = 800, GY1 = 170, EMAX = 0.6, IMAX = 1.75;   // 그래프 영역, 과전압 0~600 mV, 전류 0~1.75 iL
 const gx = e => GX0 + e / EMAX * (GX1 - GX0), gy = i => GY0 - Math.min(i, IMAX) / IMAX * (GY0 - GY1);
-// 개념 모델: 금속 석출(반응 속도 + 공급 한계) + 수소 발생
-function model(e, sup, agit){
-  const b = sup ? 0.07 : 0.045, i0 = sup ? 0.0008 : 0.004, iL = agit;
-  const ik = i0 * Math.exp(e / b), im = ik / (1 + ik / iL);
-  const ih = 0.002 * Math.exp((e - 0.3) / 0.05);
-  return {im, ih, i: im + ih, iL};
+// 개념 모델 — 곡선 세 가지 (b: 기울기, i0: 교환전류, rf: 억제막이 더하는 표면 저항 몫)
+//  none: 억제제 없음 · sup: 억제제 있음(옮겨지고 눕는다) · shift: 가상 — 모양 그대로 옆으로만 옮김(기울기 = none)
+const CV = {
+  none: {b: 0.045, i0: 0.012, rf: 0, nm: '억제제 없음'},
+  sup: {b: 0.052, i0: 0.006, rf: 0.13, nm: '억제제 있음'},
+  shift: {b: 0.045, i0: 0.012, rf: 0, dx: 0.132, nm: '옮기기만 (가상)'}       // none 곡선을 그대로 dx 만큼 옆으로
+};
+const R1 = 0.1, R2 = 0.3;                                   // 두 길의 액 저항 (짧은 길 : 긴 길 = 1 : 3, 상대값)
+// 반응 속도(버틀러-볼머, 양쪽 항) + 공급 한계(1/i = 1/ik + 1/iL)를 합친 곡선의 역함수: 금속 전류 i → 필요한 과전압
+function etaOf(i, c, iL){ const ik = i / (1 - i / iL); return c.b * Math.asinh(ik / (2 * c.i0)) + c.rf * i + (c.dx || 0); }
+// 과전압 e(+ 길의 액 저항 R) → 금속 전류 (이분법)
+function imOf(e, c, iL, R = 0){
+  if (e <= (c.dx || 0)) return 0;
+  let lo = 0, hi = iL * (1 - 1e-9);
+  for (let k = 0; k < 46; k++){ const m = (lo + hi) / 2; if (etaOf(m, c, iL) + m * R > e) hi = m; else lo = m; }
+  return (lo + hi) / 2;
 }
-function zone(r){ return r.ih > 0.12 * r.i ? 3 : r.im > 0.88 * r.iL ? 2 : r.im > 0.3 * r.iL ? 1 : 0; }
+const ihOf = e => 0.002 * Math.exp((e - 0.42) / 0.04);      // 수소 발생 전류 (따로 더한다)
+function model(e, c, iL){ const im = imOf(e, c, iL), ih = ihOf(e); return {im, ih, i: im + ih, iL}; }
+function zone(r){ return r.ih > 0.08 * r.i && r.ih > 0.01 * r.iL ? 3 : r.im > 0.93 * r.iL ? 2 : r.im > 0.7 * r.iL ? 1 : 0; }
+// 두 길(짧은 길 · 긴 길)에 같은 전압을 걸고, 평균 금속 전류가 i 가 되게 나눈다 → [짧은 길, 긴 길]
+function split(i, c, iL){
+  let lo = 0, hi = 4;
+  for (let k = 0; k < 46; k++){ const V = (lo + hi) / 2; if ((imOf(V, c, iL, R1) + imOf(V, c, iL, R2)) / 2 > i) hi = V; else lo = V; }
+  const V = (lo + hi) / 2;
+  return [imOf(V, c, iL, R1), imOf(V, c, iL, R2)];
+}
 const ZN = [
-  {t: '① 반응 지배', d: '미는 만큼 전류가 지수적으로 는다. 고르고 촘촘한 막', c: 'k-ok'},
-  {t: '② 혼합', d: '공급이 슬슬 모자라기 시작. 결정이 커지고 튀어나온 곳이 앞선다', c: 'k-warn'},
-  {t: '③ 물질전달 지배 (한계)', d: '더 밀어도 전류가 늘지 않는다. 노듈 · 가루 · 탄 도금', c: 'k-ng'},
-  {t: '④ 수소 발생', d: '물(H⁺)이 대신 반응 → 거품 · 효율↓ · 핀홀 · 피트', c: 'k-ng'}
+  {t: '① 반응 지배', d: '미는 만큼 전류가 는다(처음엔 비례, 수십 mV를 넘으면 지수적으로 — 타펠). 공급에 여유가 있어 막이 고르고 촘촘하다', c: 'k-ok'},
+  {t: '② 한계 근처', d: '공급이 슬슬 모자란다. 튀어나온 곳이 이온을 먼저 잡아 거칠어지기 시작한다(무광 · 울퉁불퉁)', c: 'k-warn'},
+  {t: '③ 공급 한계', d: '물질전달 지배. 더 밀어도 금속 전류가 늘지 않는다(한계전류). 튀어나온 곳만 자라 덴드라이트(나뭇가지)가 된다', c: 'k-ng'},
+  {t: '④ 수소 발생', d: '금속은 한계만큼만 쌓이고 남는 전류로 수소가 함께 나온다 → 효율↓ · 가루(탄 도금) · 핀홀 · 피트', c: 'k-ng'}
 ];
-const DEMO = {eq: 0, kin: 0.16, mt: 0.4, h2: 0.56};
+// 발표 모드 · 손대기 전: 단계마다 보여 줄 [과전압, 억제제]
+const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59, 'none'], slope: [0.3, 'sup']};
 
 (window.EngrPlatingChapters = window.EngrPlatingChapters || []).push({
   no: '04', id: 'overpot', part: 1, short: '과전압', scale: '분극 곡선',
-  title: '과전압 — 얼마나 세게 밀어야 하나',
+  title: '과전압 — 얼마나 세게 밀어야 할까?',
   hook: '미는 힘과 흐르는 양의 관계',
-  one: '반응을 일으키려면 평형보다 조금 더 "밀어야" 합니다(과전압). 미는 만큼 전류가 늘다가, 이온 공급이 못 따라오면 멈추고, 더 밀면 엉뚱하게 물이 반응합니다. 이 관계를 그린 것이 분극 곡선입니다.',
-  ana: '<b>언덕 넘기</b> — 이온이 금속이 되려면 작은 언덕(에너지 장벽)을 넘어야 합니다. 전압으로 조금 더 밀면 언덕이 낮아져 넘는 이온이 훨씬 많아집니다. 하지만 언덕 앞까지 오는 이온(공급)이 모자라면 아무리 밀어도 소용없습니다.',
+  one: '금속을 쌓으려면 전류가 0일 때의 제자리 전압(평형 전위)보다 조금 더 걸어 줘야 합니다 — 이 "더 건 만큼"이 과전압입니다. 더 걸수록 빨리 쌓이지만 이온 공급이 바닥나면 멈추고, 남는 몫은 물(수소)이 가져갑니다. 이 관계를 그린 그래프가 분극 곡선입니다.',
+  ana: '<b>웃돈</b> — 과전압은 창구에 얹는 웃돈입니다. 얹을수록 빨리 처리되지만(반응 지배), 창고(이온 공급)가 비면 더 얹어도 소용없고(한계전류), 그래도 더 얹으면 다른 손님(수소)이 그 몫을 가져갑니다. <i>한계</i>: 미는 힘은 이온을 표면으로 끌어오지 않습니다. 이미 도착한 이온이 전자를 받도록 재촉할 뿐이고, 이온이 오는 속도는 흐름 · 확산이 정합니다(03장).',
   steps: [
-    {id: 'eq', t: '평형 — 오가는 속도가 같다', d: '전압을 걸지 않으면 쌓이는 반응과 녹는 반응이 같은 속도로 오가서 겉보기 변화가 없습니다. 이때 오가는 양을 교환전류라고 합니다.'},
-    {id: 'kin', t: '반응 지배 — 밀수록 지수적으로', d: '조금 밀면 전류가 지수적으로 늘어납니다(타펠 구역). 공급에 여유가 있어 고르고 촘촘한 막을 얻는 구역입니다.'},
-    {id: 'mt', t: '물질전달 지배 — 공급 한계', d: '더 밀어도 확산층이 실어 오는 만큼만 흐릅니다(한계전류). 한계에 가까울수록 튀어나온 곳이 이온을 먼저 잡아 거칠어집니다.'},
-    {id: 'h2', t: '수소 발생 — 엉뚱한 반응', d: '아주 세게 밀면 물(H⁺)이 대신 전자를 받아 수소 거품이 나옵니다. 전류효율이 떨어지고, 거품이 붙은 자리는 도금이 안 되어 핀홀 · 피트가 생깁니다.'}
+    {id: 'eq', t: '평형 — 제자리 전압에서 오가는 양이 같다', d: '전류가 0이면 전극은 평형 전위라는 제자리 전압에 머뭅니다(0 V가 아닙니다). 녹는 반응과 쌓이는 반응이 같은 속도로 오가 겉보기 변화가 없습니다(교환전류). 다만 실제 얇은 Cu 시드는 산성 액에서 조금씩 녹으므로, 전류를 건 채 넣습니다(핫 엔트리).'},
+    {id: 'kin', t: '반응 지배 — 처음엔 비례, 곧 지수적으로', d: '아주 조금 밀 때(수 mV)는 전류가 미는 만큼 비례해서 늡니다. 수십 mV를 넘게 밀면 지수적으로 늡니다(타펠 구역). 결정이 가장 고운 곳은 충분히 세게 밀되 한계전류와는 거리를 둔 곳이고, 너무 약하게 밀면 씨앗이 적어 결정이 굵어집니다.'},
+    {id: 'mt', t: '물질전달 지배 — 공급 한계', d: '더 밀어도 확산층이 실어 오는 만큼만 흐릅니다(한계전류). 한계에 다가가면 먼저 거칠어지고(무광 · 울퉁불퉁), 한계에서는 튀어나온 곳만 이온을 잡아 나뭇가지(덴드라이트)처럼 자랍니다.'},
+    {id: 'h2', t: '수소 발생 — 함께 일어나는 반응', d: '한계를 넘겨 밀면 금속은 한계만큼만 쌓이고, 남는 전류로 물(H⁺)이 함께 반응해 수소 거품이 나옵니다. 효율이 떨어지고 표면 pH가 오르며, 거품 자리에 핀홀 · 피트, 심하면 가루 · 탄 도금이 생깁니다. Ni는 평소에도 수소가 조금 함께 나옵니다.'},
+    {id: 'slope', t: '기울기 — 고르게 퍼지는 이유', d: '균일도는 곡선의 기울기가 정합니다. 전류를 조금 더 흘리려면 훨씬 더 밀어야 하는(완만한) 곡선일수록, 전류가 저항이 작은 길(가장자리 · 튀어나온 곳)로 쏠리지 않습니다. 모양 그대로 옆으로 옮기기만 하면 쏠림은 그대로입니다.'}
   ],
   icon(K){
     const {P} = K;
     return P('M4,58 L64,58 M4,58 L4,4', 's-axis') + P('M6,56 C22,54 26,20 38,18 L52,18 C56,18 58,10 62,4', 's-curve');
   },
   draw(K){
-    const {R, C, L, P, T, G, LB, tip, only, on, W} = K;
+    const {R, C, L, P, T, G, LB, TT, tip, only, on, W, wrap} = K;
     let s = '';
     s += R(60, 120, 1020, 1000, 'pl-panel', {rx: 16});
     s += `<g data-v="zones"></g>`;
     // 축과 눈금
     s += L(GX0, GY0, GX1 + 10, GY0, 's-axis') + L(GX0, GY0, GX0, GY1 - 20, 's-axis');
     for (let e = 0; e <= EMAX + 1e-9; e += 0.1) s += L(gx(e), GY0, gx(e), GY0 + 8, 's-axis') + T(gx(e), GY0 + 32, `${Math.round(e * 1000)}`, 't-dim');
-    s += LB(T((GX0 + GX1) / 2, GY0 + 66, '과전압 η — 평형보다 더 미는 정도 (mV, 음극 쪽) →', 't-sub'));
+    s += LB(T((GX0 + GX1) / 2, GY0 + 66, 'Cu 반응의 과전압 — 음극 쪽으로 민 정도 (mV) →', 't-sub'));
     s += LB(T(GX0 - 24, GY1 - 34, '↑ 전류밀도 (석출 속도)', 't-sub', 'start'));
+    // 평형: 가로축 0 = 평형 전위
+    s += G(LB(K.lead(GX0, GY0, GX0 + 40, 300, 'η = 0 → 평형 전위 (전류 0 · 0 V가 아님)', 'start', 't-warn')), only('eq'));
     s += `<g data-v="curves"></g><g data-v="dot"></g>`;
     // 아래: 구역별 막 모양
-    const MX = [90, 335, 580, 825], MW = 230;
+    const MX = [90, 335, 580, 825], MW = 230, BY = 1062;
+    const MT = ['① 반응 지배', '② 한계 근처', '③ 공급 한계', '④ 수소 발생'], MS = ['고르고 촘촘', '거칠어지기 시작', '덴드라이트(나뭇가지)', '가루(탄 도금) · 핀홀'];
     MX.forEach((x, k) => {
-      let g = R(x, 900, MW, 200, 'pl-box', {rx: 12, 'data-v': 'mbox' + k}) + T(x + 12, 930, ['① 반응 지배', '② 혼합', '③ 공급 한계', '④ 수소 발생'][k], 't-sub', 'start');
-      const by = 1040;
-      g += R(x + 14, by, MW - 28, 44, 'f-si');
-      if (k === 0){ for (let i = 0; i < 12; i++) g += R(x + 14 + i * 17, by - 40, 16, 40, 'f-cu2'); }
-      if (k === 1){ let d = `M${x + 14},${by}`; for (let i = 0; i <= 8; i++) d += ` L${x + 14 + i * 25},${by - 40 - (i % 2 ? 10 : 0) - (i % 3 === 0 ? 6 : 0)}`; g += P(d + ` L${x + MW - 14},${by} Z`, 'f-cu2'); }
-      if (k === 2){ let d = `M${x + 14},${by} L${x + 14},${by - 30}`; for (let i = 0; i < 5; i++) d += ` Q${x + 34 + i * 40},${by - 80 - (i % 2) * 20} ${x + 54 + i * 40},${by - 30}`; g += P(d + ` L${x + MW - 14},${by} Z`, 'f-cu2') + C(x + 60, by - 96, 4, 'f-atom') + C(x + 150, by - 104, 3, 'f-atom') + C(x + 120, by - 120, 3, 'f-atom'); }
-      if (k === 3){ g += R(x + 14, by - 36, MW - 28, 36, 'f-cu2'); for (const [cx, rr] of [[60, 14], [120, 10], [175, 13]]) g += P(`M${x + cx - rr},${by - 36} a${rr},${rr} 0 0 0 ${2 * rr},0`, 'f-hole2') + K.bubble(x + cx, by - 46, rr * 0.7, 120, 2.2, cx / 60); }
-      g += T(x + 12, 962, ['고르고 촘촘', '결정이 커짐', '노듈 · 가루', '거품 · 핀홀'][k], 't-dim', 'start');
+      let g = R(x, 888, MW, 222, 'pl-box', {rx: 12, 'data-v': 'mbox' + k}) + T(x + 12, 918, MT[k], 't-sub', 'start') + T(x + 12, 946, MS[k], 't-dim', 'start');
+      g += R(x + 14, BY, MW - 28, 34, 'f-si');
+      if (k === 0){ for (let i = 0; i < 16; i++) g += R(x + 14 + i * 12.6, BY - 34, 12, 34, 'f-cu2'); }
+      if (k === 1){ let d = `M${x + 14},${BY}`; for (let i = 0; i <= 10; i++) d += ` L${x + 14 + i * 20.2},${BY - 34 - (i % 2 ? 9 : 0) - (i % 3 === 0 ? 5 : 0)}`; g += P(d + ` L${x + MW - 14},${BY} Z`, 'f-cu2'); }
+      if (k === 2){
+        g += R(x + 14, BY - 14, MW - 28, 14, 'f-cu2');
+        // 나뭇가지: 줄기 + 곁가지
+        [[44, 70], [100, 82], [158, 66]].forEach(([cx, hh], j) => {
+          const bx = x + cx, top = BY - 14 - hh;
+          let d = `M${bx},${BY - 14} L${bx + (j - 1) * 4},${top}`;
+          for (let t = 1; t <= 3; t++){ const yy = BY - 14 - hh * t / 4, ll = 22 - t * 4; d += ` M${bx + (j - 1) * t},${yy} l${-ll},${-ll * 0.8} M${bx + (j - 1) * t},${yy - 8} l${ll},${-ll * 0.8}`; }
+          g += P(d, 'p04-den');
+        });
+      }
+      if (k === 3){
+        g += R(x + 14, BY - 22, MW - 28, 22, 'f-cu2');
+        for (const [cx, rr] of [[52, 12], [128, 9], [182, 11]]) g += P(`M${x + cx - rr},${BY - 22} a${rr},${rr} 0 0 0 ${2 * rr},0`, 'f-hole2') + K.bubble(x + cx, BY - 34, rr * 0.7, 46, 2.2, cx / 60);
+        const rp = K.rng(7);
+        for (let i = 0; i < 26; i++){ const px = x + 20 + rp() * (MW - 40); if ([52, 128, 182].some(c => Math.abs(px - x - c) < 14)) continue; g += C(px, BY - 26 - rp() * 26, 3 + rp() * 4, 'pl-burnt'); }
+      }
       s += G(g, tip(ZN[k].t + ' — ' + ZN[k].d));
     });
-    // 오른쪽: 단계별 그림
-    const RX = 1100;
+    // 오른쪽: 단계별 그림 (그림 y 200~620, 글 y 660~)
+    const RX = 1100, TX = RX + 24, TW = 20;                     // TW: 한 줄 글자 폭(em)
+    const para = (y, list, cls = 't-sub', lh = 30) => { let out = '', yy = y; list.forEach(t => { if (t === ''){ yy += lh * 0.5; return; } const ls = wrap(t, TW); out += TT(TX, yy, ls, cls, 'start', lh); yy += ls.length * lh; }); return out; };
     s += R(RX, 120, 480, 1000, 'pl-panel', {rx: 16});
     // eq: 오가는 화살표
-    let eq = T(RX + 24, 166, '평형 — 오가는 양이 같다', 't-acc', 'start');
-    eq += R(RX + 40, 700, 400, 120, 'f-cu2') + R(RX + 40, 260, 400, 440, 'f-bath');
+    let eq = T(TX, 166, '평형 — 오가는 양이 같다', 't-acc', 'start');
+    eq += R(RX + 40, 210, 400, 330, 'f-bath') + R(RX + 40, 540, 400, 70, 'f-cu2') + T(RX + 240, 640, '금속 (전극) — 전류 0', 't-dim');
     for (let k = 0; k < 4; k++){
-      const x = RX + 90 + k * 95;
-      eq += K.ionPath(`M${x},420 L${x},680`, 'cu', 2.8, k * 0.7, null) + K.ionPath(`M${x + 30},680 L${x + 30},420`, 'cu', 2.8, k * 0.7 + 1.4, null);
+      const x = RX + 80 + k * 90;
+      eq += K.ionPath(`M${x},300 L${x},520`, 'cu', 2.8, k * 0.7, null) + K.ionPath(`M${x + 30},520 L${x + 30},300`, 'cu', 2.8, k * 0.7 + 1.4, null);
     }
-    eq += K.arrow(RX + 470, 600, RX + 470, 450, 's-arr2') + K.arrow(RX + 455, 450, RX + 455, 600, 's-arr');
-    eq += K.TT(RX + 24, 880, ['쌓이는 속도 = 녹는 속도', '→ 겉보기 변화 0', '이때 오가는 양 = 교환전류 i₀', '(i₀가 클수록 반응이 쉬운 금속)'], 't-sub', 'start', 34);
+    eq += K.arrow(RX + 466, 470, RX + 466, 320, 's-arr2') + K.arrow(RX + 452, 320, RX + 452, 470, 's-arr');
+    eq += para(660, ['전류가 0이면 전극은 평형 전위(제자리 전압)에 머문다. 0 V가 아니다.', '쌓이는 속도 = 녹는 속도 → 겉보기 변화 0', '이때 오가는 양 = 교환전류 i₀. 클수록 조금만 밀어도 많이 흐른다 (Sn · Ag > Cu > Ni)']);
+    eq += para(960, ['실제 얇은 Cu 시드는 산 · 녹은 산소에 조금씩 녹는다 → 닿는 순간부터 전류를 건다 (핫 엔트리, 09장)'], 't-warn', 30);
     s += G(eq, only('eq'));
     // kin: 언덕 그림
-    let kn = T(RX + 24, 166, '언덕 넘기 — 밀면 장벽이 낮아진다', 't-acc', 'start');
-    kn += L(RX + 40, 640, RX + 450, 640, 's-axis') + LB(T(RX + 40, 676, '이온 (액 속)', 't-dim', 'start') + T(RX + 450, 676, '원자 (금속)', 't-dim', 'end'));
-    kn += P(`M${RX + 50},460 C${RX + 120},460 ${RX + 170},300 ${RX + 245},300 C${RX + 320},300 ${RX + 360},470 ${RX + 440},470`, 's-dash', tip('밀기 전'));
-    kn += P(`M${RX + 50},460 C${RX + 120},460 ${RX + 170},360 ${RX + 245},370 C${RX + 320},380 ${RX + 360},590 ${RX + 440},600`, 's-curve', tip('조금 밀었을 때 — 오른쪽(금속 쪽)이 내려가고 장벽이 낮아진다'));
-    kn += `<circle r="16" class="k-acc2"><animateMotion dur="3s" repeatCount="indefinite" path="M${RX + 60},446 C${RX + 120},446 ${RX + 170},346 ${RX + 245},356 C${RX + 320},366 ${RX + 360},576 ${RX + 430},586"/></circle>`;
-    kn += K.arrow(RX + 400, 480, RX + 400, 580, 's-arr2') + T(RX + 392, 530, 'η', 't-warn', 'end');
-    kn += K.TT(RX + 24, 760, ['장벽이 조금 낮아져도 넘는 이온은', '지수적으로 늘어난다 (타펠 구역)', '', '억제제는 언덕을 높여', '"더 밀어야" 흐르게 만든다 → 05장'], 't-sub', 'start', 34);
+    let kn = T(TX, 166, '언덕 넘기 — 밀면 장벽이 낮아진다', 't-acc', 'start');
+    kn += L(RX + 40, 560, RX + 450, 560, 's-axis') + LB(T(RX + 40, 594, '이온 (액 속)', 't-dim', 'start') + T(RX + 450, 594, '원자 (금속)', 't-dim', 'end'));
+    kn += P(`M${RX + 50},400 C${RX + 120},400 ${RX + 170},250 ${RX + 245},250 C${RX + 320},250 ${RX + 360},410 ${RX + 440},410`, 's-dash', tip('밀기 전'));
+    kn += P(`M${RX + 50},400 C${RX + 120},400 ${RX + 170},300 ${RX + 245},310 C${RX + 320},320 ${RX + 360},510 ${RX + 440},520`, 's-curve', tip('밀었을 때 — 오른쪽(금속 쪽)이 내려가고 장벽이 낮아진다'));
+    kn += `<circle r="16" class="k-acc2"><animateMotion dur="3s" repeatCount="indefinite" path="M${RX + 60},386 C${RX + 120},386 ${RX + 170},286 ${RX + 245},296 C${RX + 320},306 ${RX + 360},496 ${RX + 430},506"/></circle>`;
+    kn += K.arrow(RX + 400, 420, RX + 400, 500, 's-arr2') + T(RX + 392, 466, 'η', 't-warn', 'end');
+    kn += para(660, ['아주 조금 밀면(수 mV) 전류는 미는 만큼 비례해서 는다.', '수십 mV를 넘으면 넘는 이온이 지수적으로 는다 (타펠 구역).', '', '가장 고운 결정: 충분히 밀되 한계와 거리를 둔 곳. 너무 약하면 씨앗(핵)이 적어 굵다 → 06장', '', '억제제는 언덕을 높여 "더 밀어야" 흐르게 한다 → 05장']);
     s += G(kn, only('kin'));
     // mt: 공급 한계 (깔때기)
-    let mt = T(RX + 24, 166, '공급 한계 — 골목길만큼만', 't-acc', 'start');
-    mt += P(`M${RX + 70},240 L${RX + 410},240 L${RX + 270},470 L${RX + 270},620 L${RX + 210},620 L${RX + 210},470 Z`, 'f-bath') + P(`M${RX + 70},240 L${RX + 210},470 L${RX + 210},620 M${RX + 410},240 L${RX + 270},470 L${RX + 270},620`, 's-edge');
-    for (let k = 0; k < 9; k++) mt += K.jiggle(RX + 120 + (k % 5) * 55, 280 + Math.floor(k / 5) * 60, 'cu', k + 40, 8);
-    for (let k = 0; k < 3; k++) mt += K.ionPath(`M${RX + 240},470 L${RX + 240},640`, 'cu', 2.4, k * 0.8, null);
-    mt += R(RX + 120, 650, 240, 40, 'f-cu2') + LB(T(RX + 300, 540, '확산층', 't-warn', 'start'));
-    mt += K.TT(RX + 24, 780, ['위(벌크)에 이온이 아무리 많아도', '좁은 확산층을 걸어오는 만큼만', '표면에 닿는다 → 전류가 평평해진다', '', '교반을 세게 → 골목이 짧아져', '평평한 높이(한계전류)가 올라간다'], 't-sub', 'start', 34);
+    let mt = T(TX, 166, '공급 한계 — 골목길만큼만', 't-acc', 'start');
+    mt += P(`M${RX + 70},220 L${RX + 410},220 L${RX + 270},420 L${RX + 270},560 L${RX + 210},560 L${RX + 210},420 Z`, 'f-bath') + P(`M${RX + 70},220 L${RX + 210},420 L${RX + 210},560 M${RX + 410},220 L${RX + 270},420 L${RX + 270},560`, 's-edge');
+    for (let k = 0; k < 9; k++) mt += K.jiggle(RX + 120 + (k % 5) * 55, 256 + Math.floor(k / 5) * 54, 'cu', k + 40, 8);
+    for (let k = 0; k < 3; k++) mt += K.ionPath(`M${RX + 240},420 L${RX + 240},578`, 'cu', 2.4, k * 0.8, null);
+    mt += R(RX + 120, 580, 240, 36, 'f-cu2') + LB(T(RX + 290, 490, '확산층', 't-warn', 'start'));
+    mt += para(660, ['위(벌크)에 이온이 아무리 많아도 좁은 확산층을 걸어오는 만큼만 표면에 닿는다 → 전류가 평평해진다', '', '미는 힘은 이온을 끌어오지 않는다. 이미 도착한 이온을 재촉할 뿐이다.', '', '교반을 세게 → 골목이 짧아져 평평한 높이(한계전류)가 올라간다']);
     s += G(mt, only('mt'));
     // h2: 수소
-    let hh = T(RX + 24, 166, '수소 발생 — 물이 대신 반응', 't-acc', 'start');
-    hh += R(RX + 40, 620, 400, 100, 'f-cu2') + R(RX + 40, 260, 400, 360, 'f-bath');
-    for (let k = 0; k < 12; k++) hh += K.bubble(RX + 70 + (k % 6) * 66, 610, 8 + (k % 3) * 5, 330, 2 + (k % 4) * 0.4, k * 0.3);
-    for (let k = 0; k < 3; k++) hh += K.ionPath(`M${RX + 120 + k * 120},300 L${RX + 120 + k * 120},600`, 'h', 2.6, k * 0.8, null);
-    hh += K.TT(RX + 24, 790, ['2H⁺ + 2e⁻ → H₂ (거품)', '전자가 금속 대신 수소에 쓰인다 → 효율↓', '거품이 붙은 자리는 도금이 안 된다', '→ 핀홀 · 피트 · 보이드'], 't-sub', 'start', 34);
+    let hh = T(TX, 166, '수소 발생 — 함께 일어나는 반응', 't-acc', 'start');
+    hh += R(RX + 40, 210, 400, 330, 'f-bath') + R(RX + 40, 540, 400, 70, 'f-cu2');
+    for (let k = 0; k < 12; k++) hh += K.bubble(RX + 70 + (k % 6) * 66, 530, 8 + (k % 3) * 5, 300, 2 + (k % 4) * 0.4, k * 0.3);
+    for (let k = 0; k < 3; k++) hh += K.ionPath(`M${RX + 120 + k * 120},240 L${RX + 120 + k * 120},520`, 'h', 2.6, k * 0.8, null);
+    hh += LB(T(RX + 430, 516, '표면 pH↑', 't-warn', 'end'));
+    hh += para(660, ['2H⁺ + 2e⁻ → H₂ (거품)', '', '금속은 한계전류만큼 쌓이고, 남는 전류가 수소를 만든다 → 효율↓', '', '거품이 붙은 자리는 도금이 덜 된다 → 핀홀 · 피트', '', '표면 H⁺가 줄어 pH↑ → Ni는 수산화물이 섞여 단단 · 잘 깨짐 → 붕산(pH 완충) · 습윤제(거품 떼기)', '', 'Cu는 아주 세게 밀어야 나오지만, Ni는 평소에도 조금 함께 나온다']);
     s += G(hh, only('h2'));
+    // slope: 두 길과 톨게이트 (막대 · 수치는 위젯이 그린다)
+    let sl = T(TX, 166, '고르게 퍼지려면 — 기울기', 't-acc', 'start');
+    sl += R(RX + 60, 206, 130, 24, 'f-anode', tip('양극 (+)')) + T(RX + 200, 224, '양극 (+)', 't-dim', 'start');
+    sl += P(`M${RX + 125},232 L${RX + 125},400`, 's-flow') + P(`M${RX + 160},232 C${RX + 240},250 ${RX + 330},300 ${RX + 355},400`, 's-flow');
+    sl += LB(T(RX + 110, 330, '짧은 길', 't-sub', 'end') + T(RX + 300, 286, '긴 길 (액 저항 ×3)', 't-sub', 'start'));
+    sl += R(RX + 40, 520, 400, 30, 'f-cu2') + T(RX + 240, 572, '음극 (−) 표면', 't-dim');
+    sl += `<g data-v="paths"></g>`;
+    sl += para(720, ['완만한 곡선 = 전류를 조금 더 흘리려면 훨씬 더 밀어야 한다 = 모든 길 입구에 같은 톨게이트(표면 저항) → 길 길이 차이가 덜 중요 → 고르게', '모양 그대로 옆으로 옮기기만 하면 → 쏠림 그대로']);
+    sl += para(954, ['크기에 따라 주역이 다르다 (바그너 수)'], 't-warn');
+    sl += para(988, ['웨이퍼 150 mm: Wa ≈ 0.2 → 하드웨어 (실드 · 고저항판 = 인공 분극)', '범프 50 µm: Wa ≈ 500 → 첨가제 · 공급'], 't-sub', 28);
+    s += G(sl, only('slope'));
     return s;
   },
   body(K){
     return `<div class="pl-w"><div class="hd">직접 해 보기 — 곡선 위를 걸어 보기</div>
-      ${K.ctl('e', '미는 힘 — 과전압 (mV)', 0, 600, 5, 160)}
+      ${K.ctl('e', '미는 힘 — Cu 반응의 과전압 (mV)', 0, 600, 5, 160)}
       ${K.ctl('a', '교반 (한계전류 배수)', 0.6, 1.6, 0.05, 1)}
-      ${K.seg('sup', [['0', '없음'], ['1', '있음']], '0', '억제제')}
-      ${K.kpis([['구역', 'k-z', ''], ['금속 석출', 'k-m', '한계전류 대비'], ['전류효율', 'k-eff', '금속 몫']])}
+      ${K.seg('sup', [['none', '없음'], ['sup', '있음'], ['shift', '옮기기만 (가상)']], 'none', '억제제')}
+      <div class="p04-kp">${K.kpis([['구역', 'k-z', ''], ['금속 석출', 'k-m', '한계전류 대비'], ['전류효율', 'k-eff', '금속 몫'], ['전류 쏠림', 'k-sk', '짧은 길 ÷ 긴 길 (1 = 고름)']])}</div>
       <p class="pl-msg" data-o="msg"></p>
-      ${K.model('i = i₀e^(η/b) / (1 + i₀e^(η/b)/iL) + 수소. 축 값은 상대값이며 금속 · 액마다 다릅니다.')}</div>`;
+      ${K.model('i_k = i₀(e^(η/b) − e^(−η/b)) + 억제막 몫, 1/i = 1/i_k + 1/iL, 수소 전류는 따로 더함. 쏠림은 액 저항이 1 : 3인 두 길에 같은 평균 전류를 흘려 비교한 값. 축 값은 상대값 · 예시이며 금속 · 액마다 다릅니다.')}</div>`;
   },
   mount(K, ctx){
     const {R, C, L, P, T, G, LB, tip} = K;
     let touched = false;
-    const st = {e: 0.16, a: 1, sup: false};
-    const ein = ctx.card.querySelector('input[data-i=e]');
+    const RX_ = 1100;                                          // 오른쪽 판 x (draw 와 같게)
+    const st = {e: 0.16, a: 1, sup: 'none'};
+    const ein = ctx.card.querySelector('input[data-i=e]'), sbox = ctx.card.querySelector('.pl-seg[data-g="sup"]');
     function render(){
+      const cv = CV[st.sup], cn = st.sup === 'none' ? 'sup' : 'none', cc = CV[cn];
       // 구역 띠 (현재 조건에서 경계 계산)
       const bd = [0, 0, 0];
-      for (let e = 0; e <= EMAX; e += 0.0025){ const z = zone(model(e, st.sup, st.a)); for (let k = 0; k < 3; k++) if (z > k && !bd[k]) bd[k] = e; }
+      for (let e = 0; e <= EMAX; e += 0.0025){ const z = zone(model(e, cv, st.a)); for (let k = 0; k < 3; k++) if (z > k && !bd[k]) bd[k] = e; }
       const xs = [GX0, gx(bd[0] || EMAX), gx(bd[1] || EMAX), gx(bd[2] || EMAX), GX1];
       const zc = ['pl-z0', 'pl-z1', 'pl-z2', 'pl-z3'];
       let zs = '';
       for (let k = 0; k < 4; k++) if (xs[k + 1] > xs[k] + 1) zs += R(xs[k], GY1 - 10, xs[k + 1] - xs[k], GY0 - GY1 + 10, zc[k]) + T((xs[k] + xs[k + 1]) / 2, GY1 + 18, ['①', '②', '③', '④'][k], 't-dim');
       ctx.$('[data-v="zones"]').innerHTML = G(zs, K.on('kin'));
-      // 곡선: 금속(굵게), 전체(수소 포함), 억제제 비교(점선)
-      const pts = (f) => { let d = ''; for (let e = 0; e <= EMAX + 1e-9; e += 0.005){ d += (d ? ' L' : 'M') + gx(e).toFixed(1) + ',' + gy(f(e)).toFixed(1); } return d; };
-      let cv = P(pts(e => model(e, st.sup, st.a).im), 's-curve', tip('금속 석출 전류'));
-      cv += G(P(pts(e => model(e, st.sup, st.a).i), 's-curve2', tip('전체 전류 = 금속 + 수소')), K.on('h2'));
-      cv += G(P(pts(e => model(e, !st.sup, st.a).im), 'pl-cmp', tip(st.sup ? '억제제가 없을 때' : '억제제가 있을 때 — 오른쪽으로 밀리고 완만해진다')) + LB(T(gx(st.sup ? 0.12 : 0.36), gy(model(st.sup ? 0.12 : 0.36, !st.sup, st.a).im) - 16, st.sup ? '억제제 없음' : '억제제 있음', 'pl-cmpt', 'middle')), K.on('kin'));
-      cv += L(GX0, gy(st.a), GX1, gy(st.a), 's-dash') + LB(T(GX1 - 6, gy(st.a) - 12, '한계전류 iL', 't-warn', 'end'));
-      ctx.$('[data-v="curves"]').innerHTML = cv;
+      // 곡선: 금속(굵게), 전체(수소 포함), 비교 곡선(점선)
+      const pts = (f, e0 = 0) => { let d = ''; for (let e = e0; e <= EMAX + 1e-9; e += 0.005){ d += (d ? ' L' : 'M') + gx(e).toFixed(1) + ',' + gy(f(e)).toFixed(1); } return d; };
+      const at = (c, frac) => { const e = etaOf(frac * st.a, c, st.a); return [gx(e), gy(frac * st.a)]; };     // 곡선 위 '한계의 frac' 지점
+      let cv2 = P(pts(e => imOf(e, cv, st.a)), 's-curve', tip('금속 석출 전류 — ' + cv.nm));
+      // 이름표: 왼쪽에 있는 곡선(억제제 없음)은 왼쪽 위, 오른쪽 곡선은 오른쪽 아래에
+      const left = st.sup === 'none', [mx, my] = at(cv, 0.8);
+      cv2 += G(LB(left ? T(mx - 16, my - 12, cv.nm, 't-acc', 'end') : T(mx + 16, my + 30, cv.nm, 't-acc', 'start')), K.on('kin'));
+      const ly = gy(st.a) - 12 > GY1 + 44 ? gy(st.a) - 12 : gy(st.a) + 30;                     // 한계전류 이름표 (위가 좁으면 아래로)
+      const eh = 0.42 + 0.04 * Math.log(0.0025 * st.a / 0.002);                                  // 수소가 눈에 띄기 시작하는 곳부터
+      cv2 += G(P(pts(e => model(e, cv, st.a).i, eh), 's-curve2', tip('전체 전류 = 금속 + 수소')) + LB(T(GX0 + 10, ly > gy(st.a) ? gy(st.a) + 60 : gy(st.a) + 34, '주황 점선 = 전체 (금속 + 수소)', 't-warn', 'start')), K.only('h2'));
+      const [qx, qy] = at(cc, 0.5);
+      cv2 += G(P(pts(e => imOf(e, cc, st.a)), 'pl-cmp', tip(cn === 'sup' ? '억제제가 있을 때 — 오른쪽으로 옮겨지고 완만해진다(기울기가 눕는다)' : '억제제가 없을 때')) + LB(left ? T(qx + 16, qy + 30, cc.nm, 'pl-cmpt', 'start') : T(qx - 16, qy - 10, cc.nm, 'pl-cmpt', 'end')), K.on('kin'));
+      cv2 += L(GX0, gy(st.a), GX1, gy(st.a), 's-dash') + LB(T(GX0 + 10, ly, '한계전류 iL', 't-warn', 'start'));
+      // 가장 고운 결정 근처 (반응 지배 안, 한계와 거리를 둔 곳)
+      const [fx, fy] = at(cv, 0.5);
+      cv2 += G(C(fx, fy, 8, 'p04-star') + LB(left ? T(fx - 18, fy - 8, '결정이 가장 고운 근처 ★', 't-sub', 'end') : T(fx + 18, fy + 30, '★ 결정이 가장 고운 근처', 't-sub', 'start')), K.only('kin'));
+      ctx.$('[data-v="curves"]').innerHTML = cv2;
       // 지금 점
-      const r = model(st.e, st.sup, st.a), z = zone(r), x = gx(st.e), y = gy(r.i);
+      const r = model(st.e, cv, st.a), z = zone(r), x = gx(st.e), y = gy(r.i);
       let dt = L(x, GY0, x, y, 's-dash') + C(x, gy(r.im), 9, 'k-acc') + C(x, y, 13, ZN[z].c) + C(x, y, 22, 'co-ring');
-      dt += LB(T(Math.min(x + 20, GX1 - 260), Math.max(GY1 + 40, y - 26), `${ZN[z].t}`, 't-warn', 'start'));
+      dt += LB(T(Math.min(x + 20, GX1 - 190), Math.max(GY1 + 50, y - 26), ZN[z].t, 't-warn', 'start'));
       ctx.$('[data-v="dot"]').innerHTML = dt;
       ctx.$$('[data-v^="mbox"]').forEach((b, k) => b.setAttribute('class', k === z ? 'pl-box pl-on' : 'pl-box'));
-      ctx.out('k-z', ZN[z].t.split(' ')[0] + ' ' + ZN[z].t.split(' ')[1]);
+      // 두 길 비교 (같은 평균 금속 전류에서) — 한계 근처는 공급이 분포를 정하므로 계산하지 않는다
+      const iop = Math.max(0.02 * st.a, r.im), lim = z >= 2;
+      const [a1, a2] = lim ? [0, 0] : split(iop, cv, st.a), [b1, b2] = lim ? [0, 0] : split(iop, cc, st.a);
+      const sk = a2 > 0 ? a1 / a2 : 1, skc = b2 > 0 ? b1 / b2 : 1;
+      let pa = '';
+      const toll = (x0, c) => { const h = 12 + 50 * Math.min(1, (c.b * 2 + c.rf * iop) / 0.24); return R(x0 - 44, 440 - h, 88, h, 'p04-toll', tip('톨게이트 = 표면 저항 (곡선이 완만할수록 높다)')); };
+      pa += toll(RX_ + 125, cv) + toll(RX_ + 355, cv) + LB(T(RX_ + 240, 432, '톨게이트', 't-dim'));
+      if (lim) pa += LB(K.TT(RX_ + 240, 470, ['한계 근처 — 공급(확산층)이 분포를 정한다', '→ 튀어나온 곳이 앞선다'], 't-warn', 'middle', 28));
+      else {
+        const hA = 56 * a1 / iop, hB = 56 * a2 / iop;
+        pa += R(RX_ + 85, 520 - hA, 80, hA, 'f-cu2', tip('짧은 길 쪽에 쌓인 양')) + R(RX_ + 315, 520 - hB, 80, hB, 'f-cu2', tip('긴 길 쪽에 쌓인 양'));
+        pa += LB(T(RX_ + 172, 526 - hA / 2, (a1 / iop).toFixed(2), 'pl-val', 'start') + T(RX_ + 402, 526 - hB / 2, (a2 / iop).toFixed(2), 'pl-val', 'start'));
+        pa += LB(T(RX_ + 24, 620, `쏠림 ×${sk.toFixed(2)} (${cv.nm})`, 't-acc', 'start') + T(RX_ + 24, 652, `비교: ${cc.nm} ×${skc.toFixed(2)}`, 'pl-cmpt', 'start'));
+      }
+      ctx.$('[data-v="paths"]').innerHTML = pa;
+      ctx.out('k-z', ZN[z].t);
       ctx.out('k-m', `${Math.round(r.im / r.iL * 100)} %`);
-      ctx.out('k-eff', `${Math.round(r.im / r.i * 100)} %`);
-      ctx.q('[data-o=msg]').innerHTML = `<b>${ZN[z].t}</b> — ${ZN[z].d}.`;
+      ctx.out('k-eff', `${Math.round(r.im / Math.max(1e-9, r.i) * 100)} %`);
+      ctx.out('k-sk', lim ? '공급이 정함' : `×${sk.toFixed(2)}`);
+      let msg = `<b>${ZN[z].t}</b> — ${ZN[z].d}.`;
+      if (z === 0 && st.e < 0.04) msg = `<b>${ZN[0].t} — 아주 약하게 민 구간</b> — 전류가 미는 만큼 비례해서 늡니다. 이렇게 약하면 씨앗(핵)이 적어 결정이 굵어질 수 있습니다 (06장).`;
+      if (z === 2) msg += ' 이 구간은 곡선이 평평해 보여도 공급이 분포를 정해, 튀어나온 곳이 더 빨리 자랍니다.';
+      else if (z === 3) msg += ' 분포는 공급이 정하고, 거품이 붙은 자리는 덜 쌓입니다.';
+      else msg += st.sup === 'shift' ? ` 같은 전류에서 쏠림 ×${sk.toFixed(2)} = 억제제 없음 ×${skc.toFixed(2)} — 옆으로 옮기기만 해서는 고르게 되지 않습니다(기울기가 같다).`
+        : st.sup === 'sup' ? ` 같은 전류에서 쏠림 ×${sk.toFixed(2)} (없음 ×${skc.toFixed(2)}) — 억제제는 곡선을 옮기면서 눕혀서 쏠림을 줄입니다.`
+        : ` 같은 전류에서 쏠림 ×${sk.toFixed(2)} — 억제제를 켜면 곡선이 누워 ×${skc.toFixed(2)}로 줄어듭니다.`;
+      ctx.q('[data-o=msg]').innerHTML = msg;
       ctx.refresh();
     }
+    const setSup = v => { st.sup = v; sbox.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v ? 'true' : 'false')); };
     ctx.range('e', v => { st.e = v / 1000; render(); return v + ' mV'; });
     ctx.range('a', v => { st.a = v; render(); return '×' + v.toFixed(2); });
-    ctx.seg('sup', v => { st.sup = v === '1'; render(); });
+    ctx.seg('sup', v => { st.sup = v; render(); });
     ctx.card.querySelectorAll('input, .pl-seg button').forEach(i => i.addEventListener(i.tagName === 'INPUT' ? 'input' : 'click', () => { touched = true; }));
     ctx.demo = sid => {
       if (touched) return ctx.refresh();
-      const e = DEMO[sid] != null ? DEMO[sid] : 0.16;
+      const [e, sp] = DEMO[sid] || DEMO.kin;
       ein.value = Math.round(e * 1000); st.e = e; ctx.out('e', Math.round(e * 1000) + ' mV');
+      setSup(sp);
       render();
     };
   },
   onStep(K, ctx, sid){ if (ctx.demo) ctx.demo(sid); },
   notes(K){
     return K.terms([
-      ['과전압 (η)', '반응을 원하는 속도로 일으키려고 평형보다 더 거는 전압'],
-      ['분극 곡선', '과전압과 전류의 관계를 그린 곡선. 도금액의 "성격표"'],
-      ['교환전류 (i₀)', '평형에서 쌓이고 녹는 반응이 오가는 양. 클수록 반응이 쉽다'],
-      ['타펠 구역', '전류가 과전압에 지수적으로 느는 구간 (반응 지배)'],
-      ['한계전류 (iL)', '공급(확산)이 따라갈 수 있는 최대 전류 → 03장']
+      ['평형 전위', '전류가 0일 때 전극이 머무는 제자리 전압. 0 V가 아니다'],
+      ['과전압 (η)', '평형 전위보다 더 건 만큼. 반응마다 따로 잰다 (Cu 반응의 과전압, 수소 반응의 과전압)'],
+      ['분극 곡선', '전류가 흐르며 전극 전압이 제자리에서 벗어나는 모습을 그린 그래프. 도금액의 "성격표"'],
+      ['교환전류 (i₀)', '평형에서 쌓이고 녹는 반응이 오가는 양. 클수록 조금만 밀어도 많이 흐른다'],
+      ['타펠 구역', '전류가 과전압에 지수적으로 느는 구간 (보통 수십 mV 이상 밀었을 때)'],
+      ['한계전류 (iL)', '공급(확산)이 따라갈 수 있는 최대 전류 → 03장'],
+      ['바그너 수 (Wa)', '곡선의 완만함 ÷ 크기만큼의 액 저항. 클수록 전류가 고르게 퍼진다']
     ]) + K.field([
-      '실무에서는 <b>반응 지배 ~ 혼합 구역</b>, 한계전류보다 충분히 낮은 곳에서 운전합니다. 전류를 올려 처리량을 늘리고 싶을 때 먼저 한계전류와의 거리를 봅니다.',
-      '<b>곡선이 완만할수록 전류가 고르게 퍼집니다.</b> 가까운 곳으로 조금 더 흘리려면 훨씬 더 밀어야 하므로 전류가 한곳에 쏠리지 않기 때문입니다. 억제제가 균일도를 돕는 이유입니다 (07장 · 08장).',
-      '같은 전류인데 전압이 오른다면, 곡선이 바뀌었거나(첨가제 · 농도 · 온도) 곡선 밖의 저항(접점 · 액 · 분리막)이 커진 것입니다.'
-    ]) + K.deep(`<p>버틀러-볼머 식을 음극 쪽만 남기고 공급 한계를 넣으면:</p>
-      ${K.eq('i = i₀·exp(αnFη/RT) / (1 + i₀·exp(αnFη/RT) / iL)')}
-      <ul><li><b>타펠 기울기</b> — 전류를 10배 늘리는 데 필요한 과전압(mV/decade). 기울기가 클수록 곡선이 완만합니다.</li>
-      <li><b>바그너 수</b> Wa = κ·(dη/di) / L — 액의 전도도 κ와 곡선의 완만함(dη/di)이 클수록, 크기 L이 작을수록 분포가 고릅니다. 타펠 구역에서 dη/di ≈ (타펠 기울기)/(2.3·i) 이므로 전류밀도를 올리면 Wa가 작아져 분포가 나빠지기 쉽습니다.</li>
-      <li>억제제(PEG + Cl⁻ 계열)는 곡선을 오른쪽으로 밀고 완만하게 만듭니다 — 같은 전류에 더 큰 과전압, 대신 분포가 고르게.</li>
-      <li>실제 분극 곡선은 회전 원판 전극 등으로 전위를 훑으며 측정합니다(선형 주사 전압전류법). 액 상태 진단에도 씁니다.</li></ul>`);
-  }
+      '실무에서는 <b>반응 지배 구역</b>, 한계전류보다 충분히 낮은 곳에서 운전합니다. 처리량을 늘리려고 전류를 올릴 때는 먼저 한계전류와의 거리를 봅니다.',
+      '<b>균일도는 곡선의 기울기가 정합니다.</b> 기울기가 완만할수록 전류가 저항이 작은 길(가장자리 · 튀어나온 곳)로 쏠리지 않습니다. 억제제는 곡선을 옮기면서 눕혀서 돕습니다 — 모양 그대로 옆으로만 옮겨지면 거의 도움이 되지 않습니다.',
+      '<b>크기에 따라 주역이 다릅니다.</b> 웨이퍼 전체(150 mm)는 Wa가 1보다 작아 실드 · 고저항판(일부러 저항을 더한 "인공 분극") 같은 하드웨어가 맡고, 범프 하나(수십 µm)는 Wa가 매우 커서 첨가제 · 공급이 맡습니다 (<a data-go="wafer">07장</a>). 첨가제로 웨이퍼 중심–가장자리 차이를 잡으려 하지 않습니다.',
+      '첨가제 분석(CVS)은 이 곡선이 얼마나 옮겨 가고 기울어졌는지를 재는 일입니다 (<a data-go="bath">11장</a>).',
+      '같은 전류인데 전압이 오른다면, 곡선이 바뀌었거나(첨가제 · 농도 · 온도) 곡선 밖의 저항(접점 · 액 · 분리막)이 커진 것입니다.',
+      '웨이퍼가 액에 닿는 순간부터 작은 전류(전압)를 거는 핫 엔트리는 얇은 시드가 녹지 않게 하는 설정입니다 (<a data-go="tool">09장</a>).'
+    ]) + K.deep(`<p><b>버틀러-볼머 식</b> — 음극 전류를 (+), 음극 쪽으로 민 정도를 η(+)로 쓰면:</p>
+      ${K.eq('i = i₀·[exp(α_c·Fη/RT) − exp(−α_a·Fη/RT)]')}
+      <ul><li>η ≪ RT/F(25 °C에서 25.7 mV)이면 i ≈ i₀·Fη/RT — 비례. η ≳ 50~100 mV이면 한쪽 항만 남아 <b>η = a + b·log i</b> (타펠).</li>
+      <li><b>타펠 기울기</b> b = 2.303RT/(αF) — α = 0.5, 25 °C이면 약 118 mV/decade. "전류를 10배로 늘리려면 약 0.12 V를 더 밀어야 한다"는 뜻이고, 클수록 곡선이 완만합니다.</li>
+      <li><b>공급 한계 합치기</b>: 1/i = 1/i_k + 1/iL, 표면 농도 C_s = C_bulk·(1 − i/iL). 위젯 곡선이 이 식입니다.</li>
+      <li><b>금속마다 다른 i₀</b>: Sn · Ag(단순한 액)는 크고, Cu는 중간, Ni는 아주 작습니다. Ni는 세게 밀어야 해서 수소도 함께 나오기 쉽습니다.</li>
+      <li><b>바그너 수</b> Wa = κ·(dη/di)/L. 타펠 구역에서 dη/di = b/(2.303·i) 로 i₀와 무관 → <b>평행 이동(i₀만 줄임)으로는 Wa가 그대로</b>입니다. 예: κ 50 S/m, b 0.12 V/dec, 1 ASD → dη/di ≈ 5.2×10⁻⁴ Ω·m² → L 0.15 m에서 Wa ≈ 0.17, L 50 µm에서 ≈ 500. 전류밀도를 올리면 dη/di가 작아져 분포가 나빠지기 쉽습니다.</li>
+      <li>교반은 보통 iL만 바꾸지만, 평탄제처럼 공급에 좌우되는 첨가제가 있으면 교반이 곡선(억제)도 바꿉니다 (05장).</li>
+      <li><b>펄스 · 역펄스</b>: 전류를 끈 동안 확산층이 회복되고, 잠깐 거꾸로 흘리면 튀어나온 곳이 먼저 녹아 평평해집니다. 대신 평균 속도가 줄고 첨가제 거동이 달라져 쓰는 공정과 안 쓰는 공정이 있습니다.</li>
+      <li>분극 곡선은 회전 원판 전극(RDE)에서 전위를 훑으며 잽니다(선형 주사). 논문은 음극 전류를 (−)로 그리는 경우가 많아 그림이 뒤집혀 보일 수 있습니다.</li></ul>`);
+  },
+  css: `.p04-den{fill:none;stroke:#e0904f;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.p04-toll{fill:rgba(167,139,250,.28);stroke:#a78bfa;stroke-width:1.6}
+.p04-star{fill:#fde68a;stroke:#92400e;stroke-width:1.2}
+.jc .p04-kp .kpi .v{font-size:16px;white-space:nowrap}`
 });
 })();
 
 </script>
 <script>
-/* 전해도금 05 — 첨가제: 보이지 않는 조절자 (분자 · nm) */
+/* 전해도금 05 — 첨가제: 아주 적은 약품이 어떻게 모양을 바꿀까? (분자 · nm) */
 (function(){
 const SB = 820, XL = 60, XR = 1060;                     // 표면 기준선, 가로 범위
 // 매끈한 표면 높이 (오목한 곳 x 220~380, 볼록한 곳 x 660~860)
@@ -6010,184 +6255,259 @@ function yS(x){
   return SB;
 }
 const PROBES = [[140, '평평한 곳'], [300, '오목한 곳'], [520, '평평한 곳'], [760, '볼록한 곳'], [960, '평평한 곳']];
+// 자리별로 쌓이는 속도 (상대값). 정전류이므로 평균은 늘 1 — 첨가제는 "어디로 가는지"만 바꾼다
 function rates(e){
-  return PROBES.map(([x]) => {
-    if (!e.sup) return [1.7, 1.2, 1.9, 1.5, 1.3][PROBES.findIndex(p => p[0] === x)];
-    let r = 0.6;
-    if (e.acc) r *= x === 300 ? 2.3 : 1.35;
-    if (e.lev && x === 760) r *= 0.35;
-    return r;
-  });
+  const S = e.sup && e.cl;
+  const f = (S ? [1, 0.95, 1, 1.15, 1] : e.sup ? [1, 0.85, 1.02, 1.32, 0.98] : [1, 0.72, 1.06, 1.55, 0.94]).slice();
+  if (S && e.acc) f[1] *= 1.8;                                  // 촉진제가 모인 오목한 곳은 억제가 풀린다
+  if (e.lev){
+    f[3] *= S ? (e.lev === 2 ? 0.3 : 0.55) : 0.85;             // 평탄제는 잘 배달되는 볼록한 곳을 누른다
+    if (e.lev === 2 && S){ f[0] *= 0.9; f[2] *= 0.9; f[4] *= 0.9; }
+  }
+  const m = f.reduce((a, b) => a + b, 0) / f.length;
+  return f.map(v => v / m);
 }
+// 결과 (산성 Cu, 범프 전류밀도에서 보통 보이는 경향 — 개념 예시)
+// shape: rough · dome1(살짝 볼록) · dome · flatish · flat · dish,  sheen: 0 무광 · 1 반광 · 2 광택,  gn: 결정 씨앗 수(그림)
 function result(e){
-  if (!e.sup) return {shape: 'rough', g: '굵음', s: '거침 · 노듈 · 무광', t: '울퉁불퉁', v: '빠르지만 고르지 않다', n: (e.acc || e.lev) ? '억제제(바탕)가 없으면 촉진제 · 평탄제도 제 역할을 못 합니다.' : '아무 데나 빨리 붙어 결정이 굵고 거칩니다.'};
-  if (e.acc && e.lev) return {shape: 'flat', g: '고움', s: '매끈 · 광택', t: '평평', v: '빠르다', n: '보통 쓰는 조합 — 억제제가 바탕을 깔고, 촉진제가 속도를, 평탄제가 모양을 잡습니다.'};
-  if (e.lev) return {shape: 'flat', g: '고움', s: '매끈', t: '평평해진다', v: '느리다', n: '평탄제가 볼록한 곳을 눌러 평평해집니다. 촉진제가 없으면 느립니다.'};
-  if (e.acc) return {shape: 'dome', g: '고움', s: '매끈', t: '굴곡이 그대로 (볼록한 곳은 더 볼록해질 수 있다)', v: '빠르다', n: '빨라지지만 모양을 잡아 줄 평탄제가 없습니다.'};
-  return {shape: 'dome', g: '고움', s: '매끈', t: '굴곡이 그대로', v: '느리다', n: '억제제가 표면을 고르게 늦춰 결정이 곱고 매끈해집니다.'};
+  const S = e.sup && e.cl;
+  if (!S){
+    const r = {shape: 'rough', g: '굵음', s: '무광 · 거침', t: '울퉁불퉁 · 높은 전류에서 혹', v: '낮음', w: '튀어나온 곳 · 결정 끝으로 몰린다', h: '큼', sheen: 0, gn: 14};
+    if (e.sup) return Object.assign(r, {v: '조금 큼', s: '무광 · 조금 거침', gn: 22, n: 'Cl⁻가 없으면 억제제(담요)가 표면에 잘 붙지 않아 억제가 약합니다. Cl⁻(수십 ppm)는 담요를 표면에 고정하는 집게입니다.'});
+    if (e.lev) return Object.assign(r, {v: '조금 큼', n: '평탄제만으로는 바탕(억제)이 약해 효과가 작습니다. 평탄제는 보통 억제제 · Cl⁻ 바탕 위에서 씁니다.'});
+    if (e.acc) return Object.assign(r, {n: '촉진제만 넣으면 "없음"과 거의 같습니다 — 걷어 낼 담요(억제제)가 없어 할 일이 적습니다.'});
+    return Object.assign(r, {n: '첨가제가 없으면 조금만 밀어도 쉽게 쌓여 새 씨앗(핵)이 적고, 이온이 붙기 쉬운 자리(결정 끝 · 튀어나온 곳)에 계속 붙어 결정이 굵고 거칩니다. 범프처럼 전류밀도가 높으면 혹 · 탄 도금이 되기 쉽습니다.'});
+  }
+  if (e.lev === 2) return {shape: 'dish', g: e.acc ? '아주 고움' : '고움', s: '광택 · 불순물↑', t: '가운데 오목 (접시)', v: '아주 큼', w: '잘 배달되는 가장자리가 지나치게 눌린다', h: '작음', sheen: e.acc ? 2 : 1, gn: e.acc ? 110 : 60, n: '평탄제가 너무 많으면 잘 배달되는 가장자리 · 모서리를 지나치게 눌러 가운데가 오목(접시)해지고, 막에 갇히는 불순물도 늘어납니다 (06장).'};
+  if (e.acc && e.lev) return {shape: 'flat', g: '아주 고움', s: '광택', t: '평평', v: '큼', w: '고르게 — 볼록한 곳은 눌리고 오목한 곳은 풀린다', h: '작음', sheen: 2, gn: 110, n: '보통 쓰는 조합입니다. 억제제가 바탕을 깔고, 촉진제가 자리별로 억제를 풀고, 평탄제가 튀어나온 곳을 눌러 윗면이 평평하고 범프끼리 높이 차도 줄어듭니다.'};
+  if (e.acc) return {shape: 'dome', g: '아주 고움', s: '광택', t: '볼록(돔)해지기 쉽다', v: '큼', w: '전류 · 흐름이 센 가운데 위쪽으로', h: '보통', sheen: 2, gn: 110, n: '결정이 아주 곱고 광택이 나지만, 윗면을 잡아 줄 평탄제가 없어 높은 전류에서는 가운데가 볼록(돔)해지기 쉽습니다.'};
+  if (e.lev) return {shape: 'flatish', g: '고움', s: '반광 · 매끈', t: '평평에 가깝다', v: '큼', w: '볼록한 곳이 눌려 고르게', h: '작음', sheen: 1, gn: 60, n: '평탄제가 튀어나온 곳을 눌러 윗면이 평평해집니다. 촉진제가 없어 광택은 덜합니다.'};
+  return {shape: 'dome1', g: '고움', s: '반광 · 매끈', t: '전류 · 흐름을 따라간다 (높은 전류에서 볼록)', v: '큼', w: '고르게 퍼진다 (곡선이 눕는다)', h: '보통', sheen: 1, gn: 60, n: '억제제 + Cl⁻가 표면을 덮어 같은 전류에 더 큰 과전압이 걸리고(04장), 결정이 곱고 매끈해집니다. 윗면은 전류 · 흐름이 센 곳을 따라가 높은 전류에서는 볼록해지기 쉽습니다.'};
 }
 
 (window.EngrPlatingChapters = window.EngrPlatingChapters || []).push({
   no: '05', id: 'additive', part: 2, short: '첨가제', scale: '분자 · nm',
-  title: '첨가제 — 보이지 않는 조절자',
-  hook: 'ppm 분자가 모양을 정한다',
-  one: '도금액에 아주 조금(ppm 수준) 넣는 분자들이 표면을 덮고, 비키고, 골라 붙으며 어디가 빨리 자랄지 정합니다. 그래서 결정의 크기, 표면의 매끈함, 윗면의 모양이 첨가제로 결정됩니다.',
-  ana: '<b>교통 정리</b> — 억제제는 모든 차선에 깔린 <b>과속 방지턱</b>(전체를 천천히 · 고르게), 촉진제는 방지턱을 걷어 내는 <b>급행 차선</b>(여기는 빨리), 평탄제는 붐비는 곳에만 서는 <b>교통 경찰</b>(튀어나온 곳을 늦춤)입니다.',
+  title: '첨가제 — 아주 적은 약품이 어떻게 모양을 바꿀까?',
+  hook: '아주 적은 분자가 모양을 정한다',
+  one: '도금액에 아주 적은 양(ppm, 100만 분의 1 수준)을 넣는 분자들이 표면에 붙었다 떨어지며, 어디를 빨리 키우고 어디를 늦출지 정합니다. 평균 두께는 전류 × 시간이 정하고, 첨가제는 전압과 "전류가 어디로 가는지"를 바꿔 결정 크기 · 매끈함 · 윗면 모양을 정합니다.',
+  ana: '<b>담요 · 집게 · 손 · 브레이크</b> — 억제제는 표면을 덮는 얇은 <b>담요</b>, Cl⁻는 담요를 표면에 고정하는 <b>집게</b>(없으면 담요가 잘 붙지 않음)입니다. 촉진제는 담요를 비집고 들어가 걷어 내는 <b>손</b>, 평탄제는 흐름이 잘 닿는 튀어나온 곳에 더 많이 붙는 <b>브레이크</b>입니다. <i>한계</i>: 담요는 분자 한 겹이고, 전류를 막지 않고 늦출 뿐이며, 계속 붙었다 떨어집니다. 효과는 농도와 조합에 따라 달라집니다.',
   steps: [
-    {id: 'none', t: '첨가제가 없으면', d: '이온이 아무 데나 빨리 붙어 결정이 굵고 표면이 거칩니다(노듈 · 무광). 튀어나온 곳이 이온을 먼저 잡아 더 튀어나옵니다.'},
-    {id: 'sup', t: '억제제 + Cl⁻ — 담요', d: '긴 사슬 분자가 Cl⁻와 함께 표면을 덮어 전체를 늦춥니다. 과전압이 커지고(04장 곡선이 오른쪽으로) 전류가 고르게 퍼지며 결정이 곱습니다. Cl⁻가 있어야 제대로 붙습니다.'},
-    {id: 'acc', t: '촉진제 — 담요 걷기', d: '작은 분자가 억제제를 밀어내고 그 자리를 빨리 자라게 합니다. 구멍을 메우는 다마신에서는 바닥부터 채우는(bottom-up) 핵심이고, 범프에서는 속도 · 결정 · 모양을 조절합니다.'},
-    {id: 'lev', t: '평탄제 — 튀어나온 곳 누르기', d: '이온이 잘 오는 곳(튀어나온 곳 · 가장자리)에 더 많이 붙어 그곳을 늦춥니다. 그래서 윗면이 평평해집니다. 지나치면 다른 곳까지 늦추거나 막에 더 많이 갇힐 수 있습니다.'},
-    {id: 'wear', t: '소모와 분해 — 쓰면 쪼개진다', d: '첨가제는 전기를 쓸수록(Ah) 쪼개집니다. 분해 조각이 쌓이면 효과가 흐려지고 막에 갇히기도 합니다 → 분석(CVS) · 보충 · 덜어 내기 · 교체 (11장).'}
+    {id: 'none', t: '첨가제가 없으면', d: '조금만 밀어도 쉽게 쌓여 새 씨앗(핵)이 적게 생깁니다. 이온은 붙기 쉬운 자리(자라는 결정 끝 · 튀어나온 곳)에 계속 붙어 결정이 굵고 표면이 무광으로 거칩니다. 범프처럼 전류밀도가 높으면 혹 · 탄 도금이 되기 쉽습니다.'},
+    {id: 'sup', t: '억제제 + Cl⁻ — 담요와 집게', d: '긴 사슬 분자가 Cl⁻를 집게 삼아 표면을 덮습니다. 같은 전류를 흘리려면 더 세게 밀어야 해서(과전압↑) 결정이 곱고, 곡선이 누워 전류가 고르게 퍼집니다. 정류기는 전류를 일정하게 주므로 평균 두께 · 속도는 그대로입니다.'},
+    {id: 'acc', t: '촉진제 — 담요를 걷는 손', d: '작은 분자가 담요를 비집고 들어가 그 자리의 억제를 풀어 줍니다. 억제제가 없으면 혼자서는 할 일이 적습니다. 범프에서 촉진제가 바꾸는 "속도"는 전체 속도가 아니라 자리별 속도 차이이고, 결정이 더 곱고 광택이 납니다.'},
+    {id: 'lev', t: '평탄제 — 튀어나온 곳의 브레이크', d: '평탄제는 아주 묽어서 분자 자신이 확산으로 겨우 도착합니다. 그래서 잘 배달되는 곳(튀어나온 곳 · 모서리 · 흐름 센 곳)에 더 붙어 그곳을 늦춥니다 → 윗면이 평평. 흐름이 바뀌면 모양도 바뀌고, 너무 많으면 가운데가 오목해집니다.'},
+    {id: 'wear', t: '소모와 분해 — 쓰면 줄고 바뀐다', d: '첨가제는 주로 전기(Ah)를 쓸수록 줄지만, 쉬는 동안에도 분해되고 웨이퍼에 묻어 나가며 막 속에 갇히기도 합니다. 분해 조각이 쌓이면 효과가 흐려집니다 → Ah 몫 + 시간 몫으로 보충하고 분석(CVS)으로 보정 (11장).'}
   ],
   icon(K){
     const {P, C} = K;
     return P('M2,50 L64,50 L64,62 L2,62 Z', 'f-cu2') + P('M4,44 q6,-8 12,0 t12,0 t12,0 t12,0 t12,0', 'f-sup') + C(20, 30, 4, 'f-acc') + C(44, 26, 4, 'f-lev') + C(34, 14, 4, 'f-acc');
   },
   draw(K){
-    const {R, C, L, P, T, G, LB, tip, only, on, W, TT, rng} = K;
+    const {R, C, L, P, T, G, LB, tip, only, on, W, TT, rng, wrap} = K;
     let s = '';
     s += R(40, 130, 1040, 990, 'pl-panel', {rx: 16}) + R(56, 146, 1008, SB - 120, 'f-bath');
     s += `<g data-v="surf"></g><g data-v="rate"></g>`;
-    // 억제제(PEG 계열 사슬) + Cl⁻ — 표면을 따라
-    let sup = '';
+    s += G(LB(T(1046, 178, '화살표 = 자리별로 쌓이는 속도 (평균은 전류 × 시간이 정해 늘 같다)', 't-dim', 'end')), on('sup'));
+    // 억제제(PEG 계열 사슬) — 표면을 따라. Cl⁻(집게)는 따로 묶어 켜고 끈다
+    let sup = '', cl = '';
     for (let x = XL + 8; x < XR - 60; x += 92){
       if (x > 200 && x < 390) continue;
       const y = yS(x + 36) - 14;
-      sup += P(`M${x},${y} q9,-12 18,0 t18,0 t18,0 t18,0`, 'f-sup') + C(x + 18, y + 9, 5, 'f-cl') + C(x + 54, y + 9, 5, 'f-cl');
+      sup += P(`M${x},${y} q9,-12 18,0 t18,0 t18,0 t18,0`, 'f-sup');
+      cl += C(x + 18, y + 9, 5, 'f-cl') + C(x + 54, y + 9, 5, 'f-cl');
     }
     sup += P(`M250,${SB + 56} q9,-12 18,0 t18,0`, 'f-sup') + P(`M318,${SB + 56} q9,-12 18,0 t18,0`, 'f-sup');
-    for (let k = 0; k < 5; k++){ const x = 120 + k * 200, y = 300 + (k % 2) * 120; sup += G(P(`M0,0 q9,-12 18,0 t18,0 t18,0 t18,0`, 'f-sup'), {transform: `translate(${x} ${y}) rotate(${k * 23 - 30})`}); }
-    s += G(sup, W(on('sup'), {class: 'm-sup'}, tip('억제제(긴 사슬 분자) + Cl⁻(연두) — 표면을 덮어 전체를 늦춘다')));
+    cl += C(259, SB + 65, 5, 'f-cl') + C(327, SB + 65, 5, 'f-cl');
+    let supF = '';
+    for (let k = 0; k < 5; k++){ const x = 120 + k * 200, y = 300 + (k % 2) * 120; supF += G(P(`M0,0 q9,-12 18,0 t18,0 t18,0 t18,0`, 'f-sup'), {transform: `translate(${x} ${y}) rotate(${k * 23 - 30})`}); }
+    s += G(G(sup, {class: 'p05-sup'}) + supF, W(on('sup'), {class: 'm-sup'}, tip('억제제(긴 사슬 분자) — 표면을 덮는 담요. 전체를 늦춘다')));
+    s += G(cl, W(on('sup'), {class: 'm-cl'}, tip('Cl⁻(연두) — 담요를 표면에 고정하는 집게')));
     // 촉진제 — 오목한 곳에 많이
     let acc = '';
     for (const x of [252, 276, 300, 324, 348]) acc += C(x, SB + 58, 7, 'f-acc');
     for (const x of [130, 470, 580, 930, 1010]) acc += C(x, yS(x) - 10, 7, 'f-acc');
     for (let k = 0; k < 6; k++) acc += C(180 + k * 150, 260 + (k % 3) * 90, 7, 'f-acc');
-    s += G(acc, W(on('acc'), {class: 'm-acc'}, tip('촉진제(작은 분자) — 억제제를 밀어내고 그 자리를 빠르게')));
-    // 평탄제 — 볼록한 곳에 많이
-    let lev = '';
-    for (let x = 676; x <= 846; x += 17) lev += G(C(0, 0, 8, 'f-lev') + T(0, 5, '+', 'pl-levt'), {transform: `translate(${x} ${yS(x) - 12})`});
-    for (const x of [150, 520, 980]) lev += G(C(0, 0, 8, 'f-lev') + T(0, 5, '+', 'pl-levt'), {transform: `translate(${x} ${yS(x) - 34})`});
-    s += G(lev, W(on('lev'), {class: 'm-lev'}, tip('평탄제(+ 전하) — 이온이 잘 오는 볼록한 곳에 많이 붙어 그곳을 늦춘다')));
-    // 분해 조각
+    s += G(acc, W(on('acc'), {class: 'm-acc'}, tip('촉진제(작은 분자) — 담요를 비집고 들어가 그 자리의 억제를 푼다')));
+    // 평탄제 — 볼록한 곳에 많이 (과다면 평평한 곳 · 오목한 곳에도)
+    const levM = (x, y) => G(C(0, 0, 8, 'f-lev') + T(0, 5, '+', 'pl-levt'), {transform: `translate(${x} ${y})`});
+    let lev = '', lev2 = '';
+    for (let x = 676; x <= 846; x += 17) lev += levM(x, yS(x) - 12);
+    for (const x of [150, 520, 980]) lev += levM(x, yS(x) - 34);
+    for (const x of [100, 190, 430, 490, 560, 620, 900, 1000]) lev2 += levM(x, yS(x) - 12);
+    for (const x of [262, 300, 338]) lev2 += levM(x, SB + 46);
+    s += G(lev, W(on('lev'), {class: 'm-lev'}, tip('평탄제(+ 전하) — 잘 배달되는 볼록한 곳에 많이 붙어 그곳을 늦춘다')));
+    s += G(lev2, W(on('lev'), {class: 'm-lev2'}, tip('평탄제 과다 — 다른 곳까지 덮고 막에 더 많이 갇힌다')));
+    // 분해 조각 (아래쪽 액 속)
     const rr = rng(4);
     let fr = '';
-    for (let k = 0; k < 16; k++){ const x = 100 + rr() * 900, y = 240 + rr() * 380; fr += G(P('M0,0 l10,-6 l8,6', 'pl-frag') + C(16, 2, 4, 'f-frag'), {transform: `translate(${x.toFixed(0)} ${y.toFixed(0)}) rotate(${Math.round(rr() * 180)})`}); }
-    s += G(fr, W(only('wear'), tip('분해 조각 — 쓰면서 쪼개진 첨가제. 쌓이면 효과가 흐려진다')));
-    // 이름표
-    s += G(LB(K.lead(520, SB - 22, 560, 700, '억제제 + Cl⁻ — 담요', 'start', 't-sub')), only('sup'));
-    s += G(LB(K.lead(300, SB + 50, 230, 640, '촉진제가 모인 오목한 곳은 빨리', 'start', 't-sub')), only('acc'));
-    s += G(LB(K.lead(760, SB - 74, 640, 620, '평탄제 — 볼록한 곳을 늦춘다', 'start', 't-sub')), only('lev'));
-    s += G(LB(T(80, 200, '분해 조각이 쌓인다 → 효과가 흐려진다 → 분석 · 보충 · 덜어 내기 · 교체', 't-warn', 'start')), only('wear'));
-    s += G(LB(T(80, 200, '첨가제 없음 — 아무 데나 빨리 붙는다', 't-warn', 'start')), only('none'));
+    for (let k = 0; k < 16; k++){ const x = 100 + rr() * 900, y = 500 + rr() * 140; fr += G(P('M0,0 l10,-6 l8,6', 'pl-frag') + C(16, 2, 4, 'f-frag'), {transform: `translate(${x.toFixed(0)} ${y.toFixed(0)}) rotate(${Math.round(rr() * 180)})`}); }
+    s += G(fr, W(only('wear'), tip('분해 조각 — 쓰면서 바뀌고 쪼개진 첨가제. 쌓이면 효과가 흐려진다')));
+    // 이름표 (화살표 위쪽 빈 곳에)
+    s += G(LB(T(80, 214, '첨가제 없음 — 붙기 쉬운 자리(결정 끝 · 튀어나온 곳)에 계속 붙는다', 't-warn', 'start')), only('none'));
+    s += G(K.lead(440, SB - 14, 420, 500, '억제제 + Cl⁻ — 담요와 집게 (표면 전체를 덮는다)', 'start', 't-sub'), only('sup'));
+    s += G(K.lead(330, SB + 52, 420, 500, '촉진제가 모인 오목한 곳은 억제가 풀려 빨리', 'start', 't-sub'), only('acc'));
+    let lv = K.lead(780, SB - 74, 900, 500, '평탄제 — 잘 배달되는 볼록한 곳에 더 붙는다', 'end', 't-sub');
+    lv += K.arrow(626, 690, 684, 744, 's-arr') + K.arrow(894, 690, 836, 744, 's-arr') + LB(T(1040, 640, '흐름 · 확산이', 't-dim', 'end') + T(1040, 664, '잘 닿는 곳', 't-dim', 'end'));
+    s += G(lv, only('lev'));
+    // 소모 · 분해 상자 (wear)
+    let wr = R(70, 196, 980, 290, 'p05-box', {rx: 12}) + T(92, 232, '줄어드는 길 — Ah 몫이 가장 크지만 그것만이 아니다', 't-warn', 'start');
+    [['① 전기(Ah) — 음극 · 양극 반응으로 바뀐다', 92, 270], ['② 시간 — 쉬는 동안 산소 · Cu⁺와 반응', 560, 270], ['③ 묻어 나감 (드래그아웃)', 92, 304], ['④ 막 속에 갇힘 (불순물 → 06장)', 560, 304]].forEach(([t, x, y]) => { wr += T(x, y, t, 't-sub', 'start'); });
+    // SPS → MPS → PDS
+    const chip = (x, w, t1, t2, c) => R(x, 336, w, 74, c, {rx: 10}) + T(x + w / 2, 366, t1, 't-lbl') + T(x + w / 2, 396, t2, 't-dim');
+    wr += chip(92, 200, 'SPS', '넣는 꼴', 'p05-chip') + chip(400, 250, 'MPS', '일하는 꼴 (Cu⁺와 묶임)', 'p05-chip') + chip(758, 270, 'PDS', '효과 없음 · 쌓인다', 'p05-chip2');
+    wr += K.arrow(296, 373, 394, 373, 's-arr2') + T(345, 360, '음극', 't-dim') + K.arrow(654, 373, 752, 373, 's-arr2') + T(703, 360, '산화', 't-dim');
+    wr += T(92, 448, '→ 보충 = Ah 몫 + 시간 몫, CVS로 보정 · 분해 조각은 덜어 내기 · 활성탄 · 교체 (11장)', 't-sub', 'start');
+    s += G(wr, only('wear'));
     // 오른쪽: 결과
-    s += R(1110, 130, 450, 990, 'pl-panel', {rx: 16}) + T(1134, 172, '결과 — 범프 윗면 (개념)', 't-acc', 'start');
-    s += `<g data-v="res"></g>`;
-    // 다마신 바닥 채우기 (acc 단계)
-    let dm = T(1134, 790, '참고: 다마신 구멍 메우기', 't-warn', 'start');
-    dm += R(1180, 820, 70, 240, 'pl-diel') + R(1390, 820, 70, 240, 'pl-diel') + R(1180, 1060, 280, 20, 'pl-diel');
-    for (let k = 0; k < 5; k++) dm += P(`M1250,${1050 - k * 46} L1390,${1050 - k * 46}`, 'pl-front', {style: `opacity:${(0.35 + k * 0.15).toFixed(2)}`});
-    dm += K.arrow(1320, 1040, 1320, 860, 's-arr2') + TT(1134, 1100, ['촉진제가 바닥에 모여 아래부터 채운다'], 't-dim', 'start');
-    s += G(dm, only('acc'));
+    s += R(1110, 130, 450, 990, 'pl-panel', {rx: 16}) + T(1134, 172, '결과 — 범프 단면 (개념)', 't-acc', 'start');
+    s += `<clipPath id="p05-bclip"><path data-v="bclip" d="M0,0"/></clipPath><g data-v="res"></g>`;
+    s += TT(1134, 1062, wrap('개념 예시 — 실제 모양은 액 · 전류밀도 · 흐름에 따라 다르다', 19), 't-dim', 'start', 26);
     return s;
   },
   body(K){
-    return `<div class="pl-w"><div class="hd">직접 해 보기 — 첨가제 켜고 끄기</div>
-      <div class="pl-seg" data-g="adds"><span class="lb">첨가제</span><button data-k="sup" aria-pressed="true">억제제 + Cl⁻</button><button data-k="acc" aria-pressed="true">촉진제</button><button data-k="lev" aria-pressed="true">평탄제</button></div>
-      ${K.kpis([['결정', 'k-g', ''], ['표면', 'k-s', ''], ['윗면', 'k-t', '']])}
+    return `<div class="pl-w"><div class="hd">직접 해 보기 — 첨가제 넣고 빼기</div>
+      <div class="pl-seg" data-g="adds" role="group" aria-label="첨가제 켜고 끄기"><span class="lb">넣기</span><button data-k="sup" aria-pressed="true">억제제</button><button data-k="cl" aria-pressed="true">Cl⁻</button><button data-k="acc" aria-pressed="true">촉진제</button></div>
+      ${K.seg('lev', [['0', '없음'], ['1', '적정'], ['2', '과다']], '1', '평탄제')}
+      ${K.kpis([['결정', 'k-g', ''], ['표면', 'k-s', ''], ['윗면', 'k-t', ''], ['과전압', 'k-v', '같은 전류에서']])}
       <p class="pl-msg" data-o="msg"></p>
-      ${K.model('켜고 끈 결과는 일반적인 경향의 예시입니다. 실제 효과는 약품 계열 · 농도 · 전류밀도에 따라 다르고, 단계(스크롤)에 따라 그 단계까지 소개된 첨가제만 적용됩니다.')}</div>`;
+      ${K.model('산성 Cu · 범프 전류밀도에서 보통 보이는 경향의 예시입니다. 어느 경우나 평균 두께 · 속도는 같습니다(정전류). 스크롤 단계에서는 그 단계까지 소개된 첨가제만 적용됩니다.')}</div>`;
   },
   mount(K, ctx){
-    const {R, C, L, P, T, G, LB, TT, rng, tip} = K;
-    const tog = {sup: true, acc: true, lev: true};
+    const {R, C, L, P, T, G, LB, TT, rng, tip, wrap, voronoi, PG} = K;
+    const tog = {sup: true, cl: true, acc: true, lev: 1};
     const box = ctx.card.querySelector('[data-g="adds"]');
-    function eff(){ const sid = ctx.step() || 'wear', k = ctx.ch._idx[sid]; return {sup: tog.sup && k >= 1, acc: tog.acc && k >= 2, lev: tog.lev && k >= 3}; }
+    function eff(){ const sid = ctx.step() || 'wear', k = ctx.ch._idx[sid]; return {sup: tog.sup && k >= 1, cl: tog.cl && k >= 1, acc: tog.acc && k >= 2, lev: k >= 3 ? tog.lev : 0}; }
     function render(){
-      const e = eff(), rs = result(e), g = rng(9);
-      // 표면
+      const e = eff(), rs = result(e), g = rng(9), S = e.sup && e.cl;
+      // 표면 (억제가 약하면 거칠다)
+      const amp = S ? 0 : e.sup ? 0.5 : 1;
       let d = `M${XL},${SB}`;
-      for (let x = XL; x <= XR; x += 8){ const y = yS(x) + (e.sup ? 0 : -(g() * 22 + (x % 48 < 24 ? 8 : 0))); d += ` L${x},${y.toFixed(1)}`; }
+      for (let x = XL; x <= XR; x += 8){ const y = yS(x) - amp * (g() * 22 + (x % 48 < 24 ? 8 : 0)); d += ` L${x},${y.toFixed(1)}`; }
       d += ` L${XR},1100 L${XL},1100 Z`;
-      ctx.$('[data-v="surf"]').innerHTML = P(d, 'f-cu2', tip(e.sup ? '매끈한 표면' : '첨가제가 없거나 억제제가 없어 거친 표면'));
-      // 쌓이는 속도 화살표
+      ctx.$('[data-v="surf"]').innerHTML = P(d, 'f-cu2', tip(S ? '매끈한 표면' : '억제가 없거나 약해 거친 표면'));
+      // 자리별로 쌓이는 속도 화살표
       const rt = rates(e);
       let a = '';
-      PROBES.forEach(([x, nm], k) => { const len = 40 + rt[k] * 70, y1 = yS(x) - 16; a += P(`M${x},${(y1 - len).toFixed(0)} L${x},${y1.toFixed(0)}`, 'pl-rate', {'marker-end': 'url(#pl-arr-a)', style: `stroke-width:${(3 + rt[k] * 5).toFixed(1)}px`}) + T(x, y1 - len - 12, nm, 't-dim'); });
-      ctx.$('[data-v="rate"]').innerHTML = G(a, {'data-tip': '화살표 = 그 자리에서 쌓이는 속도 (굵고 길수록 빠르다)'});
-      // 결과 그림
-      let r = '';
-      const bx = 1170, bw = 330, by = 560;
-      r += R(bx - 30, by, bw + 60, 16, 'f-seed2') + R(bx - 30, by + 16, bw + 60, 40, 'f-si');
-      const top = rs.shape === 'flat' ? `M${bx},330 L${bx + bw},330` : rs.shape === 'dome' ? `M${bx},360 Q${bx + bw / 2},250 ${bx + bw},360` : (() => { let q = `M${bx},340`; for (let x = 0; x <= bw; x += 22) q += ` L${bx + x},${(320 + Math.sin(x * 0.7) * 16 + g() * 18).toFixed(0)}`; return q; })();
-      r += P(`${top} L${bx + bw},${by} L${bx},${by} Z`, 'f-cu2', tip('PR 구멍 안에서 자란 범프 (단면)')) + R(bx - 30, 240, 30, by - 240, 'f-pr') + R(bx + bw, 240, 30, by - 240, 'f-pr');
-      r += TT(1134, 640, [`결정: ${rs.g}`, `표면: ${rs.s}`, `윗면: ${rs.t}`, `속도: ${rs.v}`], 't-sub', 'start', 36);
+      PROBES.forEach(([x, nm], k) => {
+        const len = 40 + rt[k] * 70, y1 = yS(x) - 16;
+        a += P(`M${x},${(y1 - len).toFixed(0)} L${x},${y1.toFixed(0)}`, 'pl-rate', {'marker-end': 'url(#pl-arr-a)', style: `stroke-width:${(3 + rt[k] * 5).toFixed(1)}px`});
+        a += TT(x, y1 - len - 38, [nm, '×' + rt[k].toFixed(1)], 't-dim', 'middle', 22);
+      });
+      ctx.$('[data-v="rate"]').innerHTML = G(a, {'data-tip': '화살표 = 그 자리에서 쌓이는 속도 (굵고 길수록 빠르다). 평균은 늘 1 — 전류 × 시간이 정한다'});
+      // 결과 그림 — 범프 단면
+      const bx = 1170, bw = 330, by = 520, cx = bx + bw / 2;
+      let top;
+      if (rs.shape === 'rough'){ top = `M${bx},330`; for (let x = 0; x <= bw; x += 22) top += ` L${bx + x},${(318 + Math.sin(x * 0.7) * 14 + g() * 18).toFixed(0)}`; }
+      else {
+        const [ye, ym] = {dome1: [334, 300], dome: [346, 262], flatish: [322, 314], flat: [318, 318], dish: [300, 348]}[rs.shape];
+        top = `M${bx},${ye} Q${cx},${2 * ym - ye} ${bx + bw},${ye}`;
+      }
+      const body = `${top} L${bx + bw},${by} L${bx},${by} Z`;
+      ctx.$('[data-v="bclip"]').setAttribute('d', body);
+      let r = R(bx - 30, by, bw + 60, 16, 'f-seed2') + R(bx - 30, by + 16, bw + 60, 40, 'f-si');
+      // 결정 (씨앗 수가 많을수록 곱다)
+      const gr = rng(rs.gn * 7 + 3), pts = [];
+      for (let k = 0; k < rs.gn; k++) pts.push([bx + gr() * bw, 250 + gr() * (by - 250)]);
+      const cells = voronoi(pts, bx, 240, bx + bw, by).map((p, k) => PG(p, 'f-grain', {style: `fill:hsl(${22 + (k % 5) * 3},${48 + Math.round(gr() * 14)}%,${40 + Math.round(gr() * 22)}%);stroke-width:${rs.gn > 80 ? 0.6 : 1.2}px`})).join('');
+      r += G(P(body, 'f-cu2') + cells + (rs.sheen ? R(bx, 240, bw, 70, rs.sheen === 2 ? 'p05-sheen' : 'p05-semi') : ''), {'clip-path': 'url(#p05-bclip)', 'data-tip': 'PR 구멍 안에서 자란 범프 (단면). 칸 = 결정'});
+      if (rs.shape === 'rough') for (const [nx, ny, nr] of [[bx + 70, 316, 14], [bx + 230, 312, 11]]) r += C(nx, ny, nr, 'f-cu2', tip('혹(노듈) — 높은 전류 · 입자'));
+      r += P(top, 'p05-top') + R(bx - 30, 220, 30, by - 220, 'f-pr') + R(bx + bw, 220, 30, by - 220, 'f-pr');
+      // 결과 줄
+      const rows = [['결정', rs.g], ['표면', rs.s], ['윗면', rs.t], ['과전압', rs.v], ['전류가 가는 곳', rs.w], ['범프끼리 높이 차', rs.h]];
+      let yy = 616;
+      rows.forEach(([k, v]) => { const ls = wrap(`${k}: ${v}`, 19); r += TT(1134, yy, ls, 't-sub', 'start', 28); yy += ls.length * 28 + 8; });
+      r += TT(1134, yy + 14, wrap('평균 두께 · 속도: 같음 — 전류 × 시간이 정한다', 19), 't-acc', 'start', 28);
       ctx.$('[data-v="res"]').innerHTML = r;
-      ctx.out('k-g', rs.g); ctx.out('k-s', rs.s.split(' · ')[0]); ctx.out('k-t', rs.t.split(' (')[0]);
+      ctx.out('k-g', rs.g); ctx.out('k-s', rs.s.split(' · ')[0]); ctx.out('k-t', rs.t.split(' (')[0]); ctx.out('k-v', rs.v);
       ctx.q('[data-o=msg]').innerHTML = rs.n;
-      // 꺼 둔 분자는 장면에서 감춘다
-      ['sup', 'acc', 'lev'].forEach(k => ctx.$$('.m-' + k).forEach(el => el.classList.toggle('hide', !tog[k])));
+      // 꺼 둔 분자는 장면에서 감추고, Cl⁻가 없으면 담요가 들뜬다
+      ctx.$$('.m-sup').forEach(el => el.classList.toggle('hide', !tog.sup));
+      ctx.$$('.m-cl').forEach(el => el.classList.toggle('hide', !tog.cl));
+      ctx.$$('.m-acc').forEach(el => el.classList.toggle('hide', !tog.acc));
+      ctx.$$('.m-lev').forEach(el => el.classList.toggle('hide', !tog.lev));
+      ctx.$$('.m-lev2').forEach(el => el.classList.toggle('hide', tog.lev !== 2));
+      ctx.$$('.p05-sup').forEach(el => el.classList.toggle('p05-loose', !tog.cl));
       ctx.refresh();
     }
+    const toLev = () => { if (ctx.step() && ctx.ch._idx[ctx.step()] < 3) ctx.go('lev'); };   // 모든 첨가제가 보이는 단계로
     box.addEventListener('click', ev => {
       const b = ev.target.closest('button'); if (!b) return;
       tog[b.dataset.k] = !tog[b.dataset.k];
       b.setAttribute('aria-pressed', tog[b.dataset.k] ? 'true' : 'false');
-      if (ctx.step() && ctx.ch._idx[ctx.step()] < 3) ctx.go('lev');      // 세 가지가 모두 보이는 단계로
-      render();
+      toLev(); render();
     });
+    ctx.seg('lev', (v, user) => { tog.lev = +v; if (user) toLev(); render(); });
     ctx.render = render;
     render();
   },
   onStep(K, ctx){ if (ctx.render) ctx.render(); },
   notes(K){
     return K.terms([
-      ['억제제 (suppressor)', '표면을 덮어 전체 석출을 늦추는 큰 분자. Cl⁻와 함께 작동'],
-      ['촉진제 (accelerator)', '억제제를 밀어내 그 자리를 빠르게 하는 작은 분자. 광택제(brightener)라고도'],
-      ['평탄제 (leveler)', '이온이 잘 오는 곳에 더 많이 붙어 그곳을 늦추는 분자'],
-      ['분해 산물', '쓰면서 쪼개진 첨가제 조각. 쌓이면 효과를 흐리고 막에 갇힌다'],
-      ['CVS', '첨가제가 석출을 얼마나 늦추고 빠르게 하는지로 농도를 재는 분석법']
+      ['ppm', '100만 분의 1. 묽은 수용액에서 1 ppm ≈ 1 mg/L'],
+      ['억제제 (suppressor)', '표면을 덮어 석출을 늦추는 큰 분자(PEG 계열). Cl⁻가 있어야 잘 붙는다'],
+      ['Cl⁻ (염화 이온)', '억제제를 표면에 고정하는 집게. 보통 수십 ppm'],
+      ['촉진제 (accelerator)', '담요를 비집고 들어가 그 자리의 억제를 푸는 작은 분자(SPS 계열). 광택제(brightener)라고도'],
+      ['평탄제 (leveler)', '아주 묽게 넣어, 잘 배달되는 곳(튀어나온 곳 · 흐름 센 곳)에 더 붙어 그곳을 늦추는 분자'],
+      ['분해 산물', '쓰면서 바뀌고 쪼개진 첨가제 조각(예: PDS). 쌓이면 효과를 흐리고 막에 갇힌다'],
+      ['CVS', '첨가제의 "양"이 아니라 "효과"(도금을 얼마나 늦추고 빠르게 하나)를 재서 농도로 바꾸는 분석법']
     ]) + K.field([
-      '첨가제는 <b>쓰는 전기량(Ah)만큼</b> 줄어듭니다. 그래서 보충도 시간보다 Ah 기준이 정확합니다 (<a data-go="bath.add">11장</a>).',
-      '범프 윗면 모양(돔 · 평평 · 접시)이 바뀌었다면 첨가제 농도 · 분해산물 · 전류밀도 · 흐름을 함께 봅니다. 하나만 바꾸고 결론 내리지 않습니다.',
-      'Cu에서 쓰는 3종(억제 · 촉진 · 평탄)은 산성 황산구리 계열 이야기입니다. Ni · SnAg 액은 다른 종류(습윤제, 응력 조절제, 착화제, 결정 미세화제)를 씁니다 (<a data-go="chem">10장</a>).'
+      '첨가제는 <b>평균 두께를 바꾸지 않습니다</b>. 같은 전류 · 시간이면 평균 두께는 같고, 바뀌는 것은 전압과 전류가 가는 곳입니다. 같은 전류에서 전압 기록이 오르내리면 첨가제 상태를 의심해 볼 단서입니다.',
+      '보충은 보통 <b>Ah 몫 + 시간 몫</b>으로 잡고 분석(CVS)으로 보정합니다. 오래 쉬었다 다시 돌릴 때는 분석하고 더미 도금으로 상태를 맞춘 뒤 제품을 넣습니다 (<a data-go="bath.add">11장</a>).',
+      '첨가제 보충량을 바꾸면 <b>범프 윗면 모양과 표면 거칠기부터</b> 바뀝니다. 바꾼 날짜와 양을 변경 기록으로 남겨 두면 나중에 원인을 찾기 쉽습니다.',
+      '윗면 모양(돔 · 평평 · 접시)이나 기울어짐이 바뀌었다면 첨가제 농도 · 분해산물 · 전류밀도 · <b>흐름</b>(펌프 유량 · 패들 · 회전)을 함께 봅니다. 평탄제는 흐름에 따라 붙는 양이 달라, 액이 그대로여도 흐름이 바뀌면 모양이 바뀌고, 흐름이 한쪽으로 치우치면 윗면이 기웁니다.',
+      '모양만 보고 평탄제를 늘리면 막 속 불순물(S · Cl · C · N)이 늘어 신뢰성에서 대가를 치를 수 있습니다 (06장).',
+      '범프용 Cu 액도 억제 · 촉진 · 평탄 3종 계열이지만, 목적은 바닥부터 채우기가 아니라 "빠르게(높은 전류밀도) · 평평하게 · 고르게 · 불순물 적게"입니다. Ni · SnAg 액은 다른 종류(습윤제, 응력 조절제, 착화제, 결정 미세화제)를 씁니다 (<a data-go="chem">10장</a>).'
     ]) + K.deep(`<ul>
-      <li><b>억제제</b>: 폴리에틸렌글리콜(PEG) · 폴리프로필렌글리콜 계열 고분자가 Cl⁻ · Cu⁺와 함께 표면에 막을 만들어 석출을 늦춥니다. Cl⁻가 없으면 잘 붙지 않습니다.</li>
-      <li><b>촉진제</b>: SPS(bis(3-sulfopropyl) disulfide) 계열. 표면에서 억제제 막을 깨뜨립니다. 분해되면 MPS 등이 생겨 효과가 달라집니다.</li>
-      <li><b>평탄제</b>: 질소를 가진 양이온성 분자. 확산으로 공급되므로 이온이 잘 오는 곳(볼록한 곳 · 가장자리)에 더 많이 붙습니다 — 그래서 "튀어나온 곳만" 늦출 수 있습니다.</li>
-      <li><b>다마신 바닥 채우기</b>: 구멍이 좁아지며 바닥의 면적이 줄면 그곳에 모인 촉진제의 표면 농도가 올라가 바닥이 더 빨리 자랍니다(곡률 효과).</li>
-      <li><b>CVS (cyclic voltammetric stripping)</b>: 백금 전극에 짧게 도금하고 벗겨 내며, 벗겨지는 전기량(= 도금된 양)이 표준액 대비 얼마나 변하는지로 억제제 · 촉진제 농도를 구합니다.</li></ul>`);
-  }
+      <li><b>억제제</b>: 폴리에틸렌글리콜(PEG) · 폴리프로필렌글리콜 계열 고분자가 Cl⁻ · Cu⁺와 함께 표면에 막을 만들어 석출을 늦춥니다. Cl⁻가 다리 역할을 해서, 없으면 잘 붙지 않습니다. 곡선을 옮기면서 눕혀(04장) 전류를 고르게 폅니다.</li>
+      <li><b>촉진제</b>: SPS(bis(3-sulfopropyl) disulfide)는 음극에서 MPS(3-mercapto-1-propanesulfonate)로 바뀌며 Cu⁺와 묶여 촉진합니다 — 이것은 고장이 아니라 일하는 과정입니다. 양극 반응이나 녹아 있는 산소로 더 산화되면 PDS(프로판다이설폰산) 같은 효과 없는 조각이 되어 쌓입니다. MPS가 너무 많이 쌓이면 촉진이 지나쳐 모양이 나빠질 수 있습니다.</li>
+      <li><b>평탄제</b>: 질소를 가진 양이온성 분자. 아주 묽어 공급(확산)에 좌우되므로, 확산 거리가 짧은 튀어나온 곳 · 흐름이 센 곳에 더 많이 도착합니다. 그래서 교반을 올리면 평탄제가 더 붙어 곡선이 오히려 더 밀리는(억제↑) 경우도 있습니다. 과다하면 접시 모양과 불순물 증가, 고온 보관 뒤 솔더 계면 보이드 증가가 보고됩니다.</li>
+      <li><b>소모 경로</b>: ① 음극 · 양극 반응(Ah에 비례) ② 쉬는 동안 산소 · Cu⁺와의 반응(시간에 비례, 특히 촉진제) ③ 드래그아웃 ④ 막 속 혼입. 그래서 보충은 Ah 몫 + 시간 몫입니다.</li>
+      <li><b>다마신 바닥 채우기</b>(참고): 좁은 구멍이 아래부터 차오르며 바닥 면적이 줄면, 바닥에 모인 촉진제의 표면 농도가 올라가 바닥이 더 빨리 자랍니다(곡률 효과). 범프는 이 "바닥부터 채우기"가 목적이 아닙니다.</li>
+      <li><b>CVS (cyclic voltammetric stripping)</b>: 회전하는 작은 백금 전극에서 전위를 오르내리며, 구리를 살짝 도금했다 벗겨 내기를 반복합니다. 벗겨질 때 나온 전기량(스트리핑 면적)이 크면 그사이 도금이 빨랐다는 뜻입니다 — 억제제가 많으면 작아지고, 촉진제가 많으면 커집니다. 표준 용액을 조금씩 더해 보는 방법(희석 적정 · 표준 첨가)으로 농도로 바꿉니다. 재는 것은 "효과"라서, 분해 조각(MPS 등)이나 PR에서 녹아 나온 유기물도 값에 섞일 수 있습니다.</li>
+      <li><b>회전 원판 전극 · 헐 셀</b>: 회전 원판 전극은 회전 속도로 확산층 두께를 정확히 정하는 실험 전극입니다(δ ∝ 회전 속도<sup>−½</sup>, CVS도 이 원리). 헐 셀은 비스듬한 판 하나에 낮은~높은 전류밀도를 한 번에 걸어, 탄 자리 · 무광 자리로 액 상태를 눈으로 빠르게 보는 시험입니다(웨이퍼 라인에서는 보조 도구).</li></ul>`);
+  },
+  css: `.p05-box{fill:rgba(5,10,20,.9);stroke:rgba(148,163,184,.3);stroke-width:1.2}
+.p05-chip{fill:rgba(251,191,36,.14);stroke:#fbbf24;stroke-width:1.4}
+.p05-chip2{fill:rgba(100,116,139,.25);stroke:#94a3b8;stroke-width:1.4;stroke-dasharray:5 4}
+.p05-sheen{fill:rgba(255,255,255,.30)}
+.p05-semi{fill:rgba(255,255,255,.13)}
+.p05-top{fill:none;stroke:#fde2c4;stroke-width:2.4}
+.pl-svg .p05-loose{transform:translateY(-30px);opacity:.5;transition:transform .5s,opacity .5s}
+.pl-svg .p05-sup{transition:transform .5s,opacity .5s}`
 });
 })();
 
 </script>
 <script>
-/* 전해도금 06 — 막의 속: 결정, 불순물, 응력 (결정 · nm~µm) */
+/* 전해도금 06 — 막의 속: 도금막 속은 어떻게 생겼을까? (결정 · 불순물 · 응력, nm~µm) */
 (function(){
 const TV = {x: 70, y: 200, w: 660, h: 450};            // 위에서 본 표면
-const CS = {x: 830, y: 300, w: 700, h: 260};            // 단면
+const CS = {x: 830, y: 300, w: 700, h: 260};            // 단면 (막은 y 300~560, 위쪽 y 200~300은 액)
 const cuFill = (r, k) => `fill:hsl(${22 + (k % 5) * 3},${48 + Math.round(r() * 14)}%,${40 + Math.round(r() * 22)}%)`;
+// 전류밀도(한계전류 대비) → 씨앗 수와 표면 상태 (개념 모델)
+//  한계보다 충분히 낮으면: 세게 밀수록(과전압↑) 씨앗이 많아 결정이 곱다
+//  한계에 가까우면: 공급이 모자라 튀어나온 곳이 앞서 거칠어지고, 더 가까우면 가루 · 나뭇가지
+function regime(cd){ return cd > 0.92 ? 'dend' : cd > 0.75 ? 'rough' : 'fine'; }
+function seeds(cd, add){ return Math.round((8 + 46 * Math.min(cd, 0.75) / 0.75) * (add ? 1.5 : 1)); }
 
 (window.EngrPlatingChapters = window.EngrPlatingChapters || []).push({
   no: '06', id: 'grain', part: 2, short: '막의 속', scale: '결정 · nm~µm',
-  title: '막의 속 — 결정, 불순물, 응력',
+  title: '막의 속 — 도금막 속은 어떻게 생겼을까?',
   hook: '같은 두께, 다른 속',
-  one: '도금막은 아주 작은 결정들이 모인 모자이크입니다. 결정이 얼마나 곱고, 무엇이 섞여 있고, 얼마나 당기고 있는지에 따라 같은 두께라도 성질이 달라집니다.',
-  ana: '<b>얼음이 어는 모습</b> — 차가운 유리창에 여기저기 얼음 씨앗이 생겨 자라다가 서로 만나면 한 장의 얼음이 됩니다. 씨앗이 많으면 무늬가 잘고, 적으면 큼직합니다. 도금도 표면 여기저기 생긴 씨앗(핵)이 자라 만나서 막이 됩니다.',
+  one: '도금막은 아주 작은 결정 조각이 모인 모자이크입니다. 조각의 크기, 섞여 들어간 불순물, 막 속에 남은 힘(응력)이 같은 두께의 막이라도 성질을 다르게 만듭니다.',
+  ana: '<b>얼음이 어는 모습</b> — 차가운 유리창에 여기저기 얼음 씨앗이 생겨 자라다가 서로 만나면 한 장의 얼음이 됩니다. 씨앗이 많으면 무늬가 잘고, 적으면 큼직합니다. 도금도 표면 여기저기 생긴 씨앗(핵)이 자라 만나서 막이 됩니다. <i>한계</i>: 같은 금속 위(Cu 시드 위 Cu)에서는 새 씨앗보다 아래 결정을 이어서 자라는 몫이 큽니다 — 얼음 위에 얼음이 이어 얼 듯이.',
   steps: [
-    {id: 'nuc', t: '핵생성과 성장', d: '처음에는 표면 여기저기에 원자 몇 개짜리 씨앗(핵)이 생기고, 자라서 서로 만나 막이 됩니다. 세게 밀면(과전압↑) 씨앗이 많아 결정이 곱고, 약하게 밀면 적어서 굵습니다.'},
-    {id: 'grain', t: '결정립 — 막 속의 모자이크', d: '결정은 기둥 모양(주상)으로 자라기도 하고 작은 알갱이로 자라기도 합니다. 결정 크기에 따라 굳기 · 전기 저항 · 식각 속도 · 솔더와의 반응이 달라집니다.'},
-    {id: 'imp', t: '불순물 — 막에 갇힌 것들', d: '첨가제 조각(C · S · Cl 등)이 결정 사이에 갇힐 수 있습니다. 많으면 리플로우 · 고온에서 기체가 나오거나, Cu와 솔더 사이 계면에 작은 빈틈(커켄달 보이드)이 늘어난다는 보고가 있습니다.'},
-    {id: 'stress', t: '응력과 자기 풀림', d: '막에는 당기거나 미는 힘(내부 응력)이 남아 웨이퍼를 휘게 하거나 막을 갈라지게 합니다(Ni에서 특히 관리). Cu는 도금 뒤 상온에서도 결정이 서서히 커집니다(자기 풀림, 수 시간~수 일).'}
+    {id: 'nuc', t: '핵생성과 성장', d: '다른 금속 위(Cu 위 Ni, Ni 위 SnAg)에서는 씨앗(핵)이 새로 생겨 자라 만나야 하므로 표면 상태(산화막)가 중요합니다. 같은 금속 위(Cu 위 Cu)는 시드 결정을 이어 자라는 몫이 큽니다. 한계보다 충분히 낮은 범위에서는 세게 밀수록 씨앗이 많아 결정이 곱습니다.'},
+    {id: 'grain', t: '결정립 — 막 속의 모자이크', d: '결정은 기둥 모양(주상)으로 자라기도 하고 작은 알갱이로 자라기도 합니다. 첨가제가 있으면 자라는 중에도 새 씨앗이 생겨 결정이 작게 유지됩니다. 결정 크기에 따라 굳기 · 전기 저항 · 식각 속도 · 솔더와의 반응이 달라집니다.'},
+    {id: 'imp', t: '불순물 — 막에 갇힌 것들', d: '첨가제 조각(S · Cl · C 등)이 결정 사이에 갇힐 수 있습니다. 촉진제에서 온 S가 Cu/Cu₃Sn 계면에 모이면, 고온에 오래 둘 때(예: 150 °C) 커켄달 보이드가 자란다는 보고가 있습니다 — Cu가 솔더와 직접 만나는 곳(상대 Cu 패드 · Ni 없는 곳)의 이야기입니다.'},
+    {id: 'stress', t: '응력과 자기 풀림', d: '막에 남은 힘(내부 응력)은 웨이퍼 전체에 깔린 막에서는 휨으로, 섬처럼 나뉜 범프에서는 크랙(당김) · 들뜸(밂)으로 나타납니다(Ni에서 특히 관리). Cu는 도금 뒤 상온에서도 결정이 커집니다(자기 풀림, 수 시간~수 주, 저항 약 10~20 %↓).'}
   ],
   icon(K){
     const pts = [[10, 12], [40, 8], [58, 30], [22, 40], [48, 54], [8, 56], [32, 26]];
     return K.voronoi(pts, 2, 2, 64, 62).map((p, k) => K.PG(p, 'f-grain', {style: `fill:hsl(${22 + k * 3},55%,${42 + (k % 3) * 8}%)`})).join('');
   },
   draw(K){
-    const {R, C, L, P, T, G, LB, tip, only, on, W, TT, voronoi, rng} = K;
+    const {R, C, L, P, T, G, LB, tip, only, on, W, TT, voronoi, rng, wrap} = K;
     let s = '';
     s += R(40, 130, 720, 570, 'pl-panel', {rx: 16}) + T(64, 172, '위에서 본 표면 — 씨앗이 자라 만난다', 't-acc', 'start');
     s += R(40, 130, 720, 570, 'pl-hlbox', W({rx: 16}, only('nuc')));
@@ -6195,60 +6515,92 @@ const cuFill = (r, k) => `fill:hsl(${22 + (k % 5) * 3},${48 + Math.round(r() * 1
     s += R(TV.x, TV.y, TV.w, TV.h, 'f-seed2', {rx: 8}) + `<g data-v="tv" clip-path="url(#pl5-tv)"></g>` + R(TV.x, TV.y, TV.w, TV.h, 's-edge', {rx: 8, style: 'fill:none'});
     s += R(800, 130, 760, 570, 'pl-panel', {rx: 16}) + T(824, 172, '단면 — 막 속의 결정', 't-acc', 'start');
     s += R(800, 130, 760, 570, 'pl-hlbox', W({rx: 16}, only('grain imp')));
-    s += R(CS.x, 200, CS.w, CS.y - 200, 'f-bath') + R(CS.x, CS.y + CS.h, CS.w, 12, 'f-seed2') + R(CS.x, CS.y + CS.h + 12, CS.w, 60, 'f-si');
-    s += `<clipPath id="pl5-cs"><rect x="${CS.x}" y="${CS.y}" width="${CS.w}" height="${CS.h}"/></clipPath><g data-v="cs" clip-path="url(#pl5-cs)"></g>`;
+    s += R(CS.x, 200, CS.w, CS.h + 100, 'f-bath') + R(CS.x, CS.y + CS.h, CS.w, 12, 'f-seed2') + R(CS.x, CS.y + CS.h + 12, CS.w, 60, 'f-si');
+    s += `<clipPath id="pl5-cs"><rect x="${CS.x}" y="200" width="${CS.w}" height="${CS.y + CS.h - 200}"/></clipPath><g data-v="cs" clip-path="url(#pl5-cs)"></g>`;
     s += LB(T(CS.x + CS.w - 10, 236, '도금액', 't-dim', 'end') + T(CS.x + CS.w - 10, CS.y + CS.h + 52, '시드 · 바닥', 't-dim', 'end'));
     s += `<g data-v="imp"></g>`;
-    s += LB(T(CS.x, 660, '', 't-sub', 'start', {'data-v': 'cslbl'}));
+    s += LB(T(CS.x, 664, '', 't-sub', 'start', {'data-v': 'cslbl'}));
     // 아래 패널 — 단계마다
     s += R(40, 740, 1520, 380, 'pl-panel', {rx: 16});
-    // nuc: 약하게 / 세게
-    let nu = T(64, 784, '미는 힘에 따라 — 씨앗의 수가 결정 크기를 정한다', 't-acc', 'start');
-    const mini = (x, n, seed) => { const r = rng(seed), pts = []; for (let k = 0; k < n; k++) pts.push([x + 10 + r() * 280, 830 + r() * 220]); return voronoi(pts, x, 820, x + 300, 1060).map((p, k) => K.PG(p, 'f-grain', {style: cuFill(r, k)})).join(''); };
-    nu += mini(90, 9, 3) + mini(560, 46, 4);
-    nu += TT(400, 880, ['약하게 밀면', '씨앗이 적다', '→ 결정이 굵다'], 't-sub', 'start', 32) + TT(870, 880, ['세게 밀면 · 첨가제', '씨앗이 많다', '→ 결정이 곱다'], 't-sub', 'start', 32);
-    nu += TT(1110, 820, ['결정 크기는 다음 성질을 바꾼다', '· 굳기 (작을수록 단단)', '· 전기 저항 (경계가 많으면 ↑)', '· 식각 · 반응 속도', '· 솔더와 IMC가 자라는 모양'], 't-sub', 'start', 34);
-    s += G(nu, only('nuc grain'));
-    // imp: 커켄달 보이드
-    let im = T(64, 784, '열을 받으면 — Cu와 솔더 사이 계면 (개념도)', 't-acc', 'start');
-    const IY = 830, IH = 200, cols = [['Cu (도금)', 'f-cu2', 90, 300], ['Cu₃Sn', 'pl-imc3', 390, 120], ['Cu₆Sn₅', 'f-imc', 510, 160], ['솔더 (Sn)', 'f-sn2', 670, 300]];
-    cols.forEach(([t, c, x, w]) => { im += R(x, IY, w, IH, c, tip(t)) + T(x + w / 2, IY + IH + 34, t, 't-sub'); });
+    const grains = (x, y, w, h, n, seed, sy = 1) => { const r = rng(seed), pts = []; for (let k = 0; k < n; k++) pts.push([x + 4 + r() * (w - 8), y + 4 + r() * (h - 8)]); return voronoi(pts, x, y, x + w, y + h, sy).map((p, k) => K.PG(p, 'f-grain', {style: cuFill(r, k)})).join(''); };
+    // nuc: 약하게 · 세게 · 한계 근처 + 어디 위에 쌓나
+    let nu = T(64, 784, '미는 힘에 따라 — 씨앗 수가 결정 크기를 정한다', 't-acc', 'start');
+    nu += grains(70, 812, 300, 150, 9, 3) + grains(440, 812, 300, 150, 46, 4);
+    // 한계 근처: 거친 윗면 + 나뭇가지 + 가루
+    let mc = grains(810, 892, 300, 70, 14, 5);
+    const rd = rng(11);
+    let dd = '';
+    for (let k = 0; k < 6; k++){ const bx = 830 + k * 50 + rd() * 14, h = 40 + rd() * 36; dd += `M${bx},892 L${bx + 3},${892 - h}`; for (let t = 1; t <= 2; t++){ const yy = 892 - h * t / 3; dd += ` M${bx + 1},${yy} l-12,-10 M${bx + 2},${yy - 6} l12,-10`; } }
+    mc += P(dd, 'p06-den');
+    for (let k = 0; k < 18; k++) mc += C(816 + rd() * 288, 820 + rd() * 64, 2.5 + rd() * 3, 'pl-burnt');
+    nu += mc;
+    nu += TT(70, 996, ['약하게 밀면 (낮은 전류)', '씨앗이 적다 → 결정이 굵다'], 't-sub', 'start', 30);
+    nu += TT(440, 996, ['세게 밀면 · 첨가제', '씨앗이 많다 → 결정이 곱다'], 't-sub', 'start', 30);
+    nu += TT(810, 996, ['한계전류에 가까우면', '곱지 않고 거칠다 · 가루 · 나뭇가지'], 't-sub', 'start', 30);
+    nu += T(70, 1086, '정전류 장비에서 과전압은 결과값 — 전류밀도 · 첨가제 · 온도 · 농도가 정한다', 't-dim', 'start');
+    // 어디 위에 쌓나 — 이어 자라기 vs 새 씨앗
+    nu += T(1180, 784, '어디 위에 쌓나', 't-warn', 'start');
+    const cols = [[1180, 'hsl(24,58%,46%)'], [1214, 'hsl(28,52%,56%)'], [1252, 'hsl(20,60%,40%)'], [1284, 'hsl(26,50%,60%)']];
+    cols.forEach(([x, f], k) => { const w = (k < 3 ? cols[k + 1][0] : 1330) - x; nu += R(x, 856, w, 44, 'f-grain', {style: `fill:${f}`}) + R(x, 812, w, 44, 'f-grain', {style: `fill:${f};opacity:.75`}); });
+    nu += R(1370, 856, 150, 44, 'f-cu2');
+    for (const [x, rr] of [[1388, 12], [1420, 9], [1452, 13], [1490, 10]]) nu += P(`M${x - rr},856 a${rr},${rr * 0.9} 0 0 1 ${2 * rr},0 Z`, 'f-ni');
+    nu += LB(T(1255, 920, 'Cu 위 Cu', 't-dim') + T(1445, 920, 'Cu 위 Ni', 't-dim'));
+    nu += TT(1180, 956, [...wrap('Cu 위 Cu: 시드 결정을 이어 자란다', 17), ...wrap('Cu 위 Ni · Ni 위 SnAg: 새 씨앗이 필요 → 산화막 · 표면 상태가 중요', 17)], 't-sub', 'start', 28);
+    s += G(nu, only('nuc'));
+    // grain: 기둥 vs 알갱이 + 결정 크기가 바꾸는 것
+    let gn = T(64, 784, '결정의 모양과 크기', 't-acc', 'start');
+    gn += grains(70, 812, 300, 170, 16, 13, 0.3) + grains(440, 812, 300, 170, 70, 14);
+    gn += TT(70, 1016, ['기둥 모양 (주상정)', '첨가제가 적거나 느린 성장'], 't-sub', 'start', 30);
+    gn += TT(440, 1016, ['작은 알갱이', '첨가제가 새 씨앗을 계속 만든다'], 't-sub', 'start', 30);
+    gn += TT(820, 790, ['결정 크기는 다음 성질을 바꾼다', '· 굳기 (작을수록 단단)', '· 전기 저항 (경계가 많으면 ↑)', '· 식각 · 반응 속도', '· 솔더와 IMC가 자라는 모양'], 't-sub', 'start', 34);
+    gn += TT(820, 970, [...wrap('SnAg 막 속 Ag는 작은 Ag₃Sn 알갱이로 들어 있다. Ag가 공정점(共晶) 조성(약 3.5 wt%)보다 많고 천천히 식으면 큰 판 모양 Ag₃Sn → 균열 길', 34)], 't-dim', 'start', 28);
+    s += G(gn, only('grain'));
+    // imp: 커켄달 보이드 (Cu가 솔더와 직접 만나는 계면)
+    let im = T(64, 784, '고온에 오래 두면 — Cu가 솔더와 직접 만나는 계면 (개념도)', 't-acc', 'start');
+    const IY = 820, IH = 200, cl = [['Cu (도금)', 'f-cu2', 90, 300], ['Cu₃Sn', 'pl-imc3', 390, 110], ['Cu₆Sn₅', 'f-imc', 500, 150], ['솔더 (Sn)', 'f-sn2', 650, 300]];
+    cl.forEach(([t, c, x, w]) => { im += R(x, IY, w, IH, c, tip(t)) + T(x + w / 2, IY + IH + 32, t, 't-sub'); });
     const ri = rng(21);
     for (let k = 0; k < 26; k++) im += C(100 + ri() * 270, IY + 10 + ri() * (IH - 20), 3.5, 'pl-impd');
-    for (let k = 0; k < 9; k++) im += E2(390 + 6 + ri() * 10, IY + 14 + k * 21, 6 + ri() * 4, 5, 'f-hole2');
-    im += K.lead(398, IY + 60, 1000, 850, '커켄달 보이드 — 원자가 한쪽으로 더 빨리 빠져나간 빈자리', 'start', 't-sub');
-    im += K.lead(200, IY + 120, 1000, 930, '도금막 속 불순물 (S · Cl · C 등)', 'start', 't-sub');
-    im += TT(1000, 990, ['불순물이 많을수록 이런 빈틈이 늘어난다는', '연구가 있다 → 첨가제 관리 · 분해산물 관리'], 't-dim', 'start', 30);
+    for (let k = 0; k < 14; k++) im += C(385 + ri() * 6, IY + 8 + k * 14, 3.2, 'f-acc');
+    for (let k = 0; k < 9; k++) im += K.E(390 + 7 + ri() * 8, IY + 14 + k * 21, 6 + ri() * 4, 5, 'f-hole2');
+    im += K.lead(400, IY + 50, 990, 820, '커켄달 보이드 — Cu/Cu₃Sn 계면', 'start', 't-sub');
+    im += K.lead(388, IY + 120, 990, 860, 'S (촉진제에서 옴)가 계면에 모인다', 'start', 't-sub');
+    im += K.lead(220, IY + 170, 990, 900, '도금막 속 불순물 (S · Cl · C 등)', 'start', 't-sub');
+    im += TT(1000, 946, [...wrap('리플로우 한 번보다 고온에 오래 둘 때(예: 150 °C 시효 · 신뢰성 시험) 자란다', 26), ...wrap('Ni 방벽 범프는 솔더가 Ni와 만난다(Ni–Sn) → 주로 상대 Cu 패드 · Ni 없는 곳의 이야기', 26)], 't-dim', 'start', 26);
     s += G(im, only('imp'));
-    // stress: 휨과 자기 풀림
-    let ss = T(64, 784, '내부 응력 — 막이 웨이퍼를 당기거나 민다', 't-acc', 'start');
-    ss += P('M90,960 Q290,880 490,960', 'pl-waf') + P('M90,950 Q290,870 490,950', 'pl-film') + K.arrow(150, 925, 230, 900, 's-arrr') + K.arrow(430, 925, 350, 900, 's-arrr');
-    ss += TT(90, 1010, ['인장 — 막이 줄어들려 한다', '→ 막 쪽이 오목 · 심하면 갈라짐'], 't-sub', 'start', 30);
-    ss += P('M570,900 Q770,980 970,900', 'pl-waf') + P('M570,890 Q770,970 970,890', 'pl-film') + K.arrow(730, 930, 640, 905, 's-arr2') + K.arrow(810, 930, 900, 905, 's-arr2');
-    ss += TT(570, 1010, ['압축 — 막이 늘어나려 한다', '→ 막 쪽이 볼록 · 심하면 들뜸'], 't-sub', 'start', 30);
+    // stress: 휨(블랭킷 막) · 크랙과 들뜸(범프) · 자기 풀림
+    let ss = T(64, 784, '내부 응력 — 막이 줄어들거나(당김) 늘어나려(밂) 한다', 't-acc', 'start');
+    // 인장: 막이 줄어들려 함 → 막 쪽이 오목 (U)
+    ss += P('M80,880 Q205,950 330,880', 'pl-waf') + P('M80,870 Q205,940 330,870', 'pl-film') + K.arrow(96, 850, 160, 876, 's-arrr') + K.arrow(314, 850, 250, 876, 's-arrr');
+    ss += R(370, 932, 110, 18, 'f-cu2') + R(384, 862, 82, 70, 'f-ni', tip('Ni 범프 — 당기는 응력이 크면 갈라진다')) + P('M420,862 l6,14 l-8,12 l7,14 l-5,12', 'pl-crack');
+    ss += TT(70, 990, ['인장(당김) — 막이 줄어들려 한다', '블랭킷 막: 웨이퍼가 막 쪽으로 오목', '범프: 크랙'], 't-sub', 'start', 30);
+    // 압축: 막이 늘어나려 함 → 막 쪽이 볼록 (∩)
+    ss += P('M540,940 Q665,870 790,940', 'pl-waf') + P('M540,930 Q665,860 790,930', 'pl-film') + K.arrow(640, 868, 566, 892, 's-arr2') + K.arrow(690, 868, 764, 892, 's-arr2');
+    ss += R(830, 932, 110, 18, 'f-cu2') + G(R(846, 864, 82, 66, 'f-ni'), {transform: 'rotate(-7 928 930)', 'data-tip': 'Ni 범프 — 미는 응력이 크면 들뜨거나 떨어진다'}) + P('M846,930 L846,920 L880,930 Z', 'f-hole2');
+    ss += TT(540, 990, ['압축(밂) — 막이 늘어나려 한다', '블랭킷 막: 막 쪽으로 볼록', '범프: 들뜸 · 박리'], 't-sub', 'start', 30);
+    ss += T(70, 1090, 'Ni 응력 손잡이: 전류밀도 · 온도 · pH · 염화물 · 액 분해 · 응력 조절제 → 정기 측정', 't-dim', 'start');
     // 자기 풀림 시간선
-    const ann = (x, n, seed, t) => { const r = rng(seed), pts = []; for (let k = 0; k < n; k++) pts.push([x + 4 + r() * 152, 840 + r() * 112]); return voronoi(pts, x, 836, x + 160, 956, 0.6).map((p, k) => K.PG(p, 'f-grain', {style: cuFill(r, k)})).join('') + T(x + 80, 990, t, 't-sub'); };
-    ss += T(1060, 822, 'Cu 자기 풀림 (상온)', 't-warn', 'start') + ann(1060, 40, 7, '도금 직후') + ann(1240, 14, 8, '수 시간') + ann(1400, 5, 9, '수 일');
-    ss += K.arrow(1222, 896, 1238, 896, 's-arr') + K.arrow(1402, 896, 1398, 896, 's-arr');
-    ss += TT(1060, 1036, ['결정이 커지며 저항↓ · 굳기 · 응력이 바뀐다', '→ 도금 후 대기 시간도 변수'], 't-dim', 'start', 30);
+    const ann = (x, n, seed, t) => { const r = rng(seed), pts = []; for (let k = 0; k < n; k++) pts.push([x + 4 + r() * 132, 830 + r() * 102]); return voronoi(pts, x, 826, x + 140, 936, 0.6).map((p, k) => K.PG(p, 'f-grain', {style: cuFill(r, k)})).join('') + T(x + 70, 966, t, 't-sub'); };
+    ss += T(1040, 812, 'Cu 자기 풀림 (상온)', 't-warn', 'start') + ann(1040, 40, 7, '도금 직후') + ann(1210, 14, 8, '수 시간~수 일') + ann(1380, 5, 9, '수 일~수 주');
+    ss += K.arrow(1184, 880, 1206, 880, 's-arr') + K.arrow(1354, 880, 1376, 880, 's-arr');
+    ss += TT(1040, 1004, ['결정이 커지며 저항 약 10~20 %↓ · 굳기↓', '두꺼운 막은 빠르고, 아주 얇은 막은 느리다', '→ 측정은 도금 후 정한 시간에'], 't-dim', 'start', 28);
     s += G(ss, only('stress'));
-    function E2(x, y, rx, ry, c){ return K.E(x, y, rx, ry, c); }
     return s;
   },
   body(K){
     return `<div class="pl-w"><div class="hd">직접 해 보기 — 결정 만들기</div>
-      ${K.ctl('e', '미는 힘 (과전압)', 0, 100, 1, 40)}
+      ${K.ctl('cd', '전류밀도 (→ 과전압)', 5, 100, 1, 40)}
       ${K.seg('add', [['0', '없음'], ['1', '있음']], '1', '첨가제')}
-      ${K.seg('age', [['0', '도금 직후'], ['1', '며칠 뒤 (Cu 자기 풀림)']], '0', '시간')}
-      ${K.kpis([['씨앗(결정) 수', 'k-n', '같은 면적에서'], ['평균 크기', 'k-s', '상대값']])}
+      ${K.seg('age', [['0', '도금 직후'], ['1', '수 시간~수 주 뒤 (Cu 자기 풀림)']], '0', '시간')}
+      ${K.kpis([['씨앗(결정) 수', 'k-n', '같은 면적에서'], ['평균 크기', 'k-s', '상대값'], ['표면', 'k-r', '']])}
       <p class="pl-msg" data-o="msg"></p>
-      ${K.model('씨앗 수만 바꾼 그림입니다. 실제 결정 크기 · 모양은 금속 · 첨가제 · 전류 파형 · 온도에 따라 다릅니다.')}</div>`;
+      ${K.model('전류밀도는 한계전류 대비 %입니다. 한계보다 충분히 낮으면 전류(→ 과전압)가 클수록 씨앗이 많아지고, 한계에 가까우면 거칠어지는 경향만 그린 그림입니다. 실제 결정 크기 · 모양은 금속 · 첨가제 · 전류 파형 · 온도에 따라 다릅니다.')}</div>`;
   },
   mount(K, ctx){
-    const {voronoi, rng, PG, C, G} = K;
-    const st = {e: 40, add: true, age: false};
+    const {voronoi, rng, PG, C, G, P} = K;
+    const st = {cd: 0.4, add: true, age: false};
     function render(){
-      const n = Math.round((8 + st.e / 100 * 46) * (st.add ? 1.5 : 1));
+      const rg = regime(st.cd), n = seeds(st.cd, st.add), rough = rg === 'fine' ? 0 : (st.cd - 0.75) / 0.25;
       // 위에서 본 표면: 같은 주기로 자라 만나는 칸
       const r = rng(31), pts = [];
       for (let k = 0; k < n; k++) pts.push([TV.x + r() * TV.w, TV.y + r() * TV.h]);
@@ -6260,47 +6612,78 @@ const cuFill = (r, k) => `fill:hsl(${22 + (k % 5) * 3},${48 + Math.round(r() * 1
         const rel = poly.map(([x, y]) => [x - sx, y - sy]);
         tv += `<g transform="translate(${sx.toFixed(1)} ${sy.toFixed(1)})"><g><animateTransform attributeName="transform" type="scale" values="0;0;1;1" keyTimes="0;${t0};${t1};1" dur="6s" repeatCount="indefinite"/>${PG(rel, 'f-grain', {style: cuFill(r, k)})}</g></g>`;
       });
+      // 한계 근처: 혹(거칠어짐) → 가루 · 탄 자국
+      if (rg !== 'fine'){
+        const rn = rng(77), m = Math.round(10 + rough * 50);
+        for (let k = 0; k < m; k++){ const x = TV.x + rn() * TV.w, y = TV.y + rn() * TV.h; tv += rg === 'dend' && k % 2 ? C(x, y, 3 + rn() * 4, 'pl-burnt') : C(x, y, 6 + rn() * 9, 'p06-nod'); }
+      }
       ctx.$('[data-v="tv"]').innerHTML = tv;
-      // 단면: 첨가제가 없으면 기둥 모양, 있으면 잘게. 며칠 뒤는 굵게
+      // 단면: 첨가제가 없으면 기둥 모양, 있으면 잘게. 자기 풀림 뒤는 굵게. 한계 근처는 윗면이 거칠다
       const nc = Math.max(4, Math.round(n * 0.8 / (st.age ? 3.2 : 1))), r2 = rng(57), p2 = [];
-      for (let k = 0; k < nc; k++) p2.push([CS.x + r2() * CS.w, CS.y + r2() * CS.h]);
+      const y0 = CS.y + (rg === 'dend' ? 40 : 0);
+      for (let k = 0; k < nc; k++) p2.push([CS.x + r2() * CS.w, y0 + r2() * (CS.y + CS.h - y0)]);
       const sy = st.add && !st.age ? 0.8 : 0.32;
-      const c2 = voronoi(p2, CS.x, CS.y, CS.x + CS.w, CS.y + CS.h, sy);
-      ctx.$('[data-v="cs"]').innerHTML = c2.map((p, k) => PG(p, 'f-grain', {style: cuFill(r2, k)})).join('');
+      const c2 = voronoi(p2, CS.x, CS.y - 60, CS.x + CS.w, CS.y + CS.h, sy);
+      // 윗면 (fine: 평평, rough: 울퉁불퉁, dend: 낮은 바닥 + 가지)
+      const rt = rng(91);
+      let top = `M${CS.x},${CS.y + CS.h}`;
+      for (let x = 0; x <= CS.w; x += 14){ const yy = rg === 'fine' ? CS.y : rg === 'rough' ? CS.y + 14 - rough * (rt() * 34) - (x % 70 < 35 ? 8 * rough : 0) : y0 - rt() * 14; top += ` L${CS.x + x},${yy.toFixed(1)}`; }
+      top += ` L${CS.x + CS.w},${CS.y + CS.h} Z`;
+      let cs = `<clipPath id="p06-csr"><path d="${top}"/></clipPath>`;
+      cs += G(c2.map((p, k) => PG(p, 'f-grain', {style: cuFill(r2, k)})).join(''), {'clip-path': 'url(#p06-csr)'});
+      if (rg === 'dend'){
+        const rb = rng(13);
+        let d = '';
+        for (let k = 0; k < 11; k++){ const bx = CS.x + 30 + k * 62 + rb() * 20, h = 50 + rb() * 50; d += `M${bx},${y0} L${bx + 4},${y0 - h}`; for (let t = 1; t <= 3; t++){ const yy = y0 - h * t / 4; d += ` M${bx + 2},${yy} l-14,-12 M${bx + 3},${yy - 6} l14,-12`; } }
+        cs += P(d, 'p06-den');
+      }
+      ctx.$('[data-v="cs"]').innerHTML = cs;
       // 불순물: 결정 경계(꼭짓점)에
       const seen = new Set();
       let im = '';
-      c2.forEach(p => p.forEach(([x, y], j) => { const kx = Math.round(x / 6) + ',' + Math.round(y / 6); if (seen.has(kx) || j % 2 || x <= CS.x + 2 || x >= CS.x + CS.w - 2 || y <= CS.y + 2 || y >= CS.y + CS.h - 2) return; seen.add(kx); im += C(x, y, 5, 'pl-impd'); }));
+      c2.forEach(p => p.forEach(([x, y], j) => { const kx = Math.round(x / 6) + ',' + Math.round(y / 6); if (seen.has(kx) || j % 2 || x <= CS.x + 2 || x >= CS.x + CS.w - 2 || y <= y0 + 4 || y >= CS.y + CS.h - 2) return; seen.add(kx); im += C(x, y, 5, 'pl-impd'); }));
       ctx.$('[data-v="imp"]').innerHTML = G(im + K.lead(CS.x + CS.w - 120, CS.y + 40, CS.x + CS.w - 200, 260, '결정 경계에 갇힌 불순물', 'end', 't-sub'), K.only('imp'));
-      ctx.$('[data-v="cslbl"]').textContent = st.age ? '며칠 뒤 — 결정이 커졌다 (자기 풀림)' : st.add ? '첨가제 있음 — 잘고 고른 결정' : '첨가제 없음 — 굵은 기둥 모양 결정';
+      ctx.$('[data-v="cslbl"]').textContent = rg === 'dend' ? '한계 바로 앞 — 가지처럼 뻗고 가루가 붙는다' : rg === 'rough' ? '한계에 가까움 — 곱지 않고 거칠어진다' : st.age ? '수 시간~수 주 뒤 — 결정이 커졌다 (자기 풀림)' : st.add ? '첨가제 있음 — 잘고 고른 결정' : '첨가제 없음 — 굵은 기둥 모양 결정';
       const size = 100 / Math.sqrt(n);
-      ctx.out('k-n', `${n}개`); ctx.out('k-s', size > 18 ? '굵음' : size > 11 ? '보통' : '고움');
-      ctx.q('[data-o=msg]').innerHTML = `씨앗 ${n}개 → 결정 하나의 면적은 1/${n}. ${st.add ? '첨가제가 씨앗을 늘리고 기둥 모양 성장을 막습니다.' : '첨가제가 없으면 적은 씨앗이 굵게, 기둥 모양으로 자라기 쉽습니다.'}`;
+      ctx.out('k-n', `${n}개`); ctx.out('k-s', st.age ? '커짐' : size > 18 ? '굵음' : size > 11 ? '보통' : '고움');
+      ctx.out('k-r', rg === 'dend' ? '가루 · 가지' : rg === 'rough' ? '거칠어짐' : '매끈');
+      let msg = `씨앗 ${n}개 → 결정 하나의 면적은 약 1/${n}. ${st.add ? '첨가제가 과전압을 키워 씨앗을 늘리고, 기둥 모양 성장을 막습니다.' : '첨가제가 없으면 적은 씨앗이 굵게, 기둥 모양으로 자라기 쉽습니다.'}`;
+      if (rg === 'rough') msg = '<b>한계전류에 가까워졌습니다.</b> 씨앗이 더 늘어 고와지는 대신, 공급이 모자라 튀어나온 곳이 이온을 먼저 잡아 거칠어집니다(혹 · 무광). 더 고운 결정을 원하면 전류보다 첨가제 · 공급(교반)을 봅니다.';
+      if (rg === 'dend') msg = '<b>한계 바로 앞입니다.</b> 튀어나온 곳만 자라 나뭇가지(덴드라이트)처럼 뻗고, 넘기면 수소와 함께 가루 · 탄 도금이 됩니다 (04장).';
+      if (st.age && rg === 'fine') msg += ' 첨가제가 든 Cu는 도금 뒤 상온에서도 결정이 커집니다(수 시간~수 주) — 그래서 측정 시점을 맞춥니다.';
+      ctx.q('[data-o=msg]').innerHTML = msg;
       ctx.refresh();
     }
-    ctx.range('e', v => { st.e = v; render(); return v < 33 ? '약하게' : v < 67 ? '보통' : '세게'; });
+    ctx.range('cd', v => { st.cd = v / 100; render(); const rg = regime(st.cd); return `한계의 ${v} %` + (rg === 'dend' ? ' (한계 바로 앞)' : rg === 'rough' ? ' (한계 근처)' : v < 30 ? ' (약하게)' : ''); });
     ctx.seg('add', v => { st.add = v === '1'; render(); });
     ctx.seg('age', (v, user) => { st.age = v === '1'; render(); if (user && st.age) ctx.go('stress'); });
   },
   notes(K){
     return K.terms([
-      ['핵생성', '표면에 원자 몇 개짜리 새 결정 씨앗이 생기는 것'],
+      ['핵생성', '표면에 원자 몇 개짜리 새 결정 씨앗이 생기는 것. 다른 금속 위에서 특히 중요'],
+      ['이어 자라기 (에피택시)', '아래 결정의 원자 배열을 그대로 이어서 자라는 것. Cu 시드 위 Cu에서 많다'],
       ['결정립 · 결정 경계', '한 방향으로 원자가 늘어선 작은 결정 · 그 결정들이 만나는 선'],
       ['주상정 (기둥 결정)', '바닥에서 위로 길게 자란 결정. 첨가제가 적거나 느리게 쌓일 때 흔하다'],
-      ['내부 응력', '막이 줄어들거나(인장) 늘어나려(압축) 하는 힘'],
-      ['자기 풀림', 'Cu 도금막의 결정이 상온에서도 시간이 지나며 커지는 현상'],
-      ['커켄달 보이드', '두 금속이 섞일 때 한쪽 원자가 더 빨리 빠져나가 남는 빈자리']
+      ['내부 응력', '막이 줄어들려는(인장, 당김) 또는 늘어나려는(압축, 밂) 힘'],
+      ['자기 풀림', '첨가제가 든 Cu 도금막의 결정이 상온에서 수 시간~수 주에 걸쳐 커지는 현상'],
+      ['커켄달 보이드', '원자들이 서로 다른 빠르기로 확산해, 빈자리가 한쪽에 모여 생긴 구멍']
     ]) + K.field([
-      '도금막의 성질(굳기 · 저항 · 응력)은 <b>도금 직후와 며칠 뒤가 다를 수 있습니다</b>. 비교 실험에서는 측정 시점을 맞춥니다.',
-      'Ni은 얇아도 응력이 크면 갈라지거나(크랙) 들뜰 수 있습니다. 응력은 전류밀도 · 온도 · pH · 첨가제 · 불순물에 따라 바뀝니다.',
-      '첨가제를 늘리면 결정이 곱고 매끈해지지만, <b>막에 갇히는 불순물도 늘 수 있습니다</b>. "많을수록 좋다"가 아닙니다.'
+      'Cu 경도와 저항은 도금 후 시간이 지나며 바뀝니다. <b>측정까지 걸리는 시간(도금 후 몇 시간)을 정해 두고 기록</b>합니다. 범프는 뒤의 리플로우가 어차피 열처리 역할을 합니다.',
+      'Ni 응력은 얇은 시편이 휘는 정도로 <b>정기적으로 재서</b> 관리도로 봅니다. 손잡이는 전류밀도 · 온도 · pH · 염화물(많으면 당김↑) · 액 분해 · 오염(당김↑) · 황 든 응력 조절제입니다.',
+      '다른 금속 위에 쌓을 때(Cu → Ni → SnAg)는 표면 상태가 씨앗 생성을 좌우합니다. 층 사이 대기 시간과 린스를 지킵니다.',
+      '첨가제를 늘리면 결정이 곱고 매끈해지지만, <b>막에 갇히는 불순물도 늘 수 있습니다</b>. "많을수록 좋다"가 아닙니다.',
+      '고온 보관 뒤 계면 보이드 문제를 볼 때는, 그 계면이 Cu–솔더(상대 Cu 패드 · Ni 없는 곳)인지 Ni–솔더인지부터 확인하고, 도금 조건과 첨가제 이력을 함께 봅니다.'
     ]) + K.deep(`<ul>
-      <li><b>핵생성 속도</b>는 과전압에 매우 민감합니다(지수보다 더 가파르게). 그래서 과전압을 조금 올려도 씨앗 수가 크게 늘어 결정이 곱게 됩니다. 펄스 도금으로 순간 과전압을 크게 하는 것도 같은 원리입니다.</li>
-      <li>결정 성장 방식은 표면의 원자가 계단 모서리를 찾아가는 속도(표면 확산)와 새 원자가 쌓이는 속도의 경쟁입니다. 억제제는 표면을 덮어 이 경쟁을 바꿉니다.</li>
-      <li>Cu 막의 <b>자기 풀림</b>은 첨가제가 많이 들어간 막에서 두드러지고, 결정 경계에 갇힌 불순물이 많으면 늦어지거나 덜 일어납니다.</li>
-      <li>Cu–Sn 계면은 고온에서 Cu₆Sn₅와 Cu₃Sn이 자랍니다. 도금 Cu의 불순물(특히 S)이 Cu/Cu₃Sn 계면의 커켄달 보이드를 늘린다는 연구가 있어, 범프 신뢰성 문제를 볼 때 도금 조건과 첨가제 이력을 함께 봅니다.</li>
-      <li>Ni 위에서는 Ni₃Sn₄ 등이 자랍니다. Ni이 Cu와 솔더 사이에서 반응을 늦추는 방벽 역할을 하는 이유입니다(10장).</li></ul>`);
-  }
+      <li><b>핵생성 속도</b>는 과전압에 매우 민감합니다(지수보다 더 가파르게). 그래서 반응 지배 구역에서는 과전압을 조금 올려도 씨앗 수가 크게 늘어 결정이 곱게 됩니다. 펄스 도금으로 순간 과전압을 크게 하는 것도 같은 원리입니다. 다만 한계전류에 가까워지면 공급이 모자라 가루 · 덴드라이트가 됩니다. 정전류 장비에서 과전압은 직접 고르는 값이 아니라 전류밀도 · 첨가제 · 온도 · 농도가 정하는 결과입니다.</li>
+      <li><b>어디 위에 쌓나</b>: 다른 금속 위에서는 섬처럼 핵이 생겨 자라다 합쳐지고(섬 성장), 같은 금속 위에서는 아래 결정을 이어 자랍니다(에피택시). 성장 중에도 첨가제 때문에 새 핵이 계속 생겨 결정이 작게 유지됩니다.</li>
+      <li>결정 성장 방식은 표면 원자가 계단 모서리를 찾아가는 속도(표면 확산)와 새 원자가 쌓이는 속도의 경쟁입니다. 억제제는 표면을 덮어 이 경쟁을 바꿉니다.</li>
+      <li><b>자기 풀림</b>은 첨가제가 많이 들어간 Cu 막에서 두드러집니다. 결정이 수십 nm에서 µm 크기로 커지며 저항이 보통 10~20 % 내려갑니다. 두꺼운 막은 빨리 진행되고, 아주 얇은 막(약 0.75 µm 미만)은 거의 진행되지 않는다는 보고도 있습니다.</li>
+      <li><b>커켄달 보이드</b>: S가 든 도금 Cu와 Sn-3.5Ag를 150 °C에서 시효하면 Cu₃Sn/Cu 계면에 보이드가 몰리고 그 계면에 S가 모인다는 연구가 있습니다. 평탄제에서 온 오염이 보이드를 늘렸다는 보고도 있습니다. 도금막 유기물이 리플로우 때 기체가 되어 보이드를 만든다는 보고도 있지만, 이 경우는 플럭스 · 솔더 조성과 함께 따져야 합니다.</li>
+      <li><b>Ni 응력</b>: 설파민산 Ni는 보통 0~55 MPa 인장(잘 관리하면 0 근처)으로 낮고, 와트 Ni는 125~185 MPa 인장 정도입니다. 염화물이 많거나, 높은 온도 · 낮은 pH에서 설파민산이 분해되면 인장 응력이 커집니다. 사카린 같은 황 든 응력 조절제는 응력을 낮추지만 Ni에 황이 들어가, 약 200 °C 이상에서 Ni가 약해지는(황 취화) 보고가 있습니다.</li>
+      <li><b>Ni 위 솔더</b>: Ni 위에서는 Ni₃Sn₄ 등이 자랍니다. Ni가 Cu와 솔더 사이에서 반응을 늦추는 방벽 역할을 하는 이유입니다(10장).</li></ul>`);
+  },
+  css: `.p06-den{fill:none;stroke:#e0904f;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.p06-nod{fill:#e9a56b;stroke:#5a3417;stroke-width:1.4}`
 });
 })();
 
