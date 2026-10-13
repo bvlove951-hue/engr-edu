@@ -8,6 +8,8 @@ const cuFill = (r, k) => `fill:hsl(${22 + (k % 5) * 3},${48 + Math.round(r() * 1
 //  한계에 가까우면: 공급이 모자라 튀어나온 곳이 앞서 거칠어지고, 더 가까우면 가루 · 나뭇가지
 function regime(cd){ return cd > 0.92 ? 'dend' : cd > 0.75 ? 'rough' : 'fine'; }
 function seeds(cd, add){ return Math.round((8 + 46 * Math.min(cd, 0.75) / 0.75) * (add ? 1.5 : 1)); }
+// 발표 모드 · 손대기 전: 단계마다 보여 줄 [전류밀도 %, 첨가제, 자기 풀림 뒤]
+const DEMO = {nuc: {cd: 40, add: true, age: false}, grain: {cd: 40, add: true, age: false}, imp: {cd: 40, add: true, age: false}, stress: {cd: 40, add: true, age: true}};
 
 (window.EngrPlatingChapters = window.EngrPlatingChapters || []).push({
   no: '06', id: 'grain', part: 2, short: '막의 속', scale: '결정 · nm~µm',
@@ -76,16 +78,16 @@ function seeds(cd, add){ return Math.round((8 + 46 * Math.min(cd, 0.75) / 0.75) 
     s += G(gn, only('grain'));
     // imp: 커켄달 보이드 (Cu가 솔더와 직접 만나는 계면)
     let im = T(64, 784, '고온에 오래 두면 — Cu가 솔더와 직접 만나는 계면 (개념도)', 't-acc', 'start');
-    const IY = 820, IH = 200, cl = [['Cu (도금)', 'f-cu2', 90, 300], ['Cu₃Sn', 'pl-imc3', 390, 110], ['Cu₆Sn₅', 'f-imc', 500, 150], ['솔더 (Sn)', 'f-sn2', 650, 300]];
-    cl.forEach(([t, c, x, w]) => { im += R(x, IY, w, IH, c, tip(t)) + T(x + w / 2, IY + IH + 32, t, 't-sub'); });
+    const IY = 892, IH = 150, cl = [['Cu (도금)', 'f-cu2', 90, 300], ['Cu₃Sn', 'pl-imc3', 390, 110], ['Cu₆Sn₅', 'f-imc', 500, 150], ['솔더 (Sn)', 'f-sn2', 650, 300]];
+    cl.forEach(([t, c, x, w]) => { im += R(x, IY, w, IH, c, tip(t)) + T(x + w / 2, IY + IH + 30, t, 't-sub'); });
     const ri = rng(21);
     for (let k = 0; k < 26; k++) im += C(100 + ri() * 270, IY + 10 + ri() * (IH - 20), 3.5, 'pl-impd');
-    for (let k = 0; k < 14; k++) im += C(385 + ri() * 6, IY + 8 + k * 14, 3.2, 'f-acc');
-    for (let k = 0; k < 9; k++) im += K.E(390 + 7 + ri() * 8, IY + 14 + k * 21, 6 + ri() * 4, 5, 'f-hole2');
-    im += K.lead(400, IY + 50, 990, 820, '커켄달 보이드 — Cu/Cu₃Sn 계면', 'start', 't-sub');
-    im += K.lead(388, IY + 120, 990, 860, 'S (촉진제에서 옴)가 계면에 모인다', 'start', 't-sub');
-    im += K.lead(220, IY + 170, 990, 900, '도금막 속 불순물 (S · Cl · C 등)', 'start', 't-sub');
-    im += TT(1000, 946, [...wrap('리플로우 한 번보다 고온에 오래 둘 때(예: 150 °C 시효 · 신뢰성 시험) 자란다', 26), ...wrap('Ni 방벽 범프는 솔더가 Ni와 만난다(Ni–Sn) → 주로 상대 Cu 패드 · Ni 없는 곳의 이야기', 26)], 't-dim', 'start', 26);
+    for (let k = 0; k < 10; k++) im += C(385 + ri() * 6, IY + 8 + k * 14, 3.2, 'f-acc');
+    for (let k = 0; k < 7; k++) im += K.E(390 + 7 + ri() * 8, IY + 14 + k * 21, 6 + ri() * 4, 5, 'f-hole2');
+    // 이름표는 층 위에, 짧은 세로 지시선으로 (층을 가로지르지 않게)
+    im += LB(L(396, 826, 396, IY + 2, 's-lead') + C(396, IY + 2, 3.5, 'k-lead') + T(410, 842, '커켄달 보이드 — Cu/Cu₃Sn 계면', 't-sub', 'start') + T(410, 872, 'S (촉진제에서 옴)가 이 계면에 모인다', 't-sub', 'start'));
+    im += LB(L(232, 880, 232, IY + 22, 's-lead') + C(232, IY + 22, 3.5, 'k-lead') + T(96, 872, '도금막 속 불순물 (S · Cl · C 등)', 't-sub', 'start'));
+    im += TT(1000, 880, [...wrap('리플로우 한 번보다 고온에 오래 둘 때(예: 150 °C 시효 · 신뢰성 시험) 자란다', 26), ...wrap('Ni 방벽 범프는 솔더가 Ni와 만난다(Ni–Sn) → 주로 상대 Cu 패드 · Ni 없는 곳의 이야기', 26)], 't-dim', 'start', 26);
     s += G(im, only('imp'));
     // stress: 휨(블랭킷 막) · 크랙과 들뜸(범프) · 자기 풀림
     let ss = T(64, 784, '내부 응력 — 막이 줄어들거나(당김) 늘어나려(밂) 한다', 't-acc', 'start');
@@ -100,7 +102,7 @@ function seeds(cd, add){ return Math.round((8 + 46 * Math.min(cd, 0.75) / 0.75) 
     ss += T(70, 1090, 'Ni 응력 손잡이: 전류밀도 · 온도 · pH · 염화물 · 액 분해 · 응력 조절제 → 정기 측정', 't-dim', 'start');
     // 자기 풀림 시간선
     const ann = (x, n, seed, t) => { const r = rng(seed), pts = []; for (let k = 0; k < n; k++) pts.push([x + 4 + r() * 132, 830 + r() * 102]); return voronoi(pts, x, 826, x + 140, 936, 0.6).map((p, k) => K.PG(p, 'f-grain', {style: cuFill(r, k)})).join('') + T(x + 70, 966, t, 't-sub'); };
-    ss += T(1040, 812, 'Cu 자기 풀림 (상온)', 't-warn', 'start') + ann(1040, 40, 7, '도금 직후') + ann(1210, 14, 8, '수 시간~수 일') + ann(1380, 5, 9, '수 일~수 주');
+    ss += T(1040, 804, 'Cu 자기 풀림 (상온)', 't-warn', 'start') + ann(1040, 40, 7, '도금 직후') + ann(1210, 14, 8, '수 시간~수 일') + ann(1380, 5, 9, '수 일~수 주');
     ss += K.arrow(1184, 880, 1206, 880, 's-arr') + K.arrow(1354, 880, 1376, 880, 's-arr');
     ss += TT(1040, 1004, ['결정이 커지며 저항 약 10~20 %↓ · 굳기↓', '두꺼운 막은 빠르고, 아주 얇은 막은 느리다', '→ 측정은 도금 후 정한 시간에'], 't-dim', 'start', 28);
     s += G(ss, only('stress'));
@@ -108,7 +110,7 @@ function seeds(cd, add){ return Math.round((8 + 46 * Math.min(cd, 0.75) / 0.75) 
   },
   body(K){
     return `<div class="pl-w"><div class="hd">직접 해 보기 — 결정 만들기</div>
-      ${K.ctl('cd', '전류밀도 (→ 과전압)', 5, 100, 1, 40)}
+      ${K.ctl('cd', '전류밀도 (→ 과전압)', 5, 98, 1, 40)}
       ${K.seg('add', [['0', '없음'], ['1', '있음']], '1', '첨가제')}
       ${K.seg('age', [['0', '도금 직후'], ['1', '수 시간~수 주 뒤 (Cu 자기 풀림)']], '0', '시간')}
       ${K.kpis([['씨앗(결정) 수', 'k-n', '같은 면적에서'], ['평균 크기', 'k-s', '상대값'], ['표면', 'k-r', '']])}
@@ -162,9 +164,9 @@ function seeds(cd, add){ return Math.round((8 + 46 * Math.min(cd, 0.75) / 0.75) 
       let im = '';
       c2.forEach(p => p.forEach(([x, y], j) => { const kx = Math.round(x / 6) + ',' + Math.round(y / 6); if (seen.has(kx) || j % 2 || x <= CS.x + 2 || x >= CS.x + CS.w - 2 || y <= y0 + 4 || y >= CS.y + CS.h - 2) return; seen.add(kx); im += C(x, y, 5, 'pl-impd'); }));
       ctx.$('[data-v="imp"]').innerHTML = G(im + K.lead(CS.x + CS.w - 120, CS.y + 40, CS.x + CS.w - 200, 260, '결정 경계에 갇힌 불순물', 'end', 't-sub'), K.only('imp'));
-      ctx.$('[data-v="cslbl"]').textContent = rg === 'dend' ? '한계 바로 앞 — 가지처럼 뻗고 가루가 붙는다' : rg === 'rough' ? '한계에 가까움 — 곱지 않고 거칠어진다' : st.age ? '수 시간~수 주 뒤 — 결정이 커졌다 (자기 풀림)' : st.add ? '첨가제 있음 — 잘고 고른 결정' : '첨가제 없음 — 굵은 기둥 모양 결정';
+      ctx.$('[data-v="cslbl"]').textContent = rg === 'dend' ? '한계 바로 앞 — 가지처럼 뻗고 가루가 붙는다' : rg === 'rough' ? '한계에 가까움 — 곱지 않고 거칠어진다' : st.age ? '수 시간~수 주 뒤 — 결정이 커졌다 (자기 풀림)' : st.add ? '첨가제 있음 — 고른 알갱이 결정 (기둥 모양을 막는다)' : '첨가제 없음 — 굵은 기둥 모양 결정';
       const size = 100 / Math.sqrt(n);
-      ctx.out('k-n', `${n}개`); ctx.out('k-s', st.age ? '커짐' : size > 18 ? '굵음' : size > 11 ? '보통' : '고움');
+      ctx.out('k-n', `${n}개`); ctx.out('k-s', st.age ? '커짐' : size > 16 ? '굵음' : size > 12 ? '보통' : '고움');
       ctx.out('k-r', rg === 'dend' ? '가루 · 가지' : rg === 'rough' ? '거칠어짐' : '매끈');
       let msg = `씨앗 ${n}개 → 결정 하나의 면적은 약 1/${n}. ${st.add ? '첨가제가 과전압을 키워 씨앗을 늘리고, 기둥 모양 성장을 막습니다.' : '첨가제가 없으면 적은 씨앗이 굵게, 기둥 모양으로 자라기 쉽습니다.'}`;
       if (rg === 'rough') msg = '<b>한계전류에 가까워졌습니다.</b> 씨앗이 더 늘어 고와지는 대신, 공급이 모자라 튀어나온 곳이 이온을 먼저 잡아 거칠어집니다(혹 · 무광). 더 고운 결정을 원하면 전류보다 첨가제 · 공급(교반)을 봅니다.';
@@ -173,10 +175,27 @@ function seeds(cd, add){ return Math.round((8 + 46 * Math.min(cd, 0.75) / 0.75) 
       ctx.q('[data-o=msg]').innerHTML = msg;
       ctx.refresh();
     }
-    ctx.range('cd', v => { st.cd = v / 100; render(); const rg = regime(st.cd); return `한계의 ${v} %` + (rg === 'dend' ? ' (한계 바로 앞)' : rg === 'rough' ? ' (한계 근처)' : v < 30 ? ' (약하게)' : ''); });
+    const cdLbl = v => { const rg = regime(v / 100); return `한계의 ${v} %` + (rg === 'dend' ? ' (한계 바로 앞)' : rg === 'rough' ? ' (한계 근처)' : v < 30 ? ' (약하게)' : ''); };
+    ctx.range('cd', v => { st.cd = v / 100; render(); return cdLbl(v); });
     ctx.seg('add', v => { st.add = v === '1'; render(); });
     ctx.seg('age', (v, user) => { st.age = v === '1'; render(); if (user && st.age) ctx.go('stress'); });
+    // 손대기 전에는 단계마다 예시 값으로 (응력 단계는 자기 풀림 뒤 모습). 발표 모드에서는 늘 예시 값으로 되돌린다
+    let touched = false;
+    ctx.card.querySelectorAll('.pl-w input, .pl-w .pl-seg button').forEach(i => i.addEventListener(i.tagName === 'INPUT' ? 'input' : 'click', () => { touched = true; }));
+    const cdIn = ctx.card.querySelector('input[data-i="cd"]');
+    const setSeg = (id, v) => ctx.card.querySelectorAll(`.pl-seg[data-g="${id}"] button`).forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v ? 'true' : 'false'));
+    ctx.demo = sid => {
+      const ep = window.EngrPlating;
+      if (ep && ep.state.pres != null) touched = false;
+      if (touched) return ctx.refresh();
+      const d = DEMO[sid] || DEMO.nuc;
+      st.cd = d.cd / 100; st.add = d.add; st.age = d.age;
+      if (cdIn) cdIn.value = d.cd;
+      ctx.out('cd', cdLbl(d.cd)); setSeg('add', d.add ? '1' : '0'); setSeg('age', d.age ? '1' : '0');
+      render();
+    };
   },
+  onStep(K, ctx, sid){ if (ctx.demo) ctx.demo(sid); },
   notes(K){
     return K.terms([
       ['핵생성', '표면에 원자 몇 개짜리 새 결정 씨앗이 생기는 것. 다른 금속 위에서 특히 중요'],

@@ -22,7 +22,7 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 설계 · 포�
 (window.EngrPlatingChapters = window.EngrPlatingChapters || []).push({
   no: '08', id: 'pattern', part: 2, short: '패턴 효과', scale: '다이 · mm / 범프 · µm',
   title: '패턴 효과 — 왜 외톨이 범프가 키가 클까?',
-  hook: '외로운 범프가 키가 크다',
+  hook: '외톨이 범프가 키가 크다',
   one: '주변에 다른 범프가 없는 외톨이 범프는 주변의 전류를 혼자 받아 더 높이 자랍니다. 그래서 같은 다이 안에서도 범프 높이가 달라집니다. 범프 하나의 윗면 모양(볼록 · 평평 · 오목 · 기움)은 조건에 따라 달라집니다.',
   ana: '<b>마당의 배수구</b> — 비가 오면 마당에 떨어진 물은 가장 가까운 배수구로 흘러갑니다. 배수구가 촘촘한 곳은 물을 나눠 받고, 넓은 마당에 혼자 있는 배수구는 주변 물을 모두 받아 가장 많이 흘러듭니다. 외톨이 범프가 그 배수구입니다. <i>한계: 전류는 "가장 가까운 곳"으로만 가지 않고 액 저항 · 반응 저항에 따라 퍼집니다. 반응 저항(억제제 · 낮은 전류밀도)이 크면 차이가 줄어듭니다.</i>',
   steps: [
@@ -34,6 +34,7 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 설계 · 포�
   css: `
 .p08-bdg{fill:rgba(167,139,250,.28);stroke:#a78bfa;stroke-width:1.4}
 .pl-svg .p08-bdgt{font-size:17px;font-weight:800;fill:#ddd6fe !important}
+.pl-svg .p08-dum{stroke:#a78bfa;stroke-width:2;stroke-dasharray:4 3}
 .pl-svg .p08-ap{font-size:19px;font-weight:700;fill:#fde68a !important;stroke:rgba(5,10,20,.8) !important;stroke-width:4px !important}`,
   icon(K){
     const {R} = K;
@@ -52,7 +53,7 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 설계 · 포�
     s += R(1040, 130, 540, 530, 'pl-panel', {rx: 16}) + R(1040, 130, 540, 530, 'pl-hlbox', W({rx: 16}, only('dens dummy'))) + T(1064, 172, '위에서 본 다이 — 범프 높이 (예시)', 't-acc', 'start');
     s += R(DIE.x - 24, DIE.y - 24, DIE.p * (DIE.n - 1) + 48, DIE.p * (DIE.n - 1) + 48, 'dp-pas', {rx: 6});
     s += `<g data-v="die"></g>`;
-    s += LB(T(1064, 616, '빨강 = 높다 · 점선 = 더미 범프', 't-dim', 'start'));
+    s += LB(T(1064, 616, '빨강 = 높다 · 보라 점선 테두리 = 더미 범프', 't-dim', 'start'));
     s += G(LB(T(1064, 644, '가장자리 다이도 바깥 PR 띠 때문에 외톨이처럼 높다', 't-dim', 'start')), only('dens'));
     s += G(LB(T(1064, 644, '더미: 회로와 연결 안 됨 · HBM에선 지지 · 열 길', 't-dim', 'start')), only('dummy'));
     // 아래 왼쪽: 윗면 모양
@@ -73,8 +74,8 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 설계 · 포�
     });
     s += LB(C(82, 1100, 6, 'k-acc') + T(94, 1106, '중심 높이', 't-dim', 'start') + C(250, 1100, 6, 'k-acc2') + T(262, 1106, '최고점 — 무엇을 재는지 정해 둔다', 't-dim', 'start'));
     // 아래 오른쪽: 깊은 구멍
-    s += R(830, 690, 750, 430, 'pl-panel', {rx: 16}) + R(830, 690, 750, 430, 'pl-hlbox', W({rx: 16}, only('deep'))) + T(854, 732, '깊은 구멍 — 처음이 가장 불리하다', 't-acc', 'start');
-    const HX = 1110, HW = 90, HT = 800, HB = 1060;
+    s += R(830, 690, 750, 430, 'pl-panel', {rx: 16}) + R(830, 690, 750, 430, 'pl-hlbox', W({rx: 16}, only('deep'))) + T(854, 732, '깊은 구멍 — 처음이 가장 불리하다', 't-acc', 'start') + LB(T(1222, 732, '(두께 비율은 그림용)', 't-dim', 'start'));
+    const HX = 1110, HW = 90, HT = 840, HB = 1060;
     s += R(870, 760, 680, HT - 760, 'f-bath') + R(870, HT, HX - HW / 2 - 870, HB - HT, 'f-pr') + R(HX + HW / 2, HT, 1250 - HX - HW / 2, HB - HT, 'f-pr') + R(870, HB, 380, 12, 'f-seed2');
     s += `<g data-v="hole"></g>`;
     s += LB(P(`M884,770 l-8,0 l0,${HT - 770} l8,0`, 's-acc2') + T(896, (770 + HT) / 2 + 8, '확산층', 't-warn', 'start') + P(`M884,${HT + 4} l-8,0 l0,${HB - HT - 4} l8,0`, 's-acc2') + T(896, (HT + HB) / 2 + 8, '+ 구멍 깊이', 't-warn', 'start') + T(896, (HT + HB) / 2 + 38, '(근사)', 'p08-ap', 'start'));
@@ -118,7 +119,7 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 설계 · 포�
       xs += R(px, PRT, 1000 - px, BASE - PRT, 'f-pr');
       opens.forEach((o, i) => {
         const dm = DUMMY.includes(o);
-        xs += R(o - OW / 2, BASE - h[i], OW, h[i], dm ? 'pl-dumb' : 'f-cu2', tip(dm ? '더미 범프 — 회로와 연결되지 않음. 전류를 나눠 갖고, HBM에서는 다이를 받치고 열을 빼는 길도 된다' : `범프 높이 ${(h[i] / 120).toFixed(2)} (밀집 = 1)`));
+        xs += R(o - OW / 2, BASE - h[i], OW, h[i], dm ? 'f-cu2 p08-dum' : 'f-cu2', tip(dm ? '더미 범프 — 회로와 연결되지 않음. 전류를 나눠 갖고, HBM에서는 다이를 받치고 열을 빼는 길도 된다' : `범프 높이 ${(h[i] / 120).toFixed(2)} (밀집 = 1)`));
       });
       ctx.$('[data-v="xs"]').innerHTML = xs;
       const iso = h[opens.indexOf(700)] / 120, real = OPEN.map(o => h[opens.indexOf(o)]);
@@ -132,7 +133,7 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 설계 · 포�
         let nb = 0;
         act.forEach(q => { const d = Math.hypot(q.x - p.x, q.y - p.y); if (d > 0 && d < DIE.p * 2.6) nb++; });
         const v = Math.pow(Math.max(1, 20 - nb) / 4, alpha * 1.6), tone = K.clamp((v - 1) / 0.9);
-        if (p.kind === 'gap') dg += C(p.x, p.y, 14, 'pl-dumc', tip('더미 범프 — 회로와 연결되지 않음 (지지 · 열 길 역할도)'));
+        if (p.kind === 'gap') dg += C(p.x, p.y, 14, 'pl-hm p08-dum', W2(tip('더미 범프 — 회로와 연결되지 않음 (지지 · 열 길 역할도)'), {style: `fill:${K.heat(0.25 + tone * 0.75)}`}));
         else dg += C(p.x, p.y, 14, 'pl-hm', W2(tip(p.kind === 'iso' ? '외톨이(고립) 범프 — 가장 높다' : '범프'), {style: `fill:${K.heat(0.25 + tone * 0.75)}`}));
       });
       ctx.$('[data-v="die"]').innerHTML = dg;
@@ -141,7 +142,7 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 설계 · 포�
       ctx.$$('.pl-shp').forEach(g => g.classList.toggle('pl-sel', g.getAttribute('data-shape') === st.shape));
       ctx.q('[data-o=shape]').innerHTML = SHAPE_MSG[st.shape];
       // 깊은 구멍: 기포 또는 액
-      const HX = 1110, HW = 90, HT = 800, HB = 1060;
+      const HX = 1110, HW = 90, HT = 840, HB = 1060;
       let hb = '';
       if (st.pw){
         hb += R(HX - HW / 2, HT, HW, HB - HT, 'f-bath', tip('구멍 안이 액으로 차 있다'));
@@ -159,7 +160,7 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 설계 · 포�
     ctx.range('j', v => { st.j = v; render(); return v < 34 ? '낮음' : v < 67 ? '보통' : '높음'; });
     const dummy = ctx.seg('dummy', v => { st.dummy = v === '1'; render(); });
     ctx.seg('shape', (v, user) => { st.shape = v; render(); if (user) ctx.go('shape'); });
-    ctx.seg('pw', (v, user) => { st.pw = v === '1'; render(); if (user) ctx.go('deep'); });
+    ctx.seg('pw', v => { st.pw = v === '1'; render(); });
     ctx.card.querySelectorAll('[data-g="dummy"] button, input[data-i=j]').forEach(i => i.addEventListener(i.tagName === 'INPUT' ? 'input' : 'click', () => { touched = true; }));
     // 장면의 윗면 모양을 눌러도 고른다
     ctx.scene.addEventListener('click', ev => {
@@ -197,7 +198,7 @@ const tagC = '<span class="pl-tag up" title="비도금 인자 — 설계 · 포�
       <li>공개 연구의 경향: 평탄제가 적고 전류밀도가 높으면 돔, 교반이 고르지 않으면 기운 면, 5~10 ASD에서 약간 볼록이 보고됩니다. 접시는 특정 평탄제 · 조건에서 보고되고, 모양 시뮬레이션은 "고름 → 볼록 → 접시"처럼 도금하는 동안 바뀌는 단계를 보여 줍니다.</li>
       <li><b>확산 거리 = 확산층 + 구멍 깊이</b>는 좁고 깊고 촘촘한 구멍에 잘 맞는 근사입니다. 구멍이 듬성듬성하면 입구 위로 반구 모양 공급이 더해져(정지 액에서 유효 거리 ≈ 깊이 + π·반지름/4) 더 짧고, 구멍이 넓으면 흐름이 일부 안으로 들어와 역시 짧습니다. 예(Cu²⁺ 0.6 mol/L, D 7×10⁻¹⁰ m²/s): 확산층 20 µm만이면 한계 약 40 ASD, 20 µm + 구멍 30 µm면 약 16 ASD. 결론은 같습니다 — 초기 공급이 가장 느려 시작 전류를 낮게 잡는 경우가 많습니다.</li>
       <li>프리웻: 30 µm 구멍 속 물이 확산으로 바뀌는 시간은 약 h²/D ≈ 1 s로 짧습니다. 문제는 기포입니다 — 탈기하지 않은 물로 적신 한 특허 실시예에서 구멍의 약 15 %에 기포가 남았습니다. 종횡비가 클수록 기포 · 젖음 · 확산 문제가 커져 습윤제 · 기울여 넣기 · 초기 저전류를 함께 씁니다.</li>
-      <li>시드 녹음: 얇은 Cu 시드(수십~백수십 nm)는 전류 없이 산성 액에 닿으면(특히 녹은 산소가 있을 때) 분당 수~수백 Å씩 녹을 수 있습니다. 그래서 핫 엔트리로 담그고 담근 뒤 대기 시간을 짧게 관리합니다. 녹은 자리는 범프 누락 · 바닥 빈틈의 원인이 됩니다.</li>
+      <li>시드 녹음: 얇은 Cu 시드(수십~백수십 nm)는 전류 없이 산성 액에 닿으면(특히 녹은 산소가 있을 때) 분당 약 5~200 Å씩 녹을 수 있습니다. 그래서 핫 엔트리로 담그고 담근 뒤 대기 시간을 짧게 관리합니다. 녹은 자리는 범프 누락 · 바닥 빈틈의 원인이 됩니다.</li>
       <li>(개념) 고저항판을 웨이퍼에 아주 가깝게 두면 웨이퍼 전체 균일도에는 유리하지만, 전류가 옆으로 옮겨 갈 여유가 줄어 다이 안 패턴 차이(외톨이 / 밀집)가 커질 수 있습니다 — 크기 사이의 트레이드오프입니다.</li></ul>`);
   }
 });

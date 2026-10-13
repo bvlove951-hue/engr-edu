@@ -2,32 +2,36 @@
 (function(){
 const GX0 = 130, GX1 = 1040, GY0 = 800, GY1 = 170, EMAX = 0.6, IMAX = 1.75;   // 그래프 영역, 과전압 0~600 mV, 전류 0~1.75 iL
 const gx = e => GX0 + e / EMAX * (GX1 - GX0), gy = i => GY0 - Math.min(i, IMAX) / IMAX * (GY0 - GY1);
-// 개념 모델 — 곡선 세 가지 (b: 기울기, i0: 교환전류, rf: 억제막이 더하는 표면 저항 몫)
-//  none: 억제제 없음 · sup: 억제제 있음(옮겨지고 눕는다) · shift: 가상 — 모양 그대로 옆으로만 옮김(기울기 = none)
+// 개념 모델 — 곡선 세 가지 (b: 자연로그 기울기 b′ = 타펠 기울기/2.303, i0: 교환전류, rf: 억제막이 더하는 표면 저항 몫)
+//  none: 억제제 없음 · sup: 억제제 있음(옮겨지고 눕는다) · shift: 가상 — i0만 줄여 타펠 구역에서 모양 그대로 옆으로 132 mV 옮김(기울기 = none)
 const CV = {
   none: {b: 0.045, i0: 0.012, rf: 0, nm: '억제제 없음'},
   sup: {b: 0.052, i0: 0.006, rf: 0.13, nm: '억제제 있음'},
-  shift: {b: 0.045, i0: 0.012, rf: 0, dx: 0.132, nm: '옮기기만 (가상)'}       // none 곡선을 그대로 dx 만큼 옆으로
+  shift: {b: 0.045, i0: 0.012 * Math.exp(-0.132 / 0.045), rf: 0, nm: '옮기기만 (가상)'}   // 평형 전위(η = 0)는 그대로
 };
 const R1 = 0.1, R2 = 0.3;                                   // 두 길의 액 저항 (짧은 길 : 긴 길 = 1 : 3, 상대값)
 // 반응 속도(버틀러-볼머, 양쪽 항) + 공급 한계(1/i = 1/ik + 1/iL)를 합친 곡선의 역함수: 금속 전류 i → 필요한 과전압
-function etaOf(i, c, iL){ const ik = i / (1 - i / iL); return c.b * Math.asinh(ik / (2 * c.i0)) + c.rf * i + (c.dx || 0); }
+//  iL = 0 이면 공급 한계를 뺀 반응 + 억제막 몫만 (쏠림 계산용)
+function etaOf(i, c, iL){ const ik = iL ? i / (1 - i / iL) : i; return c.b * Math.asinh(ik / (2 * c.i0)) + c.rf * i; }
 // 과전압 e(+ 길의 액 저항 R) → 금속 전류 (이분법)
 function imOf(e, c, iL, R = 0){
-  if (e <= (c.dx || 0)) return 0;
-  let lo = 0, hi = iL * (1 - 1e-9);
-  for (let k = 0; k < 46; k++){ const m = (lo + hi) / 2; if (etaOf(m, c, iL) + m * R > e) hi = m; else lo = m; }
+  if (e <= 0) return 0;
+  let lo = 0, hi = iL ? iL * (1 - 1e-9) : 20;
+  for (let k = 0; k < 50; k++){ const m = (lo + hi) / 2; if (etaOf(m, c, iL) + m * R > e) hi = m; else lo = m; }
   return (lo + hi) / 2;
 }
+// 표면 저항(톨게이트) = 반응 + 억제막 몫의 기울기 dη/di (공급 한계 몫은 뺀다). 전류가 클수록 작아진다
+const dk = (i, c) => c.b / Math.sqrt(4 * c.i0 * c.i0 + i * i) + c.rf;
 const ihOf = e => 0.002 * Math.exp((e - 0.42) / 0.04);      // 수소 발생 전류 (따로 더한다)
 function model(e, c, iL){ const im = imOf(e, c, iL), ih = ihOf(e); return {im, ih, i: im + ih, iL}; }
 function zone(r){ return r.ih > 0.08 * r.i && r.ih > 0.01 * r.iL ? 3 : r.im > 0.93 * r.iL ? 2 : r.im > 0.7 * r.iL ? 1 : 0; }
 // 두 길(짧은 길 · 긴 길)에 같은 전압을 걸고, 평균 금속 전류가 i 가 되게 나눈다 → [짧은 길, 긴 길]
-function split(i, c, iL){
-  let lo = 0, hi = 4;
-  for (let k = 0; k < 46; k++){ const V = (lo + hi) / 2; if ((imOf(V, c, iL, R1) + imOf(V, c, iL, R2)) / 2 > i) hi = V; else lo = V; }
+//  반응 지배 구역의 쏠림만 보므로 공급 한계는 빼고(2차 분포) 계산한다 — 한계 근처는 공급이 분포를 정한다
+function split(i, c){
+  let lo = 0, hi = 6;
+  for (let k = 0; k < 50; k++){ const V = (lo + hi) / 2; if ((imOf(V, c, 0, R1) + imOf(V, c, 0, R2)) / 2 > i) hi = V; else lo = V; }
   const V = (lo + hi) / 2;
-  return [imOf(V, c, iL, R1), imOf(V, c, iL, R2)];
+  return [imOf(V, c, 0, R1), imOf(V, c, 0, R2)];
 }
 const ZN = [
   {t: '① 반응 지배', d: '미는 만큼 전류가 는다(처음엔 비례, 수십 mV를 넘으면 지수적으로 — 타펠). 공급에 여유가 있어 막이 고르고 촘촘하다', c: 'k-ok'},
@@ -66,7 +70,7 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
     s += LB(T((GX0 + GX1) / 2, GY0 + 66, 'Cu 반응의 과전압 — 음극 쪽으로 민 정도 (mV) →', 't-sub'));
     s += LB(T(GX0 - 24, GY1 - 34, '↑ 전류밀도 (석출 속도)', 't-sub', 'start'));
     // 평형: 가로축 0 = 평형 전위
-    s += G(LB(K.lead(GX0, GY0, GX0 + 40, 300, 'η = 0 → 평형 전위 (전류 0 · 0 V가 아님)', 'start', 't-warn')), only('eq'));
+    s += G(LB(K.lead(GX0, GY0, GX0 + 60, GY0 - 110, 'η = 0 → 평형 전위 (전류 0 · 0 V가 아님)', 'start', 't-warn')), only('eq'));
     s += `<g data-v="curves"></g><g data-v="dot"></g>`;
     // 아래: 구역별 막 모양
     const MX = [90, 335, 580, 825], MW = 230, BY = 1062;
@@ -106,7 +110,7 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
       eq += K.ionPath(`M${x},300 L${x},520`, 'cu', 2.8, k * 0.7, null) + K.ionPath(`M${x + 30},520 L${x + 30},300`, 'cu', 2.8, k * 0.7 + 1.4, null);
     }
     eq += K.arrow(RX + 466, 470, RX + 466, 320, 's-arr2') + K.arrow(RX + 452, 320, RX + 452, 470, 's-arr');
-    eq += para(660, ['전류가 0이면 전극은 평형 전위(제자리 전압)에 머문다. 0 V가 아니다.', '쌓이는 속도 = 녹는 속도 → 겉보기 변화 0', '이때 오가는 양 = 교환전류 i₀. 클수록 조금만 밀어도 많이 흐른다 (Sn · Ag > Cu > Ni)']);
+    eq += para(660, ['전류가 0이면 전극은 평형 전위(제자리 전압)에 머문다. 0 V가 아니다.', '쌓이는 속도 = 녹는 속도 → 겉보기 변화 0', '이때 오가는 양 = 교환전류 i₀. 클수록 조금만 밀어도 많이 흐른다 (Sn · Ag > Cu > Ni)']);
     eq += para(960, ['실제 얇은 Cu 시드는 산 · 녹은 산소에 조금씩 녹는다 → 닿는 순간부터 전류를 건다 (핫 엔트리, 09장)'], 't-warn', 30);
     s += G(eq, only('eq'));
     // kin: 언덕 그림
@@ -115,7 +119,7 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
     kn += P(`M${RX + 50},400 C${RX + 120},400 ${RX + 170},250 ${RX + 245},250 C${RX + 320},250 ${RX + 360},410 ${RX + 440},410`, 's-dash', tip('밀기 전'));
     kn += P(`M${RX + 50},400 C${RX + 120},400 ${RX + 170},300 ${RX + 245},310 C${RX + 320},320 ${RX + 360},510 ${RX + 440},520`, 's-curve', tip('밀었을 때 — 오른쪽(금속 쪽)이 내려가고 장벽이 낮아진다'));
     kn += `<circle r="16" class="k-acc2"><animateMotion dur="3s" repeatCount="indefinite" path="M${RX + 60},386 C${RX + 120},386 ${RX + 170},286 ${RX + 245},296 C${RX + 320},306 ${RX + 360},496 ${RX + 430},506"/></circle>`;
-    kn += K.arrow(RX + 400, 420, RX + 400, 500, 's-arr2') + T(RX + 392, 466, 'η', 't-warn', 'end');
+    kn += K.arrow(RX + 464, 416, RX + 464, 512, 's-arr2') + T(RX + 455, 470, 'η', 't-warn', 'end');     // 움직이는 공(x ≤ RX+446)과 겹치지 않게 오른쪽 끝에
     kn += para(660, ['아주 조금 밀면(수 mV) 전류는 미는 만큼 비례해서 는다.', '수십 mV를 넘으면 넘는 이온이 지수적으로 는다 (타펠 구역).', '', '가장 고운 결정: 충분히 밀되 한계와 거리를 둔 곳. 너무 약하면 씨앗(핵)이 적어 굵다 → 06장', '', '억제제는 언덕을 높여 "더 밀어야" 흐르게 한다 → 05장']);
     s += G(kn, only('kin'));
     // mt: 공급 한계 (깔때기)
@@ -143,7 +147,7 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
     sl += `<g data-v="paths"></g>`;
     sl += para(720, ['완만한 곡선 = 전류를 조금 더 흘리려면 훨씬 더 밀어야 한다 = 모든 길 입구에 같은 톨게이트(표면 저항) → 길 길이 차이가 덜 중요 → 고르게', '모양 그대로 옆으로 옮기기만 하면 → 쏠림 그대로']);
     sl += para(954, ['크기에 따라 주역이 다르다 (바그너 수)'], 't-warn');
-    sl += para(988, ['웨이퍼 150 mm: Wa ≈ 0.2 → 하드웨어 (실드 · 고저항판 = 인공 분극)', '범프 50 µm: Wa ≈ 500 → 첨가제 · 공급'], 't-sub', 28);
+    sl += para(988, ['웨이퍼 반지름 150 mm (300 mm 웨이퍼): Wa ≈ 0.2 → 하드웨어 (실드 · 고저항판 = 인공 분극)', '범프 50 µm: Wa ≈ 500 → 첨가제 · 공급'], 't-sub', 28);
     s += G(sl, only('slope'));
     return s;
   },
@@ -154,14 +158,14 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
       ${K.seg('sup', [['none', '없음'], ['sup', '있음'], ['shift', '옮기기만 (가상)']], 'none', '억제제')}
       <div class="p04-kp">${K.kpis([['구역', 'k-z', ''], ['금속 석출', 'k-m', '한계전류 대비'], ['전류효율', 'k-eff', '금속 몫'], ['전류 쏠림', 'k-sk', '짧은 길 ÷ 긴 길 (1 = 고름)']])}</div>
       <p class="pl-msg" data-o="msg"></p>
-      ${K.model('i_k = i₀(e^(η/b) − e^(−η/b)) + 억제막 몫, 1/i = 1/i_k + 1/iL, 수소 전류는 따로 더함. 쏠림은 액 저항이 1 : 3인 두 길에 같은 평균 전류를 흘려 비교한 값. 축 값은 상대값 · 예시이며 금속 · 액마다 다릅니다.')}</div>`;
+      ${K.model('η = b′·asinh(i_k/2i₀) + R_막·i (b′ = b/2.303, b는 「한 걸음 더」의 타펠 기울기), 1/i = 1/i_k + 1/iL, 수소 전류는 따로 더함. "옮기기만"은 i₀만 줄인 곡선. 쏠림은 액 저항이 1 : 3인 두 길에 같은 평균 전류를 흘려, 공급 한계는 빼고(반응 + 억제막 + 액 저항) 비교한 값 — 한계 근처(②~④)는 공급이 분포를 정해 계산하지 않음. 축 값은 상대값 · 예시이며 금속 · 액마다 다릅니다.')}</div>`;
   },
   mount(K, ctx){
     const {R, C, L, P, T, G, LB, tip} = K;
     let touched = false;
     const RX_ = 1100;                                          // 오른쪽 판 x (draw 와 같게)
     const st = {e: 0.16, a: 1, sup: 'none'};
-    const ein = ctx.card.querySelector('input[data-i=e]'), sbox = ctx.card.querySelector('.pl-seg[data-g="sup"]');
+    const ein = ctx.card.querySelector('input[data-i=e]'), ain = ctx.card.querySelector('input[data-i=a]'), sbox = ctx.card.querySelector('.pl-seg[data-g="sup"]');
     function render(){
       const cv = CV[st.sup], cn = st.sup === 'none' ? 'sup' : 'none', cc = CV[cn];
       // 구역 띠 (현재 조건에서 경계 계산)
@@ -185,25 +189,40 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
       const [qx, qy] = at(cc, 0.5);
       cv2 += G(P(pts(e => imOf(e, cc, st.a)), 'pl-cmp', tip(cn === 'sup' ? '억제제가 있을 때 — 오른쪽으로 옮겨지고 완만해진다(기울기가 눕는다)' : '억제제가 없을 때')) + LB(left ? T(qx + 16, qy + 30, cc.nm, 'pl-cmpt', 'start') : T(qx - 16, qy - 10, cc.nm, 'pl-cmpt', 'end')), K.on('kin'));
       cv2 += L(GX0, gy(st.a), GX1, gy(st.a), 's-dash') + LB(T(GX0 + 10, ly, '한계전류 iL', 't-warn', 'start'));
-      // 가장 고운 결정 근처 (반응 지배 안, 한계와 거리를 둔 곳)
-      const [fx, fy] = at(cv, 0.5);
-      cv2 += G(C(fx, fy, 8, 'p04-star') + LB(left ? T(fx - 18, fy - 8, '결정이 가장 고운 근처 ★', 't-sub', 'end') : T(fx + 18, fy + 30, '★ 결정이 가장 고운 근처', 't-sub', 'start')), K.only('kin'));
+      // 가장 고운 결정 근처 (반응 지배 안, 한계와 거리를 둔 곳) — 별 모양 표시
+      const [fx, fy] = at(cv, 0.5), sLbl = '결정이 가장 고운 근처';
+      const star = K.PG([...Array(10)].map((_, k) => { const a = -Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? 5 : 12; return [fx + rr * Math.cos(a), fy + rr * Math.sin(a)]; }), 'p04-star');
+      const sPos = left ? [fx - 20, fy - 8, 'end'] : [fx + 20, fy + 30, 'start'];
+      cv2 += G(star + LB(T(sPos[0], sPos[1], sLbl, 't-sub', sPos[2])), K.only('kin'));
       ctx.$('[data-v="curves"]').innerHTML = cv2;
       // 지금 점
       const r = model(st.e, cv, st.a), z = zone(r), x = gx(st.e), y = gy(r.i);
       let dt = L(x, GY0, x, y, 's-dash') + C(x, gy(r.im), 9, 'k-acc') + C(x, y, 13, ZN[z].c) + C(x, y, 22, 'co-ring');
       const eq0 = st.e < 0.0025;                                 // 미는 힘 0 = 평형
-      dt += LB(T(Math.min(x + 20, GX1 - 190), Math.max(GY1 + 50, y - 26), eq0 ? '평형 (알짜 전류 0)' : ZN[z].t, 't-warn', 'start'));
+      // 점 이름표: 한계전류 선 · 곡선 이름표 · 별 이름표와 겹치지 않는 자리를 고른다 (위 → 아래 → 더 위)
+      const dl = eq0 ? '평형 (알짜 전류 0)' : ZN[z].t, yL = gy(st.a);
+      const tw = (t, px) => [...t].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch) ? 1 : /[A-Za-z0-9 .,:;'()\-]/.test(ch) ? 0.55 : 0.85), 0) * px;
+      const bb = (tx, ty, t, px, an) => { const w = tw(t, px), x0 = an === 'end' ? tx - w : tx; return [x0 - 4, ty - px * 0.85 - 4, x0 + w + 4, ty + px * 0.25 + 4]; };
+      const hit = (p, q) => p[0] < q[2] && q[0] < p[2] && p[1] < q[3] && q[1] < p[3];
+      const obs = [[GX0, yL - 3, GX1, yL + 3], [GX0, GY1, GX1, GY1 + 24], bb(sPos[0], sPos[1], sLbl, 21, sPos[2]), [fx - 13, fy - 13, fx + 13, fy + 13],
+        left ? bb(mx - 16, my - 12, cv.nm, 23, 'end') : bb(mx + 16, my + 30, cv.nm, 23, 'start'), left ? bb(qx + 16, qy + 30, cc.nm, 21, 'start') : bb(qx - 16, qy - 10, cc.nm, 21, 'end')];
+      const lx = Math.min(x + 20, GX1 - tw(dl, 23) - 6);
+      const cand = [y - 26, y + 44, y - 64].map(v => Math.max(GY1 + 44, Math.min(GY0 - 14, v)));
+      const ty = cand.find(v => !obs.some(o => hit(bb(lx, v, dl, 23, 'start'), o))) || cand[0];
+      dt += LB(T(lx, ty, dl, 't-warn', 'start'));
       ctx.$('[data-v="dot"]').innerHTML = dt;
       ctx.$$('[data-v^="mbox"]').forEach((b, k) => b.setAttribute('class', k === z && !eq0 ? 'pl-box pl-on' : 'pl-box'));
-      // 두 길 비교 (같은 평균 금속 전류에서) — 한계 근처는 공급이 분포를 정하므로 계산하지 않는다
-      const iop = Math.max(0.02 * st.a, r.im), lim = z >= 2;
-      const [a1, a2] = lim ? [0, 0] : split(iop, cv, st.a), [b1, b2] = lim ? [0, 0] : split(iop, cc, st.a);
+      // 두 길 비교 (같은 평균 금속 전류에서) — ② 한계 근처부터는 공급(확산층)이 분포를 정하므로 계산하지 않는다
+      const iop = Math.max(1e-4 * st.a, r.im), lim = z >= 1;
+      const [a1, a2] = lim ? [0, 0] : split(iop, cv), [b1, b2] = lim ? [0, 0] : split(iop, cc);
       const sk = a2 > 0 ? a1 / a2 : 1, skc = b2 > 0 ? b1 / b2 : 1;
       let pa = '';
-      const toll = (x0, c) => { const h = 12 + 50 * Math.min(1, (c.b * 2 + c.rf * iop) / 0.24); return R(x0 - 44, 440 - h, 88, h, 'p04-toll', tip('톨게이트 = 표면 저항 (곡선이 완만할수록 높다)')); };
-      pa += toll(RX_ + 125, cv) + toll(RX_ + 355, cv) + LB(T(RX_ + 240, 432, '톨게이트', 't-dim'));
-      if (lim) pa += LB(K.TT(RX_ + 240, 470, ['한계 근처 — 공급(확산층)이 분포를 정한다', '→ 튀어나온 곳이 앞선다'], 't-warn', 'middle', 28));
+      // 톨게이트 높이 = 지금 전류에서의 표면 저항(dη/di). 전류를 올리면 낮아진다 → 쏠림이 커진다
+      const tref = dk(0.05, CV.none);
+      const toll = x0 => { const h = 12 + 50 * Math.min(1, dk(iop, cv) / tref); return R(x0 - 44, 440 - h, 88, h, 'p04-toll', tip('톨게이트 = 표면 저항 (dη/di). 곡선이 완만할수록 높고, 전류를 올리면 낮아진다')); };
+      pa += toll(RX_ + 125) + toll(RX_ + 355) + LB(T(RX_ + 240, 432, '톨게이트', 't-dim'));
+      if (eq0) pa += LB(T(RX_ + 240, 480, '평형 — 아직 흐르지 않는다', 't-warn'));
+      else if (lim) pa += LB(K.TT(RX_ + 240, 470, ['한계 근처 — 공급(확산층)이 분포를 정한다', '→ 튀어나온 곳이 앞선다'], 't-warn', 'middle', 28));
       else {
         const hA = 56 * a1 / iop, hB = 56 * a2 / iop;
         pa += R(RX_ + 85, 520 - hA, 80, hA, 'f-cu2', tip('짧은 길 쪽에 쌓인 양')) + R(RX_ + 315, 520 - hB, 80, hB, 'f-cu2', tip('긴 길 쪽에 쌓인 양'));
@@ -211,17 +230,21 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
         pa += LB(T(RX_ + 24, 620, `쏠림 ×${sk.toFixed(2)} (${cv.nm})`, 't-acc', 'start') + T(RX_ + 24, 652, `비교: ${cc.nm} ×${skc.toFixed(2)}`, 'pl-cmpt', 'start'));
       }
       ctx.$('[data-v="paths"]').innerHTML = pa;
+      const mp = r.im / r.iL * 100;
       ctx.out('k-z', eq0 ? '평형' : ZN[z].t);
-      ctx.out('k-m', `${Math.round(r.im / r.iL * 100)} %`);
+      ctx.out('k-m', mp > 0 && mp < 0.5 ? '1 % 미만' : `${Math.round(mp)} %`);
       ctx.out('k-eff', r.i < 1e-4 ? '–' : `${Math.round(r.im / r.i * 100)} %`);
       ctx.out('k-sk', eq0 ? '–' : lim ? '공급이 정함' : `×${sk.toFixed(2)}`);
+      const f2 = v => v.toFixed(2), eqs = f2(sk) === f2(skc) ? '=' : '≈';
       let msg = `<b>${ZN[z].t}</b> — ${ZN[z].d}.`;
       if (z === 0 && st.e < 0.04) msg = `<b>${ZN[0].t} — 아주 약하게 민 구간</b> — 전류가 미는 만큼 비례해서 늡니다. 이렇게 약하면 씨앗(핵)이 적어 결정이 굵어질 수 있습니다 (06장).`;
-      if (z === 2) msg += ' 이 구간은 곡선이 평평해 보여도 공급이 분포를 정해, 튀어나온 곳이 더 빨리 자랍니다.';
+      if (z === 1) msg += ' 여기부터는 곡선의 기울기보다 공급(확산층)이 분포를 정해, 튀어나온 곳 · 흐름이 센 곳이 앞섭니다. 더 밀어도 고르게 되지 않습니다.';
+      else if (z === 2) msg += ' 이 구간은 곡선이 평평해 보여도 공급이 분포를 정해, 튀어나온 곳이 더 빨리 자랍니다.';
       else if (z === 3) msg += ' 분포는 공급이 정하고, 거품이 붙은 자리는 덜 쌓입니다.';
-      else msg += st.sup === 'shift' ? ` 같은 전류에서 쏠림 ×${sk.toFixed(2)} = 억제제 없음 ×${skc.toFixed(2)} — 옆으로 옮기기만 해서는 고르게 되지 않습니다(기울기가 같다).`
-        : st.sup === 'sup' ? ` 같은 전류에서 쏠림 ×${sk.toFixed(2)} (없음 ×${skc.toFixed(2)}) — 억제제는 곡선을 옮기면서 눕혀서 쏠림을 줄입니다.`
-        : ` 같은 전류에서 쏠림 ×${sk.toFixed(2)} — 억제제를 켜면 곡선이 누워 ×${skc.toFixed(2)}로 줄어듭니다.`;
+      else if (st.sup === 'shift') msg += Math.abs(sk / skc - 1) < 0.015 ? ` 같은 전류에서 쏠림 ×${f2(sk)} ${eqs} 억제제 없음 ×${f2(skc)} — 옆으로 옮기기만 해서는 고르게 되지 않습니다(기울기가 같다).`
+        : ` 아직 전류가 아주 작습니다(i₀ 근처). 여기서는 쏠림 ×${f2(sk)} (없음 ×${f2(skc)})로 조금 달라 보이지만, 타펠 구역까지 밀면 같아집니다 — 옆으로 옮기기만 해서는 고르게 되지 않습니다(기울기가 같다).`;
+      else msg += st.sup === 'sup' ? ` 같은 전류에서 쏠림 ×${f2(sk)} (없음 ×${f2(skc)}) — 억제제는 곡선을 옮기면서 눕혀서 쏠림을 줄입니다. 전류를 올리면 표면 저항(톨게이트)이 낮아져 쏠림이 커집니다.`
+        : ` 같은 전류에서 쏠림 ×${f2(sk)} — 억제제를 켜면 곡선이 누워 ×${f2(skc)}로 줄어듭니다. 전류를 올리면 표면 저항(톨게이트)이 낮아져 쏠림이 커집니다.`;
       if (eq0) msg = '<b>평형</b> — 미는 힘이 0이면 알짜 전류도 0입니다. 녹는 반응과 쌓이는 반응이 같은 속도로 오갈 뿐입니다(교환전류). 실제 얇은 Cu 시드는 이때 산 · 녹은 산소에 조금씩 녹을 수 있어, 전류를 건 채 넣습니다(핫 엔트리).';
       ctx.q('[data-o=msg]').innerHTML = msg;
       ctx.refresh();
@@ -231,10 +254,14 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
     ctx.range('a', v => { st.a = v; render(); return '×' + v.toFixed(2); });
     ctx.seg('sup', v => { st.sup = v; render(); });
     ctx.card.querySelectorAll('input, .pl-seg button').forEach(i => i.addEventListener(i.tagName === 'INPUT' ? 'input' : 'click', () => { touched = true; }));
+    // 손대기 전에는 단계마다 예시 값으로. 발표 모드에서는 위젯을 만질 수 없으므로 늘 예시 값으로 되돌린다
     ctx.demo = sid => {
+      const ep = window.EngrPlating;
+      if (ep && ep.state.pres != null) touched = false;
       if (touched) return ctx.refresh();
       const [e, sp] = DEMO[sid] || DEMO.kin;
       ein.value = Math.round(e * 1000); st.e = e; ctx.out('e', Math.round(e * 1000) + ' mV');
+      ain.value = 1; st.a = 1; ctx.out('a', '×1.00');
       setSup(sp);
       render();
     };
@@ -252,10 +279,10 @@ const DEMO = {eq: [0, 'none'], kin: [0.16, 'none'], mt: [0.4, 'none'], h2: [0.59
     ]) + K.field([
       '실무에서는 <b>반응 지배 구역</b>, 한계전류보다 충분히 낮은 곳에서 운전합니다. 처리량을 늘리려고 전류를 올릴 때는 먼저 한계전류와의 거리를 봅니다.',
       '<b>균일도는 곡선의 기울기가 정합니다.</b> 기울기가 완만할수록 전류가 저항이 작은 길(가장자리 · 튀어나온 곳)로 쏠리지 않습니다. 억제제는 곡선을 옮기면서 눕혀서 돕습니다 — 모양 그대로 옆으로만 옮겨지면 거의 도움이 되지 않습니다.',
-      '<b>크기에 따라 주역이 다릅니다.</b> 웨이퍼 전체(150 mm)는 Wa가 1보다 작아 실드 · 고저항판(일부러 저항을 더한 "인공 분극") 같은 하드웨어가 맡고, 범프 하나(수십 µm)는 Wa가 매우 커서 첨가제 · 공급이 맡습니다 (<a data-go="wafer">07장</a>). 첨가제로 웨이퍼 중심–가장자리 차이를 잡으려 하지 않습니다.',
-      '첨가제 분석(CVS)은 이 곡선이 얼마나 옮겨 가고 기울어졌는지를 재는 일입니다 (<a data-go="bath">11장</a>).',
+      '<b>크기에 따라 주역이 다릅니다.</b> 웨이퍼 전체(반지름 150 mm, 300 mm 웨이퍼)는 Wa가 1보다 작아 실드 · 고저항판(일부러 저항을 더한 "인공 분극") 같은 하드웨어가 맡고, 범프 하나(수십 µm)는 Wa가 매우 커서 첨가제 · 공급이 맡습니다 (<a data-go="wafer.fix">07장</a>). 첨가제로 웨이퍼 중심–가장자리 차이를 잡으려 하지 않습니다.',
+      '첨가제 분석(CVS)은 이 곡선이 얼마나 옮겨 가고 기울어졌는지를 재는 일입니다 (<a data-go="bath.ana">11장</a>).',
       '같은 전류인데 전압이 오른다면, 곡선이 바뀌었거나(첨가제 · 농도 · 온도) 곡선 밖의 저항(접점 · 액 · 분리막)이 커진 것입니다.',
-      '웨이퍼가 액에 닿는 순간부터 작은 전류(전압)를 거는 핫 엔트리는 얇은 시드가 녹지 않게 하는 설정입니다 (<a data-go="tool">09장</a>).'
+      '웨이퍼가 액에 닿는 순간부터 작은 전류(전압)를 거는 핫 엔트리는 얇은 시드가 녹지 않게 하는 설정입니다 (<a data-go="tool.entry">09장</a>).'
     ]) + K.deep(`<p><b>버틀러-볼머 식</b> — 음극 전류를 (+), 음극 쪽으로 민 정도를 η(+)로 쓰면:</p>
       ${K.eq('i = i₀·[exp(α_c·Fη/RT) − exp(−α_a·Fη/RT)]')}
       <ul><li>η ≪ RT/F(25 °C에서 25.7 mV)이면 i ≈ i₀·Fη/RT — 비례. η ≳ 50~100 mV이면 한쪽 항만 남아 <b>η = a + b·log i</b> (타펠).</li>

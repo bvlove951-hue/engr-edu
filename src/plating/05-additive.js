@@ -35,7 +35,7 @@ function result(e){
     if (e.acc) return Object.assign(r, {n: '촉진제만 넣으면 "없음"과 거의 같습니다 — 걷어 낼 담요(억제제)가 없어 할 일이 적습니다.'});
     return Object.assign(r, {n: '첨가제가 없으면 조금만 밀어도 쉽게 쌓여 새 씨앗(핵)이 적고, 이온이 붙기 쉬운 자리(결정 끝 · 튀어나온 곳)에 계속 붙어 결정이 굵고 거칩니다. 범프처럼 전류밀도가 높으면 혹 · 탄 도금이 되기 쉽습니다.'});
   }
-  if (e.lev === 2) return {shape: 'dish', g: e.acc ? '아주 고움' : '고움', s: '광택 · 불순물↑', t: '가운데 오목 (접시)', v: '아주 큼', w: '잘 배달되는 가장자리가 지나치게 눌린다', h: '작음', sheen: e.acc ? 2 : 1, gn: e.acc ? 110 : 60, n: '평탄제가 너무 많으면 잘 배달되는 가장자리 · 모서리를 지나치게 눌러 가운데가 오목(접시)해지고, 막에 갇히는 불순물도 늘어납니다 (06장).'};
+  if (e.lev === 2) return {shape: 'dish', g: e.acc ? '아주 고움' : '고움', s: (e.acc ? '광택' : '반광') + ' · 불순물↑', t: '가운데 오목 (접시)', v: '아주 큼', w: '잘 배달되는 가운데가 지나치게 눌린다', h: '작음', sheen: e.acc ? 2 : 1, gn: e.acc ? 110 : 60, n: '평탄제가 너무 많으면 가장 잘 배달되는 가운데(흐름이 센 곳)를 지나치게 눌러, 덜 배달되는 PR 벽 쪽이 상대적으로 더 자라 가운데가 오목(접시)해지고, 막에 갇히는 불순물도 늘어납니다 (06장).'};
   if (e.acc && e.lev) return {shape: 'flat', g: '아주 고움', s: '광택', t: '평평', v: '큼', w: '고르게 — 볼록한 곳은 눌리고 오목한 곳은 풀린다', h: '작음', sheen: 2, gn: 110, n: '보통 쓰는 조합입니다. 억제제가 바탕을 깔고, 촉진제가 자리별로 억제를 풀고, 평탄제가 튀어나온 곳을 눌러 윗면이 평평하고 범프끼리 높이 차도 줄어듭니다.'};
   if (e.acc) return {shape: 'dome', g: '아주 고움', s: '광택', t: '볼록(돔)해지기 쉽다', v: '큼', w: '전류 · 흐름이 센 가운데 위쪽으로', h: '보통', sheen: 2, gn: 110, n: '결정이 아주 곱고 광택이 나지만, 윗면을 잡아 줄 평탄제가 없어 높은 전류에서는 가운데가 볼록(돔)해지기 쉽습니다.'};
   if (e.lev) return {shape: 'flatish', g: '고움', s: '반광 · 매끈', t: '평평에 가깝다', v: '큼', w: '볼록한 곳이 눌려 고르게', h: '작음', sheen: 1, gn: 60, n: '평탄제가 튀어나온 곳을 눌러 윗면이 평평해집니다. 촉진제가 없어 광택은 덜합니다.'};
@@ -64,7 +64,7 @@ function result(e){
     let s = '';
     s += R(40, 130, 1040, 990, 'pl-panel', {rx: 16}) + R(56, 146, 1008, SB - 120, 'f-bath');
     s += `<g data-v="surf"></g><g data-v="rate"></g>`;
-    s += G(LB(T(1046, 178, '화살표 = 자리별로 쌓이는 속도 (평균은 전류 × 시간이 정해 늘 같다)', 't-dim', 'end')), on('sup'));
+    s += G(LB(T(1046, 178, '화살표 = 자리별로 쌓이는 속도 (평균은 전류 × 시간이 정해 늘 같다)', 't-dim', 'end')), on('none'));
     // 억제제(PEG 계열 사슬) — 표면을 따라. Cl⁻(집게)는 따로 묶어 켜고 끈다
     let sup = '', cl = '';
     for (let x = XL + 8; x < XR - 60; x += 92){
@@ -85,13 +85,12 @@ function result(e){
     for (const x of [130, 470, 580, 930, 1010]) acc += C(x, yS(x) - 10, 7, 'f-acc');
     for (let k = 0; k < 6; k++) acc += C(180 + k * 150, 260 + (k % 3) * 90, 7, 'f-acc');
     s += G(acc, W(on('acc'), {class: 'm-acc'}, tip('촉진제(작은 분자) — 담요를 비집고 들어가 그 자리의 억제를 푼다')));
-    // 평탄제 — 볼록한 곳에 많이 (과다면 평평한 곳 · 오목한 곳에도)
+    // 평탄제 — 볼록한 곳에 많이 (과다면 평평한 곳에도. 오목한 곳은 배달이 약해 적게 붙는다)
     const levM = (x, y) => G(C(0, 0, 8, 'f-lev') + T(0, 5, '+', 'pl-levt'), {transform: `translate(${x} ${y})`});
     let lev = '', lev2 = '';
     for (let x = 676; x <= 846; x += 17) lev += levM(x, yS(x) - 12);
     for (const x of [150, 520, 980]) lev += levM(x, yS(x) - 34);
     for (const x of [100, 190, 430, 490, 560, 620, 900, 1000]) lev2 += levM(x, yS(x) - 12);
-    for (const x of [262, 300, 338]) lev2 += levM(x, SB + 46);
     s += G(lev, W(on('lev'), {class: 'm-lev'}, tip('평탄제(+ 전하) — 잘 배달되는 볼록한 곳에 많이 붙어 그곳을 늦춘다')));
     s += G(lev2, W(on('lev'), {class: 'm-lev2'}, tip('평탄제 과다 — 다른 곳까지 덮고 막에 더 많이 갇힌다')));
     // 분해 조각 (아래쪽 액 속)
@@ -108,7 +107,7 @@ function result(e){
     s += G(lv, only('lev'));
     // 소모 · 분해 상자 (wear)
     let wr = R(70, 196, 980, 290, 'p05-box', {rx: 12}) + T(92, 232, '줄어드는 길 — Ah 몫이 가장 크지만 그것만이 아니다', 't-warn', 'start');
-    [['① 전기(Ah) — 음극 · 양극 반응으로 바뀐다', 92, 270], ['② 시간 — 쉬는 동안 산소 · Cu⁺와 반응', 560, 270], ['③ 묻어 나감 (드래그아웃)', 92, 304], ['④ 막 속에 갇힘 (불순물 → 06장)', 560, 304]].forEach(([t, x, y]) => { wr += T(x, y, t, 't-sub', 'start'); });
+    [['① 전기(Ah) — 음극(캐소드) · 양극(애노드) 반응', 92, 270], ['② 시간 — 쉬는 동안 산소 · Cu⁺와 반응', 580, 270], ['③ 묻어 나감 (드래그아웃)', 92, 304], ['④ 막 속에 갇힘 (불순물 → 06장)', 580, 304]].forEach(([t, x, y]) => { wr += T(x, y, t, 't-sub', 'start'); });
     // SPS → MPS → PDS
     const chip = (x, w, t1, t2, c) => R(x, 336, w, 74, c, {rx: 10}) + T(x + w / 2, 366, t1, 't-lbl') + T(x + w / 2, 396, t2, 't-dim');
     wr += chip(92, 200, 'SPS', '넣는 꼴', 'p05-chip') + chip(400, 250, 'MPS', '일하는 꼴 (Cu⁺와 묶임)', 'p05-chip') + chip(758, 270, 'PDS', '효과 없음 · 쌓인다', 'p05-chip2');
@@ -127,13 +126,15 @@ function result(e){
       ${K.seg('lev', [['0', '없음'], ['1', '적정'], ['2', '과다']], '1', '평탄제')}
       <div class="p05-kp">${K.kpis([['결정', 'k-g', ''], ['표면', 'k-s', ''], ['윗면', 'k-t', ''], ['과전압', 'k-v', '같은 전류에서']])}</div>
       <p class="pl-msg" data-o="msg"></p>
-      ${K.model('산성 Cu · 범프 전류밀도에서 보통 보이는 경향의 예시입니다. 어느 경우나 평균 두께 · 속도는 같습니다(정전류). 스크롤 단계에서는 그 단계까지 소개된 첨가제만 적용됩니다.')}</div>`;
+      ${K.model('산성 Cu · 범프 전류밀도에서 보통 보이는 경향의 예시입니다. 어느 경우나 평균 두께 · 속도는 같습니다(정전류). 스크롤 단계에서는 그 단계까지 소개된 첨가제만 그리고, 버튼은 평탄제 단계부터 적용됩니다(누르면 그 단계로 갑니다).')}</div>`;
   },
   mount(K, ctx){
     const {R, C, L, P, T, G, LB, TT, rng, tip, wrap, voronoi, PG} = K;
     const tog = {sup: true, cl: true, acc: true, lev: 1};
     const box = ctx.card.querySelector('[data-g="adds"]');
-    function eff(){ const sid = ctx.step() || 'wear', k = ctx.ch._idx[sid]; return {sup: tog.sup && k >= 1, cl: tog.cl && k >= 1, acc: tog.acc && k >= 2, lev: k >= 3 ? tog.lev : 0}; }
+    // 스크롤 단계에서는 그 단계까지 소개된 첨가제만, 앞 단계(없음 · 억제제 · 촉진제)는 버튼과 상관없이 늘 같은 그림.
+    //  버튼은 평탄제 단계부터 듣는다
+    function eff(){ const sid = ctx.step() || 'wear', k = ctx.ch._idx[sid]; return {sup: k >= 1 && (k < 3 || tog.sup), cl: k >= 1 && (k < 3 || tog.cl), acc: k >= 2 && (k < 3 || tog.acc), lev: k >= 3 ? tog.lev : 0}; }
     function render(){
       const e = eff(), rs = result(e), g = rng(9), S = e.sup && e.cl;
       // 표면 (억제가 약하면 거칠다)
@@ -177,13 +178,13 @@ function result(e){
       ctx.$('[data-v="res"]').innerHTML = r;
       ctx.out('k-g', rs.g); ctx.out('k-s', rs.s.split(' · ')[0]); ctx.out('k-t', {rough: '울퉁불퉁', dome1: '살짝 볼록', dome: '볼록 (돔)', flatish: '거의 평평', flat: '평평', dish: '오목 (접시)'}[rs.shape]); ctx.out('k-v', rs.v);
       ctx.q('[data-o=msg]').innerHTML = rs.n;
-      // 꺼 둔 분자는 장면에서 감추고, Cl⁻가 없으면 담요가 들뜬다
-      ctx.$$('.m-sup').forEach(el => el.classList.toggle('hide', !tog.sup));
-      ctx.$$('.m-cl').forEach(el => el.classList.toggle('hide', !tog.cl));
-      ctx.$$('.m-acc').forEach(el => el.classList.toggle('hide', !tog.acc));
-      ctx.$$('.m-lev').forEach(el => el.classList.toggle('hide', !tog.lev));
-      ctx.$$('.m-lev2').forEach(el => el.classList.toggle('hide', tog.lev !== 2));
-      ctx.$$('.p05-sup').forEach(el => el.classList.toggle('p05-loose', !tog.cl));
+      // 이 단계에서 빠진 분자는 장면에서 감추고, Cl⁻가 없으면 담요가 들뜬다 (버튼이 아니라 eff 기준)
+      ctx.$$('.m-sup').forEach(el => el.classList.toggle('hide', !e.sup));
+      ctx.$$('.m-cl').forEach(el => el.classList.toggle('hide', !e.cl));
+      ctx.$$('.m-acc').forEach(el => el.classList.toggle('hide', !e.acc));
+      ctx.$$('.m-lev').forEach(el => el.classList.toggle('hide', !e.lev));
+      ctx.$$('.m-lev2').forEach(el => el.classList.toggle('hide', e.lev !== 2));
+      ctx.$$('.p05-sup').forEach(el => el.classList.toggle('p05-loose', e.sup && !e.cl));
       ctx.refresh();
     }
     const toLev = () => { if (ctx.step() && ctx.ch._idx[ctx.step()] < 3) ctx.go('lev'); };   // 모든 첨가제가 보이는 단계로
@@ -194,10 +195,21 @@ function result(e){
       toLev(); render();
     });
     ctx.seg('lev', (v, user) => { tog.lev = +v; if (user) toLev(); render(); });
+    // 발표 모드에서는 위젯을 만질 수 없으므로 기본 조합(모두 넣고 평탄제 적정)으로 되돌려 자막과 맞춘다
+    const levBox = ctx.card.querySelector('.pl-seg[data-g="lev"]');
+    ctx.reset = () => {
+      Object.assign(tog, {sup: true, cl: true, acc: true, lev: 1});
+      box.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'true'));
+      if (levBox) levBox.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === '1' ? 'true' : 'false'));
+    };
     ctx.render = render;
     render();
   },
-  onStep(K, ctx){ if (ctx.render) ctx.render(); },
+  onStep(K, ctx){
+    const ep = window.EngrPlating;
+    if (ctx.reset && ep && ep.state.pres != null) ctx.reset();
+    if (ctx.render) ctx.render();
+  },
   notes(K){
     return K.terms([
       ['ppm', '100만 분의 1. 묽은 수용액에서 1 ppm ≈ 1 mg/L'],
@@ -216,14 +228,14 @@ function result(e){
       '범프용 Cu 액도 억제 · 촉진 · 평탄 3종 계열이지만, 목적은 바닥부터 채우기가 아니라 "빠르게(높은 전류밀도) · 평평하게 · 고르게 · 불순물 적게"입니다. Ni · SnAg 액은 다른 종류(습윤제, 응력 조절제, 착화제, 결정 미세화제)를 씁니다 (<a data-go="chem">10장</a>).'
     ]) + K.deep(`<ul>
       <li><b>억제제</b>: 폴리에틸렌글리콜(PEG) · 폴리프로필렌글리콜 계열 고분자가 Cl⁻ · Cu⁺와 함께 표면에 막을 만들어 석출을 늦춥니다. Cl⁻가 다리 역할을 해서, 없으면 잘 붙지 않습니다. 곡선을 옮기면서 눕혀(04장) 전류를 고르게 폅니다.</li>
-      <li><b>촉진제</b>: SPS(bis(3-sulfopropyl) disulfide)는 음극에서 MPS(3-mercapto-1-propanesulfonate)로 바뀌며 Cu⁺와 묶여 촉진합니다 — 이것은 고장이 아니라 일하는 과정입니다. 양극 반응이나 녹아 있는 산소로 더 산화되면 PDS(프로판다이설폰산) 같은 효과 없는 조각이 되어 쌓입니다. MPS가 너무 많이 쌓이면 촉진이 지나쳐 모양이 나빠질 수 있습니다.</li>
+      <li><b>촉진제</b>: SPS(bis(3-sulfopropyl) disulfide)는 음극(캐소드, −)에서 MPS(3-mercapto-1-propanesulfonate)로 바뀌며 Cu⁺와 묶여 촉진합니다 — 이것은 고장이 아니라 일하는 과정입니다. 양극(애노드, +) 반응이나 녹아 있는 산소로 더 산화되면 PDS(프로판다이설폰산) 같은 효과 없는 조각이 되어 쌓입니다. MPS가 너무 많이 쌓이면 촉진이 지나쳐 모양이 나빠질 수 있습니다.</li>
       <li><b>평탄제</b>: 질소를 가진 양이온성 분자. 아주 묽어 공급(확산)에 좌우되므로, 확산 거리가 짧은 튀어나온 곳 · 흐름이 센 곳에 더 많이 도착합니다. 그래서 교반을 올리면 평탄제가 더 붙어 곡선이 오히려 더 밀리는(억제↑) 경우도 있습니다. 과다하면 접시 모양과 불순물 증가, 고온 보관 뒤 솔더 계면 보이드 증가가 보고됩니다.</li>
       <li><b>소모 경로</b>: ① 음극 · 양극 반응(Ah에 비례) ② 쉬는 동안 산소 · Cu⁺와의 반응(시간에 비례, 특히 촉진제) ③ 드래그아웃 ④ 막 속 혼입. 그래서 보충은 Ah 몫 + 시간 몫입니다.</li>
       <li><b>다마신 바닥 채우기</b>(참고): 좁은 구멍이 아래부터 차오르며 바닥 면적이 줄면, 바닥에 모인 촉진제의 표면 농도가 올라가 바닥이 더 빨리 자랍니다(곡률 효과). 범프는 이 "바닥부터 채우기"가 목적이 아닙니다.</li>
-      <li><b>CVS (cyclic voltammetric stripping)</b>: 회전하는 작은 백금 전극에서 전위를 오르내리며, 구리를 살짝 도금했다 벗겨 내기를 반복합니다. 벗겨질 때 나온 전기량(스트리핑 면적)이 크면 그사이 도금이 빨랐다는 뜻입니다 — 억제제가 많으면 작아지고, 촉진제가 많으면 커집니다. 표준 용액을 조금씩 더해 보는 방법(희석 적정 · 표준 첨가)으로 농도로 바꿉니다. 재는 것은 "효과"라서, 분해 조각(MPS 등)이나 PR에서 녹아 나온 유기물도 값에 섞일 수 있습니다.</li>
+      <li><b>CVS (cyclic voltammetric stripping)</b>: 회전하는 작은 백금 전극에서 전위를 오르내리며, 구리를 살짝 도금했다 벗겨 내기를 반복합니다. 벗겨질 때 나온 전기량(스트리핑 면적)이 크면 그사이 도금이 빨랐다는 뜻입니다 — 억제제가 많으면 작아지고, 촉진제가 많으면 커집니다. 표준 용액을 조금씩 더해 보는 방법(희석 적정 · 표준 첨가)으로 농도로 바꿉니다. 재는 것은 "효과"라서, 바뀐 꼴(MPS)이나 분해 조각(PDS 등), PR에서 녹아 나온 유기물도 값에 섞일 수 있습니다.</li>
       <li><b>회전 원판 전극 · 헐 셀</b>: 회전 원판 전극은 회전 속도로 확산층 두께를 정확히 정하는 실험 전극입니다(δ ∝ 회전 속도<sup>−½</sup>, CVS도 이 원리). 헐 셀은 비스듬한 판 하나에 낮은~높은 전류밀도를 한 번에 걸어, 탄 자리 · 무광 자리로 액 상태를 눈으로 빠르게 보는 시험입니다(웨이퍼 라인에서는 보조 도구).</li></ul>`);
   },
-  css: `.p05-box{fill:rgba(5,10,20,.9);stroke:rgba(148,163,184,.3);stroke-width:1.2}
+  css: `.p05-box{fill:#060b15;stroke:rgba(148,163,184,.3);stroke-width:1.2}
 .p05-chip{fill:rgba(251,191,36,.14);stroke:#fbbf24;stroke-width:1.4}
 .p05-chip2{fill:rgba(100,116,139,.25);stroke:#94a3b8;stroke-width:1.4;stroke-dasharray:5 4}
 .p05-sheen{fill:rgba(255,255,255,.30)}
