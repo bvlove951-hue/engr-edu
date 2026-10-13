@@ -528,11 +528,13 @@ function gotoChapter(cid, sid){
   const k = beats.findIndex(x => x.s === s);
   if (k >= 0) gotoBeat(k);
 }
-// 위젯이 그 장의 특정 단계를 보여 줄 때 (스크롤은 그대로)
+// 위젯이 그 장의 특정 단계를 보여 줄 때: 바로 그 단계로 바꾸고, 스크롤도 그 단계 자리로 옮겨 둘이 어긋나지 않게
 function goState(s){
   if (!(s in ST) || s === cur) return;
-  if (pres){ const k = beats.findIndex(x => x.s === s); if (k >= 0){ pres.k = k; presApply(); } return; }
+  const k = beats.findIndex(x => x.s === s);
+  if (pres){ if (k >= 0){ pres.k = k; presApply(); } return; }
   apply(s);
+  if (k >= 0){ const bt = beats[k]; measure(); scrollViewTo(bt.b.top + (bt.sub + 0.5) / bt.b.n * bt.b.h - anchorOffset(), true); }
 }
 function curBeat(){
   if (pres) return pres.k;
