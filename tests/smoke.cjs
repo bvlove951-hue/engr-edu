@@ -400,12 +400,16 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   };
   const plOrder = await page.evaluate(() => window.EngrPlating.order);
   let plReached = 0, plScene = 0;
+  let plStepVis = 0;
   for (const s of plOrder){
     if (await plAt(s) === s) plReached++;
+    // 그 단계에서 오른쪽 카드의 지금 단계 글이 화면 안에 있는지
+    if (s === 'intro' || await page.evaluate(() => { const V = document.getElementById('view-plating').getBoundingClientRect(), li = document.querySelector('#view-plating .jc.active .steps li.on'); if (!li) return false; const r = li.getBoundingClientRect(); return r.top >= V.top - 1 && r.bottom <= V.bottom + 1; })) plStepVis++;
     const curScene = await page.evaluate(() => [...document.querySelectorAll('#view-plating .pl-scene.cur')].map(g => g.dataset.ch).join());
     if (curScene === (s === 'intro' ? 'intro' : s.split('.')[0])) plScene++;
   }
   ok(plReached === plOrder.length && plScene === plOrder.length, `스크롤하면 ${plOrder.length}개 상태를 차례로 지나고 장면이 바뀐다 (${plReached} · ${plScene})`);
+  ok(plStepVis === plOrder.length, `모든 단계에서 지금 단계 글이 카드에 보인다 (${plStepVis}/${plOrder.length})`);
   await plAt('intro');
   await page.click('#view-plating .pl-scene.cur .pl-go[data-go="wafer"] .pl-tile');
   await page.waitForTimeout(1700);
