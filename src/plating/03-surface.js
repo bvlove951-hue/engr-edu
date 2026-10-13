@@ -47,7 +47,7 @@ const STAGE = r => r < 0.5 ? 0 : r < 1 ? 1 : r < 1.3 ? 2 : 3;
     for (const dx of [-1, 1]) z += `<circle r="6" class="k-e"><animateMotion dur="3.6s" repeatCount="indefinite" keyTimes="0;.33;1" keyPoints="0;1;1" calcMode="linear" path="M${xi + dx * 30},${SURF + 40} L${xi + dx * 6},${SURF - 6}"/></circle>`;
     // 설명 상자 (번호) + 장면 속 번호 표시 — 지시선이 글자를 가로지르지 않게
     z += R(536, 822, 404, 96, 'pl-box', {rx: 8});
-    z += LB(T(548, 844, '① 아주 얇은 층(약 1 nm)을 건너며 전자 2개를 받는다', 'pl-zt', 'start') + T(548, 870, '② 원자가 된 뒤 표면에서 조금 움직인다', 'pl-zt', 'start') + T(548, 896, '③ 자리 잡기 좋은 곳(계단이 꺾인 자리)에 앉는다', 'pl-zt', 'start'));
+    z += LB(T(548, 844, '① 아주 얇은 층(약 1 nm)을 건너며 전자 2개를 받는다', 'pl-zt', 'start') + T(548, 870, '② 원자가 된 뒤 표면에서 조금 움직인다', 'pl-zt', 'start') + T(548, 896, '③ 자리 잡기 좋은 곳(계단 모서리)에 앉는다', 'pl-zt', 'start'));
     z += LB(T(xi + 26, SURF - 40, '①', 'pl-zt', 'start') + T((xi + xk) / 2 + 20, SURF - 26, '②', 'pl-zt') + T(xk - 22, SURF - 26, '③', 'pl-zt'));
     z += LB(T(1076, SURF + 46, '↑ 이중층: 실제는 약 1 nm (크게 과장 · 실제 비율 아님)', 'pl-zt', 'end') + T(1076, SURF + 68, '확산층(수십 µm)보다 만 배 넘게 얇다', 'pl-zt', 'end'));
     s += G(z, only('surf'));
@@ -66,7 +66,7 @@ const STAGE = r => r < 0.5 ? 0 : r < 1 ? 1 : r < 1.3 ? 2 : 3;
       ${K.ctl('a', '교반 세기 (흐름 · 회전)', 0, 99, 1, 33)}${K.ctl('j', '전류밀도 (ASD)', 1, 40, 0.5, 5)}${K.ctl('c', 'Cu²⁺ 농도 (mol/L, 예시)', 0.2, 1.0, 0.05, 0.6)}
       ${K.kpis([['확산층 δ', 'k-d', ''], ['한계전류', 'k-il', 'ASD'], ['J / 한계', 'k-r', ''], ['표면 농도', 'k-cs', '벌크 대비']])}
       <p class="pl-msg" data-o="msg"></p>
-      ${K.model('δ = 60 µm / √(교반 배수), iL = n·F·D·C / δ, D = 7×10⁻¹⁰ m²/s (묽은 용액 25 °C 예시 · 실제 도금액은 5~7×10⁻¹⁰). 0.6 mol/L · δ 60 µm면 iL ≈ 13.5 ASD — 이 예시 조건에서 약 10~16 ASD입니다. 모양이 바뀌는 경계(J/iL 0.5 · 1 · 1.3)도 개념 예시이고, 실제 δ는 장비 · 흐름 방식 · 위치마다 다릅니다.')}</div>`;
+      ${K.model('δ = 60 µm / √(교반 배수), iL = n·F·D·C / δ, D = 7×10⁻¹⁰ m²/s (묽은 용액 25 °C 예시 · 실제 도금액은 5~7×10⁻¹⁰). 0.6 mol/L · δ 60 µm면 iL ≈ 13.5 ASD — 이 예시 조건에서 약 10~14 ASD입니다. 모양이 바뀌는 경계(J/iL 0.5 · 1 · 1.3)도 개념 예시이고, 실제 δ는 장비 · 흐름 방식 · 위치마다 다릅니다.')}</div>`;
   },
   mount(K, ctx){
     const {R, C, L, P, T, G, LB, tip, rng} = K;
@@ -109,7 +109,7 @@ const STAGE = r => r < 0.5 ? 0 : r < 1 ? 1 : r < 1.3 ? 2 : 3;
     }
     function render(){
       const m = mult(st.a), delta = D0 / Math.sqrt(m), iL = N * F * D * st.c * 1000 / (delta * 1e-6) / 100;   // ASD
-      const r = st.j / iL, cs = Math.max(0, 1 - r), top = SURF - delta * PXUM, k = STAGE(r);
+      const r = Math.round(st.j / iL * 100) / 100, cs = Math.max(0, 1 - r), top = SURF - delta * PXUM, k = STAGE(r);
       // 확산층 띠와 괄호. 띠 안의 흐름은 표면 쪽으로 갈수록 느리고 흐리다
       let slow = '';
       [[0.25, 'p03-s1'], [0.55, 'p03-s2']].forEach(([f, c]) => { const y = top + f * (SURF - top); slow += P(`M${X0 + 10},${y.toFixed(0)} C${X0 + 300},${(y - 12).toFixed(0)} ${X0 + 600},${(y + 12).toFixed(0)} ${X1 - 10},${y.toFixed(0)}`, 's-flow ' + c); });
@@ -134,7 +134,7 @@ const STAGE = r => r < 0.5 ? 0 : r < 1 ? 1 : r < 1.3 ? 2 : 3;
       const xs = GX0 + cs * (GX1 - GX0);
       let pf = P(`M${GX1},200 L${GX1},${top.toFixed(0)} L${xs.toFixed(0)},${SURF}`, 's-curve', tip('농도 — 벌크에서는 일정, 확산층 안에서 표면 쪽으로 줄어든다.\n표면 농도 = 벌크 × (1 − J/한계)'));
       pf += L(GX0, top, GX1 + 10, top, 's-dash') + LB(T(GX1 + 6, top - 10, 'δ', 't-warn', 'end'));
-      pf += C(xs, SURF, 8, cs <= 0 ? 'k-ng' : 'k-acc2') + LB(T(Math.max(GX0 + 70, xs), SURF - 20, cs <= 0 ? '표면 농도 0 — 한계' : `표면 ${Math.round(cs * 100)} %`, cs <= 0 ? 'pl-warn' : 't-warn', 'middle'));
+      pf += C(xs, SURF, 8, cs <= 0 ? 'k-ng' : 'k-acc2') + LB(T(GX1 + 30, SURF + 72, cs <= 0 ? '표면 농도 0 — 한계' : `표면 ${Math.round(cs * 100)} %`, cs <= 0 ? 'pl-warn' : 't-warn', 'end'));
       ctx.$('[data-v="prof"]').innerHTML = G(pf, K.on('diff'));
       // 한계 단계 ①: 모양 사다리 — 지금 어디인지 강조
       const TW = 240, TX = q => 70 + q * (TW + 10);
@@ -187,7 +187,7 @@ const STAGE = r => r < 0.5 ? 0 : r < 1 ? 1 : r < 1.3 ? 2 : 3;
       ['이동 (전기 이동)', '전기장이 이온을 끄는 것. 산이 많으면 전류 대부분을 H⁺ · 음이온이 나르고 Cu²⁺의 몫은 작다'],
       ['확산층 (δ)', '표면 앞에서 흐름이 점점 느려져 주로 확산으로 건너는 층. 보통 10~100 µm, 교반이 셀수록 얇다'],
       ['전기이중층', '금속 바로 앞, 이온 · 물 분자가 늘어선 약 1 nm 층. 전자를 주고받는 곳'],
-      ['한계전류밀도 (iL)', '표면 농도가 0이 될 때의 전류밀도. 공급이 낼 수 있는 최대 속도 (이 장의 예시 조건에서 약 10~16 ASD)'],
+      ['한계전류밀도 (iL)', '표면 농도가 0이 될 때의 전류밀도. 공급이 낼 수 있는 최대 속도 (이 장의 예시 조건에서 약 10~14 ASD)'],
       ['덴드라이트 · 노듈', '덴드라이트 = 나뭇가지처럼 뻗은 석출(한계에서). 노듈 = 표면의 작은 혹 — 현장에서는 액 속 입자가 씨앗인 경우가 많다']
     ]) + K.field([
       '교반(흐름 · 회전 · 패들)이 달라지면 δ가 달라지고, 한계전류뿐 아니라 <b>합금 조성</b>(SnAg의 Ag)도 달라집니다 → <a data-go="chem.comp">10장</a>. 장비마다 흐름 방식이 다르면 같은 레시피도 결과가 다를 수 있습니다.',
@@ -199,7 +199,7 @@ const STAGE = r => r < 0.5 ? 0 : r < 1 ? 1 : r < 1.3 ? 2 : 3;
       ${K.eq('i = n·F·D·(C_액 − C_표면) / δ')}${K.eq('C_표면 = 0 → iL = n·F·D·C_액 / δ')}
       ${K.eq('C_표면 = C_액 × (1 − i / iL)')}
       <ul><li>전류를 한계의 절반으로 흘리면 표면 농도는 액의 절반입니다. 위젯의 '표면 농도'가 이 식입니다.</li>
-      <li>예: Cu²⁺ 0.6 mol/L, D = 7×10⁻¹⁰ m²/s(묽은 용액 25 °C 예시), δ = 60 µm → iL ≈ 2 × 96485 × 7×10⁻¹⁰ × 600 / 6×10⁻⁵ ≈ 1,350 A/m² ≈ 13.5 ASD. 실제 도금액은 진하고 끈적해 D가 5~7×10⁻¹⁰이라, 이 예시 조건에서 약 10~16 ASD입니다. δ가 20 µm면 약 40 ASD, 10 µm면 약 80 ASD(D 7×10⁻¹⁰).</li>
+      <li>예: Cu²⁺ 0.6 mol/L, D = 7×10⁻¹⁰ m²/s(묽은 용액 25 °C 예시), δ = 60 µm → iL ≈ 2 × 96485 × 7×10⁻¹⁰ × 600 / 6×10⁻⁵ ≈ 1,350 A/m² ≈ 13.5 ASD. 실제 도금액은 진하고 끈적해 D가 5~7×10⁻¹⁰이라, 이 예시 조건에서 약 10~14 ASD입니다. δ가 20 µm면 약 40 ASD, 10 µm면 약 80 ASD(D 7×10⁻¹⁰).</li>
       <li><b>δ와 교반</b> — 회전 원판 전극(RDE)에서는 δ ≈ 1.61·D^⅓·ν^⅙·ω^−½, 즉 회전 속도의 제곱근에 반비례합니다(예: 100 rpm 약 44 µm, 1000 rpm 약 14 µm). 그래서 위젯도 √로 줄였습니다. 첨가제 분석(CVS)도 이 전극을 씁니다(→ <a data-go="bath.ana">11장</a>). 아주 세게 돌려도 δ는 수 µm보다 얇아지기 어렵습니다.</li>
       <li><b>Cu²⁺는 전자 2개를 한꺼번에 받지 않습니다</b> — 먼저 1개를 받아 Cu⁺가 되고(느린 단계), 다시 1개를 받아 Cu가 됩니다. 원자가 된 뒤에는 평평한 면(테라스)을 옮겨 다니다 계단을 만나고, 계단이 꺾인 자리(킹크)에 앉습니다 — 이웃이 가장 많아 가장 안정한 자리입니다(→ <a data-go="grain.nuc">06장</a>).</li>
       <li><b>전기이중층</b>은 진한 액에서 약 1 nm 이하(물 분자 몇 개 두께)로, 확산층보다 만~십만 배 얇습니다. 이 얇은 층에 수백 mV가 걸려 전기장이 아주 세고, 이 센 전기장이 전자를 건네는 반응을 밀어 줍니다(→ <a data-go="overpot">04장</a>).</li>
@@ -213,7 +213,7 @@ const STAGE = r => r < 0.5 ? 0 : r < 1 ? 1 : r < 1.3 ? 2 : 3;
 .pl-svg .p03-s1{opacity:.5;animation-duration:2.2s}
 .pl-svg .p03-s2{opacity:.28;animation-duration:4.5s}
 .p03-cu{fill:#d4874a;stroke:#f3b07a;stroke-width:1}
-.p03-pan{fill:rgba(6,12,24,.9);stroke:rgba(148,163,184,.3);stroke-width:1.2}
+.p03-pan{fill:#060c18;stroke:rgba(148,163,184,.3);stroke-width:1.2}
 .p03-pow{fill:#4a2f1f;stroke:#a0703f;stroke-width:1}
 .p03-h2{fill:rgba(226,232,240,.30);stroke:#e2e8f0;stroke-width:1.4;stroke-dasharray:6 4}
 .p03-il{stroke:#fbbf24;stroke-width:3;stroke-dasharray:6 5}

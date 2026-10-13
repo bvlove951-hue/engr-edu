@@ -64,14 +64,14 @@ const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor
     calc += `<g data-v="ions"></g>`;
     let bub = '';
     for (let k = 0; k < 9; k++) bub += `<g data-v="b${k}">${K.bubble(OX - 100 + k * 25, -6, 6 + (k % 3) * 2, 360, 2.4 + (k % 4) * 0.3, k * 0.29)}</g>`;
-    calc += `<g data-v="bubs" transform="translate(0 ${BASE - 100})">${bub}</g>`;
+    calc += `<clipPath id="pl2-bp"><rect x="960" y="236" width="620" height="854"/></clipPath><g clip-path="url(#pl2-bp)"><g data-v="bubs" transform="translate(0 ${BASE - 100})">${bub}</g></g>`;
     // 눈금 (µm)
     let sc = L(992, PRT - 60, 992, BASE, 's-edge');
     for (let u = 0; u <= PR_UM + 5; u += 10) sc += L(986, BASE - u * PX, 998, BASE - u * PX, 's-edge') + T(980, BASE - u * PX + 7, String(u), 't-dim', 'end');
     calc += LB(sc + T(980, PRT - 70, 'µm', 't-dim', 'end'));
-    calc += LB(T(1006, PRT - 18, `PR ${PR_UM} µm (예시)`, 't-dim', 'start') + T(OX - OW / 2 - 70, PRT + 50, 'PR', 't-lbl') + T(OX + OW / 2 + 70, PRT + 50, 'PR', 't-lbl'));
+    calc += LB(T(OX - OW / 2 - 70, PRT + 84, `${PR_UM} µm`, 't-dim') + T(OX - OW / 2 - 70, PRT + 110, '(예시)', 't-dim') + T(OX - OW / 2 - 70, PRT + 50, 'PR', 't-lbl') + T(OX + OW / 2 + 70, PRT + 50, 'PR', 't-lbl'));
     calc += T(OX, BASE + 112, '', 'pl-warn', 'middle', {'data-v': 'warn'});
-    calc += G(LB(T(OX, 208, '거품 = 수소 · 효율을 낮추면 늘어난다 (산성 Cu는 거의 없다)', 't-dim')), only('eff'));
+    calc += G(LB(T(OX, 206, '', 't-sub', 'middle', {'data-v': 'efft'}) + T(OX, 232, '(산성 Cu는 실제로 거의 100 %)', 't-dim')), only('eff'));
     s += G(calc, on('q', 'recipe'));
 
     /* ---- 레시피 단계: 웨이퍼 윗면 · 공식 · 좁은 컵 · 여러 단계 ---- */
@@ -110,7 +110,7 @@ const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor
     rc += cup(430, 120, 120, '열린 면적 절반', '높이 2배');
     // 튄 물 = 곁반응 (높이에 보태지지 않음)
     for (let k = 0; k < 4; k++) rc += C(566 + k * 16, 914 - k * 10 + (k % 2) * 8, 4 + (k % 2), 'p02-drop');
-    rc += T(640, 880, '튄 물 = 곁반응(수소)', 't-dim', 'start') + T(640, 906, '→ 높이에 안 보탬', 't-dim', 'start');
+    rc += TT(636, 880, ['튄 물(수소)', '= 높이에 안 보탬'], 't-dim', 'start', 26);
     rc += T(420, 1098, '컵 바닥 = PR이 열린 면적 · 물 = 전기량', 't-dim');
     // ④ 레시피는 보통 여러 단계 (예시 · Cu)
     rc += R(830, 570, 730, 542, 'pl-panel', {rx: 16}) + T(856, 612, '레시피는 보통 여러 단계 (예시 · Cu)', 't-acc', 'start');
@@ -152,7 +152,8 @@ const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor
       $('e').textContent = `${q.toFixed(1)} ÷ 96,485 = ${sci(ne)} mol/cm²`;
       $('a-sub').textContent = `${M.ion} 하나에 전자 ${M.n}개 → n = ${M.n}`;
       $('a').textContent = `${sci(ne)} ÷ ${M.n} = ${sci(na)} mol/cm²`;
-      $('th-sub').textContent = `M = ${M.M} g/mol, ρ = ${M.rho} g/cm³ (${M.nm})`;
+      $('th-sub').textContent = `M = ${M.M} g/mol, ρ = ${M.rho} g/cm³ (${m === 'sn' ? 'Sn 값으로 계산' : M.nm})`;
+      $('efft').textContent = `효율 ${Math.round(eff * 100)} % → ${Math.round((1 - eff) * 100)} %는 수소 거품 등으로 샌다`;
       $('th').textContent = `${sci(na)} × ${M.M} ÷ ${M.rho} = ${th.toFixed(1)} µm`;
       $('real').textContent = `${th.toFixed(1)} µm × ${Math.round(eff * 100)} % = ${real.toFixed(1)} µm`;
       ctx.$('[data-v="ion"]').innerHTML = K.ion(794, 552, m);
@@ -160,33 +161,37 @@ const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor
       const hpx = Math.min(real, PR_UM) * PX, col = ctx.$('[data-v="col"]'), cap = ctx.$('[data-v="cap"]');
       col.setAttribute('y', BASE - hpx); col.setAttribute('height', hpx); col.setAttribute('class', M.cls);
       cap.setAttribute('class', M.cls);
-      const over = Math.max(0, real - PR_UM), c = Math.min(over * PX, 170);
+      const over = Math.max(0, real - PR_UM), c = Math.min(over * PX, 90);
       cap.setAttribute('d', over > 0 ? `M${OX - OW / 2},${PRT} L${OX - OW / 2 - c},${PRT} Q${OX - OW / 2 - c},${PRT - c} ${OX},${PRT - c * 1.05} Q${OX + OW / 2 + c},${PRT - c} ${OX + OW / 2 + c},${PRT} L${OX + OW / 2},${PRT} Z` : '');
       const top = BASE - hpx - (over > 0 ? c : 0);
       let fall = '';
-      for (let k = 0; k < 6; k++){ const x0 = OX - 60 + k * 24, x1 = OX - 50 + k * 20, y1 = Math.max(240, top - 24); fall += K.ionPath(`M${x0},200 Q${x0 + (k % 2 ? 46 : -46)},${((200 + y1) / 2).toFixed(0)} ${x1},${y1}`, m, 2.6, k * 0.43, null); }
+      for (let k = 0; k < 6; k++){ const x0 = OX - 60 + k * 24, x1 = OX - 50 + k * 20, y1 = Math.max(300, top - 24); fall += K.ionPath(`M${x0},262 Q${x0 + (k % 2 ? 46 : -46)},${((262 + y1) / 2).toFixed(0)} ${x1},${y1}`, m, 2.6, k * 0.43, null); }
       ctx.$('[data-v="ions"]').innerHTML = fall;
       ctx.$('[data-v="bubs"]').setAttribute('transform', `translate(0 ${top})`);
       const nb = Math.round(K.clamp((1 - eff) / 0.3) * 9);
       for (let k = 0; k < 9; k++) ctx.$(`[data-v="b${k}"]`).style.display = k < nb ? '' : 'none';
       ctx.$('[data-v="warn"]').textContent = over > 0 ? `⚠ PR 높이를 넘었습니다 → 옆으로 퍼진 버섯 모양 (오버 도금)` : `범프 높이 ${real.toFixed(1)} µm / PR ${PR_UM} µm`;
       const v1 = 1 / 100 * 60 / F / M.n * M.M / M.rho * 1e4;           // 1 ASD, 효율 100 %일 때 µm/분
-      ctx.q('[data-o=msg]').innerHTML = `${M.eff}. 1 ASD당 ${v1.toFixed(3)} µm/분 (효율 100 %). 1 Ah마다 ${M.nm === 'SnAg' ? 'Sn' : M.nm} 약 <b>${M.gAh.toFixed(2)} g</b>이 액에서 빠져 쌓입니다.`;
+      ctx.q('[data-o=msg]').innerHTML = `${M.eff}. 1 ASD당 ${v1.toFixed(3)} µm/분 (효율 100 %). 1 Ah마다 ${M.nm === 'SnAg' ? 'Sn' : M.nm} 약 <b>${M.gAh.toFixed(2)} g</b>이 웨이퍼에 쌓입니다 (가용성 양극이면 양극이 그만큼 녹아 채우고, 불용성이면 약품으로 보충).`;
       // 레시피: 전류 = 목표 전류밀도 × 열린 면적
-      const f = (st.f || 20) / 100, A = WAF * f, I = J * A, ah = I * tm / 60, grams = ah * M.gAh * eff;
+      const F0 = st.f || 20, half = F0 % 2 ? (F0 / 2).toFixed(1) : String(F0 / 2);
+      const f = F0 / 100, A = WAF * f, I = J * A, ah = I * tm / 60, grams = ah * M.gAh * eff;
       ctx.out('k-th', `${real.toFixed(1)} µm`); ctx.out('k-v', v.toFixed(3)); ctx.out('k-q', q.toFixed(0)); ctx.out('k-i', I.toFixed(1));
-      ctx.q('[data-o=amp]').innerHTML = `300 mm 웨이퍼(약 ${WAF} dm²)에서 개구율 ${Math.round(f * 100)} % → 열린 면적 ${A.toFixed(2)} dm² → 레시피 전류 ≈ <b>${I.toFixed(1)} A</b>. 같은 전류를 개구율 ${Math.round(f * 50)} % 제품에 흘리면 전류밀도가 2배 → <b>2배 빨리</b> 자랍니다.`;
+      ctx.q('[data-o=amp]').innerHTML = `300 mm 웨이퍼(약 ${WAF} dm²)에서 개구율 ${Math.round(f * 100)} % → 열린 면적 ${A.toFixed(2)} dm² → 레시피 전류 ≈ <b>${I.toFixed(1)} A</b>. 같은 전류를 개구율 ${half} % 제품에 흘리면 전류밀도가 2배 → <b>2배 빨리</b> 자랍니다.`;
       const rr = WS * Math.sqrt(f / Math.PI);                            // 점 넓이 비율 = 개구율
       ctx.$$('[data-v="holes"] circle').forEach(e => e.setAttribute('r', rr.toFixed(2)));
       $('wlbl').textContent = `300 mm 웨이퍼 ≈ ${WAF} dm² · 개구율 ${Math.round(f * 100)} %`;
       $('r-a').textContent = `A = ${WAF} dm² × ${Math.round(f * 100)} % = ${A.toFixed(2)} dm²`;
       $('r-i').textContent = `I = ${J} ASD × ${A.toFixed(2)} dm² = ${I.toFixed(1)} A`;
-      $('r-x').textContent = `같은 ${I.toFixed(1)} A를 개구율 ${Math.round(f * 50)} % 제품에 → ${(J * 2).toFixed(1)} ASD → 2배 빨리`;
-      $('r-ah').textContent = `${I.toFixed(1)} A × ${tm}분 = ${ah.toFixed(2)} Ah → ${M.nm === 'SnAg' ? 'Sn' : M.nm} 약 ${grams.toFixed(2)} g이 액에서 빠진다`;
+      $('r-x').textContent = `같은 ${I.toFixed(1)} A를 개구율 ${half} % 제품에 → ${(J * 2).toFixed(1)} ASD → 2배 빨리`;
+      $('r-ah').textContent = `${I.toFixed(1)} A × ${tm}분 = ${ah.toFixed(2)} Ah → ${M.nm === 'SnAg' ? 'Sn' : M.nm} 약 ${grams.toFixed(2)} g이 웨이퍼에 쌓인다`;
       $('r-g').textContent = `(${M.nm === 'SnAg' ? 'Sn' : M.nm} ${M.gAh.toFixed(2)} g/Ah × 효율 ${Math.round(eff * 100)} % · 웨이퍼 한 장 · 한 단계)`;
     };
+    let effTouched = false;
+    if (effIn) effIn.addEventListener('input', () => { effTouched = true; });
     ctx.seg('m', (v, user) => {
       m = v;
+      if (user) effTouched = true;
       // 금속을 바꾸면 효율 기본값(예시)도 바꾼다
       if (user && effIn){ effIn.value = MET[m].e0; st.eff = MET[m].e0; ctx.out('eff', MET[m].e0 + ' %'); }
       upd();
@@ -198,7 +203,14 @@ const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor
     // 개구율을 손으로 움직이면 레시피 단계를 보여 준다
     const fin = ctx.card.querySelector('input[data-i=f]');
     if (fin) fin.addEventListener('input', () => { const sid = ctx.step(); if (sid && sid !== 'recipe') ctx.go('recipe'); });
+    // 효율 단계: 손대지 않았으면 예시로 90 %를 보여 준다 (곁반응이 눈에 보이게)
+    ctx.demo = sid => {
+      if (effTouched || !effIn) return;
+      const w = sid === 'eff' ? 90 : MET[m].e0;
+      if (st.eff !== w){ st.eff = w; effIn.value = w; ctx.out('eff', w + ' %'); upd(); }
+    };
   },
+  onStep(K, ctx, sid){ if (ctx.demo) ctx.demo(sid); },
   notes(K){
     return K.terms([
       ['전기량 (C, 쿨롱)', '전류(A) × 시간(s). 1 A를 1초 흘리면 1 C'],
@@ -219,8 +231,8 @@ const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor
       <li><b>합금(SnAg)</b>은 금속마다 몫(부분 전류)을 나눠 계산합니다: i = i(Sn) + i(Ag). Ag 2.5 wt%는 전기의 약 1.4 %만 씁니다. 그래서 Ag 함량은 전기량보다 Ag 공급(확산)에 좌우됩니다 (→ <a data-go="chem.comp">10장</a>).</li>
       <li><b>전기량당 금속 소모량</b> — Cu 1.19 · Ni 1.10 · Sn 2.21 · Ag 4.03 g/Ah (= M ÷ (n × 26.8 Ah/mol)). 가용성 양극이면 양극이 이만큼 닳고, 불용성 양극이면 이만큼을 약품으로 보충합니다 (→ <a data-go="bath.metal">11장</a>).</li>
       <li>효율을 깎는 것은 수소만이 아닙니다. 액에 녹은 산소의 환원, Sn⁴⁺ → Sn²⁺처럼 한 단계만 일어나는 반응도 전기를 조금 씁니다.</li>
-      <li>개구율이 작을수록 같은 전류에서 국부 전류밀도가 올라갑니다. 그러면 한계전류(→ <a data-go="surface.limit">03장</a>)에 가까워져 거칠어짐 · 조성 변화 · 탄 도금 위험도 커집니다. 제품이 바뀔 때 전류를 면적 비례로만 바꾸면 안 되는 이유입니다.</li>
-      <li>효율 100 % 계산값은 <b>상한</b>입니다. 실측이 그보다 크면 계측 · 면적 · 전류 중 무언가가 틀렸습니다.</li>
+      <li>개구율이 작을수록 같은 전류에서 국부 전류밀도가 올라갑니다. 그러면 한계전류(→ <a data-go="surface.limit">03장</a>)에 가까워져 거칠어짐 · 조성 변화 · 탄 도금 위험도 커집니다. 그래서 제품이 바뀌면 전류를 열린 면적에 맞춰 다시 계산합니다. 다만 같은 평균 전류밀도라도 패턴 밀도 · 구멍 깊이에 따라 범프마다 국부 전류밀도와 공급이 달라서(→ <a data-go="pattern">08장</a>), 면적 환산 뒤에도 첫 웨이퍼의 높이 · 모양을 확인합니다.</li>
+      <li>효율 100 % 계산값은 웨이퍼 평균의 <b>상한</b>입니다. 웨이퍼 평균(또는 무게 증가)이 이보다 크면 계측 · 면적 · 전류 중 무언가가 틀렸습니다. 범프 하나 · 한 위치는 전류 분포 때문에 평균보다 클 수 있습니다(→ <a data-go="wafer">07</a> · <a data-go="pattern">08장</a>).</li>
       <li>다른 계산기: <a href="#go-edu-3">03 공학의 기초 7절</a>의 도금 두께 계산기.</li></ul>`);
   },
   css: `.pl-svg .p02-eq{font-family:var(--mono) !important;font-size:32px;font-weight:900;fill:#7dd3fc !important}
