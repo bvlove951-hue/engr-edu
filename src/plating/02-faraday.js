@@ -4,8 +4,8 @@ const F = 96485;
 // 금속별 상수: 몰질량 M(g/mol), 이온 전하수 n, 밀도 ρ(g/cm³), 효율 기본값(예시 %), 소모량 g/Ah
 const MET = {
   cu: {nm: 'Cu', ion: 'Cu²⁺', M: 63.55, n: 2, rho: 8.96, cls: 'f-cu2', e0: 100, gAh: 1.19, eff: '산성 Cu: 보통 98~100 %'},
-  ni: {nm: 'Ni', ion: 'Ni²⁺', M: 58.69, n: 2, rho: 8.91, cls: 'f-ni', e0: 96, gAh: 1.10, eff: 'Ni(설파민산): 보통 95~99 % — 수소가 조금씩 함께 나온다'},
-  sn: {nm: 'SnAg', ion: 'Sn²⁺', M: 118.71, n: 2, rho: 7.29, cls: 'f-sn2', e0: 95, gAh: 2.21, eff: 'SnAg(MSA): 보통 90 % 이상 — Sn 기준으로 계산 (Ag는 전기의 약 1~2 %)'}
+  ni: {nm: 'Ni', ion: 'Ni²⁺', M: 58.69, n: 2, rho: 8.91, cls: 'f-ni', e0: 96, gAh: 1.10, eff: 'Ni(설파민산): 보통 95~99 % — 수소가 조금씩 함께 나옵니다'},
+  sn: {nm: 'SnAg', ion: 'Sn²⁺', M: 118.71, n: 2, rho: 7.29, cls: 'f-sn2', e0: 95, gAh: 2.21, eff: 'SnAg(MSA): 보통 90 % 이상 — Sn 기준으로 계산 (Ag는 전기의 약 1 % 안팎 — Ag 1.5~2.5 wt% ≈ 전기의 0.8~1.4 %)'}
 };
 const PR_UM = 60, PX = 10;                 // PR 높이(예시) 60 µm, 1 µm = 10 px
 const OX = 1270, OW = 250, BASE = 1000, PRT = BASE - PR_UM * PX;
@@ -172,7 +172,7 @@ const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor
       for (let k = 0; k < 9; k++) ctx.$(`[data-v="b${k}"]`).style.display = k < nb ? '' : 'none';
       ctx.$('[data-v="warn"]').textContent = over > 0 ? `⚠ PR 높이를 넘었습니다 → 옆으로 퍼진 버섯 모양 (오버 도금)` : `범프 높이 ${real.toFixed(1)} µm / PR ${PR_UM} µm`;
       const v1 = 1 / 100 * 60 / F / M.n * M.M / M.rho * 1e4;           // 1 ASD, 효율 100 %일 때 µm/분
-      ctx.q('[data-o=msg]').innerHTML = `${M.eff}. 1 ASD당 ${v1.toFixed(3)} µm/분 (효율 100 %). 1 Ah마다 ${M.nm === 'SnAg' ? 'Sn' : M.nm} 약 <b>${M.gAh.toFixed(2)} g</b>이 웨이퍼에 쌓입니다 (가용성 양극이면 양극이 그만큼 녹아 채우고, 불용성이면 약품으로 보충).`;
+      ctx.q('[data-o=msg]').innerHTML = `${M.eff}. 1 ASD당 ${v1.toFixed(3)} µm/분 (효율 100 %). 1 Ah마다 ${M.nm === 'SnAg' ? 'Sn' : M.nm} 약 <b>${M.gAh.toFixed(2)} g</b>이 웨이퍼에 쌓입니다. 가용성 양극(애노드, +)이면 양극이 그만큼 녹아 채우고, 불용성이면 약품으로 보충합니다.`;
       // 레시피: 전류 = 목표 전류밀도 × 열린 면적
       const F0 = st.f || 20, half = F0 % 2 ? (F0 / 2).toFixed(1) : String(F0 / 2);
       const f = F0 / 100, A = WAF * f, I = J * A, ah = I * tm / 60, grams = ah * M.gAh * eff;
@@ -222,7 +222,7 @@ const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor
       ['개구율', '웨이퍼 면적 가운데 PR이 열려 도금되는 면적의 비율']
     ]) + K.field([
       '<b>레시피 전류 = 목표 전류밀도 × 열린 면적</b>입니다. 실측 두께가 계산보다 작으면, 효율을 의심하기 전에 <b>면적 정보(마스크 · 개구율)</b>부터 확인합니다.',
-      '<b>µm/Ah 추세</b> — 실측 두께 ÷ 패러데이 예측(또는 Ah당 µm)을 추세로 봅니다. 이 값이 움직이면 효율 변화(Sn⁴⁺ 증가, Ni pH 변화), 열린 면적 입력 오류, 계측 이상 중 하나입니다. 한 번만 다르면 계측부터 다시 봅니다.',
+      '<b>효율 추세 (µm/Ah)</b> — lot마다 "실측 두께 ÷ 계산 두께(패러데이 예측)"를 기록해 추세로 봅니다(같은 제품 · 같은 열린 면적이면 Ah당 µm로 봐도 같은 뜻입니다). 이 값이 움직이면 효율 변화(Sn⁴⁺ 증가, Ni pH 변화), 열린 면적 입력 오류, 계측 이상 중 하나입니다. 한 번만 다르면 계측부터 다시 봅니다.',
       '레시피는 보통 <b>여러 단계 전류</b>로 짭니다. 흔히 처음은 낮은 전류로 고르게 덮고, 다음에 본 전류로 빠르게 쌓습니다. 단계마다 전류 × 시간을 더하면 전체 두께입니다.',
       '단위 실수가 가장 흔합니다. "1분에 22 µm" 같은 값이 나오면 ASD와 A/cm²를 섞었는지 먼저 봅니다 (<a href="#go-edu-1">01 엔지니어의 마인드</a> 원칙 2).'
     ]) + K.deep(`<p>한 줄 공식: <b>두께 = J · t · M · 효율 / (n · F · ρ)</b>, 속도 v = J·M/(n·F·ρ).</p>

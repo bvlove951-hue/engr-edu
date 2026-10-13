@@ -35,7 +35,7 @@ function result(e){
     if (e.acc) return Object.assign(r, {n: '촉진제만 넣으면 "없음"과 거의 같습니다 — 걷어 낼 담요(억제제)가 없어 할 일이 적습니다.'});
     return Object.assign(r, {n: '첨가제가 없으면 조금만 밀어도 쉽게 쌓여 새 씨앗(핵)이 적고, 이온이 붙기 쉬운 자리(결정 끝 · 튀어나온 곳)에 계속 붙어 결정이 굵고 거칩니다. 범프처럼 전류밀도가 높으면 혹 · 탄 도금이 되기 쉽습니다.'});
   }
-  if (e.lev === 2) return {shape: 'dish', g: e.acc ? '아주 고움' : '고움', s: (e.acc ? '광택' : '반광') + ' · 불순물↑', t: '가운데 오목 (접시)', v: '아주 큼', w: '잘 배달되는 가운데가 지나치게 눌린다', h: '작음', sheen: e.acc ? 2 : 1, gn: e.acc ? 110 : 60, n: '평탄제가 너무 많으면 가장 잘 배달되는 가운데(흐름이 센 곳)를 지나치게 눌러, 덜 배달되는 PR 벽 쪽이 상대적으로 더 자라 가운데가 오목(접시)해지고, 막에 갇히는 불순물도 늘어납니다 (06장).'};
+  if (e.lev === 2) return {shape: 'dish', g: e.acc ? '아주 고움' : '고움', s: (e.acc ? '광택' : '반광') + ' · 불순물↑', t: '이 예시에서는 가운데 오목 (접시)', v: '아주 큼', w: '잘 배달되는 가운데가 지나치게 눌린다', h: '작음', sheen: e.acc ? 2 : 1, gn: e.acc ? 110 : 60, n: '평탄제가 너무 많으면 막에 갇히는 불순물이 늘어납니다 (06장). 이 예시 조건에서는 가장 잘 배달되는 가운데(흐름이 센 곳)까지 지나치게 눌러, 덜 배달되는 PR 벽 쪽이 상대적으로 더 자라 가운데가 오목(접시)해졌습니다. 늘 그런 것은 아닙니다 (08장).'};
   if (e.acc && e.lev) return {shape: 'flat', g: '아주 고움', s: '광택', t: '평평', v: '큼', w: '고르게 — 볼록한 곳은 눌리고 오목한 곳은 풀린다', h: '작음', sheen: 2, gn: 110, n: '보통 쓰는 조합입니다. 억제제가 바탕을 깔고, 촉진제가 자리별로 억제를 풀고, 평탄제가 튀어나온 곳을 눌러 윗면이 평평하고 범프끼리 높이 차도 줄어듭니다.'};
   if (e.acc) return {shape: 'dome', g: '아주 고움', s: '광택', t: '볼록(돔)해지기 쉽다', v: '큼', w: '전류 · 흐름이 센 가운데 위쪽으로', h: '보통', sheen: 2, gn: 110, n: '결정이 아주 곱고 광택이 나지만, 윗면을 잡아 줄 평탄제가 없어 높은 전류에서는 가운데가 볼록(돔)해지기 쉽습니다.'};
   if (e.lev) return {shape: 'flatish', g: '고움', s: '반광 · 매끈', t: '평평에 가깝다', v: '큼', w: '볼록한 곳이 눌려 고르게', h: '작음', sheen: 1, gn: 60, n: '평탄제가 튀어나온 곳을 눌러 윗면이 평평해집니다. 촉진제가 없어 광택은 덜합니다.'};
@@ -52,7 +52,7 @@ function result(e){
     {id: 'none', t: '첨가제가 없으면', d: '조금만 밀어도 쉽게 쌓여 새 씨앗(핵)이 적게 생깁니다. 이온은 붙기 쉬운 자리(자라는 결정 끝 · 튀어나온 곳)에 계속 붙어 결정이 굵고 표면이 무광으로 거칩니다. 범프처럼 전류밀도가 높으면 혹 · 탄 도금이 되기 쉽습니다(혹은 액 속 입자가 씨앗인 경우도 많습니다 → 12장).'},
     {id: 'sup', t: '억제제 + Cl⁻ — 담요와 집게', d: '긴 사슬 분자가 Cl⁻를 집게 삼아 표면을 덮습니다. 같은 전류를 흘리려면 더 세게 밀어야 해서(과전압↑) 결정이 곱고, 곡선이 누워 전류가 고르게 퍼집니다. 정류기는 전류를 일정하게 주므로 평균 두께 · 속도는 그대로입니다.'},
     {id: 'acc', t: '촉진제 — 담요를 걷는 손', d: '작은 분자가 담요를 비집고 들어가 그 자리의 억제를 풀어 줍니다. 억제제가 없으면 혼자서는 할 일이 적습니다. 범프에서 촉진제가 바꾸는 "속도"는 전체 속도가 아니라 자리별 속도 차이이고, 결정이 더 곱고 광택이 납니다.'},
-    {id: 'lev', t: '평탄제 — 튀어나온 곳의 브레이크', d: '평탄제는 아주 묽어서 분자 자신이 확산으로 겨우 도착합니다. 그래서 잘 배달되는 곳(튀어나온 곳 · 모서리 · 흐름 센 곳)에 더 붙어 그곳을 늦춥니다 → 윗면이 평평. 흐름이 바뀌면 모양도 바뀌고, 너무 많으면 가운데가 오목해집니다.'},
+    {id: 'lev', t: '평탄제 — 튀어나온 곳의 브레이크', d: '평탄제는 아주 묽어서 분자 자신이 확산으로 겨우 도착합니다. 그래서 잘 배달되는 곳(튀어나온 곳 · 모서리 · 흐름 센 곳)에 더 붙어 그곳을 늦춥니다 → 윗면이 평평. 흐름이 바뀌면 모양도 바뀝니다. 너무 많으면 막 속 불순물이 늘고, 액 · 조건에 따라 가운데가 오목(접시)해지기도 합니다(일반 법칙은 아닙니다 → <a data-go="pattern.shape">08장</a>).'},
     {id: 'wear', t: '소모와 분해 — 쓰면 줄고 바뀐다', d: '첨가제는 주로 전기(Ah)를 쓸수록 줄지만, 쉬는 동안에도 분해되고 웨이퍼에 묻어 나가며 막 속에 갇히기도 합니다. 분해 조각이 쌓이면 효과가 흐려집니다 → Ah 몫 + 시간 몫으로 보충하고 분석(CVS)으로 보정 (11장).'}
   ],
   icon(K){
@@ -126,17 +126,24 @@ function result(e){
       ${K.seg('lev', [['0', '없음'], ['1', '적정'], ['2', '과다']], '1', '평탄제')}
       <div class="p05-kp">${K.kpis([['결정', 'k-g', ''], ['표면', 'k-s', ''], ['윗면', 'k-t', ''], ['과전압', 'k-v', '같은 전류에서']])}</div>
       <p class="pl-msg" data-o="msg"></p>
-      ${K.model('산성 Cu · 범프 전류밀도에서 보통 보이는 경향의 예시입니다. 어느 경우나 평균 두께 · 속도는 같습니다(정전류). 스크롤 단계에서는 그 단계까지 소개된 첨가제만 그리고, 버튼은 평탄제 단계부터 적용됩니다(누르면 그 단계로 갑니다).')}</div>`;
+      ${K.model('산성 Cu · 범프 전류밀도에서 보통 보이는 경향의 예시입니다. 어느 경우나 평균 두께 · 속도는 같습니다(정전류). 1~3단계에서는 버튼이 그 단계 그림(그때까지 나온 첨가제)을 그대로 보여 줍니다. 누르면 평탄제 단계로 넘어가 네 가지를 직접 켜고 끌 수 있습니다.')}</div>`;
   },
   mount(K, ctx){
     const {R, C, L, P, T, G, LB, TT, rng, tip, wrap, voronoi, PG} = K;
     const tog = {sup: true, cl: true, acc: true, lev: 1};
-    const box = ctx.card.querySelector('[data-g="adds"]');
+    const box = ctx.card.querySelector('[data-g="adds"]'), levBox = ctx.card.querySelector('.pl-seg[data-g="lev"]');
     // 스크롤 단계에서는 그 단계까지 소개된 첨가제만, 앞 단계(없음 · 억제제 · 촉진제)는 버튼과 상관없이 늘 같은 그림.
-    //  버튼은 평탄제 단계부터 듣는다
+    //  버튼(tog)은 평탄제 단계부터 듣는다
+    const early = () => { const sid = ctx.step(); return !!sid && ctx.ch._idx[sid] < 3; };
     function eff(){ const sid = ctx.step() || 'wear', k = ctx.ch._idx[sid]; return {sup: k >= 1 && (k < 3 || tog.sup), cl: k >= 1 && (k < 3 || tog.cl), acc: k >= 2 && (k < 3 || tog.acc), lev: k >= 3 ? tog.lev : 0}; }
+    // 버튼은 늘 지금 그림의 조합을 보여 준다 (1~3단계는 그 단계까지 나온 첨가제, 평탄제 단계부터는 고른 값)
+    function sync(e){
+      box.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', e[b.dataset.k] ? 'true' : 'false'));
+      if (levBox) levBox.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.v === e.lev ? 'true' : 'false'));
+    }
     function render(){
       const e = eff(), rs = result(e), g = rng(9), S = e.sup && e.cl;
+      sync(e);
       // 표면 (억제가 약하면 거칠다)
       const amp = S ? 0 : e.sup ? 0.5 : 1;
       let d = `M${XL},${SB}`;
@@ -187,21 +194,18 @@ function result(e){
       ctx.$$('.p05-sup').forEach(el => el.classList.toggle('p05-loose', e.sup && !e.cl));
       ctx.refresh();
     }
-    const toLev = () => { if (ctx.step() && ctx.ch._idx[ctx.step()] < 3) ctx.go('lev'); };   // 모든 첨가제가 보이는 단계로
+    // 1~3단계에서 누르면: 버튼이 보여 주던 조합(그 단계 그림)에서 출발해 하나를 바꾸고, 모든 첨가제가 보이는 평탄제 단계로 간다
+    const adopt = () => { if (early()) Object.assign(tog, eff()); };
+    const toLev = () => { if (early()) ctx.go('lev'); };
     box.addEventListener('click', ev => {
       const b = ev.target.closest('button'); if (!b) return;
+      adopt();
       tog[b.dataset.k] = !tog[b.dataset.k];
-      b.setAttribute('aria-pressed', tog[b.dataset.k] ? 'true' : 'false');
       toLev(); render();
     });
-    ctx.seg('lev', (v, user) => { tog.lev = +v; if (user) toLev(); render(); });
-    // 발표 모드에서는 위젯을 만질 수 없으므로 기본 조합(모두 넣고 평탄제 적정)으로 되돌려 자막과 맞춘다
-    const levBox = ctx.card.querySelector('.pl-seg[data-g="lev"]');
-    ctx.reset = () => {
-      Object.assign(tog, {sup: true, cl: true, acc: true, lev: 1});
-      box.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'true'));
-      if (levBox) levBox.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === '1' ? 'true' : 'false'));
-    };
+    ctx.seg('lev', (v, user) => { if (user) adopt(); tog.lev = +v; if (user) toLev(); render(); });
+    // 발표 모드에서는 위젯을 만질 수 없으므로 기본 조합(모두 넣고 평탄제 적정)으로 되돌려 자막과 맞춘다 (버튼 표시는 render가 맞춘다)
+    ctx.reset = () => { Object.assign(tog, {sup: true, cl: true, acc: true, lev: 1}); };
     ctx.render = render;
     render();
   },
@@ -229,11 +233,11 @@ function result(e){
     ]) + K.deep(`<ul>
       <li><b>억제제</b>: 폴리에틸렌글리콜(PEG) · 폴리프로필렌글리콜 계열 고분자가 Cl⁻ · Cu⁺와 함께 표면에 막을 만들어 석출을 늦춥니다. Cl⁻가 다리 역할을 해서, 없으면 잘 붙지 않습니다. 곡선을 옮기면서 눕혀(04장) 전류를 고르게 폅니다.</li>
       <li><b>촉진제</b>: SPS(bis(3-sulfopropyl) disulfide)는 음극(캐소드, −)에서 MPS(3-mercapto-1-propanesulfonate)로 바뀌며 Cu⁺와 묶여 촉진합니다 — 이것은 고장이 아니라 일하는 과정입니다. 양극(애노드, +) 반응이나 녹아 있는 산소로 더 산화되면 PDS(프로판다이설폰산) 같은 효과 없는 조각이 되어 쌓입니다. MPS가 너무 많이 쌓이면 촉진이 지나쳐 모양이 나빠질 수 있습니다.</li>
-      <li><b>평탄제</b>: 질소를 가진 양이온성 분자. 아주 묽어 공급(확산)에 좌우되므로, 확산 거리가 짧은 튀어나온 곳 · 흐름이 센 곳에 더 많이 도착합니다. 그래서 교반을 올리면 평탄제가 더 붙어 곡선이 오히려 더 밀리는(억제↑) 경우도 있습니다. 과다하면 접시 모양과 불순물 증가, 고온 보관 뒤 솔더 계면 보이드 증가가 보고됩니다.</li>
+      <li><b>평탄제</b>: 질소를 가진 양이온성 분자. 아주 묽어 공급(확산)에 좌우되므로, 확산 거리가 짧은 튀어나온 곳 · 흐름이 센 곳에 더 많이 도착합니다. 그래서 교반을 올리면 평탄제가 더 붙어 곡선이 오히려 더 밀리는(억제↑) 경우도 있습니다. 과다하면 막 속 불순물이 늘고 고온 보관 뒤 솔더 계면 보이드가 늘었다는 보고가 있으며, 일부 액 · 조건에서는 접시 모양이 됩니다(08장).</li>
       <li><b>소모 경로</b>: ① 음극 · 양극 반응(Ah에 비례) ② 쉬는 동안 산소 · Cu⁺와의 반응(시간에 비례, 특히 촉진제) ③ 드래그아웃 ④ 막 속 혼입. 그래서 보충은 Ah 몫 + 시간 몫입니다.</li>
       <li><b>다마신 바닥 채우기</b>(참고): 좁은 구멍이 아래부터 차오르며 바닥 면적이 줄면, 바닥에 모인 촉진제의 표면 농도가 올라가 바닥이 더 빨리 자랍니다(곡률 효과). 범프는 이 "바닥부터 채우기"가 목적이 아닙니다.</li>
       <li><b>CVS (cyclic voltammetric stripping)</b>: 회전하는 작은 백금 전극에서 전위를 오르내리며, 구리를 살짝 도금했다 벗겨 내기를 반복합니다. 벗겨질 때 나온 전기량(스트리핑 면적)이 크면 그사이 도금이 빨랐다는 뜻입니다 — 억제제가 많으면 작아지고, 촉진제가 많으면 커집니다. 표준 용액을 조금씩 더해 보는 방법(희석 적정 · 표준 첨가)으로 농도로 바꿉니다. 재는 것은 "효과"라서, 바뀐 꼴(MPS)이나 분해 조각(PDS 등), PR에서 녹아 나온 유기물도 값에 섞일 수 있습니다.</li>
-      <li><b>회전 원판 전극 · 헐 셀</b>: 회전 원판 전극은 회전 속도로 확산층 두께를 정확히 정하는 실험 전극입니다(δ ∝ 회전 속도<sup>−½</sup>, CVS도 이 원리). 헐 셀은 비스듬한 판 하나에 낮은~높은 전류밀도를 한 번에 걸어, 탄 자리 · 무광 자리로 액 상태를 눈으로 빠르게 보는 시험입니다(웨이퍼 라인에서는 보조 도구).</li></ul>`);
+      <li><b>회전 원판 전극 · 헐셀</b>: 회전 원판 전극은 회전 속도로 확산층 두께를 정확히 정하는 실험 전극입니다(δ ∝ 회전 속도<sup>−½</sup>, CVS도 이 원리). 헐셀은 비스듬한 판 하나에 낮은~높은 전류밀도를 한 번에 걸어, 탄 자리 · 무광 자리로 액 상태를 눈으로 빠르게 보는 시험입니다(웨이퍼 라인에서는 보조 도구).</li></ul>`);
   },
   css: `.p05-box{fill:#060b15;stroke:rgba(148,163,184,.3);stroke-width:1.2}
 .p05-chip{fill:rgba(251,191,36,.14);stroke:#fbbf24;stroke-width:1.4}
@@ -243,6 +247,7 @@ function result(e){
 .p05-top{fill:none;stroke:#fde2c4;stroke-width:2.4}
 .pl-svg .p05-loose{transform:translateY(-30px);opacity:.5;transition:transform .5s,opacity .5s}
 .pl-svg .p05-sup{transition:transform .5s,opacity .5s}
-.jc .p05-kp .kpi .v{font-size:16px;white-space:nowrap}`
+.jc .p05-kp .kpi .v{font-size:16px;white-space:nowrap}
+.pl-svg .pl-levt{font-size:17px}`
 });
 })();

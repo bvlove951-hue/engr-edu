@@ -83,7 +83,7 @@ const BATHS = [
       let g = R(x0, 822, 46, 140, 'f-anode', tip('인 함유 구리 양극')) + R(x0 + 46, 822, fw, 140, 'p10-film', tip('검은 피막')) + R(x0 + 46 + fw, 822, 400 - fw, 140, 'f-bath');
       if (kind === 'good') for (let k = 0; k < 3; k++) g += K.ionPath(`M${x0 + 80},${852 + k * 40} L${x0 + 420},${852 + k * 40}`, 'cu', 3.4, k * 1.1);
       if (kind === 'thin'){
-        g += K.ionPath(`M${x0 + 70},852 L${x0 + 420},852`, 'cu', 3.4, 0.4) + C(x0 + 82, 912, 16, 'p10-cup') + T(x0 + 82, 917, 'Cu⁺', 'p10-ct') + K.arrow(x0 + 102, 912, x0 + 176, 924, 's-arrr');
+        g += K.ionPath(`M${x0 + 70},852 L${x0 + 420},852`, 'cu', 3.4, 0.4) + C(x0 + 82, 912, 19, 'p10-cup') + T(x0 + 82, 918, 'Cu⁺', 'p10-ct') + K.arrow(x0 + 102, 912, x0 + 176, 924, 's-arrr');
         const r = K.rng(7);
         for (let k = 0; k < 16; k++) g += C(x0 + 190 + r() * 220, 900 + r() * 56, 3 + r() * 2.5, 'p10-dust');
         g += LB(T(x0 + 300, 892, '구리 가루', 't-dim'));
@@ -281,7 +281,8 @@ const BATHS = [
       ['wt %', '무게 기준 퍼센트. Ag 2 wt% = 솔더 100 g에 Ag 2 g'],
       ['공정점(共晶)', '두 금속이 섞여 한 온도에서 한꺼번에 녹는 조성. Sn–Ag는 Ag 3.5 wt%, 221 °C. 공정(工程)과 다른 말'],
       ['액상선', '이 온도 위에서는 다 녹는 선. 공정점(共晶)에서 멀어질수록 오른다'],
-      ['Ag₃Sn', 'Ag 약 73 wt%인 단단한 화합물. 공정점보다 Ag가 많으면 액체에서 먼저 굳어 판으로 자란다']
+      ['Ag₃Sn', 'Ag 약 73 wt%인 단단한 화합물. 공정점보다 Ag가 많으면 액체에서 먼저 굳어 판으로 자란다'],
+      ['IMC (금속간 화합물)', '솔더의 Sn이 Ni · Cu와 반응해 생기는 단단한 화합물 층 (예: Ni₃Sn₄ · Cu₆Sn₅)']
     ]) + K.field([
       '<b>Ag % 맵은 두께 맵과 반대로 움직이기 쉽습니다.</b> 국부 전류밀도가 높은 곳(가장자리 · 고립 범프)은 두껍고 Ag가 낮습니다. 제품이 바뀌어 개구율이 달라지면 같은 전류에서도 실제 전류밀도가 바뀌어 Ag %가 바뀝니다 (<a data-go="wafer">07</a> · <a data-go="pattern">08장</a>).',
       '<b>온도</b>를 올리면 보통 Ag 공급이 빨라져 Ag %가 오르고, Sn²⁺ 산화(Sn⁴⁺ 찌꺼기)도 빨라집니다. 열교환기 이상은 SnAg에서 두께보다 조성으로 먼저 보일 수 있습니다 (<a data-go="tool.loop">09장</a>).',
@@ -302,7 +303,7 @@ const BATHS = [
   },
   css: `.pl-svg .p10-film{fill:#1b1b1f;stroke:#4b5563;stroke-width:1}
 .pl-svg .p10-cup{fill:#fdba74;stroke:#9a3412;stroke-width:1.2}
-.pl-svg .p10-ct{font-size:14px;font-weight:900;fill:#1b1203 !important;stroke:none !important}
+.pl-svg .p10-ct{font-size:18px;font-weight:900;fill:#1b1203 !important;stroke:none !important}
 .pl-svg .p10-dust{fill:#c2410c;opacity:.85}
 .pl-svg .p10-crack{fill:none;stroke:#94a3b8;stroke-width:1.6}
 .pl-svg .p10-bad{fill:rgba(239,68,68,.14)}
