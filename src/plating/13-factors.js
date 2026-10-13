@@ -83,12 +83,13 @@ const DEMO = {map: ['in', 'cd'], you: ['out', 'wiw']};
     return `<div class="pl-w"><div class="hd">직접 해 보기 — 인자를 눌러 보세요 (장면의 상자도 눌러집니다)</div>
       <div class="pl-seg pl-chips" data-g="in">${INS.map(([id, nm]) => `<button data-v="${id}" aria-pressed="false">${nm}</button>`).join('')}</div>
       <div class="pl-seg pl-chips" data-g="out"><span class="lb">결과에서 거꾸로</span>${OUTS.map(([id, nm]) => `<button data-v="${id}" aria-pressed="false">${nm.split(' (')[0]}</button>`).join('')}</div>
-      <div class="pl-pcard" data-o="fcard"></div>
+      <div class="pl-pcard p13-fcard" data-o="fcard"></div>
       ${K.note('선 모양 = 확신 정도: 실선은 물리 법칙, 점선은 보통 경향, ?는 도금액 · 조건에 따라 방향이 바뀝니다. 경향을 법칙으로 외우지 말고, 바꾸기 전에 작은 DOE로 확인합니다.')}</div>`;
   },
   mount(K, ctx){
     const {T, C, G} = K;
     let touched = false, cur = null;
+    ctx.card.classList.add('p13-card');                          // 단계 설명 높이를 고정해 단계가 바뀌어도 카드 길이가 그대로이게
     const setChips = (g, v) => ctx.card.querySelectorAll(`[data-g="${g}"] button`).forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v ? 'true' : 'false'));
     const effOf = (o, f) => K.TT(OX + 18, (+o.getAttribute('data-y')) + 58, K.wrap(`${EFF[f[0]][0]} — ${f[2]}`, 24.5).slice(0, 2), 'pl-ot ' + EFF[f[0]][1] + 't', 'start', 22);
     const badge = (o, cf) => { const y = +o.getAttribute('data-y') + 22, x = OX + OW - 16; return cf === 'D' ? C(x - 10, y, 11, 'p13-qc') + T(x - 10, y + 6, '?', 'p13-qt') : K.L(x - 40, y, x, y, 'p13-ls' + (cf === 'T' ? ' p13-T' : '')); };
@@ -132,12 +133,12 @@ const DEMO = {map: ['in', 'cd'], you: ['out', 'wiw']};
     }
     const user = fn => v => { touched = true; fn(v); };
     ctx.card.querySelector('[data-g="in"]').addEventListener('click', ev => { const b = ev.target.closest('button'); if (b) user(showIn)(b.dataset.v); });
-    ctx.card.querySelector('[data-g="out"]').addEventListener('click', ev => { const b = ev.target.closest('button'); if (b){ user(showOut)(b.dataset.v); if (ctx.step() !== 'you') ctx.go('you'); } });
+    ctx.card.querySelector('[data-g="out"]').addEventListener('click', ev => { const b = ev.target.closest('button'); if (b) user(showOut)(b.dataset.v); });
     ctx.scene.addEventListener('click', ev => {
       const t = ev.target.closest && ev.target;
       const gi = t && t.closest('.pl-in'), go = t && t.closest('.pl-out');
       if (gi) user(showIn)(gi.getAttribute('data-in'));
-      else if (go){ user(showOut)(go.getAttribute('data-out')); if (ctx.step() !== 'you') ctx.go('you'); }
+      else if (go) user(showOut)(go.getAttribute('data-out'));
     });
     // 손대기 전에는 단계마다 예시 (전체 지도: 전류밀도, 내 공정: 웨이퍼 균일도에서 거꾸로)
     ctx.demo = sid => { const d = DEMO[sid]; if (touched || !d || (cur && cur[0] === d[0] && cur[1] === d[1])) return; (d[0] === 'in' ? showIn : showOut)(d[1]); };
@@ -178,6 +179,8 @@ const DEMO = {map: ['in', 'cd'], you: ['out', 'wiw']};
 .pl-svg .p13-rev{fill:#fde68a !important;font-weight:700}
 .pl-svg .pl-out{cursor:pointer}
 .pl-svg .pl-out.pl-sel .pl-outb{stroke:#f59e0b;stroke-width:3;fill:rgba(40,30,10,.7)}
+.jc.p13-card .steps li.open em{min-height:72px}
+.jc .p13-fcard{height:250px;overflow-y:auto;padding-right:4px;overscroll-behavior:contain}
 .jc .p13-cf{font-size:10.5px;border-radius:5px;padding:0 4px;border:1px solid rgba(148,163,184,.35);color:#cbd5e1}
 .jc .p13-cf.L{border-style:solid;color:#f1f5f9}
 .jc .p13-cf.T{border-style:dashed}

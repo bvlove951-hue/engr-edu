@@ -210,6 +210,7 @@ const NOTE = {
   mount(K, ctx){
     const {R, T, G, L, C, LB, wrap} = K;
     let picked = false;
+    ctx.card.classList.add('p12-card2');                         // 단계 설명 높이를 고정해 단계가 바뀌어도 카드 길이가 그대로이게
     // 오른쪽 상세 패널: 그림 + 지시선 → 이름 · 생김새 → 처음 보이는 단계 → 맵 → 원인 후보 → 확인 → 대책 (넘치면 글자를 줄이고, 그래도 넘치면 대책 · 확인 끝을 카드로 미룬다)
     function detail(d){
       let s = R(DX0, 142, DX1 - DX0, 212, 'pl-lane', {rx: 12});
@@ -355,6 +356,7 @@ const NOTE = {
 .jc .p12-tag.cond{background:rgba(45,212,191,.2);color:#5eead4}
 .jc .p12-tag.up{background:rgba(167,139,250,.22);color:#c4b5fd}
 .jc .p12-tag.dn{background:rgba(245,158,11,.2);color:#fcd34d}
+.jc.p12-card2 .steps li.open em{min-height:72px}
 .jc .p12-card .p12-row{margin-top:5px}
 .jc .p12-card .p12-li{margin:2px 0 2px 2px}
 .jc .p12-card ol{margin:2px 0 0;padding-left:18px}
