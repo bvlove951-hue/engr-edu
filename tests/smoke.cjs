@@ -430,6 +430,27 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   await page.keyboard.press('Escape');
   await page.waitForTimeout(400);
   ok(pk1.k === pk0 + 1 && pk1.cap.length > 3 && (await page.evaluate(() => window.EngrPlating.state.pres)) === null, `발표 모드: → 로 다음 (${pk1.cap}), Esc로 닫기`);
+  // 위젯 계산 — 슬라이더 · 버튼을 움직이면 숫자가 원리대로 바뀐다
+  const plSet = (ch, id, v) => page.evaluate(([ch, id, v]) => { const i = window.EngrPlating.ctx(ch).card.querySelector(`input[data-i="${id}"]`); i.value = v; i.dispatchEvent(new Event('input', {bubbles: true})); }, [ch, id, v]);
+  const plSeg = (ch, g, v) => page.evaluate(([ch, g, v]) => { const c = window.EngrPlating.ctx(ch); (c.card.querySelector(`.pl-seg[data-g="${g}"] button[data-v="${v}"]`) || c.note.querySelector(`.pl-seg[data-g="${g}"] button[data-v="${v}"]`)).click(); }, [ch, g, v]);
+  const plOut = (ch, id) => page.evaluate(([ch, id]) => { const c = window.EngrPlating.ctx(ch), q = `[data-o="${id}"]`; return (c.card.querySelector(q) || c.note.querySelector(q)).textContent; }, [ch, id]);
+  const plNum = s => parseFloat(String(s).replace(/−/g, '-').replace(/[^\d.+-]/g, ''));
+  await plSeg('faraday', 'm', 'cu'); await plSet('faraday', 'eff', 100); await plSet('faraday', 'j', 1); await plSet('faraday', 't', 60);
+  const vCu = plNum(await plOut('faraday', 'k-v')), thCu = plNum(await plOut('faraday', 'k-th'));
+  await plSeg('faraday', 'm', 'sn'); await plSet('faraday', 'eff', 100);
+  const vSn = plNum(await plOut('faraday', 'k-v'));
+  ok(Math.abs(vCu - 0.22) < 0.005 && Math.abs(thCu - 13.2) < 0.2 && Math.abs(vSn - 0.51) < 0.01, `02 패러데이: 1 ASD에서 Cu ${vCu} · SnAg ${vSn} µm/분, Cu 60분 ${thCu} µm`);
+  await plSet('wafer', 'seed', 100); const cThick = plNum(await plOut('wafer', 'k-c'));
+  await plSet('wafer', 'seed', 0); const cThin = plNum(await plOut('wafer', 'k-c'));
+  ok(cThin < cThick - 1, `07 웨이퍼 분포: 시드가 얇으면 중심이 더 얇다 (두꺼운 시드 ${cThick} % → 얇은 시드 ${cThin} %)`);
+  await plSet('chem', 'pk', 250); await plSet('chem', 'c', 1); await plSet('chem', 'a', 50);
+  await plSet('chem', 'j', 2); const agLoJ = plNum(await plOut('chem', 'k-ag'));
+  await plSet('chem', 'j', 15); const agHiJ = plNum(await plOut('chem', 'k-ag'));
+  await plSet('chem', 'j', 5); const agMid = plNum(await plOut('chem', 'k-ag'));
+  await plSet('chem', 'c', 2); const agHiC = plNum(await plOut('chem', 'k-ag'));
+  await plSet('chem', 'c', 1); await plSet('chem', 'pk', 212); const cold = await plOut('chem', 'k-v');
+  await plSet('chem', 'pk', 250);
+  ok(agHiJ < agMid && agMid < agLoJ && agHiC > agMid && /안 녹음/.test(cold), `10 SnAg: 전류밀도 2 → 5 → 15 ASD에 Ag ${agLoJ} → ${agMid} → ${agHiJ} %, Ag 농도 ×2 → ${agHiC} %, 최고 212 °C → ${cold}`);
   /*@PLATING_WIDGET_TESTS@*/
   await page.screenshot({ path: path.join(OUT, '09-plating.png') });
   await page.click('[data-tab="map"]');
