@@ -324,6 +324,7 @@ details.menu .menu-pop.left{left:0;right:auto}
 </style>
 <style>/*@JOURNEY_CSS@*/</style>
 <style>/*@BUMP_CSS@*/</style>
+<style>/*@SYS_CSS@*/</style>
 </head>
 <body>
 <div id="app">
@@ -334,6 +335,7 @@ details.menu .menu-pop.left{left:0;right:auto}
       <button class="tab" role="tab" data-tab="map" aria-selected="false"><span class="tl">업무 알고리즘 맵</span><span class="ts">맵</span></button>
       <button class="tab" role="tab" data-tab="hbm" aria-selected="false" title="AI에서 DRAM 셀까지 스크롤 줌"><span class="tl">HBM 역추적</span><span class="ts">HBM</span></button>
       <button class="tab" role="tab" data-tab="bump" aria-selected="false" title="앞면 범프 도금 공정 — 웨이퍼·다이·범프 한 화면"><span class="tl">범프 공정</span><span class="ts">범프</span></button>
+      <button class="tab" role="tab" data-tab="sys" aria-selected="false" title="반도체 공장의 사내 시스템 — 한 장 지도"><span class="tl">사내 시스템</span><span class="ts">시스템</span></button>
     </nav>
     <div class="spacer"></div>
     <button class="icon-btn" id="btn-help" title="도움말"><span class="tl">도움말</span><span class="ts">?</span></button>
@@ -348,6 +350,7 @@ details.menu .menu-pop.left{left:0;right:auto}
 
   <section class="view" id="view-hbm" aria-label="HBM 역추적 — AI에서 DRAM 셀까지"></section>
   <section class="view" id="view-bump" aria-label="범프 공정 — 웨이퍼·다이·범프"></section>
+  <section class="view" id="view-sys" aria-label="사내 시스템 지도 — 반도체 공장을 돌리는 시스템"></section>
 
   <section class="view" id="view-map">
     <aside class="map-side">
@@ -1948,6 +1951,8 @@ function openHelp(){
       h('li', null, '「내보내기 → 공유용 HTML」 로 팀에 배포 (받은 사람이 열면 맵이 그대로 보입니다)')),
     h('h4', null, 'HBM 역추적'),
     h('p', null, 'AI 데이터센터에서 DRAM 셀까지 스크롤할 때마다 한 단계씩 줌인합니다. 화면의 점선 상자를 누르면 그 안으로, 위쪽 장 버튼으로 바로 이동합니다. 「제조 순서」는 같은 화면을 거꾸로(줌아웃) 보여 주고, 「▶ 발표 모드」는 전체 화면에서 ← → 키로 넘깁니다.'),
+    h('h4', null, '사내 시스템'),
+    h('p', null, 'MES, 기준정보(GMDM · MMDM), PCS(RMS · EC · APC), FDC, TAS, EES, GIPMS, YES를 한 장의 지도로 봅니다. 상자나 아래 칩을 누르면 그 시스템 설명으로, 스크롤하면 그 시스템과 화살표만 밝아집니다. 「LOT-001의 하루」는 알람이 울렸을 때 시스템이 이어지는 순서를 따라갑니다.'),
     h('h4', null, '저장'),
     h('p', null, '맵은 이 브라우저(IndexedDB)에 자동 저장됩니다. 브라우저 데이터를 지우면 사라지니 「JSON (모든 맵 백업)」 으로 주기적으로 백업하세요.'),
     h('h4', null, '단축키'),
@@ -2169,11 +2174,11 @@ function setTab(t){
   document.dispatchEvent(new CustomEvent('engr:tab', {detail: t}));
 }
 $$('.tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
-// 탭 사이 이동 링크: #go-hbm, #go-bump, #go-map, #go-edu-4 (교육 모듈 번호)
+// 탭 사이 이동 링크: #go-hbm, #go-bump, #go-sys, #go-map, #go-edu-4 (교육 모듈 번호)
 document.addEventListener('click', ev => {
   const a = ev.target.closest && ev.target.closest('a[href^="#go-"]');
   if (!a) return;
-  const m = a.getAttribute('href').match(/^#go-(edu|map|hbm|bump)(?:-(\d+))?$/);
+  const m = a.getAttribute('href').match(/^#go-(edu|map|hbm|bump|sys)(?:-(\d+))?$/);
   if (!m) return;
   ev.preventDefault();
   if (m[1] === 'edu' && m[2] != null && S.edu.length){
@@ -2296,5 +2301,6 @@ init();
 </script>
 <script>/*@JOURNEY_JS@*/</script>
 <script>/*@BUMP_JS@*/</script>
+<script>/*@SYS_JS@*/</script>
 </body>
 </html>

@@ -12,6 +12,7 @@
 | **업무 알고리즘 맵** | 글로 적은 업무를 도형(흐름도)으로 바꾸고, 노드마다 설명·주의점·사진을 붙여 정리 |
 | **HBM 역추적** | AI 데이터센터(12 m)에서 DRAM 셀(수십 nm)까지 스크롤할 때마다 줌인하며 "이건 어디서 왔지?"를 거꾸로 따라가는 이야기 (12개 장면, 약 1억 배) |
 | **범프 공정** | 앞면 범프 도금 12단계를 **웨이퍼 · 다이 · 범프** 세 단위로 한 화면에서 순서대로 (PVD Ti/Cu → … → 스크러버) |
+| **사내 시스템** | 반도체 공장을 돌리는 사내 시스템(MES, GMDM · MMDM, PCS(RMS · EC · APC), FDC, TAS, EES, GIPMS, YES)을 **한 장의 지도**로 — 시스템마다 고등학생 눈높이 비유, 「LOT-001의 하루」 이야기 9단계 |
 
 ### 교육과정의 시각화
 
@@ -89,6 +90,35 @@ HBM 역추적 9장(앞면 범프)을 공정 단위로 펼친 탭입니다. 무�
 - 아래 공정 칩을 누르면 그 공정으로 바로 이동, 부품에 마우스를 올리면 이름·역할
 - 수치와 사내 조건은 넣지 않았습니다 (일반적인 수준의 설명). 공정 순서·내용은 `src/bump.js` 의 `STEPS` 에서 고칩니다.
 
+### 사내 시스템 — 한 장의 지도
+
+반도체 공장에서 일하는 사내 시스템들이 **무엇을 맡고, 서로 무엇을 주고받는지**를 그림 한 장으로 보여 주는 탭입니다. 신입 엔지니어는 물론 고등학생도 따라올 수 있게, 시스템마다 일상 속 **비유**를 붙였습니다.
+
+![사내 시스템 지도](docs/screenshots/systems-map.png)
+
+| 묶음 (색) | 시스템 | 하는 일 | 비유 |
+|---|---|---|---|
+| 기준정보 (보라) | **GMDM** | MMDM에 필요한 최초 기준정보 | 도로명 주소 원본 |
+| | **MMDM** | MES 기준정보 setup — 제품 설명, lot 코드, 제품별 공정, 공정별 recipe, 장비 이름 · 기준정보, FOUP, stocker | 내비의 지도 데이터 |
+| 생산 관리 (파랑) | **MES** | lot과 장비의 상태, lot flow, lot hold | 택배 배송 조회 + 내비 |
+| 공정 조건 (초록) | **PCS · RMS** | recipe 관리 (원본 보관 · 장비 recipe와 비교) | 요리책 원본 |
+| | **PCS · EC** | 장비 상수(ECID) 관리 | 오븐 기본 설정 |
+| | **PCS · APC** | 자동 recipe 보정 (앞 결과 → 다음 조건) | 간 보고 다시 맞추기 |
+| 감시 · 분석 (노랑) | **FDC** | 장비 source data에 spec → 벗어나면 알람 | 자동차 계기판 경고등 |
+| | **TAS** | DCOL(장비 data)을 차트로 | 스마트워치 건강 그래프 |
+| | **EES** | ALID(장비 알람)가 울리면 MES에 장비 DOWN 신호 | 화재경보기 자동 신고 |
+| 정비 (주황) | **GIPMS** | 장비 down inform note, PM 주기, part 출고 · 수리 | 자동차 정비 수첩 |
+| 품질 (분홍) | **YES** | defect data와 defect image | 건강검진 결과지 + X-ray |
+
+- **지도**: 가운데 FAB 현장(stocker, OHT, 장비 5대와 상태등, lot), 위에 MES · 기준정보 · EES · GIPMS, 아래에 PCS · FDC · TAS · YES. 화살표는 주고받는 정보이고, 움직이는 점이 정보의 흐름입니다.
+- **카드**: 지도 → 먼저 알아 둘 말(lot, FOUP, recipe, spec, hold, PM …) → 시스템별 설명(비유, 예시 화면, 받는 것 · 주는 것) → 이야기 → 정리. 스크롤하면 그 시스템과 화살표만 밝아집니다.
+- **이야기 「LOT-001의 하루 — 알람이 울린 날」**: 새 제품 등록(GMDM → MMDM → MES) → lot 출발 → 시작 전 확인(RMS · EC · APC) → 가공 중 감시(FDC · TAS) → FDC 알람과 lot hold → 장비 ALID → EES → MES DOWN → GIPMS 수리 · PM → YES 검사 판정과 release → 다음 공정. 장비 상태등, MES의 장비 칸, lot의 위치 · 상태(WAIT/RUN/HOLD/MOVE)가 단계마다 함께 바뀝니다.
+
+![LOT-001의 하루 — 이야기 9단계](docs/screenshots/systems-story.png)
+
+- 상자를 누르거나 아래 칩을 누르면 그 시스템으로 이동, ← → 키로 한 단계씩, **▶ 발표 모드 · ⏵ 자동 재생**. 전화기에서는 밝힌 시스템 쪽으로 지도가 확대됩니다.
+- 시스템 이름과 나뉘는 방식은 회사마다 다를 수 있고, 화면의 숫자 · 코드(ALID 번호, 보정값, recipe 이름)는 설명용 예시입니다. 시스템 · 화살표 · 이야기는 `src/systems.js` 의 `SYS`, `EDGES`, `ST` 에서 고칩니다.
+
 ### 업무 알고리즘 맵 기능
 
 - **글 → 도형 변환**
@@ -133,7 +163,9 @@ tools/figlib.py, figs_*.py, make_figures.py  그림 생성 코드
 src/app.html             앱 원본 (HTML·CSS·JS 한 파일, 외부 의존 없음)
 src/journey.js, .css     HBM 역추적 탭 (장면 SVG·줌 카메라·카드·위젯) — 빌드 때 app.html 에 들어감
 src/bump.js, .css        범프 공정 탭 (웨이퍼·다이·범프 세 화면, 공정 12단계) — journey.css 의 카드·HUD 스타일을 함께 씀
+src/systems.js, .css     사내 시스템 탭 (시스템 지도, 시스템별 카드, 이야기 9단계) — journey.css 의 카드·HUD 스타일을 함께 씀
 docs/HBM_역추적_초안.md    HBM 역추적 기획: 흐름 초안, 표현 방식 예시, 최종안
+docs/screenshots/*.png   탭 화면 모음 (HBM 역추적, 범프 공정, 사내 시스템 지도 · 이야기)
 tools/make_doc_figures.py 기획 문서 그림(docs/figures/*.svg) 생성
 tools/build.py           education/*.md 와 journey.* 를 앱에 넣어 dist/engr-edu.html 생성
 dist/engr-edu.html       배포용 단일 파일 ← 이것만 나눠 주면 됨
@@ -146,7 +178,7 @@ tests/smoke.cjs          Playwright 브라우저 테스트
 2. 흐름도는 ```` ```flow ```` 코드 블록 안에 흐름 문법으로 씁니다. 문법은 `education/06_업무알고리즘_작성법.md` 를 보세요.
 3. 그림은 `![설명](figures/이름.svg)`로 넣습니다. 그림을 고치거나 추가하려면 `tools/figs_*.py`를 수정합니다.
 4. 시뮬레이터는 본문에 `<!-- widget:cpk -->` 처럼 넣습니다 (cpk, control, cte, diffusion, faraday, yield).
-5. 다른 탭으로 가는 링크는 `[글](#go-hbm)`, `[글](#go-bump)`, `[글](#go-map)`, `[글](#go-edu-4)`(교육 모듈 번호)로 씁니다.
+5. 다른 탭으로 가는 링크는 `[글](#go-hbm)`, `[글](#go-bump)`, `[글](#go-sys)`, `[글](#go-map)`, `[글](#go-edu-4)`(교육 모듈 번호)로 씁니다.
 6. HBM 역추적의 장면·카드·단계 제목은 `src/journey.js` 의 `SCENES`, `CARDS`, `TITLES` 에 있습니다.
 7. 빌드합니다.
 
@@ -170,5 +202,6 @@ python3 tools/build.py && node tests/smoke.cjs
 - 따라가기
 - LLM: 요청 형식(모의 응답)과 거절 응답 처리
 - 공유용 HTML 왕복
+- 사내 시스템: 23개 상태 차례 전환, 이야기 단계마다 밝아지는 시스템 · 화살표, FDC 알람과 lot HOLD, 장비 DOWN · PM이 상태등과 MES 칸에 함께 보이는지, 상자 · 칩으로 이동, 발표 모드
 - 범프 공정: 17개 상태 차례 전환, 공정에 따라 층이 쌓이고 사라지는지, 리플로우 모양 변화, 보기 확대, 발표 모드, 공정 칩 이동
 - HBM 역추적: 12개 장면 차례 전환, 장면 사이 줌 겹침, 배율·눈금, 위젯이 화면을 바꾸는지(데이터선 수·웨이퍼 맵·단수), 카드 안 단계와 ← → 키, 제조 순서 모드, 발표 모드, 탭 사이 링크

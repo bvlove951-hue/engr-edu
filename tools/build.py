@@ -19,6 +19,8 @@ PARTS = {
     "/*@JOURNEY_JS@*/": ROOT / "src" / "journey.js",     # HBM 역추적 탭 (스크롤 줌 스토리)
     "/*@BUMP_CSS@*/": ROOT / "src" / "bump.css",         # 범프 공정 탭 스타일
     "/*@BUMP_JS@*/": ROOT / "src" / "bump.js",           # 범프 공정 탭 (웨이퍼·다이·범프 한 화면)
+    "/*@SYS_CSS@*/": ROOT / "src" / "systems.css",       # 사내 시스템 지도 탭 스타일
+    "/*@SYS_JS@*/": ROOT / "src" / "systems.js",         # 사내 시스템 지도 탭 (MES·FDC·… 한 장 지도)
 }
 
 
@@ -63,7 +65,7 @@ def split_style(figs):
 
 
 def inject_parts(html):
-    """src/journey.*, bump.* 를 <style>·<script> 자리에 넣는다."""
+    """src/journey.*, bump.*, systems.* 를 <style>·<script> 자리에 넣는다."""
     for marker, path in PARTS.items():
         if html.count(marker) != 1:
             sys.exit(f"src/app.html 에서 {marker} 자리를 찾지 못했습니다")
