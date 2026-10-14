@@ -390,7 +390,7 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
     sys: [...new Set([...document.querySelectorAll('#view-sys [data-sys]')].map(e => e.dataset.sys))].length,
     edges: document.querySelectorAll('#view-sys .sy-edge').length, beats: window.EngrSys.state.beats,
     chips: document.querySelectorAll('#view-sys .sy-nav button').length, cards: document.querySelectorAll('#view-sys .jc').length }));
-  ok(sy.sys === 13 && sy.edges === 15 && sy.beats === 23 && sy.chips === 13, `시스템 11개 + PCS 묶음 + FAB · 화살표 ${sy.edges}개 · 단계 ${sy.beats}개 · 카드 ${sy.cards}장`);
+  ok(sy.sys === 17 && sy.edges === 19 && sy.beats === 27 && sy.chips === 17, `시스템 15개 + PCS 묶음 + FAB · 화살표 ${sy.edges}개 · 단계 ${sy.beats}개 · 카드 ${sy.cards}장`);
   const syAt = async s => {
     await page.evaluate(s => { const b = window.EngrSys.blocks().find(x => x.states.includes(s)); const V = document.getElementById('view-sys'); V.scrollTop = b.top + (b.states.indexOf(s) + 0.5) / b.n * b.h - V.clientHeight * 0.5; }, s);
     await page.waitForTimeout(150);
@@ -408,17 +408,19 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
       dim: [...document.querySelectorAll('#view-sys [data-sys].dim')].map(e => e.dataset.sys) };
   });
   await syAt('s1'); const l1 = await syLook();
+  await syAt('s2'); const l2 = await syLook();
   await syAt('s5'); const l5 = await syLook();
   await syAt('s6'); const l6 = await syLook();
   await syAt('s7'); const l7 = await syLook();
   ok(l1.lotHidden && l1.on === 'g-m,m-mes' && l1.dim.includes('fdc') && !l1.dim.includes('gmdm'), '이야기 1: 기준정보만 밝고 lot은 아직 없다');
+  ok(l2.lot === 'MOVE' && l2.on === 'mcs-fab,mes-rtd,rtd-mcs' && !l2.dim.includes('rtd') && !l2.dim.includes('mcs'), '이야기 2: MES → RTD(다음 lot) → MCS(반송), lot MOVE');
   ok(l5.alarm && l5.lot === 'HOLD' && l5.on === 'fab-fdc,fab-tas', '이야기 5: FDC 알람 → lot HOLD');
-  ok(l6.lamp === 'down' && l6.chip === 'down' && l6.on === 'ees-mes,fab-ees' && !l6.alarm, '이야기 6: ALID → EES → MES, 장비 상태등과 MES 칸이 함께 DOWN');
+  ok(l6.lamp === 'down' && l6.chip === 'down' && l6.on === 'ees-mes,fab-ees' && !l6.alarm && !l6.dim.includes('eap'), '이야기 6: ALID → EAP → EES → MES, 장비 상태등과 MES 칸이 함께 DOWN');
   ok(l7.lamp === 'pm' && l7.on === 'gi-fab,mes-gi', '이야기 7: GIPMS 정비, 장비 PM');
   await page.click('#view-sys [data-sys="yes"] .sy-card', { force: true });  // 상자 안 글자를 눌러도 상자로 간다
   await page.waitForTimeout(1600);
   ok((await page.evaluate(() => window.EngrSys.state.state)) === 'yes', '지도의 상자를 누르면 그 시스템 카드로 (YES)');
-  await page.click('#view-sys .sy-nav button >> nth=5');
+  await page.click('#view-sys .sy-nav button >> nth=8');
   await page.waitForTimeout(1600);
   ok((await page.evaluate(() => window.EngrSys.state.state)) === 'rms', '아래 칩을 누르면 이동 (PCS → RMS)');
   await page.screenshot({ path: path.join(OUT, '09-sys.png') });
