@@ -470,6 +470,23 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   ok(/계속/.test(ss0) && /\d+ %/.test(ss5) && plNum(t95) === 60 && outM < outT, `11 도금액 관리: bleed 0 → ${ss0}, 5 %/일 → 멈추는 수준 ${ss5} · 95 % 도달 ${t95}, 첨가제 이탈 시간 기준 ${outT}일 → Ah + 시간 ${outM}일`);
   await page.screenshot({ path: path.join(OUT, '09-plating.png') });
   await page.click('[data-tab="map"]');
+  // 파일 크기: 앞부분만 읽는 보기 화면에서도 끝(전해도금 엔진)까지 들어오도록
+  const htmlPath = FILE.replace(/^file:\/\//, '');
+  const htmlBytes = fs.statSync(htmlPath).size;
+  ok(htmlBytes < 1000000, `결과물 크기 ${htmlBytes.toLocaleString()} 바이트 < 1,000,000 (잘라 읽는 보기 화면 대비)`);
+  // 엔진이 실리지 못하면(파일이 잘림) 까만 화면 대신 안내가 보인다
+  {
+    const src = fs.readFileSync(htmlPath, 'utf8'), cut = src.indexOf("document.getElementById('view-plating')");
+    const tmp = path.join(OUT, 'cut.html');
+    fs.writeFileSync(tmp, src.slice(0, src.lastIndexOf('<script>', cut)));
+    const p2 = await (await browser.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
+    await p2.goto('file://' + tmp);
+    await p2.waitForFunction(() => window.EngrEdu && window.EngrEdu.state.maps.length > 0);
+    await p2.click('[data-tab="plating"]');
+    await p2.waitForTimeout(300);
+    ok(await p2.isVisible('#view-plating .pl-fallback'), '엔진이 잘린 파일: 전해도금 탭에 안내 글이 보인다 (까만 화면 아님)');
+    await p2.context().close();
+  }
 
   console.log('다크 모드 화면');
   await page.click('#btn-theme');

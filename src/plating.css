@@ -5,6 +5,11 @@
 #view-plating{display:none;overflow-y:auto;overflow-x:hidden;background:#060b16;position:relative;scroll-behavior:auto;overflow-anchor:none}
 #view-plating.active{display:block}
 #view-plating:focus{outline:none}
+/* 엔진이 실리지 못했을 때만 보이는 안내 (엔진이 돌면 비운다) */
+.pl-fallback{max-width:620px;margin:14vh auto 0;padding:20px 24px;color:#e2e8f0;background:#0f172a;border:1px solid #334155;border-radius:14px;font-size:15px;line-height:1.7}
+.pl-fallback b{color:#fbbf24;font-size:17px}
+.pl-fallback p{margin:8px 0 0}
+.pl-fallback code{color:#7dd3fc}
 
 /* 위쪽 장 표시 */
 .pl-head{position:absolute;left:14px;top:10px;display:flex;gap:12px;align-items:center;pointer-events:none;max-width:calc(100% - 440px);background:rgba(6,11,22,.72);border-radius:14px;padding:0 12px 0 0;z-index:1}

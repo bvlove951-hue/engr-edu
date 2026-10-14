@@ -186,7 +186,10 @@ tests/smoke.cjs          Playwright 브라우저 테스트
 python3 tools/make_figures.py   # 그림을 바꿨을 때 (글자 넘침 경고도 보여 줌)
 python3 tools/build.py
 python3 tools/build.py --out /tmp/x.html --only 03,07   # 작업 중 확인: 다른 곳에, 전해도금은 그 장만
+python3 tools/build.py --no-min                         # 코드를 줄이지 않은 읽기 쉬운 결과물 (디버깅용)
 ```
+
+빌드는 `tools/minify.cjs`(Node.js + typescript)로 코드의 주석 · 빈칸을 덜어 냅니다. 줄인 코드는 구문 나무가 원본과 같은지 확인한 뒤에만 씁니다. 일부 앱 미리보기는 HTML 파일의 앞 1 MB 정도만 읽어서, 파일이 그보다 크면 맨 뒤에 있는 전해도금 탭이 까맣게 보입니다. 그래서 결과물을 **1,000,000 바이트 아래**로 유지하고(넘으면 빌드가 경고하고 테스트가 실패), 엔진이 실리지 못하면 탭에 안내 글이 보이게 했습니다.
 
 ## 테스트
 

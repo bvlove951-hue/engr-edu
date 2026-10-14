@@ -4,10 +4,15 @@
 사용법:  python3 tools/build.py            (dist/engr-edu.html)
         python3 tools/build.py --out 경로  (다른 곳에 만들기 — 작업 중 비교용)
         python3 tools/build.py --out 경로 --only 03,07  (전해도금 탭에 그 장만 넣기)
+        python3 tools/build.py --no-min    (코드를 줄이지 않은 읽기 쉬운 결과물 — 디버깅용)
 결과물은 외부 파일·CDN 없이 더블클릭만으로 열리는 하나의 HTML 파일이다.
+코드의 주석 · 빈칸은 tools/minify.cjs 로 덜어 낸다(Node.js + typescript 필요, 없으면 그대로 두고 알린다).
+일부 앱 보기 화면은 HTML 파일의 앞 1 MB 정도만 읽으므로 결과물을 1,000,000 바이트 아래로 유지한다.
 """
 import json
 import re
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -15,6 +20,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "src" / "app.html"
 EDU = ROOT / "education"
 OUT = ROOT / "dist" / "engr-edu.html"
+SIZE_LIMIT = 1_000_000          # 앞부분만 읽는 보기 화면에서도 끝까지 들어오도록 (바이트)
 # 앱 원본의 자리 표시(주석)를 별도 파일의 내용으로 바꿔 넣는다
 PARTS = {
     "/*@JOURNEY_CSS@*/": ROOT / "src" / "journey.css",   # HBM 역추적 탭 스타일
@@ -47,8 +53,12 @@ def load_figures(mods):
             p = EDU / "figures" / f"{name}.svg"
             if not p.exists():
                 sys.exit(f"{mod['file']}: 그림 {p.name} 이 없습니다 (python3 tools/make_figures.py 실행)")
-            figs[name] = p.read_text(encoding="utf-8").strip()
+            # 속성 따옴표를 ' 로: JSON 에 넣을 때 \" 로 늘어나지 않게 (값에 ' 가 없을 때만)
+            figs[name] = ATTR_DQ.sub(r"\1='\2'", p.read_text(encoding="utf-8").strip())
     return figs
+
+
+ATTR_DQ = re.compile(r'(\s[\w:.-]+)="([^"\'<>]*)"')
 
 
 STYLE_RE = re.compile(r"<style>(.*?)</style>", re.S)
@@ -112,8 +122,35 @@ def main():
     check_self_contained(html)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")
+    if "--no-min" not in sys.argv:
+        minify(out)
     shown = out.relative_to(ROOT) if out.is_relative_to(ROOT) else out
-    print(f"{shown}  ({out.stat().st_size / 1024:.0f} KB, 교육 모듈 {len(mods)}개, 그림 {len(figs)}개)")
+    size = out.stat().st_size
+    print(f"{shown}  ({size / 1024:.0f} KB, 교육 모듈 {len(mods)}개, 그림 {len(figs)}개)")
+    if size >= SIZE_LIMIT:
+        print(f"⚠ {size:,} 바이트 — {SIZE_LIMIT:,} 바이트를 넘었습니다. 일부 앱 보기 화면은 파일 앞부분만 읽어 뒤쪽 탭(전해도금)이 까맣게 보일 수 있습니다.")
+
+
+def minify(path):
+    """tools/minify.cjs 로 코드의 주석 · 빈칸을 덜어 낸다. Node.js · typescript 가 없으면 그대로 둔다."""
+    node = shutil.which("node")
+    if not node:
+        print("(Node.js 가 없어 코드를 줄이지 않았습니다)")
+        return
+    env = None
+    try:
+        root = subprocess.run(["npm", "root", "-g"], capture_output=True, text=True, timeout=30).stdout.strip()
+        if root:
+            import os
+            env = dict(os.environ, NODE_PATH=root)
+    except (OSError, subprocess.SubprocessError):
+        pass
+    r = subprocess.run([node, str(ROOT / "tools" / "minify.cjs"), str(path), str(path)], capture_output=True, text=True, env=env)
+    msg = (r.stdout or r.stderr).strip()
+    if r.returncode:
+        print(f"(코드를 줄이지 못했습니다: {msg})")
+    elif "그대로 둔" in msg:
+        print(msg)
 
 
 if __name__ == "__main__":
