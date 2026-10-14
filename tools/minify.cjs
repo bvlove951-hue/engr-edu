@@ -60,6 +60,9 @@ function minJsMode(code, join){
     s += txt;
     prev = t;
   }
+  // 빈칸을 빼서 HTML 이 <script> 를 일찍 닫거나 주석으로 읽을 글자가 새로 생기면 쓰지 않는다
+  const risky = /<\/script|<!--|-->/i;
+  if (risky.test(s) && !risky.test(code)) return null;
   // 같은 프로그램인지 확인: 두 코드의 구문 나무(노드 종류 + 토큰 글자)가 하나도 다르지 않아야 한다
   const p = parse(s);
   if (p.parseDiagnostics && p.parseDiagnostics.length) return null;
