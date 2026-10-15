@@ -1,10 +1,11 @@
 /* ================================================================
- * 전해도금 — 원리부터 현장까지. HBM 역추적 · 범프 공정과 같은 '도면 극장' 스타일
+ * 도면 극장(theatre) 탭 — 전해도금 · PR 스트립 · 시드 식각 · 리플로우가 함께 쓰는 스타일. HBM 역추적 · 범프 공정과 같은 모양
  * .jz, .jc, .jz-* 와 글자(.t-*) · 재질(.f-*) · 선(.s-*) 색은 journey.css, 장비 색(.tl-*)은 bump.css 를 함께 쓴다
  * ================================================================ */
-#view-plating{display:none;overflow-y:auto;overflow-x:hidden;background:#060b16;position:relative;scroll-behavior:auto;overflow-anchor:none}
-#view-plating.active{display:block}
-#view-plating:focus{outline:none}
+/* 탭 화면 (section.view.thv). --th-* 는 엔진이 탭마다 자기 SVG 정의를 가리키게 넣는다 (같은 문서에 탭이 여럿이라 id 가 겹치지 않게) */
+.thv{display:none;overflow-y:auto;overflow-x:hidden;background:#060b16;position:relative;scroll-behavior:auto;overflow-anchor:none}
+.thv.active{display:block}
+.thv:focus{outline:none}
 /* 엔진이 실리지 못했을 때만 보이는 안내 (엔진이 돌면 비운다) */
 .pl-fallback{max-width:620px;margin:14vh auto 0;padding:20px 24px;color:#e2e8f0;background:#0f172a;border:1px solid #334155;border-radius:14px;font-size:15px;line-height:1.7}
 .pl-fallback b{color:#fbbf24;font-size:17px}
@@ -119,8 +120,11 @@
 .pl-svg .hide{display:none}
 .pl-zt{font-size:13px;fill:#e2e8f0 !important;font-weight:600;stroke-width:2.5px !important}
 .pl-eqn{font-family:var(--mono) !important;font-size:22px;font-weight:800;fill:#fde68a !important}
-.pl-svg .hl{filter:url(#pl-glow)}
-.pl-svg .pl-psel{filter:url(#pl-hi)}
+.pl-svg .hl{filter:var(--th-glow)}
+.pl-svg .pl-psel{filter:var(--th-hi)}
+.pl-svg a.pl-tablink{cursor:pointer}
+.pl-flowon{font-size:17px;font-weight:800;fill:#7dd3fc}
+.pl-svg a.pl-tablink:hover rect{stroke:#7dd3fc}
 .pl-part{cursor:pointer}
 .pl-ttl{font-size:84px;font-weight:900;fill:#f8fafc !important;letter-spacing:-2px}
 .pl-tno{font-size:40px;font-weight:900;fill:#38bdf8 !important;letter-spacing:-1px}
@@ -153,8 +157,8 @@
 .k-ok{fill:#22c55e}
 .k-warn{fill:#f59e0b}
 .k-ng{fill:#ef4444}
-.f-bath{fill:url(#pl-g-bath)}
-.f-dl{fill:url(#pl-g-dl)}
+.f-bath{fill:var(--th-bath)}
+.f-dl{fill:var(--th-dl)}
 .f-psu{fill:#1e293b;stroke:#64748b;stroke-width:1.6}
 .f-tank{fill:none;stroke:#4a6390;stroke-width:3}
 .f-anode{fill:#b06c38;stroke:#e0904f;stroke-width:1.2}
@@ -162,7 +166,7 @@
 .f-wafer{fill:#56667f;stroke:#94a3b8;stroke-width:1}
 .f-seed2{fill:#e0904f}
 .f-cu2{fill:#d4874a;stroke:#f3b07a;stroke-width:.8}
-.f-sn2{fill:url(#pl-g-sn)}
+.f-sn2{fill:var(--th-sn)}
 .f-ag{fill:#e5e7eb}
 .f-hole2{fill:#070d18}
 .f-atom{fill:#d4874a;stroke:#7c4a24;stroke-width:1}
@@ -178,6 +182,21 @@
 .f-lev{fill:#f472b6}
 .f-frag{fill:#64748b}
 .f-cl{fill:#a3e635}
+/* PR 스트립 · 시드 식각 · 리플로우 탭이 함께 쓰는 재질 (세 탭에서 같은 것은 같은 색) */
+.f-ti{fill:#8d96ab;stroke:#c8cfdc;stroke-width:.8}
+.f-strip{fill:rgba(192,132,252,.15)}
+.f-etl{fill:rgba(45,212,191,.14)}
+.f-rinse{fill:rgba(125,211,252,.10)}
+.f-prs{fill:rgba(167,139,250,.42);stroke:#c4b5fd;stroke-width:1.4;stroke-dasharray:6 4}
+.f-prx{fill:rgba(109,94,190,.92);stroke:#8b7be0;stroke-width:1}
+.f-res{fill:#c4b5fd;stroke:#ede9fe;stroke-width:.8}
+.f-flux{fill:rgba(250,204,21,.26);stroke:#facc15;stroke-width:1.2}
+.f-snox{fill:#5d6b80;stroke:#94a3b8;stroke-width:.8}
+.f-cuox{fill:#7a3e2a;stroke:#b45f3c;stroke-width:.8}
+.f-gas{fill:rgba(148,163,184,.08);stroke:rgba(148,163,184,.35);stroke-width:1}
+.f-void{fill:#070d18;stroke:#94a3b8;stroke-width:1.2}
+.f-heat{fill:rgba(239,68,68,.12)}
+.f-cool{fill:rgba(56,189,248,.10)}
 .pl-z0{fill:rgba(34,197,94,.08)}
 .pl-z1{fill:rgba(245,158,11,.08)}
 .pl-z2{fill:rgba(239,68,68,.09)}

@@ -525,21 +525,25 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   await page.waitForTimeout(300);
   ok(sk1.pres === sk0 + 1 && sk1.state === 'ec' && /EC/.test(cap) && (await page.evaluate(() => window.EngrSys.state.pres)) === null, `발표 모드: → 로 다음 (${sk1.state} · ${cap}), Esc로 닫기`);
   await page.click('[data-tab="map"]');
-  // 파일 크기: 앞부분만 읽는 보기 화면에서도 끝(전해도금 엔진)까지 들어오도록
+  // 파일 크기: 앞부분만 읽는 보기 화면에서도 끝(도면 극장 탭들)까지 들어오도록
   const htmlPath = FILE.replace(/^file:\/\//, '');
   const htmlBytes = fs.statSync(htmlPath).size;
   ok(htmlBytes < 1000000, `결과물 크기 ${htmlBytes.toLocaleString()} 바이트 < 1,000,000 (잘라 읽는 보기 화면 대비)`);
   // 엔진이 실리지 못하면(파일이 잘림) 까만 화면 대신 안내가 보인다
   {
-    const src = fs.readFileSync(htmlPath, 'utf8'), cut = src.indexOf("document.getElementById('view-plating')");
+    const src = fs.readFileSync(htmlPath, 'utf8');
+    const cut = [src.indexOf('<script type="application/octet-stream" data-part="plating"'), src.indexOf('<script data-part="plating">')].find(i => i > 0);
     const tmp = path.join(OUT, 'cut.html');
-    fs.writeFileSync(tmp, src.slice(0, src.lastIndexOf('<script>', cut)));
+    fs.writeFileSync(tmp, src.slice(0, cut));
     const p2 = await (await browser.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
     await p2.goto('file://' + tmp);
     await p2.waitForFunction(() => window.EngrEdu && window.EngrEdu.state.maps.length > 0);
     await p2.click('[data-tab="plating"]');
     await p2.waitForTimeout(300);
     ok(await p2.isVisible('#view-plating .pl-fallback'), '엔진이 잘린 파일: 전해도금 탭에 안내 글이 보인다 (까만 화면 아님)');
+    await p2.click('[data-tab="reflow"]');
+    await p2.waitForTimeout(200);
+    ok(await p2.isVisible('#view-reflow .pl-fallback'), '엔진이 잘린 파일: 리플로우 탭에도 안내 글');
     await p2.context().close();
   }
 

@@ -51,8 +51,13 @@ a{color:var(--accent)}
 .topbar{display:flex;align-items:center;gap:12px;padding:0 14px;height:48px;background:var(--panel);border-bottom:1px solid var(--line);flex:none}
 .brand{font-weight:700;letter-spacing:-.2px;white-space:nowrap}
 .brand small{font-weight:500;color:var(--muted);margin-left:6px}
-.tabs{display:flex;gap:4px;margin-left:8px}
-.tab{border:0;background:transparent;padding:6px 12px;border-radius:8px;color:var(--muted);font-weight:600;white-space:nowrap}
+.tabs{display:flex;gap:4px;margin-left:8px;min-width:0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+/* 탭 줄이 화면보다 길면(좁은 화면) 옆으로 밀어 보고, 가려진 쪽 끝을 흐리게 */
+.tabs.fade-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent)}
+.tabs.fade-l{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 22px),transparent)}
+.tabs.fade-l.fade-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 22px,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to right,transparent,#000 22px,#000 calc(100% - 22px),transparent)}
+.tab{flex:none;border:0;background:transparent;padding:6px 12px;border-radius:8px;color:var(--muted);font-weight:600;white-space:nowrap}
 .tab[aria-selected="true"]{background:var(--accent-weak);color:var(--accent)}
 .ts{display:none}
 .spacer{flex:1}
@@ -301,11 +306,11 @@ details.menu .menu-pop.left{left:0;right:auto}
 .img-card{position:relative}
 .canvas-wrap.drop-over{outline:3px dashed var(--accent);outline-offset:-6px}
 
-@media (max-width: 1180px){
+@media (max-width: 1440px){
   .brand small{display:none}
 }
-@media (max-width: 960px){
-  /* 탭이 여섯 개라 좁은 화면에서는 짧은 이름으로 */
+@media (max-width: 1180px){
+  /* 탭이 아홉 개라 좁은 화면에서는 짧은 이름으로 (더 좁으면 탭 줄을 옆으로 민다) */
   .tabs .tl,.icon-btn .tl{display:none}
   .tabs .ts,.icon-btn .ts{display:inline}
 }
@@ -339,7 +344,7 @@ details.menu .menu-pop.left{left:0;right:auto}
 <style>/*@JOURNEY_CSS@*/</style>
 <style>/*@BUMP_CSS@*/</style>
 <style>/*@SYS_CSS@*/</style>
-<style>/*@PLATING_CSS@*/</style>
+<style>/*@THEATRE_CSS@*/</style>
 </head>
 <body>
 <div id="app">
@@ -351,6 +356,9 @@ details.menu .menu-pop.left{left:0;right:auto}
       <button class="tab" role="tab" data-tab="hbm" aria-selected="false" title="AI에서 DRAM 셀까지 스크롤 줌"><span class="tl">HBM 역추적</span><span class="ts">HBM</span></button>
       <button class="tab" role="tab" data-tab="bump" aria-selected="false" title="앞면 범프 도금 공정 — 웨이퍼·다이·범프 한 화면"><span class="tl">범프 공정</span><span class="ts">범프</span></button>
       <button class="tab" role="tab" data-tab="plating" aria-selected="false" title="전해도금 — 원리부터 현장까지 13장"><span class="tl">전해도금</span><span class="ts">도금</span></button>
+      <button class="tab" role="tab" data-tab="strip" aria-selected="false" title="PR 스트립 — 도금이 끝난 뒤 PR 틀 벗기기"><span class="tl">PR 스트립</span><span class="ts">스트립</span></button>
+      <button class="tab" role="tab" data-tab="etch" aria-selected="false" title="시드 식각 — 범프 사이의 시드 금속 지우기"><span class="tl">시드 식각</span><span class="ts">식각</span></button>
+      <button class="tab" role="tab" data-tab="reflow" aria-selected="false" title="리플로우 — 솔더를 녹여 둥글게"><span class="tl">리플로우</span><span class="ts">리플로우</span></button>
       <button class="tab" role="tab" data-tab="sys" aria-selected="false" title="반도체 공장의 사내 시스템 — 한 장 지도"><span class="tl">사내 시스템</span><span class="ts">시스템</span></button>
     </nav>
     <div class="spacer"></div>
@@ -366,7 +374,10 @@ details.menu .menu-pop.left{left:0;right:auto}
 
   <section class="view" id="view-hbm" aria-label="HBM 역추적 — AI에서 DRAM 셀까지"></section>
   <section class="view" id="view-bump" aria-label="범프 공정 — 웨이퍼·다이·범프"></section>
-  <section class="view" id="view-plating" aria-label="전해도금 — 원리부터 현장까지"><div class="pl-fallback"><b>전해도금 탭을 불러오지 못했습니다.</b><p>이 화면이 파일의 앞부분만 읽었거나(일부 앱 미리보기는 큰 HTML 파일을 잘라 읽습니다) 스크립트를 막았을 수 있습니다. <code>dist/engr-edu.html</code> 파일을 내려받아 Chrome · Edge · Safari 같은 브라우저로 직접 열어 주세요.</p></div></section>
+  <section class="view thv" id="view-plating" aria-label="전해도금 — 원리부터 현장까지"><div class="pl-fallback"><b>전해도금 탭을 불러오지 못했습니다.</b><p>이 화면이 파일의 앞부분만 읽었거나(일부 앱 미리보기는 큰 HTML 파일을 잘라 읽습니다) 스크립트를 막았을 수 있습니다. <code>dist/engr-edu.html</code> 파일을 내려받아 Chrome · Edge · Safari 같은 브라우저로 직접 열어 주세요.</p></div></section>
+  <section class="view thv" id="view-strip" aria-label="PR 스트립 — 도금이 끝난 뒤 PR 틀 벗기기"><div class="pl-fallback"><b>PR 스트립 탭을 불러오지 못했습니다.</b><p>이 화면이 파일의 앞부분만 읽었거나(일부 앱 미리보기는 큰 HTML 파일을 잘라 읽습니다) 스크립트를 막았을 수 있습니다. <code>dist/engr-edu.html</code> 파일을 내려받아 Chrome · Edge · Safari 같은 브라우저로 직접 열어 주세요.</p></div></section>
+  <section class="view thv" id="view-etch" aria-label="시드 식각 — 범프 사이의 시드 금속 지우기"><div class="pl-fallback"><b>시드 식각 탭을 불러오지 못했습니다.</b><p>이 화면이 파일의 앞부분만 읽었거나(일부 앱 미리보기는 큰 HTML 파일을 잘라 읽습니다) 스크립트를 막았을 수 있습니다. <code>dist/engr-edu.html</code> 파일을 내려받아 Chrome · Edge · Safari 같은 브라우저로 직접 열어 주세요.</p></div></section>
+  <section class="view thv" id="view-reflow" aria-label="리플로우 — 솔더를 녹여 둥글게"><div class="pl-fallback"><b>리플로우 탭을 불러오지 못했습니다.</b><p>이 화면이 파일의 앞부분만 읽었거나(일부 앱 미리보기는 큰 HTML 파일을 잘라 읽습니다) 스크립트를 막았을 수 있습니다. <code>dist/engr-edu.html</code> 파일을 내려받아 Chrome · Edge · Safari 같은 브라우저로 직접 열어 주세요.</p></div></section>
   <section class="view" id="view-sys" aria-label="사내 시스템 지도 — 반도체 공장을 돌리는 시스템"></section>
 
   <section class="view" id="view-map">
@@ -1143,6 +1154,20 @@ const inflateRaw = (() => {
     return out.subarray(0, n);
   };
 })();
+// 압축해 실은 탭 스크립트(<script type="application/octet-stream" data-part="탭" data-z="deflate">)를 문서 순서대로 풀어 실행한다.
+// 빌드가 탭 묶음마다 끝에 EngrRunParts() 를 넣는다. 새 <script> 를 끼워 넣는 순간 일반 <script> 처럼 전역에서 실행되고, 한 파일의 오류는 다음 파일을 멈추지 않는다
+window.EngrRunParts = () => {
+  document.querySelectorAll('script[data-part][data-z="deflate"]:not([data-ran])').forEach(el => {
+    el.setAttribute('data-ran', '');
+    try {
+      const b = atob(el.textContent.replace(/\s+/g, '')), u = new Uint8Array(b.length);
+      for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+      const sc = document.createElement('script');
+      sc.textContent = new TextDecoder('utf-8').decode(inflateRaw(u));
+      el.after(sc);
+    } catch (e){ console.error('탭 스크립트를 풀지 못했습니다', el.dataset.part, e); }
+  });
+};
 function loadEdu(){
   let data = [];
   try {
@@ -2277,17 +2302,32 @@ function setTab(t){
   if (!$('#view-' + t)) t = 'edu';
   S.tab = t;
   $$('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t ? 'true' : 'false'));
+  // 고른 탭이 탭 줄 밖(좁은 화면)이면 보이게 민다
+  const nav = $('.tabs'), sb = nav.querySelector(`.tab[data-tab="${t}"]`);
+  if (sb && nav.scrollWidth > nav.clientWidth + 1){
+    const nr = nav.getBoundingClientRect(), br = sb.getBoundingClientRect();
+    if (br.left < nr.left + 24 || br.right > nr.right - 24) nav.scrollLeft += (br.left + br.width / 2) - (nr.left + nr.width / 2);
+  }
+  tabsFade();
   $$('#app > .view').forEach(v => v.classList.toggle('active', v.id === 'view-' + t));
   store.set('engr-edu.tab', t);
   if (t === 'map'){ renderCanvas(); requestAnimationFrame(() => { if (!S.fitted){ fit(); S.fitted = true; } }); }
   document.dispatchEvent(new CustomEvent('engr:tab', {detail: t}));
 }
 $$('.tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
-// 탭 사이 이동 링크: #go-hbm, #go-bump, #go-plating, #go-sys, #go-map, #go-edu-4 (교육 모듈 번호)
+// 좁은 화면: 탭 줄 끝이 가려졌으면 그쪽을 흐리게
+function tabsFade(){
+  const nav = $('.tabs'), over = nav.scrollWidth > nav.clientWidth + 1;
+  nav.classList.toggle('fade-l', over && nav.scrollLeft > 2);
+  nav.classList.toggle('fade-r', over && nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 2);
+}
+$('.tabs').addEventListener('scroll', tabsFade, {passive: true});
+window.addEventListener('resize', tabsFade);
+// 탭 사이 이동 링크: #go-hbm, #go-bump, #go-plating, #go-sys, #go-map, #go-edu-4 (교육 모듈 번호), #go-reflow-03 (도면 극장 탭의 장 번호)
 document.addEventListener('click', ev => {
   const a = ev.target.closest && ev.target.closest('a[href^="#go-"]');
   if (!a) return;
-  const m = a.getAttribute('href').match(/^#go-(edu|map|hbm|bump|plating|sys)(?:-(\d+))?$/);
+  const m = a.getAttribute('href').match(/^#go-(edu|map|hbm|bump|plating|strip|etch|reflow|sys)(?:-(\d+))?$/);
   if (!m) return;
   ev.preventDefault();
   if (m[1] === 'edu' && m[2] != null && S.edu.length){
@@ -2295,6 +2335,8 @@ document.addEventListener('click', ev => {
     renderEdu(); $('.edu-main').scrollTop = 0;
   }
   setTab(m[1]);
+  const th = window.EngrTheatres && window.EngrTheatres[m[1]];
+  if (th && m[2] != null) requestAnimationFrame(() => requestAnimationFrame(() => th.gotoNo(m[2])));   // 탭이 자리를 잡은 뒤 그 장으로
 });
 $$('.panel-tabs button').forEach(b => b.addEventListener('click', () => setPtab(b.dataset.ptab)));
 $('#btn-settings').addEventListener('click', openSettings);
@@ -2408,9 +2450,12 @@ window.EngrEdu = {parseFlow, layoutMap, renderMarkdown, normalizeMap, buildShare
 init();
 })();
 </script>
-<script>/*@JOURNEY_JS@*/</script>
-<script>/*@BUMP_JS@*/</script>
-<script>/*@SYS_JS@*/</script>
-<script>/*@PLATING_JS@*/</script>
+<script data-part="hbm">/*@JOURNEY_JS@*/</script>
+<script data-part="bump">/*@BUMP_JS@*/</script>
+<script data-part="sys">/*@SYS_JS@*/</script>
+<script data-part="plating">/*@PLATING_JS@*/</script>
+<script data-part="strip">/*@STRIP_JS@*/</script>
+<script data-part="etch">/*@ETCH_JS@*/</script>
+<script data-part="reflow">/*@REFLOW_JS@*/</script>
 </body>
 </html>

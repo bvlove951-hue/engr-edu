@@ -3,11 +3,11 @@
 
 사용법:  python3 tools/build.py            (dist/engr-edu.html)
         python3 tools/build.py --out 경로  (다른 곳에 만들기 — 작업 중 비교용)
-        python3 tools/build.py --out 경로 --only 03,07  (전해도금 탭에 그 장만 넣기)
-        python3 tools/build.py --no-min    (코드를 줄이지 않고 교육 콘텐츠도 압축하지 않은 읽기 쉬운 결과물 — 디버깅용)
+        python3 tools/build.py --out 경로 --only 03,reflow/05  (도면 극장 탭에 그 장만 넣기: NN = 전해도금, 탭/NN = 그 탭)
+        python3 tools/build.py --no-min    (코드를 줄이지 않고 압축하지 않은 읽기 쉬운 결과물 — 디버깅용)
 결과물은 외부 파일·CDN 없이 더블클릭만으로 열리는 하나의 HTML 파일이다.
 코드의 주석 · 빈칸은 tools/minify.cjs 로 덜어 내고(Node.js + typescript 필요, 없으면 그대로 두고 알린다),
-교육 콘텐츠(JSON)는 DEFLATE 로 압축해 base64 로 넣는다(앱의 inflateRaw 가 푼다).
+교육 콘텐츠(JSON)와 탭 스크립트는 DEFLATE 로 압축해 base64 로 넣는다(앱의 inflateRaw 가 풀고, 탭 스크립트는 EngrRunParts 가 순서대로 실행).
 일부 앱 보기 화면은 HTML 파일의 앞 1 MB 정도만 읽으므로 결과물을 1,000,000 바이트 아래로 유지한다.
 """
 import base64
@@ -32,10 +32,15 @@ PARTS = {
     "/*@BUMP_JS@*/": ROOT / "src" / "bump.js",           # 범프 공정 탭 (웨이퍼·다이·범프 한 화면)
     "/*@SYS_CSS@*/": ROOT / "src" / "systems.css",       # 사내 시스템 지도 탭 스타일
     "/*@SYS_JS@*/": ROOT / "src" / "systems.js",         # 사내 시스템 지도 탭 (MES·FDC·… 한 장 지도)
-    "/*@PLATING_CSS@*/": ROOT / "src" / "plating.css",   # 전해도금 탭 스타일
-    # 전해도금 탭: 장(章)마다 한 파일(src/plating/NN-*.js)을 번호 순으로 싣고, 마지막에 엔진(src/plating.js)
-    "/*@PLATING_JS@*/": [*sorted((ROOT / "src" / "plating").glob("*.js")), ROOT / "src" / "plating.js"],
+    "/*@THEATRE_CSS@*/": ROOT / "src" / "theatre.css",   # 도면 극장 탭(전해도금 · PR 스트립 · 시드 식각 · 리플로우) 공용 스타일
+    # 도면 극장 탭: 공용 엔진(src/theatre.js)은 전해도금 묶음 맨 앞에 한 번.
+    # 탭마다 장(章) 파일(src/<탭>/NN-*.js)을 번호 순으로 싣고, 마지막에 탭 설정(src/<탭>.js)이 엔진을 부른다
+    "/*@PLATING_JS@*/": [ROOT / "src" / "theatre.js", *sorted((ROOT / "src" / "plating").glob("*.js")), ROOT / "src" / "plating.js"],
+    "/*@STRIP_JS@*/": [*sorted((ROOT / "src" / "strip").glob("*.js")), ROOT / "src" / "strip.js"],
+    "/*@ETCH_JS@*/": [*sorted((ROOT / "src" / "etch").glob("*.js")), ROOT / "src" / "etch.js"],
+    "/*@REFLOW_JS@*/": [*sorted((ROOT / "src" / "reflow").glob("*.js")), ROOT / "src" / "reflow.js"],
 }
+CHAPTER_DIRS = {"plating", "strip", "etch", "reflow"}
 
 
 FIG_REF = re.compile(r"^!\[[^\]]*\]\(figures/([\w.-]+)\.svg\)\s*$", re.M)
@@ -83,23 +88,51 @@ def split_style(figs):
 
 
 def inject_parts(html, only=None):
-    """src/journey.*, bump.*, plating.* 를 <style>·<script> 자리에 넣는다.
-    여러 파일(전해도금 장 파일들)은 파일마다 따로 <script>에 넣어, 한 파일의 오류가 다른 장을 멈추지 않게 한다.
-    only: 전해도금 장 번호 목록(예: ['03', '07']) — 그 장만 넣는다 (작업 중 확인용)."""
+    """src/journey.*, bump.*, systems.*, theatre.*, 탭 파일들을 <style>·<script> 자리에 넣는다.
+    여러 파일(장 파일들)은 파일마다 따로 <script data-part="탭">에 넣어, 한 파일의 오류가 다른 장을 멈추지 않게 한다.
+    only: 넣을 장 목록(예: ['03', 'reflow/05']) — NN 은 전해도금, 탭/NN 은 그 탭. 목록에 없는 장은 뺀다 (작업 중 확인용)."""
     for marker, paths in PARTS.items():
         if html.count(marker) != 1:
             sys.exit(f"src/app.html 에서 {marker} 자리를 찾지 못했습니다")
+        m = re.search(r'<script data-part="(\w+)">' + re.escape(marker), html)
+        tag = m.group(0)[:-len(marker)] if m else "<script>"
         codes = []
         for path in paths if isinstance(paths, list) else [paths]:
-            if only and path.parent.name == "plating" and path.name[:2] not in only:
+            d, nn = path.parent.name, path.name[:2]
+            if only and d in CHAPTER_DIRS and f"{d}/{nn}" not in only and not (d == "plating" and nn in only):
                 continue
             code = path.read_text(encoding="utf-8")
             # 인라인 <script>/<style> 안에서 HTML 파서를 깨뜨리는 문자열 금지
             if re.search(r"</(script|style)|<!--", code, re.I):
                 sys.exit(f"{path.name}: '</script', '</style', '<!--' 는 인라인으로 넣을 수 없습니다")
             codes.append(code)
-        html = html.replace(marker, "\n</script>\n<script>\n".join(codes) if isinstance(paths, list) else codes[0], 1)
+        html = html.replace(marker, f"\n</script>\n{tag}\n".join(codes) if isinstance(paths, list) else codes[0], 1)
     return html
+
+
+PART_RE = re.compile(r'<script data-part="(\w+)">(.*?)</script>', re.S)
+
+
+def pack_parts(html):
+    """탭 스크립트(<script data-part="탭">)를 DEFLATE + base64 로 줄이고, 탭 묶음이 끝날 때마다 EngrRunParts() 를 넣는다.
+    앱의 EngrRunParts 가 문서 순서대로 풀어 실행한다 (묶음마다 실행하므로 파일이 뒤에서 잘려도 앞쪽 탭은 돈다)."""
+    out, pos, last = [], 0, None
+    for m in PART_RE.finditer(html):
+        gap = html[pos:m.start()]
+        if last and gap.strip():                       # 다른 내용이 끼면 앞 묶음을 닫는다
+            out.append("<script>EngrRunParts()</script>")
+            last = None
+        out.append(gap)
+        if last and last != m.group(1):
+            out.append("<script>EngrRunParts()</script>")
+        z = zlib.compressobj(9, zlib.DEFLATED, -15, 9)
+        b64 = base64.b64encode(z.compress(m.group(2).encode("utf-8")) + z.flush()).decode("ascii")
+        out.append(f'<script type="application/octet-stream" data-part="{m.group(1)}" data-z="deflate">{b64}</script>')
+        last, pos = m.group(1), m.end()
+    if last:
+        out.append("<script>EngrRunParts()</script>")
+    out.append(html[pos:])
+    return "".join(out)
 
 
 def check_self_contained(html):
@@ -135,11 +168,12 @@ def main():
     out.write_text(html, encoding="utf-8")
     if "--no-min" not in sys.argv:
         minify(out)
+        out.write_text(pack_parts(out.read_text(encoding="utf-8")), encoding="utf-8")
     shown = out.relative_to(ROOT) if out.is_relative_to(ROOT) else out
     size = out.stat().st_size
     print(f"{shown}  ({size / 1024:.0f} KB, 교육 모듈 {len(mods)}개, 그림 {len(figs)}개)")
-    if size >= SIZE_LIMIT:
-        print(f"⚠ {size:,} 바이트 — {SIZE_LIMIT:,} 바이트를 넘었습니다. 일부 앱 보기 화면은 파일 앞부분만 읽어 뒤쪽 탭(전해도금)이 까맣게 보일 수 있습니다.")
+    if size >= SIZE_LIMIT and "--no-min" not in sys.argv:
+        print(f"⚠ {size:,} 바이트 — {SIZE_LIMIT:,} 바이트를 넘었습니다. 일부 앱 보기 화면은 파일 앞부분만 읽어 뒤쪽 탭이 까맣게 보일 수 있습니다.")
 
 
 def minify(path):
