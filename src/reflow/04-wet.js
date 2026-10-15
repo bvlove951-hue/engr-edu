@@ -36,7 +36,7 @@ function calc(s){
     c.h = c.hm; c.th = TSIDE + 90; c.mode = 'wick';
   }
   c.Rs = c.h > c.r ? (c.r * c.r + c.h * c.h) / (2 * c.h) : c.r;                 // 솔더 가장 넓은 반지름
-  c.Rw = c.mode === 'wick' ? Math.max(c.Rs, a + c.t) : c.Rs;
+  c.Rw = Math.max(c.mode === 'wick' ? Math.max(c.Rs, a + c.t) : c.Rs, a);       // 범프 가장 넓은 반지름 (솔더 · 옆면 막 · 기둥 중 큰 것)
   c.gap = s.p - 2 * c.Rw; c.dH = c.h - s.hc;
   // 부피 ±5 % → 꼭대기 변화 (양쪽 평균). 가장자리 고정이면 돔 식, 덜 덮이면 모양이 닮은 채 커져 h ∝ V^⅓, 흘러내리면 꼭대기는 한계에 묶임
   c.dh = c.mode === 'dome' ? (capH(a, V * 1.05) - capH(a, V * 0.95)) / 2 : c.mode === 'wick' ? 0 : c.h * (Math.cbrt(1.05) - Math.cbrt(0.95)) / 2;
@@ -63,8 +63,8 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
   ana: '<b>동전 위 물방울</b> — 동전에 물을 조금씩 떨어뜨리면 물은 동전 가장자리에서 멈추고 점점 볼록해집니다. 너무 많으면 가장자리를 넘어 흘러내립니다. <i>(비유의 한계: 동전 위 물은 무게가 표면장력보다 10배 넘게 커서 납작한 웅덩이(높이 몇 mm)가 되지만, 25 µm 솔더는 무게가 표면장력의 약 5만분의 1이라 거의 완전한 구의 일부가 됩니다. 또 솔더는 Ni와 반응하며 젖으므로, 표면이 깨끗한지(산화막 · 오염)가 물보다 훨씬 크게 작용합니다.)</i>',
   steps: [
     {id: 'tension', viewN: VN_UP, t: '표면장력 — 겉넓이를 줄이는 힘', d: '겉의 원자는 이웃이 적어 에너지가 높아, 겉넓이를 넓히려면 일이 듭니다. 그래서 액체는 같은 부피에서 겉넓이가 가장 작은 모양(구)으로 가려 합니다. 이 힘은 겉면을 따라 당기는 힘이고, 겉이 굽으면 안쪽 압력이 높아집니다. 녹은 SnAg의 표면장력은 물의 약 6~8배입니다.'},
-    {id: 'volume', viewN: VN_BUMP, t: '부피는 그대로 — 돔의 높이', d: '바닥(Ni 윗면) 지름과 솔더 부피가 정해지면 돔 모양은 하나로 정해집니다. 이 예시 크기에서는 같은 부피가 가운데로 모여 꼭대기가 도금 높이보다 높아집니다. 그래서 부피 산포가 거의 그대로 높이 산포로 넘어갑니다(부피 ±5 % → 꼭대기 약 ±3 %).'},
-    {id: 'angle', viewN: VN_UP, t: '접촉각 — 잘 젖는가', d: '고체 · 액체 · 기체가 만나는 선에서 세 겉면의 힘이 겨루어 접촉각이 정해집니다(영의 식). 깨끗한 Ni 위에서는 작고(잘 젖음), 산화 · 오염된 곳에서는 큽니다(안 젖음). Ni/SnAg 계면이 안 젖으면 솔더가 물러나 공처럼 뭉칩니다.'},
+    {id: 'volume', viewN: VN_BUMP, t: '부피는 그대로 — 돔의 높이', d: '바닥(Ni 윗면) 지름과 솔더 부피가 정해지면 돔 모양은 하나로 정해집니다. 이 예시 크기에서는 같은 부피가 가운데로 모여 꼭대기가 도금 높이보다 높아집니다. 그래서 부피가 흩어지면 꼭대기 높이도 함께 흩어집니다(부피 ±5 % → 꼭대기 약 ±3 %).'},
+    {id: 'angle', viewN: VN_UP, t: '접촉각 — 잘 젖는가', d: '고체 · 액체 · 기체가 만나는 선에서 세 경계면(고체–기체 · 고체–액체 · 액체–기체)의 힘이 겨루어 접촉각이 정해집니다(영의 식). 깨끗한 Ni 위에서는 작고(잘 젖음), 산화 · 오염된 곳에서는 큽니다(안 젖음). Ni/SnAg 계면이 안 젖으면 솔더가 물러나 공처럼 뭉칩니다.'},
     {id: 'edge', viewN: VN_UP, t: '가장자리 — 멈추거나 흘러내리거나', d: '돔은 Ni 윗면 모서리에 걸려 멈춥니다(고정). 옆면이 산화돼 있으면 잘 버티지만, 플럭스 · 환원 기체로 옆면까지 깨끗해지면 솔더가 Ni · Cu 옆면을 타고 내려갑니다. 그러면 돔이 낮아지고, 간격이 좁으면 이웃과 붙을 수 있습니다.'}
   ],
   icon(K){
@@ -83,7 +83,7 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
     // ── 위쪽 그림 칸 (x 40~980, y 130~620), 단계별
     // tension: 원자 그림 + 굽은 겉면
     let tn = T(60, 172, '표면장력 — 겉면을 따라 당기는 힘', 't-acc', 'start');
-    tn += T(60, 206, '평평한 겉: 양쪽 당김이 비겨 알짜 힘은 0 — "겉 원자를 안으로 끈다"는 흔한 오해', 't-dim', 'start');
+    tn += T(60, 206, '평평한 겉에서는 양쪽 당김이 비겨 알짜 힘이 0 — "겉 원자를 안으로 끌어당긴다"는 그림은 흔한 오해', 't-dim', 'start');
     const AX = (r, c) => 110 + c * 56 + (r % 2) * 28, AY = r => 340 + r * 48;
     const IN = [2, 3], SF = [0, 4];
     const nb = (r, c) => { const o = [[r, c + 1]]; if (r < 4) (r % 2 ? [[r + 1, c], [r + 1, c + 1]] : [[r + 1, c - 1], [r + 1, c]]).forEach(p => o.push(p)); return o.filter(([rr, cc]) => cc >= 0 && cc < 8); };
@@ -105,7 +105,7 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
     tn += LB(T(116, 272, '기체', 't-dim', 'start'));
     tn += arrow(sx - 46, 306, sx - 156, 306, 's-arr2') + arrow(sx + 46, 306, sx + 156, 306, 's-arr2');
     tn += LB(T(sx + 168, 312, '겉면을 따라 당김', 't-warn', 'start'));
-    tn += LB(T(60, 570, '① 안쪽 원자 — 사방에 이웃 (결합 6개)', 't-sub', 'start') + T(60, 597, '② 겉 원자 — 이웃이 적어 에너지↑ (끊긴 결합)', 't-sub', 'start'));
+    tn += LB(T(60, 568, '① 안쪽 원자 — 사방에 이웃 (결합 6개)', 't-sub', 'start') + T(60, 599, '② 겉 원자 — 이웃이 적어 에너지↑ (끊긴 결합)', 't-sub', 'start'));
     // 굽은 겉면 (오른쪽)
     const OX = 800, OY = 640, RR = 180, pt = d => [OX + RR * Math.cos(d * RAD), OY + RR * Math.sin(d * RAD)];
     const cy0 = 548, cdx = Math.sqrt(RR * RR - (OY - cy0) * (OY - cy0));
@@ -115,18 +115,18 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
     tn += arrow(p1x, p1y, p1x - 92 * Math.sin(60 * RAD), p1y + 92 * Math.cos(60 * RAD), 's-arr2') + arrow(p2x, p2y, p2x + 92 * Math.sin(60 * RAD), p2y + 92 * Math.cos(60 * RAD), 's-arr2');
     tn += arrow(OX, OY - RR + 14, OX, OY - RR + 82, 's-arr');
     tn += LB(T(OX, 404, '굽은 겉면', 't-sub') + T(OX + 14, 528, '합 → 안쪽', 'rf04-dk', 'start'));
-    tn += LB(T(640, 570, '두 당김의 합이 안쪽으로', 't-sub', 'start') + T(640, 597, '→ 속 압력↑ (라플라스 압력)', 't-sub', 'start'));
+    tn += LB(T(640, 568, '두 당김의 합이 안쪽으로', 't-sub', 'start') + T(640, 599, '→ 속 압력↑ (라플라스 압력)', 't-sub', 'start'));
     s += G(tn, only('tension'));
 
     // volume: 녹는 순간 (네 칸) — 위젯이 모양을 그린다
     let vo = T(60, 172, '같은 부피 · 같은 바닥 → 모양은 하나뿐', 't-acc', 'start');
-    vo += T(60, 206, '녹는 순간 겉넓이를 줄이며 가운데로 모인다 — 출렁임은 약 0.1 ms 안에 가라앉는다', 't-dim', 'start');
+    vo += T(60, 206, '녹는 순간 겉넓이를 줄이며 가운데로 모인다 — 출렁임은 1 ms 안에 가라앉는다', 't-dim', 'start');
     for (let k = 0; k < 4; k++) vo += R(60 + k * 228, 252, 212, 288, 'pl-lane', {rx: 10});
     vo += `<g data-v="frames"></g>`;
     s += G(vo, only('volume'));
 
     // angle: 접촉선 큰 그림 (위젯이 방울 · 힘을 그린다)
-    let an = T(60, 172, '접촉각 — 세 겉면이 접촉선에서 겨룬다', 't-acc', 'start');
+    let an = T(60, 172, '접촉각 — 세 경계면이 접촉선에서 겨룬다', 't-acc', 'start');
     an += T(60, 206, '세 힘이 맞서 멈춘 각 = 접촉각 (영의 식)', 't-dim', 'start');
     an += R(80, 580, 880, 22, 'f-ni', tip('Ni 윗면 (고체) — 솔더가 젖는 바닥'));
     an += L(80, 580, 960, 580, 's-edge') + LB(T(96, 597, 'Ni (고체)', 'rf04-dk', 'start'));
@@ -135,10 +135,10 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
 
     // edge: 모서리 확대 (위젯이 솔더 · 부채꼴을 그린다)
     let ed = T(60, 172, '가장자리 — 모서리에 걸려 멈춘다', 't-acc', 'start');
-    ed += T(60, 206, '모서리에서는 각이 θ부터 θ + 90°까지 커져도 멈춰 있다 (깁스의 조건)', 't-dim', 'start');
-    ed += R(60, 226, 560, 394, 'pl-box', {rx: 12}) + TT(606, 254, ['모서리 확대', '(비율 아님)'], 't-dim', 'end', 24);
-    ed += R(80, 400, 350, 70, 'f-ni', tip('Ni (3 µm) — 윗면이 솔더가 젖는 바닥')) + R(80, 470, 350, 140, 'f-cu2', tip('Cu 기둥 (15 µm)'));
-    ed += L(80, 400, 430, 400, 's-edge') + L(430, 400, 430, 610, 's-edge');
+    ed += T(60, 206, '모서리에서는 각이 윗면 접촉각 θ부터 「옆면 접촉각 + 90°」까지 커져도 멈춰 있다 (깁스의 조건)', 't-dim', 'start');
+    ed += R(60, 226, 560, 380, 'pl-box', {rx: 12}) + TT(606, 254, ['모서리 확대', '(비율 아님)'], 't-dim', 'end', 24);
+    ed += R(80, 400, 350, 70, 'f-ni', tip('Ni (3 µm) — 윗면이 솔더가 젖는 바닥')) + R(80, 470, 350, 128, 'f-cu2', tip('Cu 기둥 (15 µm)'));
+    ed += L(80, 400, 430, 400, 's-edge') + L(430, 400, 430, 598, 's-edge');
     ed += LB(T(96, 442, 'Ni 윗면', 'rf04-dk', 'start') + T(96, 548, 'Cu 기둥', 'rf04-dk', 'start'));
     ed += `<g data-v="corner"></g>`;
     ed += T(640, 252, '옆면 상태', 't-sub', 'start') + `<g data-v="side"></g>`;
@@ -166,8 +166,8 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
     pt1 += T(1407, 620, '마이크로범프 솔더', 't-sub') + T(1407, 646, '구의 일부 (무게 무시)', 't-dim');
     pt1 += R(1347, 744, 120, 16, 'f-ni') + P(cap(1407, 744, 60, 76), 'f-sn2', tip('25 µm 솔더 — 거의 완전한 구의 일부'));
     pt1 += T(1152, 786, '본드 수 약 14 (동전 위 물)', 't-dim') + T(1407, 786, '본드 수 약 2×10⁻⁵', 't-dim');
-    pt1 += TT(1030, 846, wrap('모양이 바뀌는 데는 µs~0.1 ms면 충분합니다 (몇 번 출렁이다 멈춤). 리플로우에서 시간이 드는 것은 열 전달 · 산화막 제거 · 기포 빠지기 · IMC 반응입니다.', 24.5), 't-sub', 'start', 30);
-    pt1 += TT(1030, 990, wrap('속 압력: 반지름 약 13 µm 돔은 바깥보다 약 0.8기압 높다 (아래 범프 위 숫자)', 25.5), 't-dim', 'start', 26);
+    pt1 += TT(1030, 846, wrap('모양은 녹자마자(µs~0.1 ms) 바뀌고, 출렁임도 1 ms 안에 가라앉습니다. 리플로우에서 시간이 드는 것은 열 전달 · 산화막 제거 · 기포 빠지기 · IMC 반응입니다.', 24.5), 't-sub', 'start', 30);
+    pt1 += TT(1030, 984, wrap('속 압력(라플라스) = 2 × 표면장력 ÷ 반지름 — 반지름 약 13 µm 돔이면 바깥보다 약 0.8기압 높다 (범프 위 숫자는 지금 위젯 값)', 25.5), 't-dim', 'start', 26);
     s += G(pt1, only('tension'));
     // volume · angle · edge 패널은 위젯이 그린다
     s += G(`<g data-v="pvol"></g>`, only('volume')) + G(`<g data-v="pang"></g>`, only('angle')) + G(`<g data-v="pedge"></g>`, only('edge'));
@@ -179,7 +179,7 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
       ${K.seg('sf', [['c', '깨끗함 (30°)'], ['o', '얇은 산화 (70°)'], ['x', '계면 산화 · 오염 (140°)']], 'c', 'Ni/SnAg 계면 상태')}
       ${K.seg('sw', [['ox', '산화된 옆면'], ['cl', '깨끗한 옆면']], 'ox', 'Ni · Cu 옆면')}
       ${K.ctl('p', '피치', 30, 80, 1, 55)}
-      ${K.kpis([['솔더 부피 (µm³)', 'k-v', 'pL'], ['돔 꼭대기', 'k-h', 'µm (도금 높이 대비)'], ['겉보기 각', 'k-th', '°'], ['이웃과 틈', 'k-gap', 'µm'], ['판정', 'k-j', '']])}
+      ${K.kpis([['솔더 부피 (µm³)', 'k-v', 'pL'], ['돔 꼭대기', 'k-h', 'µm (도금 높이 대비)'], ['겉보기 각', 'k-th', '°'], ['이웃과 틈', 'k-gap', '두 범프 가장 넓은 곳 사이'], ['판정', 'k-j', '']])}
       <p class="pl-msg" data-o="msg"></p>
       ${K.model('범프 크기에서는 무게를 무시하고(본드 수 약 2×10⁻⁵) 녹은 솔더를 구의 일부로 계산합니다. 부피 = π·(지름/2)²·도금 높이, 다 덮으면 πh(3a² + h²)/6 = 부피. 젖음 각(30 · 70 · 140°) · 옆면 각(15°) · 옆면 막 두께(1.5 µm)는 가정값이고, 막이 기둥 밑(Ni + Cu 18 µm)에 닿으면 더 내려가지 않고 두꺼워지는 것으로 셉니다. 반응하며 조금씩 타고 내려가는 실제 흘러내림(시간에 따라)은 넣지 않은 평형 계산입니다. 판정 경계(틈 5 · 10 µm)도 예시입니다.')}</div>`;
   },
@@ -258,7 +258,9 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
       o += G(ag, only('angle'));
       // edge: 틈 치수선 · 흘러내린 막
       let eg = '';
-      const yw = c.h * k > c.Rs * k ? y0 - (c.h - c.Rs) * k : y0 - 6, gx0 = xl + R0, gx1 = xr - R0;
+      // 치수선은 두 범프가 가장 가까운 높이에: 옆면 막 · 기둥이 솔더보다 넓으면 그 높이, 아니면 솔더 가장 넓은 곳
+      const yw = c.mode === 'wick' && c.a + c.t >= c.Rs ? y0 + Math.min(c.L, HP) * k * 0.35 : c.Rs < c.a - 0.01 ? y0 + 1.5 * k : c.h > c.Rs ? y0 - (c.h - c.Rs) * k : y0 - 6;
+      const gx0 = xl + R0, gx1 = xr - R0;
       if (c.gap > 0){
         eg += L(gx0, yw, gx1, yw, 'rf04-dim') + L(gx0, yw - 10, gx0, yw + 10, 'rf04-dim') + L(gx1, yw - 10, gx1, yw + 10, 'rf04-dim');
         const lt = `틈 ${f1(c.gap)} µm`, ok = gx1 - gx0 > tw(lt, 22) + 16;
@@ -267,8 +269,8 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
       } else eg += LB(T(BXC, yLab, '붙음 — 브리지', 'pl-warn'));
       if (c.mode === 'wick'){
         // 흘러내린 막 이름: 두 기둥 사이가 넓으면 그 사이 아래쪽에, 아니면 오른쪽 · 왼쪽 빈 곳에
-        const fy = y0 + c.L * k * 0.6, inL = xl + c.a * k + c.t * k, inR = xr - c.a * k - c.t * k, t1 = '흘러내린 막', t2 = `${f1(c.L)} µm (양쪽)`;
-        const need = Math.max(tw(t1, 21), tw(t2, 21)) + 24, ly = Math.min(YB - 40, Math.max(fy + 30, y0 + 70));
+        const fy = y0 + c.L * k * 0.6, inL = xl + c.a * k + c.t * k, inR = xr - c.a * k - c.t * k, t1 = '흘러내린 막', t2 = `${f1(c.L)} µm`;
+        const need = Math.max(tw(t1, 21), tw(t2, 21)) + 24, ly = Math.min(YB - 32, Math.max(fy + 30, yw + 64));
         if (inR - inL >= need) eg += L(inL + 2, fy, BXC - 8, ly - 30, 's-lead') + L(inR - 2, fy, BXC + 8, ly - 30, 's-lead') + LB(T(BXC, ly - 8, t1, 't-warn') + T(BXC, ly + 18, t2, 't-warn'));
         else {
           const fx = xr + c.a * k + c.t * k;
@@ -282,12 +284,14 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
     // ── 위: 녹는 순간 네 칸 (volume)
     function frames(c){
       const base = 512, fw = 212;
-      const m = Math.min(176 / st.d, 226 / Math.max(st.hc, c.h * 1.14, 1)), a = c.a * m, yc = base - st.hc * m;
-      const NM = [['① 도금한 원기둥', `${f1(st.hc)} µm · 거친 겉`], ['② 녹기 시작', '모서리부터 둥글게'], ['③ 출렁임', '몇 번 흔들리다'], ['④ 멈춘 모양', c.mode === 'dome' ? `꼭대기 ${f1(c.h)} µm` : c.mode === 'wick' ? `흘러내림 · ${f1(c.h)} µm` : `덜 덮임 · ${f1(c.h)} µm`]];
+      const wa = 0.98 * c.r, wh = 1.14 * Math.max(c.h, 1), W3 = wh > wa ? (wa * wa + wh * wh) / (2 * wh) : wa;   // ③ 출렁임 모양의 가장 넓은 반지름
+      const Wd = Math.max(c.a + (c.mode === 'wick' ? c.t : 0), c.Rs, W3);
+      const m = Math.min(94 / Wd, 226 / Math.max(st.hc, wh, 1)), a = c.a * m, yc = base - st.hc * m;
+      const NM = [['① 도금한 원기둥', `${f1(st.hc)} µm · 거친 겉`], ['② 녹기 시작', '모서리부터 둥글게'], ['③ 출렁임', '흔들리다 가라앉음'], ['④ 멈춘 모양', c.mode === 'dome' ? `꼭대기 ${f1(c.h)} µm` : c.mode === 'wick' ? `흘러내림 · ${f1(c.h)} µm` : c.mode === 'ball' ? `공처럼 뭉침 · ${f1(c.h)} µm` : `덜 덮임 · ${f1(c.h)} µm`]];
       let o = '';
       NM.forEach(([t1, t2], i) => {
         const cx = 60 + i * 228 + fw / 2;
-        o += R(cx - a - 10, base, 2 * a + 20, 10, 'f-ni') + R(cx - a - 10, base + 10, 2 * a + 20, 14, 'f-cu2');
+        o += R(cx - a, base, 2 * a, 10, 'f-ni', tip('Ni 윗면 — 솔더가 젖는 바닥 (모서리에서 멈춤)')) + R(cx - a, base + 10, 2 * a, 14, 'f-cu2');
         if (i === 0){
           let d = `M${q(cx - a)},${base} L${q(cx - a)},${q(yc)}`;
           const n = 8, g = K.rng(7);
@@ -300,11 +304,11 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
           [-1, 1].forEach(sd => { o += arrow(cx + sd * (a - 4), yc - 14, cx + sd * a * 0.3, yc - 34, 's-arr'); });
         } else if (i === 2){
           const hh = Math.max(c.h, 1) * m * 1.14, aa = c.r * m * 0.98;
-          o += P(cap(cx, base, aa, hh), 'f-sn2', tip('출렁임 — 몇 번 흔들리다 가라앉는다 (약 0.1 ms)'));
+          o += P(cap(cx, base, aa, hh), 'f-sn2', tip('출렁임 — 약 10 µs 주기로 흔들리다 1 ms 안에 가라앉는다'));
           o += P(cap(cx, base, c.r * m, c.h * m), 'pl-ghost');
           o += P(`M${q(cx - 30)},${q(base - hh - 12)} q15,-8 30,0 q15,8 30,0`, 'rf04-wig') + P(`M${q(cx - 30)},${q(base - hh - 26)} q15,-8 30,0 q15,8 30,0`, 'rf04-wig');
         } else {
-          o += solder(c, cx, base, m, 'f-sn2') + R(cx - a, yc, 2 * a, st.hc * m, 'pl-ghost', tip('점선 = 도금한 원기둥'));
+          o += solder(c.mode === 'wick' ? Object.assign({}, c, {L: Math.min(c.L, 22 / m)}) : c, cx, base, m, 'f-sn2') + R(cx - a, yc, 2 * a, st.hc * m, 'pl-ghost', tip('점선 = 도금한 원기둥'));
           if (c.r < c.a - 0.05) o += R(cx - a, base - 3, a - c.r * m, 4, 'rf04-bare') + R(cx + c.r * m, base - 3, a - c.r * m, 4, 'rf04-bare');
         }
         o += LB(T(cx, 568, t1, 't-sub') + T(cx, 594, t2, 't-dim'));
@@ -329,12 +333,12 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
       const [hx, hy] = dir(th / 2);
       o += LB(T(Px + 88 * hx, Py + 88 * hy + 8, `θ ${th}°`, 't-warn'));
       o += LB(T(Px + Math.max(gSV, 64) + 10, Py - 14, '고체–기체', 't-sub', 'start'));
-      o += LB(T(Px - gSL + 8, Py - 14, '고체–액체', 'rf04-dk', 'end'));
+      o += LB(T(Px - gSL - 10, Py - 12, '고체–액체', 'rf04-dk', 'end'));
       const lx = Px + 130 * ux, ly = Py + 130 * uy;
       o += LB(th < 60 ? T(lx - 8, ly - 14, '액체–기체 (표면장력)', 't-sub', 'end') : T(lx + 14, ly - 4, '액체–기체 (표면장력)', 't-sub', 'start'));
       // 지금 상태 (오른쪽 위)
       o += LB(T(670, 290, '지금 Ni/SnAg 계면', 't-dim', 'start') + T(670, 322, SFN[st.sf], 't-warn', 'start') + T(670, 352, `접촉각 약 ${th}°`, 't-sub', 'start') + T(670, 380, SFW[st.sf], 't-sub', 'start'));
-      o += LB(T(670, 420, th < 90 ? '고체–기체 힘이 커서 퍼진다' : '고체–기체 힘이 작아 물러난다', 't-dim', 'start'));
+      o += LB(T(670, 420, th < 50 ? '고체–기체 힘이 커서 넓게 퍼짐' : th < 90 ? '고체–기체 힘이 조금 커서 덜 퍼짐' : '고체–기체 힘이 작아 물러남', 't-dim', 'start'));
       return o;
     }
     // ── 위: 모서리 확대 (edge)
@@ -348,8 +352,8 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
         o += `<clipPath id="${K.id('rf04-zc')}"><rect x="80" y="230" width="540" height="170"/></clipPath>`;
         o += G(P(cap(mx, cy, rx, hh), 'f-sn2'), {'clip-path': K.url('rf04-zc')});
         o += R(mx + rx, cy - 3, cx - mx - rx, 4, 'rf04-bare', tip('드러난 Ni'));
-        o += LB(T(cx - 8, cy - 18, '드러난 Ni', 't-warn', 'end'));
-        o += TT(450, 300, ['바닥(Ni 윗면)이', '안 젖어 모서리까지', '오지 못함'], 't-sub', 'start', 28);
+        o += LB(T(cx - 8, cy + 30, '드러난 Ni ↑', 'rf04-dk', 'end'));
+        o += TT(446, 306, ['Ni 윗면이', '안 젖어', '모서리까지', '오지 못함'], 't-sub', 'start', 26);
         return o;
       }
       const thS = Math.min(c.th0, lim), Rz = Math.min(320, 170 / (1 - Math.cos(thS * RAD)));
@@ -364,7 +368,7 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
       pts.push([82, cy]);
       // 흘러내린 막 (옆면)
       if (c.mode === 'wick'){
-        const Lz = c.Lfull <= 3 ? c.Lfull / 3 * 70 : Math.min(210, 70 + (c.Lfull - 3) / 15 * 140);
+        const Lz = c.Lfull <= 3 ? c.Lfull / 3 * 70 : Math.min(198, 70 + (c.Lfull - 3) / 15 * 128);
         o += P(`M${cx},${cy - 2} L${cx + 14},${cy + 6} L${cx + 14},${q(cy + Lz - 7)} Q${cx + 14},${q(cy + Lz)} ${cx},${q(cy + Lz)} Z`, 'f-sn2', tip(`넘친 솔더가 옆면을 타고 내려간 막 (${f1(c.L)} µm)`));
         o += arrow(cx + 32, cy + 20, cx + 32, cy + Math.max(40, Lz - 10), 's-arr2');
         o += LB(T(cx + 48, cy + Math.min(Lz, 140) / 2 + 30, '흘러내림', 't-warn', 'start'));
@@ -416,28 +420,52 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
       let g = L(GX0, Y(a), GX1, Y(a), 's-dash') + P(dc, 's-curve', tip('돔 꼭대기 h — 부피 V = πh(3a² + h²)/6')) + P(dl, 's-curve2', tip('도금 높이 = 부피 ÷ 바닥 넓이 (원기둥)'));
       const vx = Math.PI * a * a * Math.sqrt(3) * a;
       if (vx < Vmax) g += C(X(vx), Y(Math.sqrt(3) * a), 6, 'k-acc', tip('여기서 돔 꼭대기 = 도금 높이 (도금 높이가 지름의 약 0.87배). 더 많으면 공처럼 옆으로 부풀어 꼭대기가 도금보다 낮아진다'));
+      // 깨끗한 옆면이면 꼭대기는 옆면 한계(105°)의 높이에 묶인다
+      const hm = a * Math.tan((TSIDE + 90) * RAD / 2), Vm = capV(a, hm), avoid = [];
+      if (st.sw === 'cl' && Vm < Vmax) g += L(X(Vm), Y(hm), GX1, Y(hm), 'pl-peak', tip(`깨끗한 옆면: 겉보기 각 ${TSIDE + 90}°를 넘는 솔더는 옆면으로 흘러내려 꼭대기가 ${f1(hm)} µm에 묶인다`));
       o += G(g, {'clip-path': K.url('rf04-gc')});
-      o += LB(T(GX1 - 4, Y(a) + (Y(a) - GY1 > 30 ? -10 : 24), '반구 (높이 = 바닥 반지름)', 't-dim', 'end'));
+      // 그래프 선 위의 점들 (돔 곡선 · 도금 높이 선 · 반구 점선 · 옆면 한계 선) — 글이 선을 가로지르지 않게
+      const onLine = [];
+      for (let k = 0; k <= 200; k++){ const v = Vmax * k / 200; onLine.push([X(v), Y(capH(a, v))], [X(v), Y(v / (Math.PI * a * a))]); }
+      for (let x = GX0; x <= GX1; x += 5) onLine.push([x, Y(a)]);
+      if (st.sw === 'cl' && Vm < Vmax) for (let x = X(Vm); x <= GX1; x += 5) onLine.push([x, Y(hm)]);
+      const hitLine = (x, y, w, up, dn) => onLine.some(([sx, sy]) => sy >= GY1 && sx > x - 4 && sx < x + w + 4 && sy > y - up && sy < y + dn);
+      const hitBox = (x, y, w, up, dn) => avoid.some(b => x < b[2] && x + w > b[0] && y - up < b[3] && y + dn > b[1]);
+      const px = X(c.V), py = Y(c.h), nearPt = (x, y, w, up, dn) => Math.hypot(K.clamp(px, x, x + w) - px, K.clamp(py, y - up, y + dn) - py) <= 20;
+      if (st.sw === 'cl' && Vm < Vmax){
+        // 선 왼쪽 끝 앞(빈 곳)에, 자리가 없으면 오른쪽 끝 위에
+        const lt = '깨끗한 옆면 한계', w0 = tw(lt, 19), left = X(Vm) - 10 - w0 >= GX0 + 6;
+        const lx = left ? X(Vm) - 10 - w0 : GX1 - 4 - w0, ly = left ? Y(hm) + 6 : Y(hm) - 8;
+        o += LB(T(lx, ly, lt, 'pl-warn', 'start')); avoid.push([lx - 4, ly - 20, lx + w0 + 4, ly + 6]);
+      }
+      // 반구 점선 이름: 오른쪽 끝 위 → 아래 → 왼쪽 끝 위 → 아래 중 곡선 · 점 · 다른 글과 안 겹치는 곳
+      //   (긴 이름이 들어갈 곳이 없으면 짧게 '반구')
+      const hcs = [];
+      ['반구 (높이 = 바닥 반지름)', '반구'].forEach(t => { const w = tw(t, 19); [[GX1 - 4 - w, Y(a) - 10], [GX1 - 4 - w, Y(a) + 24], [GX0 + 10, Y(a) - 10], [GX0 + 10, Y(a) + 24], [(GX0 + GX1 - w) / 2, Y(a) - 10], [(GX0 + GX1 - w) / 2, Y(a) + 24]].forEach(([x, y]) => { if (y - 18 >= GY1 && y <= GY0 - 6) hcs.push([x, y, t, w]); }); });
+      const [hx, hy, ht, hw] = hcs.find(([x, y, , w]) => !hitLine(x, y, w, 19, 6) && !hitBox(x, y, w, 18, 4) && !nearPt(x, y, w, 18, 4)) || hcs.find(([x, y, , w]) => !hitLine(x, y, w, 19, 6)) || hcs[0] || [GX1 - 4 - tw('반구', 19), Y(a) + 24, '반구', tw('반구', 19)];
+      o += LB(T(hx, hy, ht, 't-dim rf04-halo', 'start', tip('반구 — 돔 높이 = 바닥 반지름 (겉보기 각 90°)'))); avoid.push([hx - 2, hy - 18, hx + hw + 2, hy + 4]);
       // 지금 점
-      const px = X(c.V), py = Y(c.h);
       o += C(px, py, 9, c.mode === 'dome' ? 'k-acc2' : 'k-warn') + C(px, py, 18, 'co-ring');
       const lt = `${fmt(c.V)} µm³ → ${f1(c.h)} µm`, lw = tw(lt, 23);
-      const hb = [GX1 - 4 - tw('반구 (높이 = 바닥 반지름)', 19), Y(a) + (Y(a) - GY1 > 30 ? -10 : 24) - 18, GX1, Y(a) + (Y(a) - GY1 > 30 ? -10 : 24) + 4];
-      const cands = [[px + 18, py - 16], [px - 18 - lw, py - 16], [px + 18, py + 30], [px - 18 - lw, py + 30]];
-      const fits = ([x, y]) => x >= GX0 + 4 && x + lw <= GX1 + 36 && y - 20 >= GY1 && y <= GY0 - 6 && !(x < hb[2] && x + lw > hb[0] && y - 20 < hb[3] && y > hb[1]);
-      const [lx0, ly0] = cands.find(fits) || cands[0];
-      o += LB(T(lx0, ly0, lt, 't-warn', 'start'));
+      const xc = K.clamp(px - lw / 2, GX0 + 4, GX1 + 36 - lw), cands = [];
+      [-16, 30, -44, 56, -72, 84, -100, 112, -128, 140].forEach(dy => [px + 18, px - 18 - lw, xc, px - 30, px + 30 - lw, px - lw / 4, px - 3 * lw / 4].forEach(x => cands.push([x, py + dy])));
+      cands.push([GX0 + 12, GY1 + 26], [GX1 + 36 - lw, GY0 - 12]);
+      const fits = ([x, y]) => x >= GX0 + 4 && x + lw <= GX1 + 36 && y - 20 >= GY1 && y <= GY0 - 6 && !hitBox(x, y, lw, 20, 6) && !hitLine(x, y, lw, 22, 8) && !nearPt(x, y, lw, 20, 6);
+      // 들어갈 수 있는 자리 중 점에 가장 가까운 곳 (±5 % 띠 테두리를 가로지르면 조금 손해)
+      const bE = [X(c.V * 0.95), X(c.V * 1.05)], score = ([x, y]) => Math.hypot(K.clamp(px, x, x + lw) - px, K.clamp(py, y - 20, y + 6) - py) + (bE.some(b => b > x - 2 && b < x + lw + 2) ? 40 : 0);
+      const [lx0, ly0] = cands.filter(fits).sort((u, v) => score(u) - score(v))[0] || [xc, py - 36 >= GY1 ? py - 16 : py + 30];
+      o += LB(T(lx0, ly0, lt, 't-warn rf04-halo', 'start'));
       // 아래 글
       let y = 672;
       const line = (t, cls, em = 24.5, lh = 29) => { const ln = wrap(t, em); o += TT(1030, y, ln, cls, 'start', lh); y += ln.length * lh + 10; };
       if (c.mode === 'dome'){
         line(`부피 ±5 % → 꼭대기 ±${c.dh.toFixed(2)} µm (±${(c.dh / c.h * 100).toFixed(1)} %)`, 't-warn', 22);
-        line(`도금 높이였다면 ±${(0.05 * st.hc).toFixed(2)} µm — 돔이 반구보다 높으면 조금 줄어서 넘어가고, 아주 얇은 솔더는 오히려 커집니다.`, 't-sub');
+        line(`도금 높이였다면 ±${(0.05 * st.hc).toFixed(2)} µm — ${c.h > c.a ? '돔이 반구보다 높아 조금 줄어서 넘어갑니다. 아주 얇은 솔더(반구보다 낮은 돔)는 오히려 커집니다.' : '돔이 반구보다 낮아 오히려 커져서 넘어갑니다 (얇을수록 약 2배까지).'}`, 't-sub');
       } else if (c.mode === 'wick'){
-        line(`꼭대기는 105° 한계에 묶여 ${f1(c.h)} µm`, 't-warn', 22);
+        line(`꼭대기는 옆면 한계 105°에 묶여 ${f1(c.h)} µm`, 't-warn', 22);
         line(`넘친 ${fmt(c.Vex)} µm³는 옆면으로 → 부피 ±5 %는 꼭대기가 아니라 흘러내림 길이로${c.dL ? ` (±${f1(c.dL)} µm)` : ''} 넘어갑니다.`, 't-sub');
       } else {
-        line(`바닥이 물러나 점이 곡선 위에 있다 (${f1(c.h)} µm)`, 't-warn', 22);
+        line(`바닥이 물러나 점이 곡선보다 높다 (${f1(c.h)} µm)`, 't-warn', 22);
         line(`바닥 지름 ${f1(2 * c.r)} µm로 줄어 더 높은 공에 가까워집니다. 이때 부피 ±5 % → 꼭대기 ±${c.dh.toFixed(2)} µm.`, 't-sub');
       }
       if (c.dH < 0 && c.mode === 'dome') line(`도금 높이가 지름의 약 0.87배를 넘어 공처럼 옆으로 부풀었습니다 — 꼭대기가 도금보다 ${f1(-c.dH)} µm 낮음.`, 't-sub');
@@ -472,7 +500,7 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
       o += P(`M${q(gx)},208 l-10,-16 l20,0 Z`, c.gap < 5 ? 'k-ng' : c.gap < 10 ? 'k-warn' : 'k-ok') + L(gx, 210, gx, 248, 'rf04-dim');
       let y = 352;
       const line = (t, cls, em = 24.5, lh = 29) => { const ln = wrap(t, em); o += TT(1030, y, ln, cls, 'start', lh); y += ln.length * lh + 12; };
-      line(c.gap > 0 ? `틈 ${f1(c.gap)} µm (피치 ${st.p} − 솔더 폭 ${f1(2 * c.Rw)})` : `틈 없음 — 피치 ${st.p} µm < 솔더 폭 ${f1(2 * c.Rw)} µm`, c.gap < 5 ? 'pl-warn' : 't-warn', 22);
+      line(c.gap > 0 ? `틈 ${f1(c.gap)} µm (피치 ${st.p} − 범프 가장 넓은 폭 ${f1(2 * c.Rw)})` : `틈 없음 — 피치 ${st.p} µm < 범프 폭 ${f1(2 * c.Rw)} µm`, c.gap < 5 ? 'pl-warn' : 't-warn', 22);
       if (c.mode === 'wick') line(c.Lfull > HP ? `흘러내림 — 기둥 밑(18 µm)까지 닿고 막이 ${f1(c.t)} µm로 두꺼워짐. 꼭대기 ${f1(c.h0)} → ${f1(c.h)} µm` : `흘러내림 ${f1(c.L)} µm (Ni 3 µm${c.L > 3 ? ` 지나 Cu ${f1(c.L - 3)} µm` : ''}) · 꼭대기 ${f1(c.h0)} → ${f1(c.h)} µm. 옆면에도 IMC가 생깁니다 (05장).`, 't-sub');
       else if (c.mode === 'dome') line(st.sw === 'cl' ? `겉보기 각 ${Math.round(c.th0)}° < 한계 105° — 아직 모서리에 걸려 있습니다. 솔더가 조금만 많아도 넘칩니다.` : `흘러내림 없음 — 산화된 옆면이 모서리에서 붙잡습니다 (겉보기 각 ${Math.round(c.th0)}°).`, 't-sub');
       else line('바닥(Ni 윗면)도 다 젖지 않아 모서리까지 오지 못했습니다 — 흘러내림 없음.', 't-sub');
@@ -487,15 +515,17 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
       o += L(CX0, CY0, CX1 + 8, CY0, 's-axis') + L(CX0, CY0, CX0, CY1 - 6, 's-axis');
       [4, 10, 15, 20, 25].forEach(v => { o += L(xh(v), CY0, xh(v), CY0 + 7, 's-axis') + T(xh(v), CY0 + 28, v === 25 ? '25 µm' : String(v), 't-dim'); });
       [0, 9, 18].forEach(v => { o += L(CX0 - 7, yl(v), CX0, yl(v), 's-axis') + T(CX0 - 12, yl(v) + 7, String(v), 't-dim', 'end'); });
-      o += T(CX0 - 12, CY1 - 18, 'µm', 't-dim', 'end') + T(CX1, yl(HP) + 26, '기둥 밑 (18 µm)', 't-dim', 'end');
+      o += T(CX0 - 12, CY1 - 18, 'µm', 't-dim', 'end');
       let lc = '';
       for (let k = 0; k <= 84; k++){ const v = 4 + 21 * k / 84; lc += (k ? ' L' : 'M') + q(xh(v)) + ',' + q(yl(Lc(v))); }
       o += P(lc, 's-curve', tip('깨끗한 옆면일 때 흘러내림 길이 (평형 · 개념 모델). 18 µm = 기둥 밑'));
-      if (hth >= 4 && hth <= 25){ const lt = `${f1(hth)} µm부터 넘침`, left = xh(hth) - 10 - tw(lt, 23) >= CX0 + 4; o += L(xh(hth), CY0, xh(hth), CY1, 's-dash') + T(left ? xh(hth) - 10 : xh(hth) + 10, CY0 - 58, lt, 't-warn', left ? 'end' : 'start'); }
+      if (hth >= 4 && hth <= 25) o += L(xh(hth), CY0, xh(hth), CY1, 's-dash', tip(`깨끗한 옆면이면 도금 높이 ${f1(hth)} µm부터 넘친다 (지름 ${st.d} µm)`));
       const cl0 = st.sw === 'cl', ly0 = cl0 ? Lc(st.hc) : 0;
       o += C(xh(st.hc), yl(ly0), 9, cl0 ? 'k-acc2' : 'k-ok') + C(xh(st.hc), yl(ly0), 18, 'co-ring');
-      if (!cl0){ const lt = '산화된 옆면 → 0', x0 = Math.max(CX0 + 4, Math.min(xh(st.hc) - tw(lt, 21) / 2, CX1 - tw(lt, 21))); o += T(x0, CY0 - 18, lt, 't-sub', 'start'); }
-      y += 316;
+      // 그림 풀이 (글이 곡선 · 점과 겹치지 않게 그래프 아래에)
+      const lg = wrap(`점선 = 넘치기 시작하는 도금 높이 ${f1(hth)} µm · 위 끝 18 µm = 기둥 밑 (Ni + Cu)` + (cl0 ? ` · 지금 점: 도금 ${f1(st.hc)} µm → 흘러내림 ${f1(Lc(st.hc))} µm` : ' · 지금 점: 산화된 옆면이라 0 (곡선은 깨끗한 옆면일 때)'), 27);
+      o += TT(1030, y + 294, lg, 't-dim', 'start', 25);
+      y += 294 + lg.length * 25 + 22;
       // 환원 세기 — 맞바꿈 (지금 옆면 상태 표시)
       const ty = y, cl = st.sw === 'cl';
       o += T(1030, ty, '환원 세기(플럭스 · 포름산) — 맞바꿈', 'pl-hdg', 'start');
@@ -535,7 +565,7 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
       const dTxt = c.dH >= 0 ? `${f1(c.dH)} µm 높음` : `${f1(-c.dH)} µm 낮음 — 공처럼 옆으로 부풂`;
       let m = '';
       if (c.mode === 'dome') m = `${fmt(c.V)} µm³가 지름 ${st.d} µm 바닥에 모이면 꼭대기 ${f1(c.h)} µm (도금 ${f1(st.hc)} µm보다 ${dTxt}). 매끈한 돔 — 가장자리에 고정되어 있고, 부피 ±5 %면 꼭대기 ±${c.dh.toFixed(2)} µm입니다.`;
-      else if (c.mode === 'wick') m = `겉보기 각 ${Math.round(c.th0)}°가 깨끗한 옆면의 한계 105°를 넘어 ${fmt(c.Vex)} µm³가 옆면으로 흘러내립니다(${c.Lfull > HP ? '기둥 밑까지' : f1(c.L) + ' µm'}). 꼭대기는 ${f1(c.h0)} → ${f1(c.h)} µm. → 옆면을 깨끗하게 만든 환원 · 긴 액상 시간 · 많은 솔더 · 언더컷으로 드러난 옆면 (<a href="#go-etch-04">시드 식각 4장</a>)을 봅니다.`;
+      else if (c.mode === 'wick') m = `다 덮고 멈추면 겉보기 각이 ${Math.round(c.th0)}°가 되어 깨끗한 옆면의 한계 105°를 넘습니다. 넘친 ${fmt(c.Vex)} µm³가 옆면으로 흘러내려${c.Lfull > HP ? ' 기둥 밑(18 µm)까지 닿고' : ` 막 길이 ${f1(c.L)} µm`}, 꼭대기는 ${f1(c.h0)} → ${f1(c.h)} µm로 낮아집니다. → 옆면을 깨끗하게 만든 환원 · 긴 액상선 위 시간(TAL) · 많은 솔더 · 시드 식각에서 깎여 새로 드러난 Cu 기둥 옆면 · Ni 옆면 침식(<a href="#go-etch-04">시드 식각 04장</a> · <a href="#go-etch-09">시드 식각 09장</a>)을 봅니다.`;
       else m = `접촉각 ${c.thY}°가 다 덮을 때의 겉보기 각 ${Math.round(c.th0)}°보다 커서 바닥을 다 덮지 못합니다 → 바닥 지름 ${f1(2 * c.r)} µm, 꼭대기 ${f1(c.h)} µm (${c.mode === 'ball' ? '공처럼 뭉침 — 비젖음' : '덜 덮임 — 디웨팅'}). → 보통 Ni/SnAg 계면 산화(도금 층 사이 대기) · 오염이 원인입니다 (<a href="#go-plating-12">전해도금 12장</a>).`;
       if (c.mode === 'ball') m += ` 솔더 겉 산화막은 공이 아니라 덜 둥긂(원기둥 그대로)으로 나타납니다 → <a data-go="oxide.film">03장</a>.`;
       if (c.gapCls === 'ng') m += ` <b>이웃과 틈 ${c.gap > 0 ? f1(c.gap) + ' µm' : '없음'} — 붙을 위험(브리지).</b>`;
@@ -569,25 +599,25 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
       ['표면장력 (γ)', '액체가 겉넓이를 줄이려는 성질 — 겉면을 따라 당기는 힘으로 나타난다. 단위 N/m. 물 0.072, 녹은 SnAg 약 0.4~0.55'],
       ['접촉각 (θ)', '방울 가장자리에서 고체 면과 액체 겉면이 이루는 각. 작을수록 잘 젖는다'],
       ['젖음 · 비젖음 · 디웨팅', '퍼져 붙음 / 처음부터 안 붙음 / 붙었다가 물러나 Ni가 드러남'],
-      ['영의 식', '접촉선에서 세 겉면 에너지(고체–기체 · 고체–액체 · 액체–기체)의 균형으로 접촉각을 정하는 식'],
+      ['영의 식', '접촉선에서 세 경계면 에너지(고체–기체 · 고체–액체 · 액체–기체)의 균형으로 접촉각을 정하는 식'],
       ['가장자리 고정 (핀닝)', '접촉선이 모서리에 걸려, 각이 커져도 움직이지 않는 것'],
       ['본드 수', '무게와 표면장력의 비. 아주 작으면(지름 25 µm 솔더 약 2×10⁻⁵) 무게를 무시한다'],
       ['흘러내림 (위킹)', '녹은 솔더가 Ni · Cu 옆면을 타고 내려가는 것'],
       ['동일평면성 (코플래너리티)', '다이 안 범프 꼭대기가 한 평면에 고르게 있는 정도. 본딩에서 모든 범프가 함께 닿으려면 중요하다']
     ]) + K.field([
-      '리플로우 뒤 <b>높이 산포를 줄이는 손잡이는 대부분 앞 공정</b>(도금 부피 산포: 두께 × 바닥 넓이)입니다. 리플로우 조건으로는 덜 녹음 · 흘러내림의 차이만 줄일 수 있습니다 → <a href="#go-plating-07">전해도금 7장</a>. 돔 높이는 측정 정의(꼭대기 · 평균 · 기준면)와 장비가 다르면 숫자가 달라지므로, 리플로우 전후를 같은 정의로 잽니다.',
-      '옆면 흘러내림이 보이면 환원 세기(플럭스 양 · 포름산) · 액상선 위 시간 · 솔더 부피 · 시드 식각 언더컷(드러난 옆면)을 함께 봅니다 [리플로우-분위기 · 조건] [앞 공정] → <a href="#go-etch-04">시드 식각 4장</a>.',
-      '디웨팅(Ni가 드러남)은 대개 <b>Ni/SnAg 계면</b> 문제입니다(Ni 도금 → SnAg 도금 사이 대기 · 헹굼) [앞 공정]. 리플로우 조건보다 도금 층 사이 시간을 먼저 봅니다 → <a href="#go-plating-12">전해도금 12장</a>.',
-      '옆면 산화막은 흘러내림을 막아 주지만, 산화 · 변색된 Cu 기둥 옆면은 뒤 공정(NCF · 언더필) 접착에 나쁩니다 [뒤 공정]. 환원 세기(플럭스 · 포름산)는 이 둘 사이의 맞바꿈입니다 → <a data-go="defects.tiles">09장</a>.',
-      '솔더 · Ni 표면의 아주 얇은 유기막(PR 스트립 잔여)도 젖음을 나쁘게 하고 보이드 기체가 됩니다. 눈에 안 보여도 의심합니다 [앞 공정] → <a href="#go-strip-08">PR 스트립 8장</a>.'
+      '<span class="pl-tag up">앞 공정</span> 리플로우 뒤 <b>높이 산포를 줄이는 손잡이는 대부분 앞 공정</b>(도금 부피 산포: 두께 × 바닥 넓이)입니다. 리플로우 조건으로는 덜 녹음 · 흘러내림의 차이만 줄일 수 있습니다 → <a href="#go-plating-07">전해도금 07장</a>. 돔 높이는 측정 정의(꼭대기 · 평균 · 기준면)와 장비가 다르면 숫자가 달라지므로, 리플로우 전후를 같은 정의로 잽니다.',
+      '<span class="pl-tag ep">리플로우-분위기</span><span class="pl-tag rf04-cond">리플로우-조건</span><span class="pl-tag up">앞 공정</span> 옆면 흘러내림이 보이면 환원 세기(플럭스 양 · 포름산) · 액상선 위 시간 · 솔더 부피 · 시드 식각에서 새로 드러난 Cu 기둥 옆면 · Ni 옆면 침식을 함께 봅니다 → <a href="#go-etch-04">시드 식각 04장</a> · <a href="#go-etch-09">시드 식각 09장</a>.',
+      '<span class="pl-tag up">앞 공정</span> 디웨팅(Ni가 드러남)은 대개 <b>Ni/SnAg 계면</b> 문제입니다(Ni 도금 → SnAg 도금 사이 대기 · 헹굼). 리플로우 조건보다 도금 층 사이 시간을 먼저 봅니다 → <a href="#go-plating-12">전해도금 12장</a>.',
+      '<span class="pl-tag dn">뒤 공정</span> 옆면 산화막은 흘러내림을 막아 주지만, 산화 · 변색된 Cu 기둥 옆면은 뒤 공정에서 칩 사이에 넣는 접착 필름(NCF, 비전도성 필름) · 칩 사이를 채우는 수지(언더필)와 잘 붙지 않습니다. 환원 세기(플럭스 · 포름산)는 이 둘 사이의 맞바꿈입니다 → <a data-go="defects.tiles">09장</a>.',
+      '<span class="pl-tag up">앞 공정</span> 솔더 · Ni 표면의 아주 얇은 유기막(PR 스트립 잔여)도 젖음을 나쁘게 하고 보이드 기체가 됩니다. 눈에 안 보여도 의심합니다 → <a href="#go-strip-08">PR 스트립 08장</a>.'
     ]) + K.deep(`<p>이 장 위젯의 식 (구형 모자, a = 바닥 반지름, h = 꼭대기 높이):</p>
       ${K.eq('V = πa²·H_c = πh(3a² + h²)/6')}${K.eq('겉보기 각 = 2·arctan(h/a)')}${K.eq('구 반지름 R = (a² + h²)/(2h)')}${K.eq('γ_SV = γ_SL + γ_LV·cosθ  (영의 식)')}
       <ul><li><b>영의 식과 반응성 젖음</b> — 솔더–금속 젖음은 계면에서 IMC가 생기며 진행되어, 실제로 보는 각은 반응 뒤 IMC 위의 각에 가깝습니다. 보고 예: SAC 계열 250 °C · Ar에서 Ni 위 약 37°, Cu 위 약 29°, Sn-3.5Ag/Cu 약 43°(측정법 · 플럭스에 따라).</li>
       <li><b>본드 수와 모양</b> — Bo = ρgR²/γ ≈ 7,000 × 9.8 × (12.5×10⁻⁶)² / 0.5 ≈ 2×10⁻⁵. 그래서 녹은 솔더는 구의 일부(구형 모자)입니다. 예: a 12.5 µm · 도금 12 µm → V 5,890 µm³ · h 15.7 µm · 겉보기 각 103° · R 12.8 µm. 속 압력은 라플라스 압력 ΔP = 2γ/R ≈ 2 × 0.5 / 12.8×10⁻⁶ ≈ 0.8 bar(약 0.8기압 더). h/H_c = 6a²/(3a² + h²)라, 도금 높이가 지름의 약 0.87배(h > √3·a, 겉보기 각 120° 넘음)를 넘으면 꼭대기가 오히려 도금보다 낮아집니다.</li>
-      <li><b>높이 산포</b> — dh/dV = 2/[π(a² + h²)]. h ≈ a 근처에서는 부피 산포가 높이 산포로 거의 1 : 1로, h > a(지금 예시 h/a ≈ 1.26)에서는 조금 줄어서 넘어갑니다(±5 % → ±0.47 µm, 도금 높이였다면 ±0.6 µm). 아주 얇은 솔더(h ≪ a)에서는 오히려 약 2배로 커집니다.</li>
-      <li><b>깁스의 조건</b> — 직각 모서리에서 접촉선은 θ_Y ≤ θ ≤ θ_Y + 90° 사이에서 고정됩니다(일반식 θ_c = θ_Y + α, α = 모서리 너머 면이 꺾인 각). 옆면이 깨끗해 옆면 각이 작으면(예 15°) 겉보기 각 약 105°에서 넘치고, 옆면이 산화돼 각이 크면 넘치지 않습니다. 실제로는 반응(IMC)이 앞서 나가며 조금씩 타고 내려가는 '반응성 흘러내림'도 있어 시간이 길수록 늘어납니다.</li>
+      <li><b>높이 산포</b> — dh/dV = 2/[π(a² + h²)], 곧 꼭대기 변화 ÷ 도금 높이 변화 = 2a²/(a² + h²). h ≈ a(반구)에서는 꼭대기가 도금 높이와 같은 µm만큼 흔들리고, h > a(지금 예시 h/a ≈ 1.26)에서는 조금 줄어듭니다(±5 % → ±0.47 µm, 도금 높이였다면 ±0.6 µm). 아주 얇은 솔더(h ≪ a)에서는 오히려 약 2배로 커집니다. 비율(%)로는 부피 ±5 %가 꼭대기 약 ±2~5 %가 됩니다 (높은 돔일수록 작음, 이 예시 ±3 %).</li>
+      <li><b>깁스의 조건</b> — 직각 모서리에서 접촉선은 θ_윗면 ≤ θ ≤ θ_옆면 + 90° 사이에서 고정됩니다(일반식 θ_c = θ_Y + α, α = 모서리 너머 면이 꺾인 각, θ_Y = 넘어갈 면의 접촉각). 옆면이 깨끗해 옆면 각이 작으면(예 15°) 겉보기 각 약 105°에서 넘치고, 옆면이 산화돼 각이 90°를 넘으면 한계가 180°를 넘어 넘치지 않습니다. 실제로는 반응(IMC)이 앞서 나가며 조금씩 타고 내려가는 '반응성 흘러내림'도 있어 시간이 길수록 늘어납니다.</li>
       <li><b>표면장력 수치</b> — 순수 Sn은 녹는점 근처 약 0.5~0.55 N/m(산소가 아주 적을 때), 온도 계수 약 −0.1 mN/(m·K). 산소가 흡착하면 크게 낮아지고, 산소 분압이 높으면 녹는점 근처에서 온도에 따라 오히려 오르는 보고도 있습니다. SnAg는 보고값이 측정법 · 분위기에 따라 흩어져 '약 0.4~0.55 N/m'로 씁니다.</li>
-      <li><b>모양이 바뀌는 시간</b> — 모세관 시간 √(ρa³/γ) ≈ 5 µs, 오네조르게 수 μ/√(ργa) ≈ 0.01이라 몇 번 출렁이다 약 0.1 ms(ρa²/5μ)에 가라앉습니다. 녹는 순간 모양은 거의 바로 정해집니다.</li>
+      <li><b>모양이 바뀌는 시간</b> — 모세관 시간 √(ρa³/γ) ≈ 5 µs, 오네조르게 수 μ/√(ργa) ≈ 0.01이라 약 10 µs 주기로 출렁이고, 출렁임은 약 0.1 ms(ρa²/5μ)마다 1/e로 줄어 1 ms 안에 가라앉습니다(→ <a data-go="why.melt">01장</a>). 녹는 순간 모양은 거의 바로 정해집니다.</li>
       <li><b>작은 범프와 옆면</b> — Sn-3.5Ag/Ni/Cu 범프에서 지름이 작을수록 기둥 가장자리의 옆면 젖음 반응(보이드 · (Cu,Ni)₆Sn₅)이 두드러진다는 보고, 열압착(TC) 본딩에서 녹은 솔더가 눌려 Cu 기둥 옆면으로 올라가 Sn 소모 · 커켄달 보이드를 키운다는 보고가 있습니다(→ <a data-go="imc.cu">05장</a>).</li></ul>`);
   },
   css: `.pl-svg .rf04-bond{stroke:#475569;stroke-width:2}
@@ -611,6 +641,8 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
 .pl-svg .rf04-tan{stroke:#fbbf24;stroke-width:3.5}
 .pl-svg .rf04-zng{fill:rgba(248,113,113,.4)}
 .pl-svg .rf04-zw{fill:rgba(251,191,36,.38)}
-.pl-svg .rf04-zok{fill:rgba(74,222,128,.28)}`
+.pl-svg .rf04-zok{fill:rgba(74,222,128,.28)}
+.pl-svg .rf04-halo{paint-order:stroke;stroke:#0b1222;stroke-width:6px;stroke-linejoin:round}
+.jc .pl-tag.rf04-cond{background:rgba(45,212,191,.18);color:#5eead4}`
 });
 })();

@@ -287,9 +287,9 @@ function sim(p){
         ['rule', '재는 법 — 인라인 농도계 · 샘플 분석(오른쪽 표)']
       ];
       ctx.$('[data-v="cap"]').innerHTML = cap.map(([sid, t]) => G(T(60, 206, t, 'st06-cap', 'start'), only(sid))).join('');
-      // ---- 아래 상자: 하루 수지 (rule 단계에서는 '먼저 닿는 기준') ----
+      // ---- 아래 상자: 하루 드나드는 양 (rule 단계에서는 '먼저 닿는 기준') ----
       const BY = [924, 960, 996, 1032, 1068], X = 72;
-      let bx = T(X, 888, '하루 수지 (지금 설정 · 개념 모델)', 't-acc', 'start');
+      let bx = T(X, 888, '하루 드나드는 양 (지금 설정 · 개념 모델)', 't-acc', 'start');
       const lines = [
         `+ 녹은 PR ${f1(r.g)} g/L · 일  (${st.n}장 × ${f1(r.m)} g ÷ ${st.V} L)`,
         dump ? `− 통째 교체 ${st.dd}일마다 → 교체 직전 ${fC(r.max1)} g/L` : casc ? `− 새 액 ${st.b} %/일: 탱크 2 → 넘쳐 1 → 버림` : (r.g / b >= SAT ? `− 매일 ${st.b} % 빼고 새 액 → g/b ${fC(r.g / b)} g/L (포화 150에서 막힘)` : `− 매일 ${st.b} % 빼고 새 액 → ${fC(r.g / b)} g/L에서 멈춤`),
@@ -316,6 +316,7 @@ function sim(p){
       // ---- 그래프 1: 녹은 PR ----
       const pts = arr => arr.map(([d, v]) => [dx(d), gy1(v)]);
       let g1 = '', satLab = '';
+      const boxes = [];                                                          // 글 자리를 고를 때 피할 상자
       // 포화 띠
       if (r.sat.length){
         // 포화에 닿은 날들(이어진 구간마다 따로) 위에 빨간 띠, 글은 띠 바로 아래 오른쪽 (그래프 아래 줄은 관리 방식 글 자리)
@@ -323,6 +324,7 @@ function sim(p){
         r.sat.forEach(d => { const L0 = runs[runs.length - 1]; if (L0 && d === L0[1] + 1) L0[1] = d; else runs.push([d, d]); });
         runs.forEach(([a, b2]) => { g1 += R(dx(a - 1), G1Y1 - 12, Math.max(10, dx(b2) - dx(a - 1)), 24, 'st06-sat', tip('포화 상한 150 g/L (가정) — 이 날들은 더 녹지 못한다')); });
         satLab = R(GX1 - 392, G1Y1 + 22, 388, 30, 'st06-tplate', {rx: 6}) + T(GX1 - 8, G1Y1 + 44, '빨간 띠: 포화 — 현실에서 쓰지 않는 조건', 'st06-satt', 'end');
+        boxes.push({x: GX0, y: G1Y1 - 12, w: GX1 - GX0, h: 24}, {x: GX1 - 392, y: G1Y1 + 22, w: 388, h: 30});
       }
       // 통째 교체한 날
       r.reps.forEach(d => { g1 += PL([[dx(d) - 8, G1Y0 + 12], [dx(d), G1Y0], [dx(d) + 8, G1Y0 + 12]], 'st06-rep'); });
@@ -331,19 +333,52 @@ function sim(p){
       else g1 += r.max2 >= SAT ? T(GX0, 660, '마무리 탱크도 포화 — 보충 부족', 'st06-satt', 'start') : T(GX0, 660, `마무리 탱크가 첫 탱크보다 약 ${(r.max1 / Math.max(0.1, r.max2)).toFixed(1)}배 깨끗`, 'pl-sst', 'start');
       if (casc) g1 += PL(pts(r.P2), 's-curve', tip('탱크 2 (마무리) — 웨이퍼가 마지막에 만나는 액'));
       g1 += PL(pts(r.P1), 'st06-c1', tip(casc ? '탱크 1 (첫 탱크) — PR의 90 %를 받는다' : '탱크 — 녹은 PR'));
-      // 한계에 처음 닿는 날
-      [[r.cross1, r.P1, 'k-ng'], [r.cross2, r.P2, 'k-ng']].forEach(([cd, P, cls], i) => {
+      // 글 자리 고르기: 곡선 · 다른 글을 가리지 않는 첫 후보, 다 가리면 가장 덜 가리는 후보
+      // (곡선을 3 px 간격으로 훑어 판(+ 여유 pad) 안에 드는 점을 센다)
+      const curves = casc ? [pts(r.P1), pts(r.P2)] : [pts(r.P1)];
+      const clash = (bx, pad = 6) => {
+        let n = (bx.y < G1Y1 - 2 || bx.y + bx.h > G1Y0 - 6 || bx.x < GX0 + 2 || bx.x + bx.w > GX1 + 40) ? 1e4 : 0;
+        boxes.forEach(o => { if (o.x < bx.x + bx.w + pad && bx.x < o.x + o.w + pad && o.y < bx.y + bx.h + pad && bx.y < o.y + o.h + pad) n += 1e3; });
+        curves.forEach(ps => { for (let i = 1; i < ps.length; i++){
+          const [x0, y0] = ps[i - 1], [x1, y1] = ps[i], k = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 3));
+          for (let j = 0; j <= k; j++){ const px = x0 + (x1 - x0) * j / k, py = y0 + (y1 - y0) * j / k; if (px > bx.x - pad && px < bx.x + bx.w + pad && py > bx.y - pad && py < bx.y + bx.h + pad) n++; }
+        } });
+        return n;
+      };
+      const pick = (cs, w, h, pad) => cs.reduce((a, c) => { const o = Object.assign({w, h}, c), n = clash(o, pad); return n < a.n ? Object.assign({n}, o) : a; }, {n: Infinity});
+      // 곡선 위 빈 띠 (가장 높은 봉우리보다 14 g/L 위) — 선 바로 옆이 막히면 여기에 두고 지시선으로 잇는다
+      const top = Math.max(LIM, r.max1, casc ? r.max2 : 0), limY = gy1(LIM), bandY = top + 14 <= SAT - 4 ? gy1(top + 14) : null;
+      // 관리 한계 글: 오른쪽 선 바로 위 → 바로 아래 → 빈 띠 → 왼쪽 · 가운데
+      const LW = 242, LH = 30, lx = GX1 - LW - 4, mx = (GX0 + GX1 - LW) / 2;
+      const limC = [{x: lx, y: limY - LH - 3}, {x: lx, y: limY + 4}];
+      if (bandY != null) limC.push({x: lx, y: bandY - LH, lead: 1});
+      limC.push({x: GX0 + 8, y: limY - LH - 3}, {x: GX0 + 8, y: limY + 4}, {x: mx, y: limY - LH - 3}, {x: mx, y: limY + 4});
+      const lp = pick(limC, LW, LH, 10);                                         // 여유 10: 한계 바로 밑을 기는 곡선(역류 첫 탱크 ≈ 59 g/L)도 피한다
+      let labs = '';
+      if (lp.lead){
+        // 지시선은 곡선을 가로지르지 않는 x에 (판 오른쪽부터 찾고, 없으면 오른쪽 끝)
+        let ldx = lp.x + LW - 18;
+        for (let x = ldx; x >= lp.x + 18; x -= 6) if (!clash({x: x - 1, y: lp.y + LH, w: 2, h: limY + 8 - lp.y - LH}, 4)){ ldx = x; break; }
+        labs += L(ldx, lp.y + LH, ldx, limY - 4, 'st06-limld') + C(ldx, limY, 4, 'st06-limk');
+        boxes.push({x: ldx - 2, y: lp.y + LH, w: 4, h: limY - lp.y - LH});
+      }
+      labs += R(lp.x, lp.y, LW, LH, 'st06-tplate', {rx: 6}) + T(lp.x + LW - 4, lp.y + 22, '관리 한계 60 g/L (가정)', 'st06-limt', 'end');
+      boxes.push({x: lp.x, y: lp.y, w: LW, h: LH});
+      // 한계에 처음 닿는 날: 점 + 'N일째 한계' (점 왼쪽 위 → 오른쪽 위 → 빈 띠(지시선) → 아래)
+      [[r.cross1, r.P1], [r.cross2, r.P2]].forEach(([cd, P], i) => {
         if (cd < 0) return;
-        const v = (P.find(p => p[0] === cd) || [0, LIM])[1];
-        g1 += C(dx(cd), gy1(v), 8, cls);
-        if (i === 0){
-          const e = dx(cd) > GX1 - 200, tx = dx(cd) + (e ? -14 : 14), ty = gy1(v) + (v > 120 ? 34 : -16);
-          g1 += R(e ? tx - 104 : tx - 4, ty - 21, 108, 28, 'st06-tplate', {rx: 6}) + T(tx, ty, `${cd}일째 한계`, 'st06-crt', e ? 'end' : 'start');
-        }
+        const v = (P.find(p => p[0] === cd) || [0, LIM])[1], cx = dx(cd), cy = gy1(v);
+        g1 += C(cx, cy, 8, 'k-ng');
+        if (i) return;
+        const CW = 116, CH = 28, cc = [{x: cx - CW - 12, y: cy - CH - 10}, {x: cx + 12, y: cy - CH - 10}];
+        if (bandY != null) cc.push({x: cx - CW / 2, y: bandY - CH, lead: 1}, {x: cx - CW / 2, y: bandY - CH - 36, lead: 1});
+        cc.push({x: cx + 12, y: cy + 10}, {x: cx - CW - 12, y: cy + 10});
+        const cp = pick(cc, CW, CH);
+        if (cp.lead) labs += L(cx, cp.y + CH, cx, cy - 10, 'st06-crld');
+        labs += R(cp.x, cp.y, CW, CH, 'st06-tplate', {rx: 6}) + T(cp.x + CW / 2, cp.y + 20, `${cd}일째 한계`, 'st06-crt');
       });
       // 글 (선 위에 겹쳐도 읽히게 판을 깐다) — 선보다 나중에 그린다
-      g1 += satLab;
-      g1 += R(GX1 - 246, gy1(LIM) - 33, 242, 30, 'st06-tplate', {rx: 6}) + T(GX1 - 8, gy1(LIM) - 11, '관리 한계 60 g/L (가정)', 'st06-limt', 'end');
+      g1 += satLab + labs;
       // 범례
       g1 += L(1190, 166, 1222, 166, 'st06-c1') + T(1230, 173, casc ? '탱크 1' : '탱크', 't-dim', 'start');
       if (casc) g1 += L(1316, 166, 1348, 166, 's-curve') + T(1356, 173, '탱크 2 · 마무리', 't-dim', 'start');
@@ -422,12 +457,12 @@ function sim(p){
       ['클리어 시간', '눈에 보이는 PR이 다 걷힐 때까지 걸린 시간'],
       ['드래그아웃', '웨이퍼 · 카세트에 묻어 다음 탱크로 넘어가는 액']
     ]) + K.field([
-      '액 교체 직후와 교체 직전의 결과를 비교하면 액 나이 효과가 바로 보입니다. 로트 기록에 <b>액 사용 일수 · 처리 장수</b>를 남겨 두어야 나중에 불량과 맞춰 볼 수 있습니다.',
+      '액 교체 직후와 교체 직전의 결과를 비교하면 액 나이 효과가 바로 보입니다. lot 기록에 <b>액 사용 일수 · 처리 장수</b>를 남겨 두어야 나중에 불량과 맞춰 볼 수 있습니다.',
       '제품마다 PR 두께 · 개구율이 달라 웨이퍼당 PR 양이 다릅니다(35 µm면 약 2.2 g, 60 µm면 약 3.8 g — <a data-go="why">01장</a>). 교체 기준을 \'장수\'보다 <b>\'PR 무게 환산\'</b>으로 보면 더 정확합니다. 보충만으로는 물 · 분해산물이 쌓이는 액은 정기 전량 교체를 함께 씁니다.',
       '물 함량은 한쪽으로만 가지 않습니다. 물이 몇 % 든 액은 데우는 동안 물이 날아가 줄 수 있어, 장비에 따라 인라인 농도계로 물을 자동 보충합니다. 질소 덮기는 산소 · 이산화탄소는 막지만 물 · 휘발 성분 증발은 키울 수 있습니다.',
       '박리형 약품에서 가교 PR 조각은 바로 녹지 않고 필터에 쌓이므로, 분석값보다 <b>필터 차압 · 필터 교체 주기</b>가 먼저 한계에 닿을 수 있습니다(<a data-go="resist.lift">02장</a>). 알칼리 액에서는 조각도 천천히 녹아 녹은 PR 양을 늘립니다.',
       '액에 녹은 Cu(ICP)가 늘면 부식이 있었다는 뜻이자, 그 Cu가 다시 Cu를 녹이는 산화제가 될 수 있다는 뜻입니다 → <a data-go="metal.cu">07장</a>. 잔여 · 재부착 불량이 늘면 액 나이와 마무리 탱크 상태부터 봅니다 → <a data-go="residue.redep">08장</a>.'
-    ]) + K.deep(`<p>매일 일부를 바꾸는 보충(bleed & feed)과 역류 캐스케이드는 같은 물질 수지로 풉니다(g: 하루에 들어오는 녹은 PR g/L, b: 하루 보충 비율):</p>
+    ]) + K.deep(`<p>매일 일부를 바꾸는 보충(bleed & feed)과 역류 캐스케이드는 같은 물질 수지(收支 — 들어오고 나가는 양의 셈)로 풉니다. g는 하루에 들어오는 녹은 PR(g/L), b는 하루 보충 비율입니다.</p>
       ${K.eq('C(다음 날) = C · (1 − b) + g   →   C* = g / b')}
       <ul><li><b>보충 모델</b> — 95 %까지 약 3/b일 걸립니다(<a href="#go-plating-11">전해도금 11장</a>의 분해산물 모델과 같은 꼴). 예: 200장/일 · 40 L · 2.2 g/장 → g ≈ 11 g/L/일, b 20 %면 C* ≈ 55 g/L(15일쯤 거의 도달). 보충률을 두 배로 하면 수준은 절반, 새 액도 두 배입니다. 웨이퍼당 약품 사용량 = 한 달 새 액 ÷ 한 달 장수(240 L ÷ 6,000장 = 40 mL/장)로 비용을 비교합니다.</li>
       <li><b>역류 캐스케이드</b> — 드래그아웃이 없으면 마무리 탱크 C₂* = (1 − φ)g/b, 첫 탱크 C₁* = C₂* + φg/b(φ 0.9 → 5.5 · 55 g/L, 10배). 실제로는 웨이퍼 양면의 끌어올림 액막 · 범프 숲에 고인 액 · 카세트 몫이 웨이퍼당 수 mL를 첫 탱크에서 마무리 탱크로 옮깁니다. 웨이퍼당 3 mL(가정)면 하루 0.6 L × 약 59 g/L ≈ 35 g으로 마무리 탱크에 바로 들어오는 PR(44 g)과 맞먹어 C₂* ≈ 9 g/L — 같은 새 액으로 마지막 액이 약 6배(드래그아웃에 따라 5~10배) 깨끗합니다(PR 60 µm면 16 · 101 g/L). <b>물기 빼는 시간 · 들어 올리는 속도로 드래그아웃을 줄이는 것</b>도 마무리 탱크를 지키는 손잡이입니다.</li>
@@ -466,6 +501,9 @@ function sim(p){
 .pl-svg .st06-at{font-size:19px;fill:#c4b5fd !important}
 .pl-svg .st06-lim{fill:none;stroke:#fbbf24;stroke-width:2;stroke-dasharray:10 6}
 .pl-svg .st06-limt{font-size:19px;font-weight:800;fill:#fbbf24 !important}
+.pl-svg .st06-limld{stroke:#fbbf24;stroke-width:1.6;opacity:.85}
+.pl-svg .st06-limk{fill:#fbbf24;stroke:none}
+.pl-svg .st06-crld{stroke:#fca5a5;stroke-width:1.6;opacity:.85}
 .pl-svg .st06-c1{fill:none;stroke:#f59e0b;stroke-width:3.4;stroke-linejoin:round}
 .pl-svg .st06-alk{fill:none;stroke:#a78bfa;stroke-width:3;stroke-dasharray:9 6}
 .pl-svg .st06-ghost{fill:none;stroke:rgba(148,163,184,.6);stroke-width:2;stroke-dasharray:5 6}

@@ -25,7 +25,8 @@ function calc(s){
   const cu = cuS + cuR, sn = snS + snR;
   return {A, fw, rCu, rSn, cuS, snS, cuR, snR, cu, sn, seed: Math.max(0, 1 - cu / 300), strip: (cuS + snS) / (cu + sn)};
 }
-const DEF = {T: 70, w: 3, t: 20, base: 'amine', o2: 'air', inh: 'on', rinse: 'sol'};
+// 기본 13분 = 그림 기준 PR 35 µm · 70 °C · 순환에서 평평한 곳이 다 걷히는 약 10분 + 여유 30 % (08장 예와 같음)
+const DEF = {T: 70, w: 3, t: 13, base: 'amine', o2: 'air', inh: 'on', rinse: 'sol'};
 // 손대지 않았을 때 단계마다 보여 줄 값 (발표 모드 대비)
 const DEMO = {
   cu: Object.assign({}, DEF, {w: 10, inh: 'off'}),
@@ -183,10 +184,10 @@ function wob(x, y, r, cls, seed, amp){
     sp += LB(T(812, 870, 'Sn이 빠지면 겉에 Ag(Ag₃Sn)가 상대적으로 남아 색 · 거칠기가 달라질 수 있다', 't-dim', 'start'));
     s += G(sp, only('sn'));
 
-    // ── galv: 액의 전기 통함 막대 + 맞닿은 선 옆 전류 몰림 ──
-    let gp = T(812, 160, '액의 전기 통함이 공격 모양을 바꾼다', 't-acc', 'start');
+    // ── galv: 액의 전도도 막대 + 맞닿은 선 옆 전류 몰림 ──
+    let gp = T(812, 160, '액의 전도도(전기가 통하는 정도)가 공격 모양을 바꾼다', 't-acc', 'start');
     gp += R(1100, 230, 230, 22, '', {fill: K.url('st07-hat')}) + T(1215, 222, '위험 창 — 물이 섞이기 시작', 't-warn');
-    gp += R(840, 252, 680, 36, 'st07-cbar', {fill: K.url('st07-cond'), rx: 6, 'data-tip': '액의 전기 통함 (전도도) — 물이 적은 스트리퍼는 낮고, 헹굼 물이 섞이면 높아진다'});
+    gp += R(840, 252, 680, 36, 'st07-cbar', {fill: K.url('st07-cond'), rx: 6, 'data-tip': '액의 전도도 (전기가 통하는 정도) — 물이 적은 스트리퍼는 낮고, 헹굼 물이 섞이면 높아진다'});
     gp += '<g data-v="gmark"></g>';
     gp += T(840, 374, '← 스트리퍼 (물 적음) — 낮음', 't-dim', 'start') + T(1520, 374, '헹굼 물이 섞임 — 높음 →', 't-dim', 'end');
     gp += T(840, 410, '물이 거의 없어도, 맞닿은 선 옆 µm 거리에서는 전류가 흐른다', 't-sub', 'start');
@@ -216,7 +217,7 @@ function wob(x, y, r, cls, seed, amp){
     for (let t = 0; t <= 60; t += 10) rp += L(rgx(t), RY0, rgx(t), RY0 + 8, 's-axis') + T(rgx(t), RY0 + 30, String(t), 't-dim');
     rp += T(RX1, RY0 + 58, '시간 (초) →', 't-dim', 'end') + T(RX0 - 12, RY1 + 6, '세기', 't-dim', 'end') + T(RX0 - 12, RY1 + 30, '(상대)', 't-dim', 'end');
     rp += '<g data-v="rcurve"></g>';
-    const LEG = [[812, 714, 'st07-cdi', '바로 물'], [1060, 714, 'st07-csol', '중간 용제 → 물'], [1320, 714, null, '위험 창'], [812, 744, 'st07-cinh', '억제제 농도'], [1060, 744, 'st07-coh', 'OH⁻ (아민계)'], [1320, 744, 'st07-cw', '물 · 전기 통함']];
+    const LEG = [[812, 714, 'st07-cdi', '바로 물'], [1060, 714, 'st07-csol', '중간 용제 → 물'], [1320, 714, null, '위험 창'], [812, 744, 'st07-cinh', '억제제 농도'], [1060, 744, 'st07-coh', 'OH⁻ (아민계)'], [1320, 744, 'st07-cw', '물 · 전도도']];
     LEG.forEach(([x, y, c, t]) => {
       rp += (c ? L(x, y - 7, x + 40, y - 7, c) : R(x, y - 18, 40, 20, '', {fill: K.url('st07-hat')})) + T(x + 50, y, t, 't-dim', 'start');
     });
@@ -239,7 +240,7 @@ function wob(x, y, r, cls, seed, amp){
       ${K.seg('rinse', [['sol', '중간 용제 → 물'], ['di', '바로 물 (아민계 가정)']], DEF.rinse, '헹굼 순서')}
       ${K.kpis([['Cu 손실', 'k-cu', 'nm (스트립 + 헹굼)'], ['시드 남은 비율', 'k-seed', '시드 Cu 300 nm 예시'], ['Sn 손실', 'k-sn', 'nm (SnAg 윗면)'], ['가장 큰 몫', 'k-big', 'Cu + Sn 손실 중']])}
       <p class="pl-msg" data-o="msg"></p>
-      ${K.model('Ea 60 kJ/mol, 기준 속도(Cu 2 · Sn 3 nm/분, 70 °C), 물 효과 w/(w+2), 산소(질소 덮기 ×0.3) · 알칼리(Cu: 아민 1 · TMAH 0.5, Sn: 아민 0.3 · TMAH 1) · 억제(Cu ×0.1 · Sn ×0.4) · 헹굼 배수는 모두 경향을 보이려고 고른 가정값입니다. 헹굼 순간 몫은 Cu 3 · Sn 2 nm(TMAH계는 Sn ×2) × (1 + 물 효과)에 헹굼 배수(중간 용제 → 물 ×0.2 · 바로 물 ×1)를 곱합니다 — 바로 물 ×5는 아민계를 가정한 값으로, 물로 바로 헹구게 만든 약품에서는 이 배수가 작습니다. 스트립 시간은 금속이 액에 닿아 있는 시간으로 셉니다 — 실제로 SnAg 윗면은 처음부터 닿지만, 시드와 기둥 옆면의 Cu는 PR이 걷힌 뒤(오버 스트립)부터 닿습니다. 녹은 Cu가 쌓인 지친 액이 Cu 손실을 키우는 효과는 넣지 않았습니다(한 걸음 더). 실제 손실은 액 · 금속 표면 · 장비마다 달라 자릿수도 다를 수 있으니, 블랭킷 Cu · Sn 시편의 두께 변화(면저항 · XRF)로 직접 재세요.')}</div>`;
+      ${K.model('Ea 60 kJ/mol, 기준 속도(Cu 2 · Sn 3 nm/분, 70 °C), 물 효과 w/(w+2), 산소(질소 덮기 ×0.3) · 알칼리(Cu: 아민 1 · TMAH 0.5, Sn: 아민 0.3 · TMAH 1) · 억제(Cu ×0.1 · Sn ×0.4) · 헹굼 배수는 모두 경향을 보이려고 고른 가정값입니다. 헹굼 순간 몫은 Cu 3 · Sn 2 nm(TMAH계는 Sn ×2) × (1 + 물 효과)에 헹굼 배수(중간 용제 → 물 ×0.2 · 바로 물 ×1)를 곱합니다 — 바로 물 ×5는 아민계를 가정한 값으로, 물로 바로 헹구게 만든 약품에서는 이 배수가 작습니다. 스트립 시간은 금속이 액에 닿아 있는 시간으로 셉니다 — 실제로 SnAg 윗면은 처음부터 닿지만, 시드와 기둥 옆면의 Cu는 PR이 걷힌 뒤(오버 스트립)부터 닿습니다. 기본 13분은 그림 기준 PR 35 µm · 70 °C · 순환에서 평평한 곳이 다 걷히는 약 10분 + 여유 30 %(<a data-go="residue.foot">08장</a> 예)라, Cu 몫은 넉넉하게(크게) 센 값입니다. 녹은 Cu가 쌓인 지친 액이 Cu 손실을 키우는 효과는 넣지 않았습니다(한 걸음 더). 실제 손실은 액 · 금속 표면 · 장비마다 달라 자릿수도 다를 수 있으니, 블랭킷 Cu · Sn 시편의 두께 변화(면저항 · XRF)로 직접 재세요.')}</div>`;
   },
   mount(K, ctx){
     const {R, C, L, P, PG, T, TT, G, LB, tip, only, W, wrap, ionPath, rng} = K;
@@ -266,7 +267,7 @@ function wob(x, y, r, cls, seed, amp){
       let wd = '';
       const nW = Math.round(st.w * 1.2);
       for (let i = 0; i < nW; i++){ const x = 64 + g() * 672, y = 352 + g() * 220; wd += wob(x, y, 4.5, 'st07-w', i + 3, 9); }
-      set$('[data-v="water"]', G(wd, tip(`물 ${st.w} % — 부식에 필요한 물 · 전기 통함`)));
+      set$('[data-v="water"]', G(wd, tip(`물 ${st.w} % — 부식에 필요한 물. 물이 많을수록 액의 전도도도 오른다`)));
 
       // 산소 (공기 6 · 질소 2)
       const O2T = [[90, SEED - 14, 70], [182, SEED - 14, 200], [BX0 - 14, 830, 150], [BX0 - 14, 905, 300], [BX1 + 14, 850, 520], [600, SEED - 14, 690]];
@@ -344,7 +345,7 @@ function wob(x, y, r, cls, seed, amp){
         z += G(`<line x1="${x0}" y1="${(surf - 2).toFixed(1)}" x2="${x0 + w0}" y2="${(surf - 2).toFixed(1)}" class="st07-inh"><animate attributeName="opacity" values="1;1;.15;.15;1" keyTimes="0;.15;.55;.95;1" dur="6s" repeatCount="indefinite"/></line>`, only('rinse'));
       }
       const yS = Math.min(surf, ZBOT - 18);
-      z += `<g><circle cx="-5" r="5" class="st07-zo"/><circle cx="5" r="5" class="st07-zo"/><animateMotion dur="3.2s" repeatCount="indefinite" path="M600,700 L604,${(yS - 7).toFixed(0)}"/></g>`;
+      z += `<g><circle cx="-5" r="5" class="st07-zo"/><circle cx="5" r="5" class="st07-zo"/><animateMotion dur="3.2s" repeatCount="indefinite" path="M650,700 L654,${(yS - 7).toFixed(0)}"/></g>`;
       z += `<g><circle r="11" class="st07-am"/><circle r="6" class="st07-zcu"/><animateMotion dur="3.2s" begin="-1.6s" repeatCount="indefinite" path="M696,${(yS - 8).toFixed(0)} L712,698"/><animate attributeName="opacity" values="0;1;1;0" dur="3.2s" begin="-1.6s" repeatCount="indefinite"/></g>`;
       if (surf + 26 <= 850) z += T(694, surf + 26, '시드 Cu', 'st07-in'); else if (!seen) z += T(672, ZBOT - 30, '↓ 눈금 밖', 'st07-zt');
       let zz = G(z, {'clip-path': K.url('st07-zc')}) + C(ZC.x, ZC.y, ZC.r, 'st07-zring', tip(`확대 — 시드 Cu 윗부분을 nm 눈금으로 (눈금 10 nm · 시드 300 nm 가운데 위 약 70 nm)\n점선 = 처음 표면 · 빨강 = 스트립 중 · 주황 = 헹굼 순간 몫`));
@@ -355,7 +356,7 @@ function wob(x, y, r, cls, seed, amp){
 
       // 헹굼 설명 상자 첫 줄
       set$('[data-v="rcap"]', LB(T(68, 292, st.rinse === 'di' ? '지금 헹굼: 바로 물 (아민계 가정 — 헹굼 몫 ×5)' : '지금 헹굼: 중간 용제(IPA 등) → 물 (헹굼 몫 ×0.2)', 't-sub', 'start') +
-        T(68, 322, am ? '물 · 전기 통함 ↑ · 억제제 ↓ (묽어짐) · 아민계는 OH⁻도 ↑' : '물 · 전기 통함 ↑ · 억제제 ↓ (묽어짐) · TMAH계는 OH⁻가 늘지 않음', 't-dim', 'start')));
+        T(68, 322, am ? '물 · 전도도 ↑ · 억제제 ↓ (묽어짐) · 아민계는 OH⁻도 ↑' : '물 · 전도도 ↑ · 억제제 ↓ (묽어짐) · TMAH계는 OH⁻가 늘지 않음', 't-dim', 'start')));
 
       // ── 오른쪽 cu 패널: 손잡이 칩 + 기둥 vs 시드 ──
       const chip = (x, y, t, onCls) => { const w = Math.round(emw(t) * 19 + 30); return [w, R(x, y, w, 38, 'st07-chip' + (onCls ? ' ' + onCls : ''), {rx: 19}) + T(x + w / 2, y + 26, t, onCls ? 'st07-chipt' : 't-dim')]; };
@@ -393,7 +394,7 @@ function wob(x, y, r, cls, seed, amp){
       if (pts.length > 1) hat = P(`M${pts[0][0].toFixed(1)},${RY0} ` + pts.map(p => `L${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ') + ` L${pts[pts.length - 1][0].toFixed(1)},${RY0} Z`, '', {fill: K.url('st07-hat'), 'data-tip': '위험 창 — 물이 들어오고 억제제는 묽어지는 첫 몇 초~수십 초'});
       const pick = st.rinse;
       rc += hat;
-      rc += P(ln.inh, 'st07-cinh', tip('억제제 농도 — 묽어지며 처음부터 줄기만 한다')) + P(ln.w, 'st07-cw', tip('물 · 전기 통함 — 헹굼 물이 들어오며 오른다')) + P(ln.oh, 'st07-coh' + (am ? '' : ' st07-faint'), tip(am ? 'OH⁻ (아민계) — 물을 만나 솟았다가 더 묽어지면 내려간다' : 'TMAH계 — 물이 들어와도 OH⁻가 솟지 않는다'));
+      rc += P(ln.inh, 'st07-cinh', tip('억제제 농도 — 묽어지며 처음부터 줄기만 한다')) + P(ln.w, 'st07-cw', tip('물 · 전도도 — 헹굼 물이 들어오며 오른다')) + P(ln.oh, 'st07-coh' + (am ? '' : ' st07-faint'), tip(am ? 'OH⁻ (아민계) — 물을 만나 솟았다가 더 묽어지면 내려간다' : 'TMAH계 — 물이 들어와도 OH⁻가 솟지 않는다'));
       rc += P(ln.sol, 'st07-csol' + (pick === 'sol' ? '' : ' st07-faint'), tip('중간 용제(IPA 등) → 물 — 스트리퍼를 먼저 밀어낸 뒤 물이 와서 낮고 완만하다'));
       rc += P(ln.di, 'st07-cdi' + (pick === 'di' ? '' : ' st07-faint'), tip('바로 물 — 물이 들어오는 첫 몇 초에 급히 솟았다가 30초쯤 내려간다'));
       const pk = pick === 'di' ? [rgx(4.5), rgy(di(4.5))] : [rgx(14.3), rgy(so(14.3))];
@@ -412,7 +413,7 @@ function wob(x, y, r, cls, seed, amp){
       let rs = bar(948, m.cuS, m.cuR, 'st07-seedbg') + bar(994, m.snS, m.snR, 'st07-snbg');
       const big = m.strip >= 0.5 ? '스트립 중' : '헹굼 순간', bp = Math.min(99, Math.round((m.strip >= 0.5 ? m.strip : 1 - m.strip) * 100));
       rs += T(1550, 928, `가장 큰 몫: ${big} (${bp} %)`, 't-warn', 'end');
-      rs += T(812, 1060, '막대 끝 = 300 nm (시드 Cu 두께) · 빨강 = 스트립 중 · 주황 = 헹굼 순간', 't-dim', 'start');
+      rs += T(812, 1060, '막대 끝 = 300 nm (두 줄 모두 시드 두께 눈금) · 빨강 = 스트립 중 · 주황 = 헹굼', 't-dim', 'start');
       rs += T(812, 1090, `스트립 중 속도: Cu ${m.rCu.toFixed(2)} · Sn ${m.rSn.toFixed(2)} nm/분 × ${st.t}분 · 헹굼 몫: Cu ${m.cuR.toFixed(1)} · Sn ${m.snR.toFixed(1)} nm`, 't-dim', 'start');
       set$('[data-v="res"]', rs);
       ctx.refresh();
@@ -428,8 +429,10 @@ function wob(x, y, r, cls, seed, amp){
       let msg = `가장 큰 몫은 <b>${big}</b>입니다 (Cu + Sn 손실의 ${bp} %).`;
       if (m.seed <= 0) msg += ' 시드 Cu 300 nm가 다 녹는 극단 조건입니다(개념 모델) — 실제로는 쓰지 않는 조건입니다.';
       else if (m.seed < 0.9) msg += ` 시드 Cu가 ${(m.cu / 3).toFixed(0)} % 얇아집니다 — 시드 식각 시간 · 언더컷이 달라질 수 있습니다.`;
-      if (m.sn >= 15) msg += ` SnAg 윗면이 ${f1(m.sn)} nm 깎여 거칠어지거나 색이 변할 수 있습니다 — 리플로우 젖음과 이어 봅니다.`;
-      if (st.T >= 78) msg += ` ${st.T} °C는 인화점 예시 경고선(DMSO 약 88 °C − 10 °C = 78 °C, 가정) 안쪽입니다 — 실제 여유는 장비 · 사내 안전 기준 → <a data-go="chem.safety">04장</a>.`;
+      if (m.sn >= 10) msg += ` SnAg 윗면이 ${f1(m.sn)} nm 깎여 거칠어지거나 색이 변할 수 있습니다 — 리플로우 젖음과 이어 봅니다.`;
+      // 인화점 (03 · 04 · 05장과 같은 두 단계): 88 °C 이상 = 인화점 닿음 · 넘음, 78 °C 넘음 = 예시 경고선(인화점 − 10 °C, 가정) 안쪽
+      if (st.T >= 88) msg += ` <b>⚠ ${st.T} °C는 DMSO 인화점(약 88 °C)${st.T > 88 ? '보다 높습니다' : '에 닿았습니다'} — 증기에 불이 붙을 수 있는 온도라 예시 모델에서도 쓰지 않습니다.</b> 실제 여유는 장비 · 사내 안전 기준 → <a data-go="chem.safety">04장</a>.`;
+      else if (st.T > 78) msg += ` <b>⚠ ${st.T} °C — DMSO 인화점(약 88 °C)까지 ${88 - st.T} °C, 예시 경고선(인화점 − 10 °C, 가정) 안쪽입니다.</b> 실제 여유는 장비 · 사내 안전 기준 → <a data-go="chem.safety">04장</a>.`;
       msg += st.inh === 'on' ? ' 억제제가 든 액에서는 헹굼 순간이 상대적으로 커집니다 — 헹굼 순서를 바꿔 보세요 (실제 순서는 약품 공급사가 검증한 순서).'
         : ' 억제제가 없으면 스트립 중 Cu 손실이 약 10배로 커집니다 — 억제제 · 질소 덮기를 켜 보세요.';
       ctx.q('[data-o=msg]').innerHTML = msg;
@@ -478,9 +481,9 @@ function wob(x, y, r, cls, seed, amp){
       <li><b>Cu 용해</b> — 2Cu + O₂ → 2CuO(또는 4Cu + O₂ → 2Cu₂O), 산화물 + 아민 → [Cu(아민)ₙ]²⁺(Cu⁺ 착이온은 산소가 다시 Cu²⁺로). 아민 · 암모니아는 Cu의 착화제라 Cu를 식각할 수 있습니다(공개 특허 문헌). 에탄올아민 수용액에 공기 · 산소를 넣어 Cu를 녹이는 공업 공정이 있을 정도로, 산소는 Cu 부식의 핵심 산화제입니다 → 질소 덮기 · 탈기로 줄입니다. 또 <b>녹아 쌓인 Cu²⁺–아민 착이온은 그 자체가 Cu를 녹이는 산화제</b>입니다(Cu + Cu²⁺ → 2Cu⁺, 산소가 Cu⁺를 다시 Cu²⁺로 — 알칼리 암모니아 Cu 식각액과 같은 원리). 그래서 Cu가 쌓인 지친 액에서는 Cu 손실이 빨라질 수 있습니다 — 액 속 Cu는 부식의 결과이자 원인입니다(<a data-go="bath.rule">06장</a>).</li>
       <li><b>Sn</b> — 산화물 용해도는 pH 약 8.5에서 가장 낮고, 강알칼리에서는 HSnO₂⁻ · SnO₃²⁻ 이온으로 녹습니다. pH 약 12를 넘으면 억제제로도 완전히 막기 어렵다는 보고가 있습니다(물에 묽어진 알칼리 기준 — 물이 적은 스트리퍼 속 알칼리 세기는 pH로 읽지 않습니다, <a data-go="chem.water">04장</a>). Sn이 빠지면 표면에 Ag(Ag₃Sn)가 상대적으로 남아 색 · 거칠기가 달라질 수 있습니다(조건에 따라).</li>
       <li><b>Ni</b> — 알칼리에서는 비교적 부동태라 잘 견디지만, 아민 · 암모니아와 착이온을 만들 수 있어 조건에 따라 먹힙니다.</li>
-      <li><b>갈바닉</b> — 표준 전위 Ag⁺/Ag +0.80, Cu²⁺/Cu +0.34, Sn²⁺/Sn −0.14, Ni²⁺/Ni −0.25 V(물, 25 °C). 물에서는 보통 Sn · Ni가 녹는 쪽(애노드)이 되기 쉽지만, 착화제가 Cu를 강하게 붙잡으면 Cu의 실제 전위가 내려가 순서가 바뀔 수 있습니다. 넓은 캐소드 + 작은 애노드는 애노드 전류밀도를 키워 국부 부식을 빠르게 합니다(원리 · 면적비 → <a href="#go-etch-05">시드 식각 05장</a>). 전류가 어디까지 퍼지는지는 액 전도도 × 거리가 정합니다. <b>물이 거의 없는 액은 전도도가 낮아 먼 거리 갈바닉은 약하지만, 두 금속이 맞닿은 선(Cu/Ni · Ni/SnAg 계면) 바로 옆 µm 거리에서는 액 저항이 작아 여전히 전류가 흐르고, 공격이 계면에 좁게 몰립니다</b>(띠 · V자 홈 — <a data-go="defects.tiles">09장</a>). 물이 섞여 전도도가 오르는 헹굼 순간에는 공격 범위가 넓어지고 빨라집니다.</li>
+      <li><b>갈바닉</b> — 표준 전위 Ag⁺/Ag +0.80, Cu²⁺/Cu +0.34, Sn²⁺/Sn −0.14, Ni²⁺/Ni −0.26 V(물, 25 °C). 물에서는 보통 Sn · Ni가 녹는 쪽(애노드)이 되기 쉽지만, 착화제가 Cu를 강하게 붙잡으면 Cu의 실제 전위가 내려가 순서가 바뀔 수 있습니다. 넓은 캐소드 + 작은 애노드는 애노드 전류밀도를 키워 국부 부식을 빠르게 합니다(원리 · 면적비 → <a href="#go-etch-05">시드 식각 05장</a>). 전류가 어디까지 퍼지는지는 액 전도도 × 거리가 정합니다. <b>물이 거의 없는 액은 전도도가 낮아 먼 거리 갈바닉은 약하지만, 두 금속이 맞닿은 선(Cu/Ni · Ni/SnAg 계면) 바로 옆 µm 거리에서는 액 저항이 작아 여전히 전류가 흐르고, 공격이 계면에 좁게 몰립니다</b>(띠 · V자 홈 — <a data-go="defects.tiles">09장</a>). 물이 섞여 전도도가 오르는 헹굼 순간에는 공격 범위가 넓어지고 빨라집니다.</li>
       <li><b>헹굼 충격</b> — 물로 묽히면 모든 성분의 농도가 같은 비율로 떨어집니다. 그런데 아민 평형 R–NH₂ + H₂O ⇌ R–NH₃⁺ + OH⁻는 물이 적을 때 왼쪽에 머물다가 물이 늘면 오른쪽으로 가 OH⁻가 늘어납니다. 더 묽어지면 다시 줄어, OH⁻는 '솟았다 내려가는' 곡선이 되고 억제제는 처음부터 줄기만 합니다 — 이 사이가 위험 창입니다. 같은 때 물이 들어와 전기화학 부식이 쉬워지고 녹은 PR은 석출될 수 있습니다. TMAH · DMSO 계는 물이 염기 세기를 낮춰 이 솟음이 작고, 묽어진 알칼리 수막과 산소가 위험의 중심입니다. 세정 장비 문헌은 헹굼 첫 몇 초에 갈바닉 부식이 생길 수 있다고 보고하고, 다층 금속 웨이퍼를 용제 스트립 뒤 곧바로 물로 헹구면 갈바닉 부식이 생길 수 있다는 업계 글도 있습니다(주로 아민계 · Al 배선 사례). 대책은 약품에 맞게: 중간 용제(IPA 등) 헹굼, 빠른 대량 물 투입(퀵 덤프), 이동 시간 단축(마르지 않게), 묽은 산 헹굼(특허 예). 물로 바로 헹구게 만든 약품도 많아, 순서는 공급사가 검증한 대로 따릅니다.</li>
-      <li><b>온도와 시간의 맞바꿈</b> — 한 번의 손실 = 부식 속도 × 시간입니다. 온도를 10 °C 올리면 스트립 시간은 <a data-go="soak.heat">03장</a> 모델로 녹는 PR · 순환 ×0.78, 가교 PR ×0.66만 줄어듭니다(겉면 공급 · 조각 치움 몫은 온도로 거의 안 빨라짐). 부식 속도는 부식의 활성화 에너지에 따라 늘어납니다 — 위젯 가정 Ea 60 kJ/mol이면 ×1.81이라 한 번 손실은 <b>×1.4(녹는 PR) · ×1.2(가교)로 오히려 늘고</b>, 부식이 산소 공급(액 속 확산, 보통 Ea 15~25 kJ/mol)에 묶여 Ea가 작으면(예: 20 kJ/mol, ×1.22) ×0.95 · ×0.81로 조금 줍니다. 어느 쪽인지는 블랭킷 Cu · Sn 시편을 두 온도에서 재 보면 압니다. 온도는 시간을 줄이는 손잡이지만 금속에는 대개 손해이고, 손실을 줄이는 손잡이는 주로 물 · 산소 · 억제제 · 헹굼입니다.</li>
+      <li><b>온도와 시간의 맞바꿈</b> — 한 번의 손실 = 부식 속도 × 시간입니다. 온도를 10 °C 올리면 스트립 시간은 <a data-go="soak.heat">03장</a> 모델(그림 기준 PR 35 µm · 순환, 70 → 80 °C)로 녹는 PR ×0.78, 가교 PR ×0.70만 줄어듭니다(가교 PR이 60 µm로 두꺼우면 ×0.66 — 겉면 공급 · 조각 치움 몫은 온도로 거의 안 빨라짐). 부식 속도는 부식의 활성화 에너지에 따라 늘어납니다 — 위젯 가정 Ea 60 kJ/mol이면 ×1.81이라 한 번 손실은 <b>×1.4(녹는 PR) · ×1.3(가교, 60 µm면 ×1.2)으로 오히려 늘고</b>, 부식이 산소 공급(액 속 확산, 보통 Ea 15~25 kJ/mol)에 묶여 Ea가 작으면(예: 20 kJ/mol, ×1.22) ×0.95 · ×0.86(60 µm 가교면 ×0.81)으로 조금 줍니다. 어느 쪽인지는 블랭킷 Cu · Sn 시편을 두 온도에서 재 보면 압니다. 온도는 시간을 줄이는 손잡이지만 금속에는 대개 손해이고, 손실을 줄이는 손잡이는 주로 물 · 산소 · 억제제 · 헹굼입니다.</li>
     </ul>`);
   },
   css: `.pl-svg .st07-in{font-size:21px;font-weight:800;fill:#0b1222 !important;stroke:none !important;text-anchor:middle}

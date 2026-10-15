@@ -81,7 +81,7 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
   title: '계면 IMC — 솔더와 Ni 사이에는 무엇이 자랄까?',
   hook: '이어 주지만 Ni를 먹는다',
   one: '녹은 솔더 속 Sn은 Ni와 만나 새 화합물(금속간 화합물, IMC)을 만듭니다. Ni 위에서는 주로 Ni₃Sn₄가 자라고, 솔더에 Cu가 섞이면 (Cu,Ni)₆Sn₅가 됩니다. 얇은 IMC는 단단히 이어졌다는 증거지만, 열을 받을수록 두꺼워지며 Ni와 Sn을 먹습니다.',
-  ana: '<b>쇠에 스는 녹</b> — 쇠와 산소가 만나는 자리에 녹 층이 생기며 쇠가 줄듯, Ni와 Sn이 만나는 자리에 IMC 층이 생기며 Ni(와 Sn)가 줄어듭니다. 층이 두꺼워질수록 원자가 층을 건너기 어려워 자라는 속도가 느려지는 것도 닮았습니다. <i>(비유의 한계: 쇠의 녹은 푸석해서 아무것도 잇지 못하지만, IMC는 솔더와 Ni를 금속으로 이어 주는 꼭 필요한 층입니다. 다만 너무 두꺼우면 단단하고 잘 깨지는 층이 됩니다.)</i>',
+  ana: '<b>쇠에 스는 녹</b> — 쇠와 산소가 만나는 자리에 녹 층이 생기며 쇠가 줄듯, Ni와 Sn이 만나는 자리에 IMC 층이 생기며 Ni(와 Sn)가 줄어듭니다. <i>(비유의 한계: 쇠의 녹은 푸석해 공기 · 물이 스며들어 계속 자라고 아무것도 잇지 못하지만, IMC는 빽빽한 층이라 두꺼워질수록 원자가 건너기 어려워 점점 느리게 자랍니다. 또 IMC는 솔더와 Ni를 금속으로 이어 주는 꼭 필요한 층입니다 — 다만 너무 두꺼우면 단단하고 잘 깨지는 층이 됩니다.)</i>',
   steps: [
     {id: 'dissolve', t: '녹으면 반응이 시작된다', d: '솔더가 녹으면 Ni 표면의 원자가 조금 녹아들고, 곧 계면에 Ni와 Sn의 화합물이 생겨 덮습니다. 도금 직후에는 거의 없던 반응층이 리플로우 한 번에 보통 1 µm 안팎으로 자랍니다(온도 · 시간 · Ni 종류에 따라 몇 µm까지).', viewN: {x: 1040, y: 130, w: 520, h: 490}},
     {id: 'ni3sn4', t: 'Ni₃Sn₄ — 각진 조각 층', d: 'Ni 위 SnAg에서는 Ni₃Sn₄가 자랍니다. 녹은 솔더 쪽으로 각진 바늘 · 조각 모양으로 솟고, 굳은 뒤 이 층이 솔더와 Ni를 잇습니다. Ag는 IMC에 거의 들어가지 않고 솔더 속 작은 Ag₃Sn으로 남습니다.', viewN: {x: 1040, y: 130, w: 520, h: 490}},
@@ -114,7 +114,7 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
       }
       if (i === 2) f += P(facet(K, x, x + FW, FY + 152, 22, 1, 33).d, 'f-imc rf05-ie');
       f += R(x, FY, FW, 200, 'rf05-frame');
-      const tp = ['도금 직후 — 계면에 반응층이 거의 없다', '녹고 몇 초 — Ni가 조금 녹아들고, 계면에 작은 조각(핵)이 생겨 곧 이어진다', '약 1분 뒤(250 °C) — 이어진 층이 자라 보통 1 µm 안팎 (위젯: 1회 · 60 s → 1.00 µm)'][i];
+      const tp = ['도금 직후 — 계면에 반응층이 거의 없다', '녹고 몇 초 — Ni가 조금 녹아들고, 계면에 작은 조각(핵)이 생겨 곧 이어진다', '약 1분 뒤(250 °C) — 이어진 층이 자라 보통 1 µm 안팎 (위젯: 1회 · 60초 → 1.00 µm)'][i];
       dz += G(f, tip(tp)) + T(x + FW / 2, FY + 230, ['도금 직후', '녹고 몇 초', '약 1분 뒤'][i], 't-sub') + T(x + FW / 2, FY + 256, ['반응층 거의 없음', '조각(핵)이 생김', '1 µm 안팎'][i], 't-dim');
     });
     dz += TT(1064, 502, wrap('녹은 솔더로 Ni가 아주 조금 녹아들면 계면 바로 앞이 Ni로 진해지고, 그 자리에 Ni₃Sn₄ 조각이 생겨 계면을 덮습니다.', 22), 't-sub', 'start', 28);
@@ -147,7 +147,7 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
       ${K.ctl('ht', '고체 상태 고온 시간 (캐리어 본딩 · 뒷면 공정 · 시험을 150 °C로 환산, 시간)', 0, 2000, 50, DEF.ht)}${K.ctl('ni', 'Ni 두께 (µm)', 1, 5, 0.5, DEF.ni)}
       ${K.seg('cu', [['0', '없음 (Ni 위 SnAg)'], ['lo', '조금 (0.4 % 미만)'], ['hi', '많이 (0.6 % 넘음)']], DEF.cu, '솔더 속 Cu').replace('class="pl-seg"', 'class="pl-seg pl-chips"')}
       ${K.seg('side', [['1', '웨이퍼 리플로우만 (계면 1개)'], ['2', '본딩 뒤 (아래 · 위 계면 2개)']], DEF.side, '계면 수').replace('class="pl-seg"', 'class="pl-seg pl-chips"')}
-      ${K.kpis([['IMC 두께', 'k-x', '이 칩 Ni 계면'], ['Ni 소모', 'k-ni', '남은 Ni <span data-o="k-nil">–</span>'], ['Sn 소모', 'k-sn', '도금 솔더 대비 · 고른 계면 합'], ['IMC 종류', 'k-t', '']])}
+      ${K.kpis([['IMC 두께', 'k-x', '이 칩 Ni 계면'], ['Ni 소모', 'k-ni', '남은 Ni <span data-o="k-nil">–</span>'], ['Sn 소모', 'k-sn', '도금 솔더 대비 · 계면 수만큼 합'], ['IMC 종류', 'k-t', '']])}
       <p class="pl-msg" data-o="msg"></p>
       ${K.model('녹은 동안 x³ ∝ 시간, 굳은 뒤 x² − x₀² ∝ 시간인 개념 모델입니다. 본딩 뒤에는 위 계면(상대 패드, Ni로 가정)도 본딩부터 같은 식으로 자랍니다. 속도 상수(250 °C 60초 → 1 µm — 보고값의 낮은 쪽, 150 °C 1,000시간 → +1 µm)와 Cu 배수(조금 ×1.3 · 많이 ×2)는 가정값이고, 보고된 속도 · 활성화 에너지는 Ni 종류 · 솔더 양 · 측정법에 따라 크게 흩어집니다. 소모 비율은 Ni₃Sn₄ · Cu₆Sn₅ 밀도로 계산했고, Cu가 섞인 IMC의 Ni 몫((Cu,Ni)₆Sn₅에서 금속 자리의 약 20 % 등)은 가정값입니다.')}</div>`;
   },
@@ -157,7 +157,7 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
     let touched = false, ready = false, lastSid = 'dissolve';
     const inp = id => ctx.card.querySelector(`input[data-i="${id}"]`);
     const setSeg = (id, v) => ctx.card.querySelectorAll(`.pl-seg[data-g="${id}"] button`).forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v ? 'true' : 'false'));
-    const LBL = {n: v => v + '회', tl: v => v + '\u00a0s', ht: v => v.toLocaleString('en-US') + '\u00a0h', ni: v => f1(v) + '\u00a0µm'};   // 줄바꿈되지 않게
+    const LBL = {n: v => v + '회', tl: v => v + '\u00a0초', ht: v => v.toLocaleString('en-US') + '\u00a0h', ni: v => f1(v) + '\u00a0µm'};   // 줄바꿈되지 않게
     const kpiBox = id => { const o = ctx.card.querySelector(`[data-o="${id}"]`); return o && o.closest('.kpi'); };
     const mark = (id, c) => { const b = kpiBox(id); if (b) ['ok', 'warn', 'ng'].forEach(k => b.classList.toggle(k, k === c)); };
 
@@ -422,8 +422,8 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
     ]) + K.field([
       '<b>열 이력 표</b>를 만듭니다: 솔더가 녹는 일(웨이퍼 리플로우 · 재작업 · 적층 본딩 — 아래 다이일수록 여러 번)과 녹지 않는 고온(캐리어 본딩 · 뒷면 공정 · 고온 시험)을 나눠 적습니다. IMC · Ni 예산은 이 합으로 보고, 본딩 뒤에는 위 · 아래 두 계면을 함께 셉니다.',
       '단면에서 IMC 두께는 <b>평균</b>과 <b>가장 두꺼운 곳</b>을 함께 적습니다(조각 · 가리비 모양이라 한 점으로는 흔들립니다).',
-      'Ni 두께 산포(도금)가 Ni 예산의 아래 끝을 정합니다. <b>가장 얇은 Ni</b>(웨이퍼 가장자리 · 패턴 차이)가 모든 열 이력 뒤에도 남아야 합니다 → <a href="#go-plating-07">전해도금 7장</a>(분포) · <a href="#go-plating-10">10장</a>(Ni 방벽).',
-      'IMC 종류가 (Cu,Ni)₆Sn₅로 바뀌어 있으면 Cu가 어디서 왔는지(옆면 흘러내림 · Ni 결함 · 상대 Cu 패드)를 먼저 찾습니다 → <a data-go="wet.edge">04장</a>.',
+      'Ni 두께 산포(도금)가 Ni 예산의 아래 끝을 정합니다. <b>가장 얇은 Ni</b>가 모든 열 이력 뒤에도 남아야 합니다. 가장 얇은 곳은 도금 전류가 덜 간 곳 — 보통 웨이퍼 중심 쪽 · 범프가 빽빽한 곳이지만 실드 · 립씰 조건에 따라 맨 가장자리 몇 mm일 수도 있어, 두께 맵에서 찾아 그 자리 단면을 봅니다 → <a href="#go-plating-07">전해도금 7장</a>(웨이퍼 분포) · <a href="#go-plating-08">8장</a>(패턴 차이) · <a href="#go-plating-10">10장</a>(Ni 방벽).',
+      'IMC 종류가 (Cu,Ni)₆Sn₅로 바뀌어 있으면(단면 SEM-EDS에서 IMC에 Cu가 함께 잡힘) Cu가 어디서 왔는지(옆면 흘러내림 · Ni 결함 · 상대 Cu 패드)를 먼저 찾습니다 → <a data-go="wet.edge">04장</a>.',
       'IMC · Ni 예산을 정하는 손잡이를 나눠 봅니다: <span class="pl-tag up">앞 공정</span> Ni 도금 두께 · 산포, 솔더 부피 · <span class="pl-tag rf05-cond">리플로우-조건</span> 액상선 위 시간 · 최고 온도 · 재작업 횟수(<a data-go="profile.tal">02장</a>) · <span class="pl-tag dn">뒤 공정</span> 적층 본딩 횟수 · 고온 공정 · 신뢰성 시험.'
     ]) + K.deep(`${K.eq('녹은 동안: x³ = n · k_l · t_l')}${K.eq('굳은 뒤: x² = x_l² + k_s · t')}
       <ul><li><b>소모 비율 (계산)</b> — Ni₃Sn₄ 밀도 약 8.65 g/cm³(격자 상수로 계산해도 같음), 몰 부피 약 75.3 cm³/mol(식 단위) → 1 µm Ni₃Sn₄ = Ni 0.26 µm + Sn 0.87 µm(반응 전 부피 합 1.13 µm → 약 11 % 줄어듦). Cu₆Sn₅(약 8.3 g/cm³) → Cu 0.36 µm + Sn 0.69 µm. 일부 문헌의 Cu₃Sn 밀도 11.3 g/cm³은 격자 계산(약 9.0 g/cm³)과 맞지 않아 쓰지 않습니다.</li>

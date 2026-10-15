@@ -112,7 +112,7 @@ const VN = {x: 40, y: 128, w: 980, h: 992};                             // 좁�
     fa += R(tx(190), 680, tx(260) - tx(190), 34, 'rf03-fz2', W({fill: K.url('rf03-fzg')}, tip('더 뜨겁게 — 포름산 주석이 분해되어 금속이 드러난다\n분해 온도는 조건에 따라 달라 숫자로 정하지 않았다 (흐린 경계)')));
     fa += L(tx(221), 672, tx(221), 722, 'pl-peak');
     [100, 150, 200, 250].forEach(t => { fa += L(tx(t), 714, tx(t), 722, 's-axis') + LB(T(tx(t), 744, String(t), 't-dim')); });
-    fa += LB(T(tx(175), 704, '① 포름산 주석', 'rf03-bt') + T(tx(232), 704, '② 분해', 'rf03-bt') + T(1530, 744, '°C', 't-dim', 'end') + T(tx(221), 770, '221 °C — 솔더가 녹기 시작', 'pl-pkt'));
+    fa += LB(T(tx(175), 704, '① 포름산 주석', 'rf03-bt') + T(tx(242), 704, '② 분해', 'rf03-bt') + T(1530, 744, '°C', 't-dim', 'end') + T(tx(221), 770, '221 °C — 솔더가 녹기 시작', 'pl-pkt'));
     let fyy = 812;
     [['① 약 150~200 °C: 산화주석 + 포름산 → 포름산 주석 + 물', 't-sub', 21.6],
       [['겉의 SnO₂는 포름산이 환원해야 해 더 어렵다', '(이때 CO₂가 나온다)'], 't-dim', 24.5],
@@ -129,7 +129,7 @@ const VN = {x: 40, y: 128, w: 980, h: 992};                             // 좁�
       ${K.seg('pl', [['no', '없음'], ['now', 'Ar · H₂ · 불소 — 바로 리플로우'], ['wait', '같은 처리 — 8시간 뒤'], ['o2', 'O₂ 위주 — 유기물만']], BASE.pl, '전처리 플라즈마')}
       ${K.seg('m', [['n2', '질소만'], ['flux', '플럭스'], ['fa', '포름산 증기'], ['h2', '수소 (250 °C)']], BASE.m, '걷는 방법')}
       ${K.ctl('o2', '남은 산소 (리플로우 중)', 0, 100, 1, BASE.ov)}
-      ${K.kpis([['처음 산화막', 'k-x0', 'nm · 리플로우에 들어갈 때'], ['녹을 때까지 더 자람', 'k-dx', 'nm · 남은 산소 때문'], ['걷어 냄', 'k-rm', 'nm · 걷는 힘 최대 <span data-o="k-rmx"></span>'], ['남은 산화막 → 모양', 'k-v', '판정 경계 4 · 10 · 25 nm']])}
+      ${K.kpis([['처음 산화막', 'k-x0', '리플로우에 들어갈 때'], ['가열 중 더 자람', 'k-dx', '녹을 때까지 · 남은 산소 때문'], ['걷어 냄', 'k-rm', '걷는 힘 최대 <span data-o="k-rmx"></span>'], ['남은 산화막 → 모양', 'k-v', '판정 경계 4 · 10 · 25 nm']])}
       <p class="pl-msg" data-o="msg"></p>
       ${K.model('공기 중 자람 x = 1.0 + 0.35·ln(1 + 일/0.02) nm(로그 법칙, 얼룩 +15 · 심하면 +30), 플라즈마(Ar · H₂ · 불소)는 10 nm까지 걷어 0.5 nm 남김 · 8시간 뒤 +1.0 · O₂ 위주 +1.0, 가열 중 +0.15·√ppm nm(플럭스 ×0.2 · 포름산 ×0.3), 걷는 힘 질소 0 · 플럭스 30 · 포름산 12 · 수소 0.3 nm. 모두 경향을 보이는 가정값입니다. 실제 두께는 표면 분석(XPS · 오제)으로, 판정 경계(4 · 10 · 25 nm)도 내 공정 데이터로 정합니다.')}</div>`;
   },
@@ -180,10 +180,11 @@ const VN = {x: 40, y: 128, w: 980, h: 992};                             // 좁�
       if (hasG){
         const gw = pre === '처리 뒤' ? '처리 전' : '걷기 전', gl = `점선 = ${gw} ${f1(ghost)} nm`;
         s += R(LX0 + 2, SURF - tg, LX1 - LX0 - 4, tg, 'rf03-ghost', tip(`${gw} 산화막 ${f1(ghost)} nm`));
-        s += LB((o.bg ? plate(84, ly, gl, 19, 'start') : '') + T(84, ly, gl, o.bg ? 'rf03-gl' : 't-dim', 'start'));
+        s += LB((o.bg ? plate(84, ly, gl, 19, 'start') : '') + T(84, ly, gl, o.bg ? 'rf03-gl' : 't-dim rf03-hl', 'start'));
       }
       const lab = nm < 0.05 ? `${pre} 산화막 거의 없음 — 걷혔다` : `${pre} 산화막 ${f1(nm)} nm` + (nm > XMAX ? ' (그림은 30 nm에서 자름)' : t >= 54 ? '' : ' (겉 SnO₂ · 아래 SnO)');
-      s += LB((o.bg ? plate(984, ly, lab, nm < 0.05 ? 21 : 23, 'end') : '') + T(984, ly, lab, nm < 0.05 ? 'pl-hdg3' : 't-warn', 'end'));
+      // 이름표는 내려오는 분자 위에 그려지므로 짙은 테두리(rf03-hl)로 글자가 끊기지 않게
+      s += LB((o.bg ? plate(984, ly, lab, nm < 0.05 ? 21 : 23, 'end') : '') + T(984, ly, lab, (nm < 0.05 ? 'pl-hdg3' : 't-warn') + (o.bg ? '' : ' rf03-hl'), 'end'));
       if (t >= 54) s += LB(T(984, SURF - 0.4 * t + 7, 'SnO (아래)', 'rf03-lt', 'end') + T(984, SURF - 0.9 * t + 7, 'SnO₂ (겉)', 'rf03-dk', 'end'));
       return s;
     }
@@ -286,7 +287,7 @@ const VN = {x: 40, y: 128, w: 980, h: 992};                             // 좁�
       if (STAIN[st.wet]){
         const yS = tops.film;
         [170, 410, 640].forEach((x, i) => { a += P(`M${x - 58},${yS} Q${x - 50},${yS - 22} ${x},${yS - 24} Q${x + 52},${yS - 22} ${x + 60},${yS} Z`, 'rf03-drop', tip('남은 물기 · 얼룩 — 그 자리 산화막을 두껍게 한다')); });
-        a += LB(P(`M${410},${yS - 26} L${450},${yS - 70}`, 's-lead') + T(456, yS - 74, `남은 물기 · 얼룩 → 막 +${STAIN[st.wet]} nm (예시)`, 't-warn', 'start'));
+        a += LB(P(`M${410},${yS - 26} L${450},${yS - 70}`, 's-lead') + T(456, yS - 74, `남은 물기 · 얼룩 → 막 +${STAIN[st.wet]} nm (예시)`, 't-warn rf03-hl', 'start'));
       }
       s += G(a, only('film'));
       // plasma: 빛나는 띠 + 아래로 내려오는 활성 입자 (기체에 따라 색)
@@ -316,10 +317,11 @@ const VN = {x: 40, y: 128, w: 980, h: 992};                             // 좁�
       const yA = tops.formic - 18, tgA = tpx(tops.formicG), hF = Math.max(12, Math.min(48, tgA * 0.6));
       // 중간 단계: 포름산 주석 층이 잠깐 생겼다 분해된다 (반복)
       if (tgA > 4) fo += `<rect x="${LX0 + 2}" y="${q1(tops.formic - hF)}" width="${LX1 - LX0 - 4}" height="${q1(hF)}" class="rf03-fmt" data-tip="포름산 주석 — 산화막과 포름산이 만든 중간 물질. 더 뜨거워지면 분해되어 금속이 드러난다"><animate attributeName="opacity" values="0;.9;.9;0;0" keyTimes="0;.25;.6;.85;1" dur="4.5s" repeatCount="indefinite"/></rect>`;
-      if (tgA > 4) fo += LB(T(84, Math.min(SURF - tgA, tops.formic - hF) - 44, '초록 띠 = 잠깐 생기는 포름산 주석 (곧 분해)', 'rf03-fgt', 'start'));
       [[150, 330], [320, 520], [470, 360], [640, 560], [790, 420], [920, 600]].forEach(([x, y], i) => { fo += jig(x, y, 'N₂', 'rf03-n2', 40 + i, 9); });
       [130, 290, 450, 610, 770, 900].forEach((x, i) => { fo += mol(x, 290, x + 14, yA, 'HCOOH', 'rf03-fa', 4.2 + (i % 3) * 0.5, i * 0.75); });
       [[210, 'CO₂', 'rf03-co2'], [530, 'CO₂', 'rf03-co2'], [850, 'CO₂', 'rf03-co2'], [370, 'H₂O', 'rf03-h2o'], [700, 'H₂O', 'rf03-h2o'], [610, 'H₂', 'rf03-h2']].forEach(([x, lab, cls], i) => { fo += mol(x, yA, x - 20, 290, lab, cls, 4.6, 1 + i * 0.9); });
+      // 이름표는 분자 다음에 (분자가 글자 위로 지나가지 않게)
+      if (tgA > 4) fo += LB(T(84, Math.min(SURF - tgA, tops.formic - hF) - 44, '초록 띠 = 잠깐 생기는 포름산 주석 (곧 분해)', 'rf03-fgt rf03-hl', 'start'));
       s += G(fo, only('formic'));
       // atmos: 질소 가득 (흐리게) + 산소 n개가 겉으로 + 수소는 닿았다 튕겨 나감
       let at = '';
@@ -344,7 +346,7 @@ const VN = {x: 40, y: 128, w: 980, h: 992};                             // 좁�
       let am = film(c.x0, 11);
       const t0 = tpx(c.x0), t1 = tpx(atm);
       if (t1 - t0 > 0.4) am += R(LX0, SURF - t1, LX1 - LX0, t1 - t0, 'rf03-regrow', tip(`녹을 때까지 다시 자란 막 +${f1(c.dx)} nm (남은 산소 ${fppm(c.ppm)} ppm)`));
-      am += LB(T(984, SURF - t1 - 12, `녹을 때 산화막 ${f1(atm)} nm`, 't-warn', 'end') + T(84, SURF - t1 - 12, `가열 중 다시 자람 +${f1(c.dx)} nm`, 'rf03-rgt', 'start'));
+      am += LB(T(984, SURF - t1 - 12, `녹을 때 산화막 ${f1(atm)} nm`, 't-warn rf03-hl', 'end') + T(84, SURF - t1 - 12, `가열 중 다시 자람 +${f1(c.dx)} nm`, 'rf03-rgt rf03-hl', 'start'));
       ox += G(am, only('atmos'));
       ctx.$('[data-v="ox"]').innerHTML = ox;
       const tops = {film: SURF - tpx(c.xa), plasma: SURF - tpx(c.x0), fluxG: SURF - tpx(cF.x0 + cF.dx), formic: SURF - tpx(cA.xr), formicG: cA.x0 + cA.dx, atmos: SURF - t1};
@@ -417,11 +419,11 @@ const VN = {x: 40, y: 128, w: 980, h: 992};                             // 좁�
       ['대기 시간 (Q-time)', '앞 처리에서 다음 처리까지 기다리는 시간. 길면 산화막이 다시 자란다'],
       ['플라즈마', '기체에 전기 에너지를 주어 만든 이온 · 활성 입자 상태. 표면을 깎거나 화학적으로 바꾼다 — 효과는 기체가 정한다']
     ]) + K.field([
-      '비용융처럼 보이는 불량이 나오면 <b>대기 시간 이력 · 산소 로그 · 환원 공급(플럭스 양 · 포름산 유량) · 표면 얼룩</b>부터 확인합니다 [리플로우-분위기 · 조건] [앞 공정] → <a data-go="defects.tiles">09장</a> · <a href="#go-plating-12">전해도금 12장</a>.',
-      '시드 식각 · 스트립 뒤 <b>헹굼 · 건조 불량 얼룩</b>(남은 산 · 물기)은 그 자리 산화막을 두껍게 해 국부 비용융을 만듭니다 [앞 공정] → <a href="#go-etch-08">시드 식각 8장</a> · <a href="#go-strip-07">PR 스트립 7장</a>.',
-      '플럭스 ↔ 포름산 방식을 바꾸면 찌꺼기 · 세정 · 배기 · 안전(포름산 노출 기준 5 ppm)과 보이드 경향이 함께 바뀝니다 [리플로우-분위기] → <a data-go="tool.gas">08장</a> · <a data-go="void.where">07장</a>.',
-      '전처리 플라즈마의 <b>기체 · 레시피</b>가 바뀌면(특히 O₂ 비율) 산화막이 오히려 늘 수 있습니다. 전처리 뒤 덜 둥긂이 늘면 장비 정지 · 대기 시간과 함께 기체 · 레시피 변경 이력을 봅니다 [앞 공정] → <a href="#go-bump">범프 공정 탭</a>.',
-      '산소 센서도 교정 · 설치 위치가 중요합니다. 챔버 구석 · 문 쪽은 산소가 늦게 빠지므로, 웨이퍼 자리의 산소와 센서 값이 다를 수 있습니다 [리플로우-장비] → <a data-go="tool.gas">08장</a>.'
+      '<span class="pl-tag ep">리플로우-분위기</span><span class="pl-tag rf03-cond">리플로우-조건</span><span class="pl-tag up">앞 공정</span> 비용융처럼 보이는 불량이 나오면 <b>대기 시간 이력 · 산소 로그 · 환원 공급(플럭스 양 · 포름산 유량) · 표면 얼룩</b>부터 확인합니다 → <a data-go="defects.tiles">09장</a> · <a href="#go-plating-12">전해도금 12장</a>.',
+      '<span class="pl-tag up">앞 공정</span> 시드 식각 · 스트립 뒤 <b>헹굼 · 건조 불량 얼룩</b>(남은 산 · 물기)은 그 자리 산화막을 두껍게 해 국부 비용융을 만듭니다 → <a href="#go-etch-08">시드 식각 08장</a> · <a href="#go-strip-05">PR 스트립 05장</a>.',
+      '<span class="pl-tag ep">리플로우-분위기</span> 플럭스 ↔ 포름산 방식을 바꾸면 찌꺼기 · 세정 · 배기 · 안전(포름산 노출 기준 5 ppm)과 보이드 경향이 함께 바뀝니다 → <a data-go="tool.gas">08장</a> · <a data-go="void.where">07장</a>.',
+      '<span class="pl-tag up">앞 공정</span> 전처리 플라즈마의 <b>기체 · 레시피</b>가 바뀌면(특히 O₂ 비율) 산화막이 오히려 늘 수 있습니다. 전처리 뒤 덜 둥긂이 늘면 장비 정지 · 대기 시간과 함께 기체 · 레시피 변경 이력을 봅니다 → <a href="#go-bump">범프 공정 탭</a>.',
+      '<span class="pl-tag hw">리플로우-장비</span> 산소 센서도 교정 · 설치 위치가 중요합니다. 챔버 구석 · 문 쪽은 산소가 늦게 빠지므로, 웨이퍼 자리의 산소와 센서 값이 다를 수 있습니다 → <a data-go="tool.gas">08장</a>.'
     ]) + K.deep(`<ul>
       <li><b>반응식</b> — 플럭스: SnO + 2 RCOOH → Sn(RCOO)₂ + H₂O, 겉의 SnO₂ + 4 RCOOH → Sn(RCOO)₄ + 2 H₂O (주석 염은 플럭스에 녹아 떠남). 포름산: SnO + 2 HCOOH → Sn(HCOO)₂ + H₂O (공개 특허 서술: 약 150~200 °C에서 포름산 주석 생성, 공급사 설명의 활성화 온도 '약 180 °C'). 겉의 SnO₂(Sn⁴⁺)는 녹이기만으로는 안 되고 포름산이 환원제로 일해야 합니다: SnO₂ + 3 HCOOH → Sn(HCOO)₂ + CO₂ + 2 H₂O — 그래서 SnO₂ 쪽이 더 걷기 어렵고, 장면의 CO₂도 여기서 나옵니다. 더 높은 온도에서 Sn(HCOO)₂ → Sn + 2 CO₂ + H₂. 포름산 자체는 기체에서 CO + H₂O 또는 CO₂ + H₂로 분해됩니다. 분해가 덜 된 포름산 주석이 웨이퍼 · 챔버에 붙었다 높은 온도에서 분해되면 Sn · SnO₂ · 유기물이 섞인 뿌연 안개(tin fog)가 된다는 보고가 있습니다. 포름산 주석의 분해 온도 숫자는 조건에 따라 달라 여기서는 쓰지 않습니다.</li>
       <li><b>수소의 한계</b> — 순수 H₂로 Sn 계열 솔더의 산화물을 걷으려면 약 350 °C 넘게 필요하고, 보통 납땜 온도(&lt; 250 °C)에서는 느리다는 공개 자료가 많습니다(Cu 산화물은 납땜 온도에서도 H₂로 환원됨). 그래서 320 °C 넘게 녹이는 고납 솔더는 H₂, Sn 계열 범프는 포름산을 써 왔습니다. 전자 부착 · 플라즈마로 수소를 활성화해 온도를 낮추는 방식도 있습니다.</li>
@@ -494,6 +496,8 @@ const VN = {x: 40, y: 128, w: 980, h: 992};                             // 좁�
 .pl-svg .rf03-tdc.on{fill:#f1f5f9 !important}
 .pl-svg .rf03-lbg{fill:rgba(8,15,30,.78)}
 .pl-svg .rf03-gl{font-size:19px;font-weight:700;fill:#e2e8f0 !important}
+.pl-svg .rf03-hl{paint-order:stroke;stroke:#0b1222;stroke-width:7px;stroke-linejoin:round}
+.jc .pl-tag.rf03-cond{background:rgba(45,212,191,.18);color:#5eead4}
 .rf03-o2i{fill:#f87171}
 .rf03-fai{fill:#4ade80}`
 });

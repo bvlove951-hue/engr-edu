@@ -63,6 +63,8 @@ function wrinPath(){
   for (let k = 0; k < n; k++){ const x0 = CX - A + 14 + k * w; d += ` Q${(x0 + w / 2).toFixed(1)},${(YTOP + (k % 2 ? 12 : -12)).toFixed(1)} ${(x0 + w).toFixed(1)},${YTOP + 2}`; }
   return d + ` Q${CX + A + 2},650 ${CX + A + 3},700 L${CX + A},${Y0} Z`;
 }
+// 장면 글 줄 나누기: '·'는 앞 낱말에, 숫자는 단위에, '약'은 뒤 숫자에 붙여 줄 머리에 '·'나 단위만 남지 않게 (붙인 자리는 줄 바꿈 없는 빈칸)
+const wr = (K, t, em) => K.wrap(String(t).replace(/ · /g, '\u00a0· ').replace(/(\d) (°C|µm|nm|%|초|ppm|ms|µs)/g, '$1\u00a0$2').replace(/(약|±) (\d)/g, '$1\u00a0$2'), em);
 // 구 위의 점 (각도 deg, 화면 좌표: 위가 −90°)
 const onDome = deg => { const r = deg * Math.PI / 180; return [CX + RS * Math.cos(r), CYS + RS * Math.sin(r)]; };
 
@@ -71,11 +73,11 @@ const onDome = deg => { const r = deg * Math.PI / 180; return [CX + RS * Math.co
   title: '왜 녹이나 — 리플로우는 범프에 무엇을 해 줄까?',
   hook: '녹였다 굳히면 세 가지가 바뀐다',
   one: '리플로우는 도금으로 쌓은 솔더(SnAg)를 녹는점 위로 잠깐 올렸다가 식히는 공정입니다. 녹은 솔더는 표면장력으로 매끈한 둥근 모자(돔)가 되고, 아래 Ni와 반응해 얇은 금속간 화합물(IMC) 층으로 단단히 이어집니다. 그러려면 겉의 산화막을 걷어 내야 합니다.',
-  ana: '<b>동전 위의 얼음 기둥</b> — 동전 크기로 자른 얼음 기둥이 녹으면, 물은 동전 가장자리에 멈춘 채 볼록한 돔이 됩니다. 양(무게)은 그대로이고 모양만 바뀝니다. <i>(비유의 한계: 얼음은 녹으며 부피가 약 8 % 줄지만, 솔더는 녹을 때 2~3 %만 늘었다가 굳으면 돌아옵니다. 물은 동전과 반응하지 않지만, 솔더는 아래 Ni와 반응해 IMC 층을 만들며 Ni를 조금 먹습니다. 솔더 겉에는 산화막이라는 껍질이 있어 먼저 걷어 내야 둥글어집니다. 또 동전 위 물은 무게가 표면장력보다 10배 넘게 커서 납작한 웅덩이(높이 몇 mm)가 되지만, 수십 µm 솔더는 무게가 거의 힘을 못 써 표면장력만으로 모양이 정해집니다.)</i>',
+  ana: '<b>동전 위의 얼음 기둥</b> — 동전 크기로 자른 얼음 기둥이 녹으면, 물은 동전 가장자리에 멈춘 채 볼록한 돔이 됩니다. 양(무게)은 그대로이고 모양만 바뀝니다. <i>(비유의 한계: 얼음은 녹으며 부피가 약 8 % 줄지만, 솔더는 녹을 때 2~3 %만 늘었다가 굳으면 돌아옵니다. 물은 동전과 반응하지 않지만, 솔더는 아래 Ni와 반응해 IMC 층을 만들며 Ni를 조금 먹습니다. 솔더 겉에는 산화막이라는 껍질이 있어 먼저 걷어 내야 둥글어집니다. 또 동전 위 물은 무게 때문에 납작해지지만, 수십 µm 솔더는 무게가 거의 힘을 못 씁니다(04장).)</i>',
   steps: [
     {id: 'before', t: '도금 직후 — 거친 원기둥', d: '시드 식각까지 마친 범프의 SnAg는 도금한 모양 그대로인 원기둥입니다. 윗면은 거칠고, 겉에는 공기 · 물에 닿아 생긴 얇은 산화막과 유기물 찌꺼기가 있습니다. 이대로는 다른 칩과 고르게 붙기 어렵습니다.', viewN: VN_BUMP},
     {id: 'melt', t: '녹이면 — 매끈한 돔', d: 'SnAg는 221 °C(공정점(共晶))에서 녹기 시작합니다. 녹은 솔더는 겉넓이를 줄이려는 힘(표면장력)으로 매끈한 돔이 됩니다. 부피는 그대로라 이 예시 크기에서는 가운데 꼭대기가 도금 높이보다 오히려 높아집니다.', viewN: VN_BUMP},
-    {id: 'join', t: '이어지기 — 계면에 IMC', d: '녹은 Sn은 아래 Ni와 반응해 얇은 금속간 화합물(IMC, 주로 Ni₃Sn₄) 층을 만듭니다. 이 층이 솔더와 Ni를 금속으로 이어 줍니다. 대신 열을 받을수록 두꺼워지며 Ni와 Sn을 조금씩 먹습니다.', viewN: VN_IN},
+    {id: 'join', t: '이어지기 — 계면에 IMC', d: '녹은 Sn은 아래 Ni와 반응해 얇은 금속간 화합물(IMC, 주로 Ni₃Sn₄) 층을 만듭니다. 도금으로 붙어 있던 계면이 이 반응층으로 단단히 이어집니다. 대신 열을 받을수록 두꺼워지며 Ni와 Sn을 조금씩 먹습니다.', viewN: VN_IN},
     {id: 'line', t: '자리 — 앞뒤 공정과 주고받기', d: '범프 공정에서는 시드 식각 → 플라즈마 처리(산화막 · 유기물 정리) → 리플로우 → 후처리 플라즈마 · 세정 → 검사 → 본딩 순서입니다. 리플로우 결과(높이 · 모양 · 보이드 · IMC)는 본딩에서 다시 드러납니다.', viewN: VN_FLOW}
   ],
   icon(K){
@@ -83,7 +85,8 @@ const onDome = deg => { const r = deg * Math.PI / 180; return [CX + RS * Math.co
     return R(10, 52, 46, 8, 'f-si') + R(20, 34, 26, 18, 'f-cu2') + R(20, 30, 26, 4, 'f-ni') + P('M20,30 A14,14 0 0 1 46,30 Z', 'f-sn2') + P('M20,30 L20,16 L46,16 L46,30', 'pl-ghost');
   },
   draw(K){
-    const {R, C, L, P, T, TT, G, LB, tip, only, wrap} = K;
+    const {R, C, L, P, T, TT, G, LB, tip, only} = K;
+    const wrap = (t, em) => wr(K, t, em);
     let s = '';
 
     // ── 작은 프로파일 (왼쪽 위, 모든 단계): 곡선은 고정, 지금 시간 표시는 위젯이 그린다
@@ -140,8 +143,9 @@ const onDome = deg => { const r = deg * Math.PI / 180; return [CX + RS * Math.co
     s += G(LB(TT(470, 568, ['산화막 껍질에 갇혀', '둥글어지지 못함 (03장)'], 't-warn', 'middle', 28)), {'data-v': 'oxl', class: 'hide'});
 
     // line: 리플로우 뒤 확인하는 것
-    s += G(LB(P(`M330,622 L204,548`, 's-lead') + C(330, 622, 3.5, 'k-lead') + T(196, 540, '높이 · 모양', 't-sub', 'end') + T(196, 566, '외관 · 높이 검사', 't-dim', 'end')) +
-      LB(P(`M276,776 L204,716`, 's-lead') + C(276, 776, 3.5, 'k-lead') + T(196, 706, 'IMC · 보이드', 't-sub', 'end') + T(196, 732, 'X-ray · 단면으로', 't-dim', 'end')), only('line'));
+    const [lx, ly] = onDome(-145);                                 // 돔 겉 (굳은 뒤 결정 경계 선과 떨어진 자리)
+    s += G(LB(P(`M${lx.toFixed(1)},${ly.toFixed(1)} L204,548`, 's-lead') + C(lx, ly, 3.5, 'k-lead') + T(196, 540, '높이 · 모양', 't-sub', 'end') + T(196, 566, '외관 · 높이 검사', 't-dim', 'end')) +
+      LB(P(`M276,776 L204,716`, 's-lead') + C(276, 776, 3.5, 'k-lead') + T(196, 706, 'IMC · 보이드', 't-sub', 'end') + T(196, 732, '표본 단면 · FIB로', 't-dim', 'end')), only('line'));
 
     // join: 계면 돋보기 → 오른쪽 확대 (확대 그림은 위젯이 그린다)
     s += G(R(326, 744, 168, 66, 'rf01-mag', {rx: 6}) + L(494, 744, 824, 430, 'rf01-magl') + L(494, 810, 824, 596, 'rf01-magl') +
@@ -155,7 +159,7 @@ const onDome = deg => { const r = deg * Math.PI / 180; return [CX + RS * Math.co
     const CARDS = [
       ['거친 윗면 · 원기둥', '도금한 모양 그대로입니다. 윗면이 울퉁불퉁하고 모서리가 각져 있습니다. 도금 부피도 범프마다 조금씩 다릅니다.', '→ 녹이면 매끈 (부피 차이는 높이 차이로 남음)'],
       ['얇은 산화막 · 유기물 찌꺼기', 'PR 스트립 · 시드 식각 · 공기 중에 생긴 껍질과 찌꺼기입니다. 실제 산화막은 수 nm입니다 (그림은 과장).', '→ 녹여도 덜 둥글고 잘 붙지 않음 (03장)'],
-      ['Ni와는 맞닿아 있을 뿐', '도금으로 쌓여 붙어 있지만, 금속끼리 반응해 생긴 층(IMC)은 아직 거의 없습니다.', '→ 녹여서 반응시켜야 금속으로 이어짐']
+      ['Ni와는 도금으로만 붙어 있음', '도금으로 금속끼리 붙어 있지만, 서로 반응해 생긴 층(IMC)은 아직 거의 없습니다.', '→ 녹여서 반응시켜야 IMC로 단단히 이어짐']
     ];
     CARDS.forEach(([h, t, c], k) => {
       const y = 196 + k * 252;
@@ -192,7 +196,7 @@ const onDome = deg => { const r = deg * Math.PI / 180; return [CX + RS * Math.co
     let ry = 548;
     ROWS.forEach(([h, t]) => { const ln = wrap(t, 27.5); mm += T(824, ry, h, 'pl-hdg3', 'start') + TT(948, ry, ln, 't-sub', 'start', 28); ry += ln.length * 28 + 30; });
     mm += R(824, 878, 712, 140, 'pl-box', {rx: 12}) + T(844, 910, '왜 둥글어지나', 'pl-hdg', 'start');
-    mm += TT(844, 940, wrap('녹은 솔더는 겉넓이를 가장 작게 하려 합니다(표면장력). 이 크기에서 무게는 표면장력의 약 5만분의 1이라, 모양은 부피와 젖은 바닥(Ni 윗면)이 정합니다 → 04장.', 32.5), 't-sub', 'start', 27);
+    mm += TT(844, 940, wrap('녹은 솔더는 겉넓이를 가장 작게 하려 합니다(표면장력). 이 크기에서 무게는 표면장력의 약 5만분의 1이라, 모양은 부피와 젖은 바닥(Ni\u00a0윗면)이 정합니다 → 04장.', 32.5), 't-sub', 'start', 27);
     mm += TT(824, 1052, wrap('모양은 녹자마자(µs~0.1 ms) 바뀝니다 — 시간이 드는 것은 열 전달 · 산화막 걷기 · 기포 빠지기 · IMC 반응입니다.', 37), 't-dim', 'start', 26);
     s += G(mm, only('melt'));
 
@@ -203,7 +207,7 @@ const onDome = deg => { const r = deg * Math.PI / 180; return [CX + RS * Math.co
       ['리플로우', '녹여서 돔 · IMC — 이 탭', ''],
       ['후처리 플라즈마', '리플로우 뒤 찌꺼기 정리', '플럭스 · 유기물 찌꺼기 정리 (범프 공정 탭)'],
       ['스크러버 세정', '입자 제거 · 건조', '솔 · 물줄기로 입자를 떼고 말린다 (범프 공정 탭)'],
-      ['검사', '외관 · 높이 · X-ray', '모양 · 높이 · 브리지는 외관으로, 보이드는 X-ray로, IMC는 단면으로'],
+      ['검사', '외관 · 높이 · 표본 단면', '모양 · 높이 · 브리지 · 누락은 외관(AOI) · 3D 높이 측정으로, 보이드 · IMC는 표본을 골라 단면 · FIB로 (2D X-ray는 수 µm 보이드를 놓치기 쉬움)'],
       ['캐리어 본딩 · 적층 본딩', '다시 녹일 때 결과가 드러남', '캐리어 본딩은 보통 녹이지 않고, 적층 본딩에서 다시 녹는다 (05장)']];
     const FX = 1030, FW = 320, FH = 80, FG = 44;
     FLOW.forEach(([h, sub, tp], k) => {
@@ -309,24 +313,24 @@ const onDome = deg => { const r = deg * Math.PI / 180; return [CX + RS * Math.co
       const solNm = !melted ? 'SnAg 솔더 — 아직 고체' : s0.k === 'super' ? 'SnAg 솔더 — 과냉 액체 (아직 녹아 있음)' : liquid ? 'SnAg 솔더 — 녹아 있음' : 'SnAg 솔더 — 굳음';
       zi += T(848, 238, solNm, 'rf01-dk2', 'start');
       if (liquid) zi += T(848, 270, '↓ Sn이 내려와 반응', 'rf01-dk3', 'start') + T(1512, 238, '↑ Ni가 조금 녹아든다', 'rf01-dk3', 'end');
-      else zi += T(848, 270, !melted ? '맞닿아 있을 뿐 — 반응이 거의 없다' : '굳은 뒤에는 아주 느리게 자란다 (05장)', 'rf01-dk3', 'start');
+      else zi += T(848, 270, !melted ? '도금으로 붙어 있을 뿐 — 반응층(IMC)은 거의 없다' : '굳은 뒤에는 아주 느리게 자란다 (05장)', 'rf01-dk3', 'start');
       zi += x > 0.004 ? T(848, top - 40, 'Ni₃Sn₄ (IMC)', 'rf01-dk2', 'start') + T(848, top - 14, `지금 ${x.toFixed(2)} µm (예시)`, 'rf01-dk3', 'start')
         : T(848, NI0 - 14, 'IMC 아직 없음', 'rf01-dk2', 'start');
       if (x > 0.004) zi += T(848, yn + 34, '점선 = 원래 Ni 윗면 (먹힌 만큼 내려감)', 'rf01-dk3', 'start');
       zi += T(1512, 584, 'Ni (방벽)', 'rf01-dk2', 'end');
       zi += L(848, 576, 848 + ZP, 576, 'rf01-bar2') + T(916, 582, '1 µm', 'rf01-dk3', 'start');
       z += `<clipPath id="${K.id('rf01-clip')}"><rect x="${IX0}" y="${IY0}" width="${IX1 - IX0}" height="${IY1 - IY0}" rx="12"/></clipPath>` + G(zi, {'clip-path': K.url('rf01-clip')}) + R(IX0, IY0, IX1 - IX0, IY1 - IY0, 'rf01-frame', {rx: 12});
-      const ROWS = [['pl-hdg3', '이어 준다', 'IMC는 솔더와 Ni를 금속 결합으로 잇습니다. 이 층이 생겨야 단단히 붙습니다.'],
+      const ROWS = [['pl-hdg3', '이어 준다', 'IMC는 솔더와 Ni가 반응해 생긴 층입니다. 도금으로만 붙어 있던 계면을 단단히 잇습니다(야금 접합).'],
         ['pl-hdg2', '먹는다', '1 µm 자랄 때 Ni 약 0.26 µm · Sn 약 0.87 µm를 씁니다. 너무 두꺼우면 잘 깨지고, Ni가 다 먹히면 솔더가 Cu와 만납니다 (05장).'],
         ['pl-hdg', '쌓인다', '리플로우 · 본딩 · 고온 공정 · 시험의 열이 모두 더해집니다 (모든 열 이력의 합).']];
       let ry = 640;
-      ROWS.forEach(([c, h, t]) => { const ln = K.wrap(t, 27.5); z += T(824, ry, h, c, 'start') + K.TT(948, ry, ln, 't-sub', 'start', 27); ry += ln.length * 27 + 22; });
+      ROWS.forEach(([c, h, t]) => { const ln = wr(K, t, 27.5); z += T(824, ry, h, c, 'start') + K.TT(948, ry, ln, 't-sub', 'start', 27); ry += ln.length * 27 + 22; });
       // IMC 두께 — 시간 (180~300 초 구간)
       const bx = t => 912 + (t - 180) / 120 * 580, byy = v => 1046 - v / 1.2 * 110, B0 = 878;
       z += R(824, B0, 712, 208, 'pl-box', {rx: 12}) + T(840, B0 + 30, 'IMC 두께 — 솔더가 액체인 동안 자란다 (개념 예시)', 't-dim', 'start');
       z += R(bx(PR.iup * DT), byy(1.2), bx(PR.isol * DT) - bx(PR.iup * DT), byy(0) - byy(1.2), 'pl-liqz', tip(`솔더가 액체인 동안 (약 ${LIQS}초, 과냉 포함)`));
       z += L(912, byy(0), 1500, byy(0), 's-axis') + L(912, byy(0), 912, byy(1.2) - 4, 's-axis');
-      [180, 240, 300].forEach(v => { z += T(bx(v), byy(0) + 24, v === 300 ? '300 s' : String(v), 't-dim'); });
+      [180, 240, 300].forEach(v => { z += T(bx(v), byy(0) + 24, v === 300 ? '300초' : String(v), 't-dim'); });
       z += L(906, byy(1), 912, byy(1), 's-axis') + T(900, byy(1) + 7, '1 µm', 't-dim', 'end') + T(900, byy(0) + 7, '0', 't-dim', 'end');
       let dd = '';
       for (let t = 180; t <= 300; t += 2) dd += (t > 180 ? ' L' : 'M') + bx(t).toFixed(1) + ',' + byy(PR.X[t / DT]).toFixed(1);
@@ -359,12 +363,12 @@ const onDome = deg => { const r = deg * Math.PI / 180; return [CX + RS * Math.co
         : `굳음 — 모양 · IMC는 이제 그대로입니다. 액체였던 시간 약 ${LIQS}초(221 °C 위 ${TAL}초 + 과냉), IMC ${x.toFixed(2)} µm (예시).`;
       ctx.q('[data-o=msg]').innerHTML = msg;
     }
-    ctx.range('t', v => { st.t = v; render(); return `${v} s`; });
+    ctx.range('t', v => { st.t = v; render(); return `${v}초`; });
     ctx.seg('sf', (v, user) => { st.sf = v; if (user) touched = true; render(); });
     tin.addEventListener('input', () => { touched = true; });
     ctx.demo = sid => {
       if (touched || !(sid in DEMO)) return ctx.refresh();
-      tin.value = DEMO[sid]; st.t = DEMO[sid]; ctx.out('t', `${st.t} s`);
+      tin.value = DEMO[sid]; st.t = DEMO[sid]; ctx.out('t', `${st.t}초`);
       render();
     };
   },
@@ -386,23 +390,21 @@ const onDome = deg => { const r = deg * Math.PI / 180; return [CX + RS * Math.co
       '캐리어(임시) 본딩 · 뒷면 공정은 보통 녹는점 아래(접착제가 견디는 온도 안)라 솔더를 녹이지 않지만, 고체 상태로 IMC가 조금 자랍니다. 적층 본딩(열압착 · 일괄 리플로우)에서는 솔더가 다시 녹습니다(아래 다이일수록 여러 번). IMC · Ni 소모 · Ag₃Sn은 <b>모든 열 이력의 합</b>으로 봅니다 → <a data-go="imc.budget">05장</a>.'
     ]) + K.deep(`<ul>
       <li><b>왜 웨이퍼에서 미리 녹이나</b> — 도금 솔더는 윗면이 거칠고(도금 Sn 거칠기 수백 nm 보고), PR 스트립 · 식각을 거치며 Sn 산화물 · 수산화물과 유기 찌꺼기를 품습니다. 미리 녹여 매끈한 돔 + 얇은 SnO 표면으로 만들어 두면 본딩 때 젖음 · 보이드가 좋아지고, 프로브 자국도 지워진다는 공개 설명이 있습니다. 본딩 때 처음 녹이는 공정도 있어(평평한 솔더로 열압착) 높이 기준 · 산화막 관리가 달라집니다.</li>
-      <li><b>부피 보존</b> — 녹기 전 원기둥과 녹은 뒤 돔(구형 모자)의 부피가 같습니다.${K.eq('V = π·a²·H_c = π·h·(3a² + h²) / 6')}a 12.5 µm, H_c 12 µm → V ≈ 5,890 µm³(5.9 pL) → h ≈ 15.7 µm, 겉보기 각 2·atan(h/a) ≈ 103°. 두 식에서 ${K.eq('h / H_c = 6a² / (3a² + h²)')}그래서 꼭대기가 도금 높이보다 높아지는 것은 h < √3·a일 때(도금 높이 < 지름의 약 0.87배, 겉보기 각 120° 미만 — 이 예시 h/H_c ≈ 1.31, 아주 얇은 솔더는 2배에 가까움)입니다. 솔더를 지름에 비해 아주 높게 쌓으면 공처럼 옆으로 부풀어 꼭대기가 오히려 낮아집니다(예: 지름 25 · 도금 25 µm → 23.2 µm). 부피가 ±5 % 흩어지면 꼭대기는 약 ±0.47 µm(±3 %) — 리플로우 뒤 높이 산포는 대부분 도금 부피 산포입니다(<a data-go="wet.volume">04장</a>).</li>
-      <li><b>무게는 거의 힘을 못 쓴다</b> — 본드 수 Bo = ρ·g·a²/γ ≈ 7,000 × 9.8 × (12.5×10⁻⁶)² / 0.5 ≈ 2×10⁻⁵(γ 약 0.5 N/m 예시). 무게가 표면장력의 약 5만분의 1이라 돔은 처지지 않고, 모양은 부피와 젖은 바닥(가장자리 고정)이 정합니다(<a data-go="wet.edge">04장</a>).</li>
+      <li><b>모양 · 높이 · 시간 규모 (요약)</b> — 녹기 전 원기둥과 녹은 뒤 돔의 부피가 같아, 이 예시(지름 25 · 도금 12 µm, 약 5,890 µm³)에서 꼭대기는 약 15.7 µm(겉보기 각 약 103°)가 됩니다. 무게는 표면장력의 약 5만분의 1(본드 수 약 2×10⁻⁵)이라 모양은 부피와 젖은 바닥이 정하고, 녹자마자 µs~0.1 ms 사이에 바뀌어 1 ms 안에 가라앉습니다. 식 · 계산 · 조건(도금 높이가 지름의 약 0.87배를 넘으면 꼭대기가 오히려 도금보다 낮아짐)은 <a data-go="wet.volume">04장</a> 「한 걸음 더」에 모았습니다.</li>
       <li><b>녹는 범위</b> — Ag 2.5 wt%는 221 °C에서 공정 액체가 생기며 녹기 시작해 약 224 °C에서 다 녹습니다. 221 °C를 넘자마자 공정 반응으로 약 70 %(지렛대 규칙 2.5/3.5)가 액체가 되고, 남은 고체 Sn은 224 °C까지 몇 °C 동안 마저 녹습니다(<a href="#go-plating-10">전해도금 10장</a> 상태도) — 그래서 녹기 시작하자 곧 둥글어집니다. 리플로우 최고 온도는 보통 액상선보다 20~40 °C 높게(약 240~260 °C) 잡습니다. 식을 때는 굳을 씨앗이 없어 액상선보다 수십 °C 낮은 온도까지 과냉 액체로 남았다가 한꺼번에 굳습니다(이 예시 약 191 °C, <a data-go="solid.under">06장</a>) — 위젯의 '액체인 시간'(약 ${LIQS}초)이 221 °C 위 시간(${TAL}초)보다 긴 까닭입니다.</li>
-      <li><b>시간 규모</b> — 표면장력이 모양을 바꾸는 시간 √(ρa³/γ) ≈ √(7000 × (12.5×10⁻⁶)³ / 0.5) ≈ 5 µs(ρ 약 7,000 kg/m³, γ 약 0.5 N/m, μ 약 2 mPa·s 예시). 녹은 Sn은 아주 묽어 오네조르게 수 Oh = μ/√(ργa) ≈ 0.01 ≪ 1이라, 모양 변화는 관성과 표면장력이 정합니다(점성 시간 μa/γ는 이 영역의 기준이 아님). 그래서 약 10 µs 주기(자유 방울의 레일리 l = 2 모드로 어림)로 출렁이고, 그 출렁임은 약 0.1 ms(ρa²/5μ, 램의 감쇠 시간)마다 1/e로 줄어 1 ms 안에 가라앉습니다. 프로파일의 수십 초에 비하면 순간이라, 시간이 드는 것은 열 전달 · 산화막 제거 · 기포 빠지기 · IMC 반응입니다.</li>
-      <li><b>보이는 것과 안 보이는 것</b> — 외관 · 높이 검사로는 모양 · 광택 · 변색 · 브리지만 보입니다. 보이드 · IMC · Ag₃Sn · 결정은 X-ray · 단면 · FIB로만 보이고(결정 방향은 단면을 편광 현미경 · EBSD로), 수 µm 보이드는 2D X-ray로 놓치기 쉽습니다(<a data-go="void.stay">07장</a>).</li>
+      <li><b>보이는 것과 안 보이는 것</b> — 웨이퍼 검사(외관 AOI · 3D 높이)로는 모양 · 높이 · 동일 평면도 · 광택 · 변색 · 브리지 · 누락이 보입니다. 보이드 · IMC · Ag₃Sn · 결정은 표본을 골라 단면 · FIB로 봅니다(결정 방향은 편광 현미경 · EBSD, 조성은 SEM-EDS). 수 µm 보이드는 2D X-ray로 놓치기 쉬워 3D X-ray나 단면으로 확인합니다(<a data-go="void.stay">07장</a>).</li>
       <li><b>열 이력이 다시 쓰는 것</b> — 다시 녹일 때마다 모양 · 결정 · Ag₃Sn은 새로 정해지지만, IMC 성장 · Ni 소모 · Sn 소모(→ 남은 솔더의 Ag가 진해짐)는 쌓입니다. 위젯의 IMC는 x³ = ∫k(T)dt(액체인 동안, k(250 °C) = 1/60 µm³/s, 활성화 에너지 25 kJ/mol — 05장과 같은 가정값)로 셈한 개념 예시이고, 보고값은 조건에 따라 넓게 흩어집니다.</li></ul>`);
   },
   css: `.pl-svg .rf01-ox{fill:none;stroke:#94a3b8;stroke-width:7;opacity:.9;stroke-linejoin:round}
 .pl-svg .rf01-oxs{stroke-width:4}
 .pl-svg .rf01-oxw{stroke:#64748b;stroke-width:9}
-.pl-svg .rf01-org{fill:#a3e635;stroke:#1a2e05;stroke-width:1}
+.pl-svg .rf01-org{fill:#a16207;stroke:#fef3c7;stroke-width:1}
 .pl-svg .rf01-wr{fill:none;stroke:#475569;stroke-width:2.2}
 .pl-svg .rf01-liq{fill:none;stroke:#fbbf24;stroke-width:2.4}
 .pl-svg .rf01-sc{stroke-dasharray:8 6}
 .pl-svg .rf01-liqg{fill:none;stroke:#fbbf24;stroke-width:9;opacity:.45;filter:var(--th-glow)}
 .pl-svg .rf01-shine{fill:#fff;opacity:.2}
-.pl-svg .rf01-gb{fill:none;stroke:#64748b;stroke-width:1.6;opacity:.85}
+.pl-svg .rf01-gb{fill:none;stroke:#0b1222;stroke-width:2.2;opacity:.8}
 .pl-svg .rf01-ni0{stroke:#cbd5e1;stroke-width:1.2;stroke-dasharray:4 3;opacity:.8}
 .pl-svg .rf01-sn{fill:#e2e8f0;stroke:#334155;stroke-width:1.5}
 .pl-svg .rf01-ni{fill:#9aa6b5;stroke:#0f172a;stroke-width:1.5}

@@ -23,6 +23,7 @@ function parts(m, L, T, ag, n){
 const tTot = (m, L, T, ag, n) => { const p = parts(m, L, T, ag, n); return p.a + p.b; };
 const AGN = {none: '담금만', flow: '순환 흐름', spray: '분사 · 메가소닉', hp: '고압 분사 (박리)'};
 const NNM = {f: '확산 (픽)', a: '중간', c: '케이스 II'};
+const NNS = {f: '픽', a: '중간', c: '케이스 II'};
 // 손대지 않았을 때 단계마다 보여 줄 예시 (그림 기준 PR 35 µm · square는 '30 µm에 5분' 글과 맞춰 30 → 60 µm · stir는 기획 예와 같은 60 µm)
 const DEMO = {
   front: {m: 'swl', L: 35, T: 70, ag: 'flow', n: 'a'},
@@ -33,11 +34,13 @@ const DEMO = {
 // ── 장면 치수 ──
 const LX0 = 40, LX1 = 780, LY0 = 120, FT = 380;                 // 왼쪽: 액 띠 (y 120~380) · 막 윗면 y 380
 const FX0 = 80, FX1 = 600, CA = 80, CB = 360, CW = 240;         // 막 가로 · 두 칸(front · square) 왼쪽 끝과 폭
-const HM = 480;                                                  // 막 최대 높이 (px)
+const HM = 480;                                                  // 막 최대 높이 (px) — square · stir
+const HF = 350;                                                  // front · heat 막 최대 높이 (그림 기준 PR 35 µm × 10 px) — 좁은 화면 확대 상자 안에 글까지 들도록
 const SUB = [[8, 'f-seed2', '시드 Cu — 예시 300 nm (실제 수백 nm — 그림은 과장)'], [5, 'f-ti', 'Ti(접착 · 방벽층) — 예시 100 nm (그림은 과장)'], [8, 'f-pas', '보호막(패시베이션) — 스트립 동안은 시드가 덮고 있어 액에 닿지 않는다'], [36, 'f-si', '실리콘 웨이퍼']];
 const SUBH = 57;
 const PX0 = 800, PX1 = 1560, PY0 = 120, PY1 = 1100;             // 오른쪽 패널
 const VN = {x: 24, y: 112, w: 776, h: 1000};                   // 좁은 세로 화면: 왼쪽(막 · 액 · 설명)만 크게 — 숫자는 카드의 KPI로
+const VNF = {x: 24, y: 134, w: 776, h: 800}, VNH = {x: 24, y: 128, w: 776, h: 784};   // front · heat: 막이 HF 까지라 더 크게 (약 0.41배)
 const f1 = v => v >= 99.5 ? v.toFixed(0) : v.toFixed(1);
 const f2 = v => v.toFixed(2);
 // erfc 근사 (Abramowitz–Stegun 7.1.26)
@@ -50,11 +53,11 @@ function niceStep(max){ const raw = max / 5, p = Math.pow(10, Math.floor(Math.lo
   title: '스며들기 — 두꺼운 PR은 왜 훨씬 오래 걸릴까?',
   hook: '두께 2배면 시간 2~4배',
   one: '스트리퍼는 PR 겉에서 안쪽으로 조금씩 스며듭니다. 부풀어 떨어지는 가교 PR은 두께가 2배면 시간이 2~4배입니다(순수한 확산이면 제곱, 앞면이 일정한 속도로 들어가면 비례 — 실제 PR은 보통 그 사이). 겉부터 녹는 포지티브 PR은 두께에 비례하는 쪽에 가깝고, 온도를 올리면 빨라지지만 금속도 함께 빨리 먹힙니다.',
-  ana: '<b>두꺼운 카스텔라에 시럽 스미기</b> — 얇은 조각은 금방 젖지만 두꺼운 덩어리 가운데는 한참 걸려, 두께가 두 배면 두 배보다 오래(많게는 네 배) 걸립니다. 데운 시럽은 더 빨리 스밉니다. <i>(한계: 카스텔라에는 구멍이 있어 시럽이 흘러 들어가지만, PR에는 구멍이 없어 분자가 사슬 사이를 비집고 들어갑니다(확산). 단단한 막에서는 젖은 앞면이 일정한 속도로 들어가 시간이 두께에 비례하기도 합니다. 또 겉부터 녹아 없어지는 포지티브 PR은 젖으면서 동시에 사라지므로, 시간은 두께에 비례하는 쪽에 더 가깝습니다.)</i>',
+  ana: '<b>두꺼운 카스텔라에 시럽 스미기</b> — 얇은 조각은 금방 젖지만 두꺼운 덩어리 가운데는 한참 걸려, 두께가 두 배면 시간은 두 배에서 많게는 네 배까지 걸립니다. 데운 시럽은 더 빨리 스밉니다. <i>(한계: 카스텔라에는 구멍이 있어 시럽이 흘러 들어가지만, PR에는 구멍이 없어 분자가 사슬 사이를 비집고 들어갑니다(확산). 단단한 막에서는 젖은 앞면이 일정한 속도로 들어가 시간이 두께에 비례하기도 합니다. 또 겉부터 녹아 없어지는 포지티브 PR은 젖으면서 동시에 사라지므로, 시간은 두께에 비례하는 쪽에 더 가깝습니다.)</i>',
   steps: [
-    {id: 'front', t: '스며드는 앞면 — 흐릿하게, 또는 날카롭게', d: '용제 분자는 PR 사슬 사이를 비집고 들어갑니다(확산). 무른 막에서는 젖은 정도가 흐릿하게 퍼지며 내려가고, 단단한 막에서는 날카로운 앞면이 일정한 속도로 내려갑니다(케이스 II). 실제 PR은 보통 그 사이입니다.', viewN: VN},
+    {id: 'front', t: '스며드는 앞면 — 흐릿하게, 또는 날카롭게', d: '용제 분자는 PR 사슬 사이를 비집고 들어갑니다(확산). 무른 막에서는 젖은 정도가 흐릿하게 퍼지며 내려가고, 단단한 막에서는 날카로운 앞면이 일정한 속도로 내려갑니다(케이스 II). 실제 PR은 보통 그 사이입니다.', viewN: VNF},
     {id: 'square', t: '두께와 시간 — 두 배면 2~4배', d: '순수한 확산으로 거리 L을 가는 시간은 대략 L²/D입니다(D: 확산계수, 퍼지는 빠르기). 예시로 30 µm에 5분이면 60 µm는 많게는 약 20분, 앞면이 일정한 속도면 10분입니다. 겉부터 녹아 없어지는 PR은 두께에 비례하는 쪽에 가깝습니다.', viewN: VN},
-    {id: 'heat', t: '온도 — 반응은 10 °C마다 약 1.6배', d: '따뜻할수록 분자가 활발해 스며들고 녹는 속도가 빨라집니다(아레니우스). 예시 값으로 10 °C마다 약 1.6배지만, 겉면 공급 · 조각 치우기 몫은 거의 안 빨라져 전체 시간은 덜 줄어듭니다. 금속 부식 · 증발도 빨라지고 인화점에 가까워집니다.', viewN: VN},
+    {id: 'heat', t: '온도 — 반응은 10 °C마다 약 1.6배', d: '따뜻할수록 분자가 활발해 스며들고 녹는 속도가 빨라집니다(아레니우스). 예시 값으로 10 °C마다 약 1.6배지만, PR 겉에 새 액을 대 주는 일(겉면 공급)과 조각 치우기는 온도로 조금만 빨라져 전체 시간은 덜 줄어듭니다. 금속 부식 · 증발도 빨라지고 인화점에 가까워집니다.', viewN: VNH},
     {id: 'stir', t: '교반이 돕는 것과 못 돕는 것', d: '흐름 · 질소 거품 · 메가소닉(약 1 MHz 음파)은 PR 겉의 녹은 성분을 치워 늘 새 액을 대 줍니다(전해도금의 확산층과 같은 원리). 그러나 막 속으로 스며드는 속도는 거의 못 바꿉니다. 녹는 PR엔 이런 교반이 바로 듣고, 부푼 가교 막은 고압 분사가 층째 깨서 떼어 내 남은 두께를 줄입니다.', viewN: VN}
   ],
   icon(K){
@@ -109,7 +112,7 @@ function niceStep(max){ const raw = max / 5, p = Math.pow(10, Math.floor(Math.lo
     fr += LB(T(PX0 + 30, 816, '숫자 1 · 2 · 4 = 시간. 스며든 양 ∝ 시간ⁿ — n 0.5 픽 · 1 케이스 II', 't-dim', 'start') + T(PX0 + 30, 842, '그 사이(0.5 < n < 1)를 이상 확산이라 하고, 실제 PR은 보통 여기', 't-dim', 'start'));
     // 이 막은 어디? — 기준 범프(지름 25 · 피치 55 · 높이 30 µm, PR 35 µm)를 같은 배율로
     const S = 3.0, IY = 942 + 35 * S, IX0 = 830, IX1 = 1530;
-    let ins = T(PX0 + 30, 884, '이 막은 어디? — 범프 사이 PR 틀을 크게 본 것', 'pl-hdg', 'start') + T(PX0 + 30, 910, '그림 기준 (예시): PR 35 µm · 범프 30 µm · 지름 25 µm · 틈 30 µm', 't-dim', 'start');
+    let ins = T(PX0 + 30, 884, '이 막은 어디? — 범프 사이 PR 틀을 크게 본 것', 'pl-hdg', 'start') + T(PX0 + 30, 910, '그림 기준 (예시): PR 35 µm · 범프 높이 30 µm · 지름 25 µm · 틈 30 µm', 't-dim', 'start');
     ins += R(IX0, IY - 35 * S, IX1 - IX0, 35 * S, 'f-pr', tip('PR 틀 (예시 35 µm) — 위에서만 액이 닿는다'));
     [0, 1, 2, 3].forEach(i => {
       const cx = 900 + i * 55 * S, bx = cx - 12.5 * S;
@@ -131,7 +134,7 @@ function niceStep(max){ const raw = max / 5, p = Math.pow(10, Math.floor(Math.lo
       ${K.ctl('L', 'PR 두께 (µm)', 20, 100, 5, 35)}${K.ctl('T', '온도 (°C)', 40, 90, 1, 70)}
       ${K.seg('ag', [['none', '담금만'], ['flow', '순환 흐름'], ['spray', '분사 · 메가소닉'], ['hp', '고압 분사 (박리)']], 'flow', '교반')}
       ${K.seg('n', [['f', '확산 (픽)'], ['a', '중간'], ['c', '앞면 일정 속도 (케이스 II)']], 'a', '스며드는 방식 (가교 PR)')}
-      ${K.kpis([['걸리는 시간', 'k-t', '분 (예시)'], ['두께 2배면', 'k-x2', '시간 배수'], ['10 °C 올리면', 'k-x10', '전체 시간이 빨라지는 배수'], ['인화점까지', 'k-fp', 'DMSO 약 88 °C 기준']])}
+      ${K.kpis([['걸리는 시간', 'k-t', '분 (예시)'], ['두께 2배면', 'k-x2', '시간 배수'], ['10 °C 올리면', 'k-x10', '전체가 빨라지는 배수 (시간은 ÷ 이 값)'], ['인화점까지', 'k-fp', 'DMSO 약 88 °C 기준']])}
       <p class="pl-msg" data-o="msg"></p>
       <p class="note st03-fpn">인화점 경고는 예시 경고선(인화점 − 10 °C, 가정)입니다. 실제 여유는 장비 · 사내 안전 기준을 따릅니다.</p>
       ${K.model('D(70 °C) = 3×10⁻¹² m²/s(30 µm에 5분), 스며드는 방식 지수 n(0.5 · 0.75 · 1, t ∝ L^(1/n)), 겉 풀림 6 µm/분, 겉면 공급 2 · 8 · 30 · 60 µm/분, 스며드는 시간 배수 1.15 · 1 · 0.85(담금만 · 순환 · 분사 — 겉 액이 새로울수록 조금 빠름), 고압 분사 층 20 µm(층째 떼기와 보통 분사 가운데 빠른 쪽), 조각 치움 5 · 2 · 0.5분은 분 단위 시간이 나오도록 고른 <b>가정값</b>입니다. Ea 50 kJ/mol은 예시입니다(겉면 공급 · 조각 치움은 온도와 무관하다고 둠). 실제 시간은 PR · 스트리퍼 · 굽기 · 도금 이력마다 크게 다르니 클리어 시간을 직접 재세요.')}</div>`;
@@ -209,7 +212,7 @@ function niceStep(max){ const raw = max / 5, p = Math.pow(10, Math.floor(Math.lo
 
       // ── front: 두 칸 (픽 · 케이스 II), 막 높이는 두께 L
       {
-        const px = Math.min(10, HM / st.L), H = st.L * px, by = FT + H;
+        const px = Math.min(10, HF / st.L), H = st.L * px, by = FT + H;
         let g = LB(T(CA + CW / 2, 160, '픽 확산', 'pl-hdg') + T(CA + CW / 2, 190, '경계가 흐릿함', 't-dim') + T(CB + CW / 2, 160, '케이스 II', 'pl-warn') + T(CB + CW / 2, 190, '날카로운 앞면', 't-dim'));
         [[CA, 'f'], [CB, 'c']].forEach(([x0, n]) => {
           g += filmBase(x0, CW, H, true) + wetAnim(x0, CW, H, H, n, 6).g + subst(x0, CW, by);
@@ -221,8 +224,8 @@ function niceStep(max){ const raw = max / 5, p = Math.pow(10, Math.floor(Math.lo
         });
         const cy = by + SUBH + 36;
         g += LB(TT(CA + CW / 2, cy, ['깊이 ∝ √시간', '갈수록 느려진다'], 't-sub', 'middle', 27) + TT(CB + CW / 2, cy, ['깊이 ∝ 시간', '일정한 속도'], 't-sub', 'middle', 27));
-        g += LB(T(LX0 + 20, cy + 76, `막 두께 ${st.L} µm · 오른쪽 숫자 1~4 = 같은 시간 간격마다 앞면 자리`, 't-dim', 'start'));
-        g += LB(T(LX0 + 20, cy + 108, '실제 PR은 보통 그 사이(이상 확산) — 경계도 칼같이 나뉘지 않는다', 't-acc', 'start'));
+        g += LB(T(LX0 + 20, cy + 66, `막 두께 ${st.L} µm · 오른쪽 숫자 1~4 = 같은 시간 간격마다 앞면 자리`, 't-dim', 'start'));
+        g += LB(T(LX0 + 20, cy + 98, '실제 PR은 보통 그 사이(이상 확산) — 경계도 칼같이 나뉘지 않는다', 't-acc', 'start'));
         ctx.$('[data-v="front"]').innerHTML = G(g, K.only('front'));
       }
 
@@ -266,7 +269,7 @@ function niceStep(max){ const raw = max / 5, p = Math.pow(10, Math.floor(Math.lo
 
       // ── heat: 막 하나 + 온도계
       {
-        const px = Math.min(10, HM / st.L), H = st.L * px, by = FT + H;
+        const px = Math.min(10, HF / st.L), H = st.L * px, by = FT + H;
         const fm = film(FX0, FX1 - FX0, H, H, dur);
         let g = fm.g + subst(FX0, FX1 - FX0, by);
         // 온도계 x 636~660, y 380(100 °C)~860(40 °C)
@@ -281,7 +284,7 @@ function niceStep(max){ const raw = max / 5, p = Math.pow(10, Math.floor(Math.lo
         const t70 = now(st.L, 70), tn = now(), cy = by + SUBH + 36;
         const l1 = `${st.T} °C — 걸리는 시간 ${f1(tn)}분 (70 °C면 ${f1(t70)}분)`;
         const l2 = `반응 · 막 속 확산 ×${f2(rT)} · 전체 ×${f2(t70 / tn)} (70 °C 대비)`;
-        g += LB(T(LX0 + 20, cy, l1, 't-sub', 'start') + T(LX0 + 20, cy + 30, l2, 't-dim', 'start') + T(LX0 + 20, cy + 58, '겉면 공급 · 조각 치우기 몫은 온도로 거의 안 빨라진다', 't-dim', 'start'));
+        g += LB(T(LX0 + 20, cy, l1, 't-sub', 'start') + T(LX0 + 20, cy + 30, l2, 't-dim', 'start') + T(LX0 + 20, cy + 58, '겉면 공급 · 조각 치우기 몫은 온도로 조금만 빨라진다', 't-dim', 'start'));
         ctx.$('[data-v="heat"]').innerHTML = G(g, K.only('heat'));
       }
 
@@ -433,15 +436,20 @@ function niceStep(max){ const raw = max / 5, p = Math.pow(10, Math.floor(Math.lo
       g += C(X(st.L), Y(ta), 9, 'k-acc2') + C(X(st.L), Y(ta), 16, 'co-ring') + C(X(2 * st.L), Y(tb), 9, 'st03-pt2');
       const lx = X(2 * st.L), right = lx < gx1 - 200;
       g += LB(T(right ? lx + 16 : lx - 16, Y(tb) - 10, `두께 2배 → ×${f2(tb / ta)}`, 't-warn st03-halo', right ? 'start' : 'end'));
-      // 범례
-      if (big){
-        const ly = 980;
-        const items = [
-          [st.m === 'swl' ? (st.ag === 'hp' ? 'st03-hp' : 's-curve') : 's-curve2 st03-bold', st.m === 'swl' ? (st.ag === 'hp' ? '고압 분사 (지금)' : `가교 PR — 지금 방식 (${NNM[st.n]})`) : '녹는 PR (지금)'],
-          ['st03-bandl', `가교 PR — 픽(위) ~ 케이스 II(아래)${st.ag === 'hp' ? ', 순환 기준' : ''}`],
-          [st.m === 'dis' ? '' : 's-curve2', st.m === 'dis' ? '' : '녹는 PR — 두께에 비례']
-        ].filter(x => x[0]);
-        items.forEach(([c, t], i) => { const yy = ly + i * 32; g += (c === 'st03-bandl' ? R(PX0 + 40, yy - 12, 44, 14, 'st03-band') : L(PX0 + 40, yy - 5, PX0 + 84, yy - 5, c)) + LB(T(PX0 + 96, yy + 2, t, 't-dim', 'start')); });
+      // 범례 (큰 그래프: 아래 세 줄 · 작은 그래프: 축 이름 아래 한 줄)
+      const items = [
+        [st.m === 'swl' ? (st.ag === 'hp' ? 'st03-hp' : 's-curve') : 's-curve2 st03-bold', st.m === 'swl' ? (st.ag === 'hp' ? '고압 분사 (지금)' : big ? `가교 PR — 지금 방식 (${NNM[st.n]})` : `가교 PR · ${NNS[st.n]} (지금)`) : '녹는 PR (지금)'],
+        ['st03-bandl', big ? `가교 PR — 픽(위) ~ 케이스 II(아래)${st.ag === 'hp' ? ', 순환 기준' : ''}` : '가교 PR 범위'],
+        [st.m === 'dis' ? '' : 's-curve2', st.m === 'dis' ? '' : big ? '녹는 PR — 두께에 비례' : '녹는 PR']
+      ].filter(x => x[0]);
+      const kw = big ? 44 : 36;
+      const key = (c, x, y) => c === 'st03-bandl' ? R(x, y - 12, kw, 14, 'st03-band') + L(x, y - 12, x + kw, y - 12, 'st03-fl') + L(x, y + 2, x + kw, y + 2, 'st03-fl') : L(x, y - 5, x + kw, y - 5, c);
+      if (big) items.forEach(([c, t], i) => { const yy = 980 + i * 32; g += key(c, PX0 + 40, yy) + LB(T(PX0 + 96, yy + 2, t, 't-dim', 'start')); });
+      else {
+        // 글 폭 어림: 한글 1em · 그 밖 0.55em (t-dim 19px)
+        const tw = t => [...t].reduce((a, ch) => a + (/[가-힣]/.test(ch) ? 19 : 10.5), 0);
+        let x = gx0 - 50; const yy = gy1 + 92;
+        items.forEach(([c, t]) => { g += key(c, x, yy) + LB(T(x + kw + 8, yy + 2, t, 't-dim', 'start')); x += kw + 8 + tw(t) + 26; });
       }
       return g;
     }
@@ -461,7 +469,7 @@ function niceStep(max){ const raw = max / 5, p = Math.pow(10, Math.floor(Math.lo
       [[FP, 'DMSO 약 88', 'end', -6], [FPN, 'NMP 약 91', 'start', 6]].forEach(([t, nm, an, dx]) => { g += L(X(t), gy0 - 6, X(t), gy1, 'pl-peak') + LB(T(X(t) + dx, gy0 - 12, nm, 'pl-pkt', an)); });
       let da = '', dt = '';
       for (let t = T0; t <= T1 + 1e-6; t += 0.5){ da += (da ? ' L' : 'M') + X(t).toFixed(1) + ',' + Y(A(t)).toFixed(1); dt += (dt ? ' L' : 'M') + X(t).toFixed(1) + ',' + Y(tot(t)).toFixed(1); }
-      g += P(da, 's-curve', tip('반응 · 막 속 확산 — 아레니우스 (Ea 50 kJ/mol, 예시): 10 °C마다 약 ×1.6')) + P(dt, 's-curve2', tip('전체 시간이 빨라지는 배수 — 겉면 공급 · 조각 치우기 몫은 온도와 무관하다고 둔 개념 모델'));
+      g += P(da, 's-curve', tip('반응 · 막 속 확산 — 아레니우스 (Ea 50 kJ/mol, 예시): 10 °C마다 약 ×1.6')) + P(dt, 's-curve2', tip('전체가 빨라지는 배수 (시간은 ÷ 이 값) — 겉면 공급 · 조각 치우기 몫은 온도와 무관하다고 둔 개념 모델'));
       // 지금 온도
       const fa = A(st.T), ft = tot(st.T), xT = X(st.T);
       g += L(xT, gy1, xT, Y(Math.max(fa, ft)) - 14, 'st03-guide') + C(xT, Y(fa), 9, 'k-acc') + C(xT, Y(ft), 9, 'k-acc2') + C(xT, Y(fa), 16, 'co-ring');
@@ -472,7 +480,7 @@ function niceStep(max){ const raw = max / 5, p = Math.pow(10, Math.floor(Math.lo
       // 범례 + 10 °C 올리면
       const fa10 = A(st.T + 10) / A(st.T), ft10 = now() / now(st.L, st.T + 10);
       g += L(PX0 + 40, 974, PX0 + 84, 974, 's-curve') + LB(T(PX0 + 96, 981, '반응 · 막 속 확산 (아레니우스, Ea 50 kJ/mol 예시)', 't-dim', 'start'));
-      g += L(PX0 + 40, 1008, PX0 + 84, 1008, 's-curve2') + LB(T(PX0 + 96, 1015, '전체 시간이 빨라지는 배수 (지금 설정)', 't-dim', 'start'));
+      g += L(PX0 + 40, 1008, PX0 + 84, 1008, 's-curve2') + LB(T(PX0 + 96, 1015, '전체가 빨라지는 배수 — 시간은 ÷ 이 값 (지금 설정)', 't-dim', 'start'));
       g += LB(T(PX0 + 40, 1054, `${st.T} → ${st.T + 10} °C: 반응 ×${f2(fa10)}, 전체는 ×${f2(ft10)}만`, 't-sub', 'start') + (st.T + 10 > FP - 10 ? T(PX0 + 40, 1084, `(${st.T + 10} °C는 경고 구역${st.T + 10 > FP ? ' · 인화점 넘음' : ''} — 계산만 보임)`, 'pl-warn', 'start') : ''));
       return g;
     }
@@ -526,7 +534,7 @@ function niceStep(max){ const raw = max / 5, p = Math.pow(10, Math.floor(Math.lo
       ['확산계수 (D)', '퍼지는 빠르기(m²/s). 막 속에서는 액 속보다 훨씬 작다 (이 장 예시 3×10⁻¹² m²/s — 가정)'],
       ['앞면', '용제에 젖은 곳과 마른 곳의 경계. 케이스 II에서는 날카롭고, 픽 확산에서는 흐릿하다'],
       ['케이스 II · 이상 확산', '단단한(유리 상태) 고분자에서 날카로운 앞면이 일정한 속도로 내려가는 확산 — 시간이 두께에 비례. 픽과 케이스 II 사이를 이상 확산이라 한다'],
-      ['경계층 (확산층)', '액이 흐르는 바깥과 PR 겉 사이, 흐름이 느려지는 얇은 층. 교반이 셀수록 얇다 (<a href="#go-plating-03">전해도금 03장</a>과 같은 개념)'],
+      ['경계층 (확산층) · 겉면 공급', '액이 흐르는 바깥과 PR 겉 사이, 흐름이 느려지는 얇은 층. 녹은 성분이 이 층을 건너 빠져나가고 새 액이 PR 겉에 닿는 것을 이 장에서는 <b>겉면 공급</b>이라 부른다. 교반이 셀수록 층이 얇아져 공급이 빨라진다 (<a href="#go-plating-03">전해도금 03장</a>과 같은 개념)'],
       ['고압 분사 (기계적 박리)', '센 분사로 부푼 막을 깨서 떼어 내는 것. 남은 두께를 줄여 스며들 거리를 짧게 한다'],
       ['아레니우스 · 활성화 에너지 (Ea)', '온도가 오르면 반응 · 확산이 지수적으로 빨라진다는 관계. Ea가 클수록 온도에 민감하다 (예시 50 kJ/mol → 10 °C마다 약 1.6배)'],
       ['인화점', '액 위 증기에 불꽃을 대면 불이 붙는 가장 낮은 온도. DMSO 약 87~89 °C, NMP 약 91 °C(밀폐식, 자료에 따라 다름)']
@@ -535,7 +543,7 @@ function niceStep(max){ const raw = max / 5, p = Math.pow(10, Math.floor(Math.lo
       '온도를 올리면 시간은 줄지만 금속 손실 · 증발 · 액 분해가 빨라지고 인화점 여유가 줄어듭니다 [스트립-조건] → <a data-go="metal.cu">07장</a> · <a data-go="chem.safety">04장</a>.',
       '제품이 바뀌어 PR이 두꺼워지면(<b>[앞 공정]</b> 포토 · 도금 조건 변경) 가교 PR은 시간이 두께 비율보다 더(많게는 제곱으로) 늘 수 있습니다. 두께에 비례해서만 늘리면 잔여가 생길 수 있으니 클리어 시간을 다시 잽니다.',
       '<b>두 두께로 재면 방식이 보입니다.</b> 같은 PR · 같은 액에서 두께만 다른 블랭킷 시편 두 장(예: 35 · 70 µm)이 들뜨기 시작하는(또는 바닥이 드러나는) 시간의 비가 r이면 n ≈ ln 2 / ln r입니다(r ≈ 2 → 케이스 II 쪽, r ≈ 4 → 픽 쪽). 같은 시편을 두 온도에서 재면 그 PR · 액의 온도 민감도도 압니다.',
-      '고압 분사의 압력 · 노즐 거리 · 스캔 속도는 [스트립-조건] 손잡이입니다. 부푼 가교 막에는 크게 듣지만, 세게 할수록 가는 범프가 기울거나 찍힐 수 있습니다 → <a data-go="tool.agit">05장</a> · <a data-go="defects.tiles">09장</a>.'
+      '고압 분사는 부푼 가교 막을 층째 떼어 남은 스며들 거리를 줄이는 [스트립-조건] 손잡이입니다. 막이 두꺼울수록 이득이 큽니다(위젯 예: 70 °C · 60 µm에서 분사 약 11분 → 고압 분사 약 9분, 35 µm에서는 거의 같음). 압력 · 노즐 거리 · 스캔 세기와 범프 손상의 맞바꿈은 장비 장에서 봅니다 → <a data-go="tool.agit">05장</a> · <a data-go="defects.tiles">09장</a>.'
     ]) + K.deep(`<ul>
       <li><b>픽의 2법칙</b> ∂C/∂t = D·∂²C/∂x². 겉 농도가 일정한 두꺼운 막에서 C/C₀ = erfc(x / 2√(Dt)) → 젖은 깊이 ∝ √(Dt), 경계는 erfc 꼴로 흐릿합니다. 두께 L을 다 적시는 시간 t ≈ L²/D(정의에 따라 계수 0.2~1). 이 탭은 크기 감각으로 t ≈ L²/D를 씁니다: 30 µm에 5분이면 D = (30×10⁻⁶)² / 300 s = 3×10⁻¹² m²/s(가정). 픽 법칙은 원래 고무 상태(무른) 고분자에 잘 맞습니다.</li>
       <li><b>유리 상태 고분자는 '이상 확산'이 흔합니다</b> — 60~80 °C의 가교 네거티브 막이나 하드베이크된 노볼락처럼 스트립 온도가 막의 유리 전이 온도(Tg — 단단한 유리 상태와 무른 고무 상태의 경계 온도)보다 낮은 막에서는, 마른 안쪽은 단단하고 용제가 들어간 쪽만 Tg가 낮아져 무릅니다. 그래서 그 경계가 날카로운 앞면이 되어 일정 속도 v로 내려가는 케이스 II(시간 ∝ L)나, 이것과 픽 확산(시간 ∝ L²)의 중간이 흔합니다. 스며든 양 M_t ∝ tⁿ로 쓰면 n = 0.5 픽 · n = 1 케이스 II · 그 사이 이상 확산이고, 위젯은 다 적시는 시간을 t ∝ L^(1/n)으로 씁니다. 그래서 '두께 2배 → 4배'는 <b>상한</b>이지 기대값이 아닙니다. 공개 연구 예: NMP가 폴리이미드 막(4~8 µm)에 스밀 때 이상 확산, 22 °C에서 유효 D 약 3~6×10⁻¹⁶ m²/s, 앞면 속도 약 8×10⁻¹¹ m/s, 활성화 에너지 약 56 kJ/mol. 같은 막에서 DMSO는 케이스 II로 앞면이 약 10배 빨랐습니다(레이저 간섭 연구, 1989). 폴리이미드는 PR보다 훨씬 단단해 숫자 크기를 그대로 쓰지 않고, 활성화 에너지의 크기 감각만 빌립니다.</li>

@@ -475,6 +475,7 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
     console.log(name);
     await page.click(`[data-tab="${tab}"]`, { force: true });
     await page.waitForSelector(`#view-${tab}.active .pl-svg`);
+    await page.waitForTimeout(500);                       // 탭이 자리를 잡은 뒤 (relayout)
     const th = await page.evaluate(t => { const a = window.EngrTheatres[t]; return { ch: a.chapters, beats: a.state.beats, scenes: a.scenes().length,
       attached: document.querySelectorAll(`#view-${t} .pl-scene`).length, chips: document.querySelectorAll(`#view-${t} .pl-line button`).length,
       tiles: document.querySelectorAll(`#view-${t} .pl-scene[data-ch="intro"] .pl-go`).length, flow: document.querySelectorAll(`#view-${t} .pl-scene[data-ch="intro"] a.pl-tablink`).length }; }, tab);
@@ -517,6 +518,41 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
     await page.waitForTimeout(600);
     const kOut = await page.evaluate(t => ({ pres: window.EngrTheatres[t].state.pres, s: window.EngrTheatres[t].state.state }), tab);
     ok(k1.k === k0 + 1 && k1.cap.length > 3 && kOut.pres === null && kOut.s === k1.s, `발표 모드: → 로 다음 (${k1.cap}), Esc로 닫으면 그 단계 (${kOut.s})`);
+  }
+  // 세 탭의 위젯 계산 — 손잡이를 움직이면 개념 모델대로 숫자가 바뀐다
+  {
+    const thSet = (t, ch, id, v) => page.evaluate(([t, ch, id, v]) => { const i = window.EngrTheatres[t].ctx(ch).card.querySelector(`input[data-i="${id}"]`); i.value = v; i.dispatchEvent(new Event('input', {bubbles: true})); }, [t, ch, id, v]);
+    const thSeg = (t, ch, g, v) => page.evaluate(([t, ch, g, v]) => { const c = window.EngrTheatres[t].ctx(ch); (c.card.querySelector(`.pl-seg[data-g="${g}"] button[data-v="${v}"]`) || c.note.querySelector(`.pl-seg[data-g="${g}"] button[data-v="${v}"]`)).click(); }, [t, ch, g, v]);
+    const thOut = (t, ch, id) => page.evaluate(([t, ch, id]) => { const c = window.EngrTheatres[t].ctx(ch), q = `[data-o="${id}"]`; return (c.card.querySelector(q) || c.note.querySelector(q)).textContent; }, [t, ch, id]);
+    const num = s => parseFloat(String(s).replace(/−/g, '-').replace(/,/g, '').replace(/[^\d.+-]/g, ''));
+    for (const t of ['strip', 'etch', 'reflow']) { await page.click(`[data-tab="${t}"]`, { force: true }); await page.waitForTimeout(300); }
+    // PR 스트립 03: 두께 2배의 시간 배수는 픽 확산 > 중간 > 케이스 II, 온도를 올리면 빨라진다
+    await thSeg('strip', 'soak', 'mode', 'swl'); await thSeg('strip', 'soak', 'ag', 'flow'); await thSet('strip', 'soak', 'L', 60); await thSet('strip', 'soak', 'T', 70);
+    const x2 = {};
+    for (const n of ['f', 'a', 'c']) { await thSeg('strip', 'soak', 'n', n); x2[n] = num(await thOut('strip', 'soak', 'k-x2')); }
+    await thSeg('strip', 'soak', 'n', 'a'); await thSet('strip', 'soak', 'T', 60); const t60 = num(await thOut('strip', 'soak', 'k-t'));
+    await thSet('strip', 'soak', 'T', 80); const t80 = num(await thOut('strip', 'soak', 'k-t'));
+    ok(x2.f > x2.a && x2.a > x2.c && x2.c > 1.5 && t80 < t60, `PR 스트립 03: 두께 2배 → 픽 ×${x2.f} > 중간 ×${x2.a} > 케이스 II ×${x2.c}, 60 → 80 °C에 ${t60} → ${t80}분`);
+    // 시드 식각 04: 과식각이 늘면 밑동 깎임이 늘고, 범프가 작을수록 남은 밑면적 비율이 작다
+    await thSet('etch', 'under', 'oe', 0); const sb0 = num(await thOut('etch', 'under', 'k-sb'));
+    await thSet('etch', 'under', 'oe', 100); const sb1 = num(await thOut('etch', 'under', 'k-sb'));
+    await thSet('etch', 'under', 'd', 40); const a40 = num(await thOut('etch', 'under', 'k-a'));
+    await thSet('etch', 'under', 'd', 10); const a10 = num(await thOut('etch', 'under', 'k-a'));
+    ok(sb1 > sb0 && a10 < a40, `시드 식각 04: 과식각 0 → 100 %에 밑동 깎임 ${sb0} → ${sb1}, 남은 밑면적 지름 40 µm ${a40} % > 10 µm ${a10} %`);
+    // 시드 식각 01: 남은 Ti가 얇을수록 범프 사이 저항이 커진다
+    await thSeg('etch', 'why', 'm', 'ti'); await thSet('etch', 'why', 'p', 100);
+    await thSet('etch', 'why', 't', 100); const rThick = await thOut('etch', 'why', 'k-r');
+    await thSet('etch', 'why', 't', 30); const rThin = await thOut('etch', 'why', 'k-r');
+    const ohm = s => { const v = num(s); return /kΩ/.test(s) ? v * 1e3 : /MΩ/.test(s) ? v * 1e6 : /GΩ/.test(s) ? v * 1e9 : v; };
+    ok(ohm(rThin) > ohm(rThick), `시드 식각 01: 남은 Ti가 얇을수록 범프 사이 저항↑ (${rThick} → ${rThin})`);
+    // 리플로우 04: 지름 25 · 도금 12 µm → 부피 약 5,890 µm³, 돔 꼭대기 약 15.7 µm, 겉보기 각 약 103°
+    await thSet('reflow', 'wet', 'd', 25); await thSet('reflow', 'wet', 'hc', 12);
+    const vV = num(await thOut('reflow', 'wet', 'k-v')), vH = num(await thOut('reflow', 'wet', 'k-h')), vT = num(await thOut('reflow', 'wet', 'k-th'));
+    ok(Math.abs(vV - 5890) < 30 && Math.abs(vH - 15.7) < 0.15 && Math.abs(vT - 103) < 1.5, `리플로우 04: 부피 ${vV} µm³ · 돔 ${vH} µm · 겉보기 각 ${vT}°`);
+    // 리플로우 02: 최고 설정을 낮추면 액상선 위 시간(TAL)이 준다
+    await thSet('reflow', 'profile', 'pk', 255); const tal255 = num(await thOut('reflow', 'profile', 'k-tal')), pk255 = num(await thOut('reflow', 'profile', 'k-pk'));
+    await thSet('reflow', 'profile', 'pk', 232); const tal232 = num(await thOut('reflow', 'profile', 'k-tal'));
+    ok(Math.abs(pk255 - 255) < 2 && tal232 < tal255 && tal255 > 30, `리플로우 02: 최고 255 °C → TAL ${tal255}초, 232 °C → ${tal232}초`);
   }
   // 탭 사이 장 링크: #go-reflow-03 → 리플로우 탭 03장
   await page.evaluate(() => { const a = document.createElement('a'); a.href = '#go-reflow-03'; a.id = 'tst-go'; a.textContent = 'x'; document.querySelector('#view-strip').appendChild(a); });
