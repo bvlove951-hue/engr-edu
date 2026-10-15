@@ -1,5 +1,7 @@
 /* ================================================================
- * engr-edu · PR 스트립 (탭 설정) — 장(章)은 src/strip/NN-*.js, 화면은 공용 엔진(src/theatre.js)
+ * engr-edu · PR 스트립 — 도금 틀을 걷어 내고 범프는 지킨다 (탭 설정)
+ *  - 장(章)은 src/strip/NN-*.js 에 한 파일씩 있고 window.EngrStripChapters 에 정의를 넣는다.
+ *  - 화면 · 스크롤 · 발표 모드는 공용 엔진(src/theatre.js, window.EngrTheatre)이 만든다.
  * ================================================================ */
 (function(){
 'use strict';
@@ -7,9 +9,17 @@ if (!window.EngrTheatre) return;
 window.EngrTheatre({
   key: 'strip', idp: 'st', name: 'PR 스트립',
   chapters: window.EngrStripChapters,
-  parts: {1: '원리', 2: '문제와 품질', 3: '현장'},
+  parts: {1: '원리', 2: '약품과 장비', 3: '현장'},
   headTitle: 'PR 스트립 — 쉽게, 그러나 깊게',
-  cover: {title: 'PR 스트립', sub: '', panel: K => K.flow('strip', '도금이 끝난 웨이퍼에서 PR 틀을 녹여 벗긴다')},
-  intro: `<div class="kick">PR 스트립</div><div class="big">PR 스트립</div>`,
+  cover: {
+    title: 'PR 스트립', sub: '도금 틀을 걷어 내고 범프는 지킨다 — 원리부터 현장까지 9장',
+    panel: K => K.flow('strip', '받는 것: PR 틀 속 범프  →  넘기는 것: 깨끗한 시드 위의 범프'),
+  },
+  intro: `<div class="kick">PR 스트립 · 9장</div><div class="big">틀을 걷어 내고, 범프는 지킨다</div><h3>녹는 원리부터 장비 · 불량까지, 쉽게 — 그러나 깊게</h3>
+    <p>전해도금이 끝나면 범프 모양을 잡아 준 두꺼운 PR(감광막) 틀은 할 일을 다 했습니다. PR 스트립은 이 틀을 약품(스트리퍼)으로 <b>남김없이</b> 걷어 내면서, 이미 만든 Cu · Ni · SnAg와 그 아래 얇은 시드는 <b>다치지 않게</b> 지키는 공정입니다. 이 탭은 왜 어떤 PR은 녹고 어떤 PR은 조각으로 떨어지는지, 왜 두꺼우면 훨씬 오래 걸리는지, 이 잔여물과 부식은 어디서 왔는지를 스스로 추론할 수 있게 9장으로 나눠 설명합니다.</p>
+    <ul class="jl"><li><b>1부 원리</b> — 왜 걷어 내나, PR의 정체(녹기 vs 부풀어 떨어지기), 스며들기 · 시간 · 온도</li><li><b>2부 약품과 장비</b> — 스트리퍼 약품, 배치 · 매엽 장비, 액 수명</li><li><b>3부 현장</b> — 금속 지키기, 잔여물과 검사, 불량 도감 · 인자 지도</li></ul>
+    <ul class="jl"><li>스크롤 · ← → 키로 한 단계씩, 아래 칩이나 차례 타일로 바로 이동</li><li>카드의 <b>직접 해 보기</b>를 움직이면 장면이 바뀝니다</li><li><b>📖 깊게 보기</b> — 「한 걸음 더(전문)」를 모두 펼침 · <b>▶ 발표 모드</b> · <b>⏵ 자동 재생</b></li><li>장면의 층 · 분자 · 부품에 마우스를 올리거나 누르면 이름과 역할</li></ul>
+    <p class="hint">수치는 교과서 · 공개 문헌 수준의 예시이고, 계산은 경향을 보여 주는 개념 모델입니다 (사내 공정 조건 아님). 전체 순서는 <a href="#go-bump">범프 공정</a> 탭, 앞 공정은 <a href="#go-plating">전해도금</a> 탭, 다음 공정은 <a href="#go-etch">시드 식각</a> · <a href="#go-reflow">리플로우</a> 탭.</p>`,
+  presIntro: {k: 'PR 스트립 · 9장', t: '틀을 걷어 내고, 범프는 지킨다', d: '녹이고 · 들어 올리고 · 헹구고 · 금속은 지킨다.'},
 });
 })();

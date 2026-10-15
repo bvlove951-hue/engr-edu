@@ -1,0 +1,767 @@
+/* PR 스트립 09 — 불량 도감: 이 불량은 어디서 왔을까 (범프 · 웨이퍼 맵) */
+(function(){
+// 원인 꼬리표: 스트립 인자 셋(이 공정이 바꿀 수 있는 것) + 앞뒤 공정 둘(받은 것 · 넘긴 것)
+const CATS = ['eq', 'bath', 'cond', 'up', 'dn'];
+const TAG = {eq: '스트립-장비', bath: '스트립-액', cond: '스트립-조건', up: '앞 공정', dn: '뒤 공정'};
+const TS = {eq: '장비', bath: '액', cond: '조건', up: '앞', dn: '뒤'};            // 타일 꼬리표 (짧게)
+const TD = {eq: '장비', bath: '액', cond: '조건', up: '앞 공정', dn: '뒤 공정'};    // 상세 꼬리표
+// 처음 보이는 단계 (그 공정 뒤 검사) — 전해도금 12장과 같은 이름 · 같은 순서
+const STG = ['도금 직후', 'PR 제거 뒤', '시드 식각 뒤', '리플로우 뒤', '적층 뒤', '고온 시험 뒤'];
+const COMMON = '공통점 찾기 — 장비 · 탱크 · 챔버 · 액 사용 일수 · 슬롯 · PR lot · 도금 장비';
+// 맵 무늬 8가지 (map 단계의 웨이퍼 그림 순서)
+const MAPS = [
+  {nm: '배치: 위아래 차이', ds: '흐름 · 가라앉는 조각 · 옮길 때 마름', tp: '배치 탱크 — 아래 입구 쪽이 새 액 · 따뜻한 액, 가라앉는 조각은 아래쪽에, 옮길 때는 위쪽이 먼저 마른다'},
+  {nm: '배치: 슬롯 반복', ds: '카세트 옆모습 — 특정 슬롯만', tp: '카세트 옆모습 — 1번 · 마지막 · 특정 슬롯만 불량이면 카세트 · 로봇 · 탱크 안 자리'},
+  {nm: '배치: 카세트 닿는 곳', ds: '빗살 자리 · 흐름 그늘', tp: '카세트 빗살이 닿는 아래 양옆 · 바닥 — 흐름이 막혀 그늘이 지고 물이 늦게 빠진다'},
+  {nm: '매엽: 동심 고리', ds: '바깥으로 갈수록 식고 지친 액', tp: '가운데에 뿌린 액이 바깥으로 흐르며 식고 녹은 PR이 늘어 고리 무늬'},
+  {nm: '매엽: 호 · 줄무늬', ds: '노즐 스윙 · 회전', tp: '노즐이 오가며(스윙) 뿌리면 호 · 나선 줄무늬'},
+  {nm: '가장자리 고리', ds: 'EBR 경계 PR 턱 · 노치 · 가장자리 액', tp: '가장자리는 PR이 가장 두껍고(EBR 경계의 턱 · 노치) 매엽에서는 액이 가장 식고 지친 자리'},
+  {nm: '한쪽 · 샷 반복', ds: '앞 공정 맵과 겹쳐 보기', tp: '노광 샷마다 같은 자리 · 한쪽 치우침 — 도금 높이 · PR 두께 · 노광 맵과 겹쳐 본다'},
+  {nm: '무작위 점', ds: '조각 · 입자 · 필터', tp: '흩어진 점 — 떨어진 조각 · 입자 · 필터 상태'}
+];
+// 불량 타일: id · 이름(nm) · 타일 이름(sn) · 생김새(def) · 처음 보이는 단계(st: STG 번호) · 맵 무늬 글(map) · 맵 그림 번호(pm: MAPS) · 원인 후보(c: [꼬리표, 글]) · 확인(k) · 대책(f)
+const DEF = [
+  {id: 'normal', nm: '정상', def: '깨끗한 시드 위에 선 범프 — 밑동 · 틈 바닥이 깨끗하고 SnAg 원기둥 표면이 고르다', st: [], map: '비교 기준 — 같은 lot의 정상 범프를 늘 함께 본다', pm: [],
+    c: [], k: ['외관 · 조각 → AOI', '잔여 PR 빠른 훑기 → 형광 검사 (PR에 따라)', '틈 바닥 · 밑동 · 가장자리 → SEM (기울여 보기)', '얇은 유기막 → 물 접촉각 · XPS', '금속 손실 → 블랭킷 Cu · Sn 시편 (면저항 · XRF)', '범프 높이 · 지름 · 동일 평면성 → 3D 측정 (높이 이상은 도금 쪽과 먼저 가르기)', '솔더 표면 산화 → XPS · 오제', '단락 → 시드 식각 뒤 누설 시험'], f: ''},
+  {id: 'gapres', nm: '틈 바닥 잔여', sn: '틈 잔여', def: '범프 사이 좁은 틈 바닥에 PR이 얇게 또는 덩어리로 남았다', st: [1, 2],
+    map: '범프가 빽빽한 구역 · PR이 가장 두꺼운 자리 · 가장자리 고리(EBR 경계) / 배치는 특정 슬롯 · 탱크 위치', pm: [5, 6, 1],
+    c: [['cond', '시간 · 온도 부족, 교반 · 분사 약함 (03 · 08장)'], ['bath', '지친 액 — 녹은 PR이 많음 (06장) · TMAH계에서 물이 많음 (04장)'], ['eq', '매엽 가장자리 액 온도 · 베벨/뒷면 헹굼'],
+      ['up', 'PR이 두꺼움 · 피치가 좁음(설계) · 과한 굽기로 가교 (02장)'], ['up', 'EBR 경계 PR 턱 · 가장자리 PR 두꺼움 (도포 · EBR)']],
+    k: [COMMON, '가장 좁은 틈 · 가장 두꺼운 자리 · EBR 경계 SEM', '클리어 시간 다시 재기 · 액 사용 일수', '시드 식각 뒤 같은 자리 시드 잔여'],
+    f: '시간 · 교반 · 액 교체 주기, 앞 공정과 PR 두께 · 굽기 · EBR 확인'},
+  {id: 'footres', nm: '밑동 잔여 · 고리', sn: '밑동 잔여', def: '범프 밑동 둘레에 PR이 고리처럼 남았다 — 기울여 보면 얇은 띠', st: [1, 2],
+    map: '샷 · 노광 무늬(포토) / 웨이퍼 전체(디스컴) / 가장자리(도금 중 들뜸 · EBR 경계 PR 턱)', pm: [6, 5],
+    c: [['up', 'PR 발(푸팅) · 디스컴 부족 (범프 공정 탭)'], ['up', '도금 중 PR 들뜸 → 금속 치마가 PR을 붙잡음 (전해도금 12장)'], ['up', 'EBR 경계 PR 턱 · 노치 (도포 · EBR)'], ['cond', '시간 부족 · 밑동까지 액이 늦게 바뀜']],
+    k: [COMMON, '기울인 SEM · EDS(탄소) 밑동 둘레', '현상 · 디스컴 조건 · PR lot', '도금 직후 사진과 비교'],
+    f: '포토 · 디스컴 조건, 도금 중 PR 밀착, 스트립 시간'},
+  {id: 'film', nm: '얇은 유기막', sn: '얇은 막', def: '눈에 안 보이는 nm 두께 유기막이 시드 · 솔더를 덮었다 — 시드 식각 얼룩 · 젖음 불량으로 드러난다', st: [2, 3],
+    map: '웨이퍼 전체 · 넓은 구역 / 액 교체 직전 lot에 몰림', pm: [],
+    c: [['bath', '지친 액 · 억제제 막이 두껍게 남음 (04 · 06장)'], ['cond', '약품에 맞지 않는 헹굼(예: 아민계를 바로 물로) → 녹은 PR 석출 (08장)'], ['cond', '헹굼이 짧음 → 스트리퍼 성분(4차 암모늄 · 아민 염, 억제제)이 남음'],
+      ['eq', '중간 용제 · 헹굼 탱크 오염, 드래그아웃'], ['dn', '시드 식각 젖음 · 리플로우 전 플라즈마 조건']],
+    k: [COMMON, '물 접촉각 · XPS(탄소 · 질소)', '헹굼 물 비저항 · 이온 분석', '액 사용 일수 · 헹굼 순서 · 헹굼 탱크 교체 이력', '시드 식각 속도 국부 차이'],
+    f: '약품에 맞는 헹굼 순서 · 충분한 헹굼 · 액 교체, 필요하면 짧은 플라즈마 정리'},
+  {id: 'flake', nm: '조각 재부착', sn: '조각', def: '떨어진 PR 조각이 범프 · 웨이퍼 위에 다시 붙었다', st: [1],
+    map: '흩어진 점 · 큰 조각 / 배치는 가라앉는 아래쪽 · 흐름 그늘', pm: [7, 0, 2],
+    c: [['eq', '필터 막힘 · 파손, 흐름이 고이는 곳 (05장)'], ['bath', '조각이 많은 지친 액 · 박리형 약품 (02 · 06장)'], ['up', '가교 PR(네거티브) · 과한 굽기 → 녹지 않고 조각 (02장)'], ['cond', '분사 · 교반이 약해 조각이 웨이퍼 근처에 머묾']],
+    k: [COMMON, '필터 차압(ΔP) · 교체 이력', '조각 성분(FTIR) — PR인지 다른 이물인지', '조각 위치와 흐름 방향'],
+    f: '필터 · 순환 점검, 조각 회수 흐름, 액 교체, 약품 종류(용해형) 평가 — 금속 손실과 함께'},
+  {id: 'culoss', nm: '시드 · Cu 손실', sn: 'Cu 손실', def: '시드 Cu가 얇아지거나 밑동 Cu 옆면이 파였다', st: [1, 2],
+    map: '고리(탱크 · 분사 온도 분포) / 배치 슬롯 · 흐름 입구 쪽(새 액 · 따뜻한 액)', pm: [3, 1, 0],
+    c: [['bath', '물 많음 · 억제제 부족 · 아민 많음 · 지친 액(녹은 Cu 많음) (04 · 06 · 07장)'], ['cond', '온도 · 시간 과다(오버 스트립), 공기 접촉'], ['eq', '히터 과열 · 헹굼으로 옮기는 시간 김'], ['dn', '시드 식각에서 언더컷이 겹쳐 커짐 (시드 식각 04장)']],
+    k: [COMMON, '블랭킷 Cu 시편 면저항 변화', '밑동 단면 SEM', '액 물 함량 · 녹은 Cu(ICP) · 온도 로그'],
+    f: '온도 · 시간 · 물 관리, 질소 덮기, 액 교체, 헹굼 순서 · 이동 시간'},
+  {id: 'snsurf', nm: '솔더 표면 손상 · 변색', sn: 'Sn 표면', def: 'SnAg 표면이 뿌옇거나 얼룩지고 거칠다', st: [1, 3],
+    map: '웨이퍼 전체(액) / 흐름 · 건조 얼룩 모양 / 특정 슬롯', pm: [0, 1],
+    c: [['bath', '강알칼리(TMAH) · 물 많음 (07장)'], ['cond', '온도 · 시간 과다, 헹굼 · 건조 지연'], ['dn', '리플로우 전 플라즈마 · 분위기(산소) · 대기 시간 (리플로우 03장)']],
+    k: [COMMON, '표면 SEM · XPS(산화막 두께)', '리플로우 교차 실험 — 같은 웨이퍼를 나눠', '블랭킷 Sn 시편 손실'],
+    f: '액 · 온도 · 시간, 헹굼 · 건조, 리플로우까지 대기 관리'},
+  {id: 'galv', nm: '갈바닉 파임', sn: '갈바닉', def: '다른 금속이 맞닿은 곳(SnAg/Ni · Ni/Cu 계면, 밑동 시드)이 얕게 파이거나 변색됐다 — 스트립에서 생기면 보통 nm~수십 nm. µm 홈 · 밑동 언더컷은 시드 식각을 먼저 의심', st: [1, 2],
+    map: '웨이퍼 전체 / 헹굼이 늦게 닿는 쪽', pm: [0],
+    c: [['cond', '약품에 맞지 않는 헹굼(아민계를 바로 물로) · 옮기는 동안 마름 (07장)'], ['bath', '물 많음 · 억제제 묽어짐'], ['up', '층 두께 · 계면 상태 (도금)'], ['dn', '시드 식각액 속 갈바닉 · 언더컷 — 시드 식각 뒤에만 보이면 이쪽 (시드 식각 05장)']],
+    k: [COMMON, '스트립 직후(시드 식각 전) 단면과 비교 — 그때 이미 파였나', '계면 단면 SEM', '헹굼 순서 · 이동 시간 교차 실험'],
+    f: '약품에 맞는 헹굼 순서 · 빠른 퀵 덤프, 이동 시간 단축 / 시드 식각 쪽이면 식각 조건 (시드 식각 05장)'},
+  {id: 'mark', nm: '물자국 · 얼룩', sn: '물자국', def: '둥근 얼룩 · 테두리 자국 — 물방울이 마르며 남긴 흔적', st: [1, 3],
+    map: '배치: 물이 마지막에 빠지는 아래 가장자리 · 카세트 닿는 곳 · 옮길 때 먼저 마른 위쪽 / 매엽: 가운데 · 고리', pm: [0, 2, 3],
+    c: [['eq', '건조기 · IPA 증기 · 스핀 조건'], ['cond', '헹굼 → 건조 지연, 옮길 때 마름, 헹굼 물 오염'], ['dn', '리플로우 젖음 · 외관 불량으로 드러남']],
+    k: [COMMON, '얼룩 위치 · 모양', '건조 조건 · 대기 로그'],
+    f: '건조 조건, 대기 시간, 옮기는 시간, 헹굼 물 관리'},
+  {id: 'lean', nm: '범프 기울어짐 · 찍힘', sn: '기울어짐', def: '기둥이 기울거나 솔더가 찍혔다', st: [1],
+    map: '분사 방향 · 노즐 아래 / 카세트 닿는 위치', pm: [4, 2],
+    c: [['eq', '과한 분사 압력 · 노즐 거리 · 음파 세기 · 카세트 충격 (05장)'], ['up', '가늘고 높은 기둥 · 밑동 좁음 · 밀착 약함'], ['up', '부푸는 가교 PR이 옆에서 미는 힘 (조건에 따라)']],
+    k: [COMMON, '기운 방향이 분사 방향과 같은가', '밑동 단면 · 전단 시험'],
+    f: '분사 압력 · 노즐 거리 · 음파 세기, 앞 공정 밀착 · 밑동'},
+  {id: 'lost', nm: '범프 떨어짐', sn: '떨어짐', def: '범프가 없고 밑동 흔적만 남았다 — 처음부터 안 쌓였는지 먼저 가른다', st: [1],
+    map: '가장자리 · 분사 아래 / 흩어짐', pm: [5, 4, 7],
+    c: [['up', '밀착 불량 · PR 발 · 시드 문제 (전해도금 12장 누락)'], ['eq', '센 분사 · 조각 충돌'], ['cond', 'Cu 손실 과다로 밑동이 약해짐']],
+    k: [COMMON, '도금 직후 검사와 비교 — 그때도 있었나', '남은 자리 SEM · EDS'],
+    f: '앞 공정 밀착, 분사 조건, 금속 손실 관리'},
+  {id: 'short', nm: '시드 식각 뒤 단락', sn: '단락', def: '범프 사이 시드가 남아 이웃 범프가 이어졌다', st: [2],
+    map: '틈 잔여 · 얇은 막 자리와 겹침 / 오버 도금 버섯 아래 / 가장자리 고리', pm: [5, 6],
+    c: [['cond', '스트립 잔여(틈 · 밑동 · 가장자리 · 얇은 막)가 식각을 막음 (08장)'], ['dn', '시드 식각 부족 · 액 나이 (시드 식각 07 · 08장)'], ['up', '오버 도금 버섯 머리가 PR을 가림']],
+    k: [COMMON, '누설 맵과 잔여 위치 겹쳐 보기', '잔여 자리 EDS(탄소 · Cu · Ti)'],
+    f: '스트립 잔여 제거와 식각 조건을 함께'}
+];
+const BY = Object.fromEntries(DEF.map(d => [d.id, d]));
+// 장면 글 줄나눔: ' · ' 앞에서 끊기지 않게 (줄이 '·'로 시작하지 않게) 앞 낱말에 붙인다
+const NB = t => String(t).replace(/ · /g, '\u00a0· ');
+const cats = d => CATS.filter(c => d.c.some(x => x[0] === c));
+const DEMO = {tiles: 'gapres', map: 'snsurf'};
+// 타일 배치 (4 × 3)
+const TW = 247, TH = 290, TG = 10, GX = 40, GY = 130;
+const tilePos = i => ({x: GX + (i % 4) * (TW + TG), y: GY + Math.floor(i / 4) * (TH + TG)});
+const DX0 = 1098, DX1 = 1562;                                      // 오른쪽 패널 안쪽
+const VN = {x: 24, y: 112, w: 1052, h: 1000};                      // 좁은 세로 화면: 왼쪽(타일 · 맵 · 선 지도 · 실험)만 크게 — 상세는 카드에
+
+// 범프 그림 — 단위 µm (u 가로, v 위쪽 +). (cx, base) = 시드 윗면 가운데의 화면 좌표, s = px/µm
+// 세 탭 공통 기준 범프: 지름 25 · 피치 55 µm, Cu 15 + Ni 3 + SnAg 12 µm. 시드 · Ti · 보호막은 실제 수백 nm라 크게 과장해 그린다
+const HB = 12.5, PCH = 55, VCU = 15, VNI = 18, VSN = 30;
+const LSEED = 1.2, LTI = 0.7, LPAS = 1.2, LSI = 4.9;
+function bump(K, id, cx, base, s, XS = 41){
+  const {R, P, PG, E, G} = K;
+  const X = u => cx + u * s, Y = v => base - v * s, q = K.q1;
+  const rect = (u0, v0, u1, v1, c, o) => R(X(u0), Y(v1), (u1 - u0) * s, (v1 - v0) * s, c, o);
+  const poly = (pts, c, o) => PG(pts.map(([u, v]) => [X(u), Y(v)]), c, o);
+  const v1 = -LSEED, v2 = v1 - LTI, v3 = v2 - LPAS, v4 = v3 - LSI;
+  // 바닥: Si · 보호막 · 패드 · Ti · 시드 Cu. seed: 'full' | 'thin'(얇아짐) | 'under'(시드 식각 뒤 — 기둥 아래만)
+  const floor = (pills, seed = 'full') => {
+    let f = rect(-XS, v4, XS, v3, 'f-si') + rect(-XS, v3, XS, v2, 'f-pas');
+    pills.forEach(c => { f += rect(c - 9, v3, c + 9, v2, 'f-al'); });
+    if (seed === 'under') pills.forEach(c => { f += rect(c - HB, v2, c + HB, v1, 'f-ti') + rect(c - HB, v1, c + HB, 0, 'f-seed2'); });
+    else {
+      f += rect(-XS, v2, XS, v1, 'f-ti');
+      if (seed === 'thin'){ f += rect(-XS, v1, XS, v1 + 0.45, 'f-seed2'); pills.forEach(c => { f += rect(c - HB + 0.8, v1, c + HB - 0.8, 0, 'f-seed2'); }); f += P(`M${q(X(-XS))},${q(Y(0))} L${q(X(XS))},${q(Y(0))}`, 'st09-was'); }
+      else f += rect(-XS, v1, XS, 0, 'f-seed2');
+    }
+    return f;
+  };
+  const cu = c => rect(c - HB, 0, c + HB, VCU, 'f-cu2'), ni = c => rect(c - HB, VCU, c + HB, VNI, 'f-ni'), sn = c => rect(c - HB, VNI, c + HB, VSN, 'f-sn2');
+  const pill = c => cu(c) + ni(c) + sn(c);
+  const two = [-PCH / 2, PCH / 2];
+  switch (id){
+    case 'gapres': return floor(two) + two.map(pill).join('') + poly([[-13.5, 0], [13.5, 0], [9, 5.5], [4, 8.4], [-3, 7.6], [-8.5, 5]], 'f-res');
+    case 'footres': return floor([0]) + pill(0) + poly([[-HB, 0], [-HB - 4.2, 0], [-HB, 3.4]], 'f-res') + poly([[HB, 0], [HB + 4.2, 0], [HB, 3.4]], 'f-res')
+      + rect(-HB - 0.9, 0, -HB, 9.5, 'f-res') + rect(HB, 0, HB + 0.9, 9.5, 'f-res');
+    case 'film': return floor(two) + two.map(pill).join('') + rect(-XS, 0, -PCH / 2 - HB, 1, 'st09-film') + rect(-PCH / 2 + HB, 0, PCH / 2 - HB, 1, 'st09-film') + rect(PCH / 2 + HB, 0, XS, 1, 'st09-film')
+      + two.map(c => rect(c - HB, VSN, c + HB, VSN + 1, 'st09-film') + rect(c - HB - 0.7, 0, c - HB, VSN, 'st09-film') + rect(c + HB, 0, c + HB + 0.7, VSN, 'st09-film')).join('');
+    case 'flake': return floor([0]) + pill(0) + rect(-4, VSN + 0.2, 13, VSN + 2.6, 'f-pr', {transform: `rotate(-14 ${q(X(4))} ${q(Y(VSN + 1.4))})`})
+      + rect(-33, 0.6, -18, 3.2, 'f-pr', {transform: `rotate(16 ${q(X(-25))} ${q(Y(1.9))})`}) + rect(19, 0.4, 32, 2.6, 'f-pr', {transform: `rotate(-9 ${q(X(25))} ${q(Y(1.5))})`});
+    case 'culoss': return floor([0], 'thin') + P(`M${q(X(-HB))},${q(Y(VCU))} L${q(X(-HB))},${q(Y(4))} Q${q(X(-9.6))},${q(Y(2))} ${q(X(-11.2))},${q(Y(0))} L${q(X(11.2))},${q(Y(0))} Q${q(X(9.6))},${q(Y(2))} ${q(X(HB))},${q(Y(4))} L${q(X(HB))},${q(Y(VCU))} Z`, 'f-cu2')
+      + ni(0) + sn(0) + P(`M${q(X(-HB))},${q(Y(4.4))} Q${q(X(-9.6))},${q(Y(2))} ${q(X(-11.2))},${q(Y(-0.2))}`, 'st09-hot') + P(`M${q(X(HB))},${q(Y(4.4))} Q${q(X(9.6))},${q(Y(2))} ${q(X(11.2))},${q(Y(-0.2))}`, 'st09-hot');
+    case 'snsurf': {
+      const top = [[-HB, VNI]];
+      for (let k = 0; k <= 10; k++) top.push([-HB + k * 2.5, VSN - (k % 2 ? 1.6 : 0.2) - (k === 4 ? 0.8 : 0)]);
+      top.push([HB, VNI]);
+      return floor([0]) + cu(0) + ni(0) + poly(top, 'f-sn2') + [[-6, 26], [3, 23.5], [8, 27.6], [-9, 21.4], [1, 28.2]].map(([u, v], k) => E(X(u), Y(v), (1.4 + (k % 2) * 0.6) * s, 1.1 * s, 'st09-stain')).join('');
+    }
+    case 'galv': {
+      const notch = (u, v, d) => poly([[u, v + 0.75], [u + d, v], [u, v - 0.75]], 'st09-grv');
+      return floor([0]) + pill(0) + notch(-HB, VNI, 1.3) + notch(HB, VNI, -1.3) + notch(-HB, VCU, 1.0) + notch(HB, VCU, -1.0) + notch(-HB, 0.5, 0.8) + notch(HB, 0.5, -0.8);
+    }
+    case 'mark': return floor(two) + two.map(pill).join('') + E(X(-5.5), Y(0.35), 6.5 * s, 0.8 * s, 'st09-mark') + E(X(6.8), Y(0.35), 4.2 * s, 0.7 * s, 'st09-mark') + E(X(-PCH / 2 + 1), Y(VSN + 0.25), 6 * s, 0.6 * s, 'st09-mark');
+    case 'lean': return floor([0]) + rect(-HB, 0, HB, VSN, 'pl-ghost') + G(cu(0) + ni(0) + poly([[-HB, VNI], [HB, VNI], [HB, VSN - 3.4], [HB - 3.8, VSN], [-HB, VSN]], 'f-sn2'), {transform: `rotate(8 ${q(X(HB))} ${q(Y(0))})`});
+    case 'lost': return floor(two) + pill(-PCH / 2) + rect(PCH / 2 - HB, 0, PCH / 2 + HB, VSN, 'pl-ghost')
+      + poly([[PCH / 2 - 10.5, 0], [PCH / 2 - 10.5, 1.2], [PCH / 2 - 7, 0.5], [PCH / 2 - 3.5, 1.7], [PCH / 2, 0.7], [PCH / 2 + 3.5, 1.5], [PCH / 2 + 7, 0.4], [PCH / 2 + 10.5, 1.0], [PCH / 2 + 10.5, 0]], 'f-cu2');
+    case 'short': return floor(two, 'under') + rect(-PCH / 2 + HB, v2, PCH / 2 - HB, 0, 'st09-short') + two.map(pill).join('') + rect(-11, 0, 9.5, 0.8, 'f-res');
+    default: return floor(two) + two.map(pill).join('');
+  }
+}
+// 상세 그림의 글 (bump 좌표, µm): p = 가리키는 점(없으면 글만), t = 글 자리(첫 줄 기준선), l = 지시선 끝, s = 줄들
+const NOTE = {
+  normal: [{p: [0, 0.3], t: [0, 16], l: [0, 10], s: ['깨끗한 틈 바닥', '틈 30 µm']}, {p: [27.5, 30], t: [27.5, 33.6], l: [27.5, 32.3], s: ['고른 SnAg 윗면']}, {t: [-27.5, 33.6], s: ['지름 25 µm']}],
+  gapres: [{p: [1, 7.6], t: [0, 21], l: [0.5, 15], s: ['틈 바닥에', '남은 PR']}, {t: [0, 33.6], s: ['PR 35 µm가 있을 때 틈 깊이 : 폭 ≈ 1.2']}],
+  footres: [{p: [-14.6, 1.1], t: [-28, 12], l: [-26, 6.8], s: ['밑동 둘레', 'PR 고리']}, {p: [13, 6], t: [28, 16], l: [24, 10.4], s: ['옆면 얇은 띠', '(기울여 보면)']}],
+  film: [{p: [0, 0.6], t: [0, 18], l: [0, 12], s: ['nm 유기막', '— 눈에 안 보임']}, {p: [27.5, 30.6], t: [27.5, 33.6], l: [27.5, 32.3], s: ['솔더 위 얇은 막']}],
+  flake: [{p: [8, 32.4], t: [30, 30], l: [17, 30.4], s: ['솔더 위에 다시', '붙은 PR 조각']}, {p: [-25, 2.2], t: [-27, 12], l: [-27, 8.6], s: ['바닥 조각']}],
+  culoss: [{p: [-11.6, 2.2], t: [-28, 16], l: [-24, 10.4], s: ['밑동 Cu 옆면', '파임']}, {p: [30, -0.9], t: [29.5, 14], l: [30, 9.4], s: ['얇아진 시드 Cu', '(점선 = 원래)']}],
+  snsurf: [{p: [0, 29.6], t: [0, 33.6], l: [0, 32.3], s: ['거칠고 뿌연 윗면']}, {p: [8, 27.6], t: [29, 22], l: [22, 23.4], s: ['어두운 얼룩']}],
+  galv: [{p: [12.5, 18], t: [29, 25], l: [16, 24], s: ['SnAg/Ni 계면 홈']}, {p: [12.5, 15], t: [29, 12], l: [17, 13.4], s: ['Ni/Cu 계면 홈', '(그림은 과장 —', '보통 nm)']}],
+  mark: [{p: [-5.5, 0.6], t: [0, 16], l: [-2, 13.4], s: ['물방울 테 자국']}, {p: [-26.5, 30.6], t: [-27.5, 33.6], l: [-27, 32.3], s: ['솔더 위 얼룩']}],
+  lean: [{p: [14.6, 28.3], t: [32, 34.4], l: [21, 32.6], s: ['찍힌 솔더 모서리']}, {p: [-12.5, 18], t: [-29, 14], l: [-22, 17.4], s: ['기운 기둥', '(점선 = 똑바로)']}, {p: [-11.6, 1.6], t: [-29, 4.2], l: [-21, 3.2], s: ['들린 밑동']}],
+  lost: [{t: [27.5, 18], s: ['없어진', '범프 자리']}, {p: [24, 1.5], t: [0, 14], l: [7, 10], s: ['밑동 흔적', '(Cu 조각)']}],
+  short: [{p: [6, -1], t: [3, 13], l: [5, 7.2], s: ['남은 시드가', '두 범프를 이음']}, {p: [-10.5, 0.8], t: [-27.5, 33.6], l: [-14, 32.2], s: ['그 위 얇은 유기막']}]
+};
+
+// 맵 단계: 웨이퍼 8개 (4 × 2)
+const MC = [[165, 240], [415, 240], [665, 240], [915, 240], [165, 560], [415, 560], [665, 560], [915, 560]], MR = 90;
+// 처음 보이는 단계 띠 — 칸마다 그 단계에서 처음 보이는 불량 (줄을 미리 나눔)
+const BAND = [
+  ['범프 누락', '높이 이상', '(비교 기준 ·', '앞 공정)'],
+  ['틈 · 밑동 ·', '가장자리 잔여', '조각 · 물자국', '기울어짐 ·', '떨어짐', 'Cu 손실 (SEM)'],
+  ['얇은 막', '단락', '언더컷 커짐', '(Cu 손실)'],
+  ['젖음 불량', '비용융', '(Sn 표면 ·', '얇은 막)'],
+  ['접합 불량'],
+  ['계면 문제']
+];
+const BX = j => 40 + j * 172.8, BW = 164, BY0 = 886, BH = 222;
+const RULES = [
+  ['위아래 차이', '탱크 흐름 방향(아래 입구 = 새 · 따뜻한 액) · 가라앉는 조각 · 옮길 때 위쪽이 먼저 마름'],
+  ['슬롯 반복', '카세트 · 로봇 · 탱크 안 자리'],
+  ['동심 고리', '매엽 분사 · 온도 (바깥으로 식고 지침)'],
+  ['가장자리 고리', 'EBR 경계 PR 턱 · 노치(앞 공정) · 매엽 가장자리 액 · 베벨/뒷면 헹굼'],
+  ['호 · 줄무늬', '노즐 스윙 · 회전'],
+  ['한쪽 · 샷 반복', '앞 공정 맵(도금 높이 · PR 두께 · 노광)과 겹쳐 보기'],
+  ['무작위 점', '조각 · 입자 · 필터']
+];
+
+// 인자 단계: 인자 13개 → 결과 11개. 링크 [결과, 방향(up · down · chg), 확신(L 법칙 · T 보통 · D 조건에 따라), 설명]
+const OUTS = [['res', '틈 · 밑동 · 가장자리 잔여', 1], ['film', '얇은 막 · 재석출', 1], ['flake', '조각', 1], ['loss', 'Cu · 시드 손실', 1], ['sn', 'Sn 표면', 1], ['galv', '갈바닉', 1],
+  ['lean', '범프 기울어짐 · 찍힘', 1], ['tput', '처리량', 0], ['life', '액 수명', 0], ['short', '시드 식각 뒤 단락', 1], ['wet', '리플로우 젖음 불량', 1]];
+// 결과 상자 → 1단계 불량 타일 (인자 지도에서 타일로 되돌아가기)
+const ODEF = {res: ['gapres', 'footres'], film: ['film'], flake: ['flake'], loss: ['culoss'], sn: ['snsurf'], galv: ['galv'], lean: ['lean'], short: ['short'], wet: ['film', 'snsurf', 'mark']};
+const FAC = [
+  {id: 'temp', nm: '온도 ↑', ex: '+10 °C → 녹는 PR 시간 ×0.78 · 금속 손실 속도 ×1.81', tg: ['cond'], who: '이 공정 — 인화점까지 여유는 설비 · 안전 담당과', ch: '03 · 04 · 07장', l: [['res', 'down', 'T', '녹이고 스미는 속도 ↑ — 가교 PR에 특히'], ['loss', 'up', 'L', '부식도 아레니우스로 빨라진다'], ['sn', 'up', 'L', '알칼리의 Sn 공격 ↑'], ['life', 'down', 'T', '증발 · 분해 · 물이 날아감'], ['tput', 'up', 'T', '시간이 준다 (녹는 PR · 순환 ×0.78)']]},
+  {id: 'time', nm: '시간 · 여유 ↑', ex: '+30 % → 틈 바닥 여유 +30 %p · 손실 ×1.3 · 배치 처리량 ×0.86', tg: ['cond'], who: '이 공정 — 처리량은 생산 계획과', ch: '05 · 07 · 08장', l: [['res', 'down', 'L', '틈 바닥까지 여유가 생긴다'], ['loss', 'up', 'L', '담근 시간만큼 손실'], ['sn', 'up', 'T', '알칼리에 오래 닿음'], ['tput', 'down', 'L', '한 번에 걸리는 시간 ↑']]},
+  {id: 'agit', nm: '교반 · 분사 · 음파 ↑', ex: '순환 → 분사 · 메가소닉: 녹는 PR 시간 ×0.69', tg: ['eq', 'cond'], who: '이 공정 · 장비 담당 — 분사 압력은 범프 손상과 함께', ch: '03 · 05장', l: [['res', 'down', 'T', '겉면 공급 ↑ (막 속 확산은 거의 그대로)'], ['flake', 'down', 'T', '떨어진 조각을 치워 낸다'], ['tput', 'up', 'T', '녹는 PR이면 시간이 준다'], ['lean', 'up', 'T', '센 분사 · 음파는 가는 기둥을 민다']]},
+  {id: 'rinse', nm: '헹굼 순서 · 이동 시간', ex: '중간 용제 → 바로 물(아민계): 헹굼 순간 손실 ×5', tg: ['cond'], who: '이 공정 — 약품 공급사가 검증한 순서 안에서', ch: '05 · 07 · 08장', l: [['film', 'chg', 'T', '맞는 순서면 ↓, 아민계를 바로 물로면 석출 ↑'], ['galv', 'chg', 'T', '헹굼 첫 순간이 가장 약하다'], ['loss', 'chg', 'T', '옮기는 동안 마르면 ↑']]},
+  {id: 'dry', nm: '건조 (스핀 · IPA 증기)', tg: ['eq'], who: '장비 담당 — 건조기 · IPA 증기 · 스핀 조건', ch: '05장', l: [['sn', 'chg', 'T', '물자국 · 산화 얼룩'], ['wet', 'chg', 'T', '물자국 자리가 덜 젖는다']]},
+  {id: 'age', nm: '액 나이 ↑ (녹은 PR · Cu)', ex: '녹은 PR +50 g/L → 클리어 시간 ×1.5', tg: ['bath'], who: '이 공정 · 액 관리 — 교체 주기 · 보충', ch: '06장', l: [['res', 'up', 'T', '녹은 PR이 많으면 클리어 시간 ↑'], ['film', 'up', 'T', '석출 · 재부착 ↑'], ['flake', 'up', 'T', '조각이 액에 쌓임'], ['life', 'down', 'L', '녹은 PR이 쌓이는 것이 곧 액 나이'], ['loss', 'up', 'D', '녹은 Cu가 많으면 Cu를 더 먹음 (Cu²⁺–아민)']]},
+  {id: 'water', nm: '물 · 산소 ↑', ex: '물 3 → 8 % → 금속 손실 속도 ×1.29 · TMAH계 가교 공격 ×0.69', tg: ['bath'], who: '액 관리 — 칼 피셔(물) · 덮개 · 질소', ch: '04 · 06 · 07장', l: [['loss', 'up', 'T', '물 · 산소가 Cu 부식을 돕는다'], ['sn', 'up', 'T', '물을 만난 알칼리가 Sn을 녹인다'], ['galv', 'up', 'T', '전기가 잘 통해 계면 공격 ↑'], ['film', 'up', 'D', '물이 많으면 녹은 PR이 석출'], ['res', 'chg', 'D', 'TMAH · DMSO 계는 물 ↑ → 가교 공격 ↓ → 잔여 ↑ (아민계는 조금 돕는다)']]},
+  {id: 'filter', nm: '필터 막힘 · 순환 약함', tg: ['eq'], who: '장비 담당 — 필터 차압 · 교체 이력', ch: '05 · 06장', l: [['flake', 'up', 'T', '걸러지지 않은 조각이 다시 붙음'], ['film', 'up', 'D', '고인 곳에서 석출']]},
+  {id: 'chem', nm: '약품: 박리형 → 용해형', ex: '용해형: 네거티브 60 µm도 약 40분에 녹음 (조각 없음)', tg: ['bath'], who: '이 공정 · 약품 공급사 — 금속 손실과 함께 평가', ch: '02 · 04 · 06장', l: [['res', 'down', 'T', '가교 PR도 녹여 낸다 (대신 느림)'], ['flake', 'down', 'T', '조각이 거의 없다 → 필터 부담 ↓'], ['loss', 'chg', 'T', '약품마다 다름 — 시편으로 잰다'], ['sn', 'chg', 'T', '알칼리 세기에 따라'], ['life', 'down', 'D', '녹은 PR이 액에 쌓인다']]},
+  {id: 'pr', nm: 'PR 가교 · 굽기 ↑', tg: ['up'], who: '포토 담당 — PR 종류 · 굽기 온도와 시간', ch: '02장', l: [['res', 'up', 'T', '녹지 않고 붙어 남는다 (얇은 막)'], ['flake', 'up', 'T', '박리형 약품에서는 들떠 조각']]},
+  {id: 'thick', nm: 'PR 두께 · 턱 ↑ · 피치 ↓', ex: 'PR 35 → 60 µm → 녹는 PR 시간 ×1.7 · PR 2.2 → 3.8 g/장', tg: ['up'], who: '포토 · 설계 — PR 두께 · 피치 · EBR', ch: '01 · 03 · 08장', l: [['res', 'up', 'L', '틈이 깊고 좁아 바닥이 늦다'], ['life', 'down', 'L', '웨이퍼당 PR ↑ (35 → 60 µm면 2.2 → 3.8 g)']]},
+  {id: 'plate', nm: '도금 이력 (들뜸 · 버섯)', tg: ['up'], who: '도금 담당 — 들뜸 · 오버 도금 (전해도금 12장)', ch: '02 · 08장', l: [['res', 'up', 'T', '금속 치마 · 버섯 머리가 PR을 붙잡음'], ['short', 'up', 'T', '가려진 시드가 남는다']]},
+  {id: 'post', nm: '시드 식각 · 리플로우', tg: ['dn'], who: '시드 식각 · 리플로우 담당', ch: '시드 식각 07 · 리플로우 03장', l: [['short', 'chg', 'T', '식각 부족 · 액 나이'], ['wet', 'chg', 'T', '플라즈마 · 분위기 · 대기 시간']]}
+];
+const FBY = Object.fromEntries(FAC.map(f => [f.id, f]));
+const DIRS = {up: '↑', down: '↓', chg: '±'};
+const CONF = {L: '법칙', T: '보통 경향', D: '조건에 따라'};
+const FX0 = 60, FW = 360, FH = 52, OX = 760, OW = 300, OH = 60;
+const fTop = k => k < 9 ? 150 + k * 60 : k < 12 ? 724 + (k - 9) * 60 : 938;
+const oTop = j => 150 + j * 78;
+// 좋아짐(초록) · 나빠짐(빨강) · 달라짐(보라): 결과가 '나쁜 것'(잔여 등)이면 ↑ = 나빠짐
+const tone = (l) => { const bad = OUTS.find(o => o[0] === l[0])[2]; return l[1] === 'chg' ? 'c' : ((l[1] === 'up') === !!bad ? 'b' : 'g'); };
+const EC = {g: 'pl-eg', b: 'pl-eb', c: 'pl-ec'};
+
+// 나눠 흘리기: 25장 슬롯 배정 (24장 + 예비 1장) — 묶음을 섞어 슬롯 효과가 조건 효과와 겹치지 않게
+const SEQ = 'ABCDBADCCDABDCBAABCDBADC';
+const GRP = {
+  A: {cl: 'a', nm: '지금 조건 — 기준', rd: '기준 — 다른 칸과 비교'},
+  B: {cl: 'b', nm: '헹굼만 바꿈', rd: '헹굼 효과만 다르다'},
+  C: {cl: 'c', nm: '시간만 바꿈', rd: '시간 효과만 다르다'},
+  D: {cl: 'd', nm: '둘 다 바꿈', rd: '두 효과 + 상호작용'}
+};
+
+(window.EngrStripChapters = window.EngrStripChapters || []).push({
+  no: '09', id: 'defects', part: 3, short: '불량 도감', scale: '범프 · 웨이퍼 맵',
+  title: '불량 도감 — 이 불량은 어디서 왔을까?',
+  hook: '처음 보인 단계가 답을 좁힌다',
+  one: '스트립 불량은 처음 보인 단계, 생김새, 웨이퍼 맵 무늬로 원인을 좁힙니다. 원인은 스트립만이 아니어서 스트립-장비 · 스트립-액 · 스트립-조건 · 앞 공정 · 뒤 공정으로 나눠 봅니다.',
+  ana: '<b>교통사고 조사</b>와 같습니다. 언제(처음 보인 단계), 어디서(맵 무늬), 어떤 흔적(생김새)으로 원인을 좁히고, 운전자(이 공정)뿐 아니라 도로(앞 공정) · 날씨(액 나이) · 뒤차(뒤 공정)까지 봅니다. <i>(비유의 한계: 공정 불량은 원인 하나보다 여럿이 겹친 경우가 많아, 공통점 찾기와 나눠 흘리는 실험(DOE)으로 확인합니다.)</i>',
+  steps: [
+    {id: 'tiles', t: '불량 타일 — 생김새로 고르기', d: '정상과 대표 불량 11가지를 범프 단면 그림으로 비교합니다. 타일마다 처음 보이는 단계와 원인 꼬리표(장비 · 액 · 조건 · 앞 공정 · 뒤 공정)가 붙어 있습니다. 타일을 누르면 확인 방법과 대책이 나옵니다.', viewN: VN},
+    {id: 'map', t: '맵 무늬와 처음 보이는 단계', d: '배치는 탱크 흐름 · 카세트 슬롯, 매엽은 회전 · 노즐, 가장자리는 EBR 경계의 두꺼운 PR이 무늬를 만듭니다. 무늬를 읽고, 도금 직후 · PR 제거 뒤 · 시드 식각 뒤 · 리플로우 뒤 가운데 언제 처음 보였는지 나눕니다.', viewN: VN},
+    {id: 'factor', t: '받은 것과 바꿀 것 — 꼬리표로 나누기', d: '온도 · 시간 · 교반 · 헹굼 · 액 나이처럼 스트립에서 바꿀 수 있는 인자와, PR 종류 · 굽기 · 두께 · 도금 이력처럼 앞 공정이 정한 인자를 나눕니다. 장면의 인자 상자를 누르면 어떤 결과로 선이 이어지는지 보입니다.', viewN: VN},
+    {id: 'doe', t: '확인 실험 — 나눠서 바꿔 보기', d: '같은 lot을 나눠 시간 · 온도 · 헹굼 순서만 바꾸거나 새 액과 지친 액으로 나눠 흘리면 원인이 빨리 갈립니다. 블랭킷 Cu · Sn 시편을 함께 흘리면 금속 손실도 같이 잽니다.', viewN: VN}
+  ],
+  icon(K){
+    const {R, C, P} = K;
+    return R(6, 46, 52, 7, 'f-si') + R(6, 43, 52, 3, 'f-seed2') + R(20, 24, 22, 19, 'f-cu2') + R(20, 20, 22, 4, 'f-ni') + R(20, 8, 22, 12, 'f-sn2')
+      + C(15, 41, 3.6, 'f-res') + C(47, 41, 3.6, 'f-res') + P('M48,4 L60,16 M60,4 L48,16', 's-arrr');
+  },
+  draw(K){
+    const {R, C, L, P, PG, E, T, TT, G, LB, tip, only, rng} = K, wrap = (t, em) => K.wrap(NB(t), em);
+    let s = '';
+    s += R(1078, 130, 502, 990, 'pl-panel', {rx: 16});
+    /* ---------- tiles: 타일 12개 + 범례 ---------- */
+    let tl = '';
+    DEF.forEach((d, i) => {
+      const {x, y} = tilePos(i), cs = cats(d);
+      let g = R(x, y, TW, TH, 'pl-tile2', {rx: 14}) + T(x + 14, y + 32, `${String(i).padStart(2, '0')} ${d.sn || d.nm}`, 't-sub', 'start');
+      g += bump(K, d.id, x + TW / 2, y + 194, 3, 40.6);
+      // 처음 보이는 단계 (6칸, 왼쪽부터 도금 직후 → 고온 시험 뒤)
+      STG.forEach((t, j) => { g += R(x + 12 + j * 38, y + 228, 33, 15, 'st09-ms' + (d.st.includes(j) ? ' on' : ''), {rx: 4}); });
+      // 꼬리표 다섯 칸: 해당하는 칸만 색
+      if (d.c.length) CATS.forEach((c, j) => { const on = cs.includes(c), px = x + 12.5 + j * 45; g += R(px, y + TH - 38, 42, 27, 'st09-tg ' + (on ? c : 'off'), {rx: 6}) + T(px + 21, y + TH - 18.5, TS[c], 'st09-tgt' + (on ? '' : ' off')); });
+      else g += T(x + TW / 2, y + TH - 18, '비교 기준', 't-dim');
+      g += R(x, y, TW, TH, 'pl-pick', {rx: 14});
+      tl += G(g, {class: 'pl-def', 'data-def': d.id, 'data-tip': `${d.nm} — ${d.def}` + (d.st.length ? `\n처음 보이는 단계: ${d.st.map(k => STG[k]).join(' · ')}` : '') + (cs.length ? `\n원인 꼬리표: ${cs.map(c => TAG[c]).join(' · ')}` : '')});
+    });
+    let lg = T(44, 1060, '원인 꼬리표', 'st09-lgt', 'start'), lx = 152;
+    CATS.forEach(c => { lg += R(lx, 1040, 42, 27, 'st09-tg ' + c, {rx: 6}) + T(lx + 21, 1059.5, TS[c], 'st09-tgt') + T(lx + 50, 1060, TAG[c], 't-dim', 'start'); lx += 50 + (c === 'up' || c === 'dn' ? 70 : 118) + 22; });
+    lg += T(44, 1100, '처음 보이는 단계', 'st09-lgt', 'start');
+    STG.forEach((t, j) => { lg += R(200 + j * 28, 1085, 24, 15, 'st09-ms' + (j === 1 ? ' on' : ''), {rx: 4}); });
+    lg += T(376, 1100, '왼쪽부터 도금 직후 → PR 제거 → 시드 식각 → 리플로우 → 적층 → 고온 시험 뒤', 't-dim', 'start');
+    tl += LB(lg, tip('원인 꼬리표 — 스트립 인자: 스트립-장비 · 스트립-액 · 스트립-조건\n받은 것 · 넘긴 것: 앞 공정 · 뒤 공정\n처음 보이는 단계 — 타일 아래 6칸, 주황 = 이 단계 검사에서 처음 보인다 (범례의 예: PR 제거 뒤)'));
+    s += G(tl, only('tiles'));
+    s += G(`<g data-v="detail"></g>`, only('tiles'));
+
+    /* ---------- map: 웨이퍼 맵 8개 + 처음 보이는 단계 띠 + 맵 읽기 규칙 ---------- */
+    let mp = `<g data-v="msel"></g>`;
+    MC.forEach(([cx, cy], i) => {
+      const m = MAPS[i], cid = K.id('st09-wc' + i);
+      let w = '';
+      if (i === 1){
+        // 카세트 옆모습: 웨이퍼 막대 12개, 1번 · 7번 · 마지막만 불량
+        w += R(cx - 90, cy - 90, 180, 180, 'st09-cas', {rx: 12}) + R(cx - 84, cy - 84, 8, 168, 'st09-rail') + R(cx + 76, cy - 84, 8, 168, 'st09-rail');
+        for (let k = 0; k < 12; k++) w += R(cx - 68, cy - 79 + k * 14, 136, 6, [0, 6, 11].includes(k) ? 'st09-slotx' : 'st09-slot', {rx: 3});
+      } else {
+        let pat = '';
+        if (i === 0){
+          pat += R(cx - MR, cy + 14, 2 * MR, 26, 'st09-d1') + R(cx - MR, cy + 40, 2 * MR, 24, 'st09-d2') + R(cx - MR, cy + 64, 2 * MR, 30, 'st09-d3');
+          [[-40, -62, 13], [8, -71, 10], [44, -54, 12], [-6, -46, 7]].forEach(([dx, dy, r]) => { pat += E(cx + dx, cy + dy, r, r * 0.7, 'st09-mk'); });
+          pat += K.arrow(cx - 62, cy + 78, cx - 62, cy + 6, 's-arr');
+        } else if (i === 2){
+          [[-64, 62, 24], [64, 62, 24], [0, 92, 20]].forEach(([dx, dy, r]) => { pat += C(cx + dx, cy + dy, r, 'st09-d3') + E(cx + dx * 0.86, cy + dy - 40, 9, 26, 'st09-d1'); });
+        } else if (i === 3){
+          pat += C(cx, cy, MR, 'st09-d3') + C(cx, cy, 66, 'st09-wf0') + C(cx, cy, 66, 'st09-d1') + C(cx, cy, 42, 'st09-wf0');
+        } else if (i === 4){
+          [100, 128, 156, 184].forEach(r => { pat += P(`M${cx - 150 + r},${cy + 40} A${r},${r} 0 0 0 ${cx - 150 + r * Math.cos(1.2)},${cy + 40 - r * Math.sin(1.2)}`, 'st09-arc'); });
+        } else if (i === 5){
+          pat += C(cx, cy, MR - 7, 'st09-ring') + C(cx, cy + MR - 9, 10, 'st09-dm');
+        } else if (i === 6){
+          for (let gx = -3; gx < 3; gx++) for (let gy = -3; gy < 3; gy++){
+            const sx = cx + gx * 32, sy = cy + gy * 32;
+            pat += R(sx, sy, 32, 32, 'st09-shot') + R(sx + 4, sy + 4, 9, 9, 'st09-dm', {opacity: q2(0.25 + 0.75 * (gx + 3) / 5)});
+          }
+        } else {
+          const g = rng(23);
+          for (let k = 0; k < 22; k++){ const a = g() * Math.PI * 2, r = Math.sqrt(g()) * 80; pat += C(cx + r * Math.cos(a), cy + r * Math.sin(a), 2.5 + g() * 3.5, 'st09-dm'); }
+        }
+        w += `<clipPath id="${cid}"><circle cx="${cx}" cy="${cy}" r="${MR}"/></clipPath>` + C(cx, cy, MR, 'st09-wf') + G(pat, {'clip-path': `url(#${cid})`}) + C(cx, cy, MR, 'st09-wfo')
+          + PG([[cx - 7, cy + MR + 1], [cx + 7, cy + MR + 1], [cx, cy + MR - 8]], 'st09-notch');
+      }
+      w += T(cx, cy + 118, m.nm, 't-sub') + TT(cx, cy + 144, wrap(m.ds, 11), 't-dim', 'middle', 24);
+      mp += G(w, Object.assign({class: 'st09-wm', 'data-m': i}, tip(m.nm + ' — ' + m.tp)));
+    });
+    mp += `<g data-v="mline"></g>`;
+    // 처음 보이는 단계 띠
+    mp += T(40, 872, '처음 보이는 단계 — 그 단계 검사에서 처음 보이는 불량', 'pl-hdg', 'start');
+    BAND.forEach((ls, j) => { mp += R(BX(j), BY0, BW, BH, 'pl-lane', {rx: 10}) + T(BX(j) + BW / 2, BY0 + 32, STG[j], 'st09-bt') + TT(BX(j) + BW / 2, BY0 + 62, ls, 't-dim', 'middle', 23); });
+    mp += `<g data-v="bsel"></g>`;
+    // 오른쪽: 맵 읽기 규칙
+    let rp = T(DX0, 172, '맵 읽기 규칙', 'pl-hdg', 'start'), ry = 210;
+    RULES.forEach(([k, v]) => { rp += T(DX0, ry, k + ' →', 'st09-rk', 'start'); ry += 26; wrap(v, 23.5).forEach(l => { rp += T(DX0 + 14, ry, l, 't-dim', 'start'); ry += 24; }); ry += 12; });
+    ry += 6;
+    rp += R(DX0 - 6, ry - 30, DX1 - DX0 + 12, 84, 'pl-box', {rx: 10});
+    rp += TT(DX0 + 8, ry, wrap('담그고 빼는 몇 초 차이는 수십 분 스트립에 비해 작습니다 — 위아래 차이의 주원인이 아닙니다.', 23), 'st09-wn', 'start', 25);
+    ry += 94;
+    rp += T(DX0, ry, '처음 보인 단계로 가르기', 'pl-hdg', 'start'); ry += 30;
+    [['도금 직후에 이미 있음', '도금 · 포토 (앞 공정)'], ['PR 제거 뒤 처음', '스트립, 또는 PR에 가려 있던 도금 흔적'], ['시드 식각 · 리플로우 뒤 처음', '뒤 공정 후보도 함께']].forEach(([a, b]) => { rp += T(DX0, ry, a + ' →', 'st09-rk', 'start') + T(DX0 + 14, ry + 25, b, 't-dim', 'start'); ry += 56; });
+    ry += 14;
+    rp += T(DX0, ry, '다음 — 공통점 찾기', 'pl-hdg3', 'start');
+    rp += TT(DX0, ry + 30, wrap('장비 · 탱크 · 챔버 · 액 사용 일수 · 슬롯 · PR lot · 도금 장비 가운데 불량 웨이퍼끼리 함께 겪은 것', 24), 't-dim', 'start', 24);
+    mp += LB(rp);
+    s += G(mp, only('map'));
+
+    /* ---------- factor: 인자 13 → 결과 11 선 지도 ---------- */
+    let fc = T(FX0, 136, '스트립에서 바꿀 것', 't-acc', 'start') + T(OX, 136, '결과', 't-acc', 'start') + T(OX + 64, 136, '(상자를 눌러 보세요)', 't-dim', 'start');
+    fc += T(FX0, 712, '앞 공정에서 받은 것', 'st09-gl up', 'start') + T(FX0, 926, '뒤 공정이 정하는 것', 'st09-gl dn', 'start');
+    FAC.forEach((f, k) => f.l.forEach(([o, dir, cf]) => {
+      const j = OUTS.findIndex(x => x[0] === o), y1 = fTop(k) + FH / 2, y2 = oTop(j) + OH / 2;
+      fc += P(`M${FX0 + FW},${y1} C${FX0 + FW + 150},${y1} ${OX - 190},${y2} ${OX - 38},${y2}`, `pl-edge st09-e st09-${cf}`, {'data-f': f.id, 'data-o9': o, 'data-t': tone([o, dir])});
+    }));
+    FAC.forEach((f, k) => {
+      const y = fTop(k);
+      let g = R(FX0, y, FW, FH, 'pl-inb', {rx: 10}) + R(FX0 + 8, y + 9, 6, FH - 18, 'st09-tg ' + f.tg[0], {rx: 3}) + T(FX0 + 24, y + 34, f.nm, 't-sub', 'start');
+      f.tg.forEach((tg, j) => { const px = FX0 + FW - 10 - 46 * (f.tg.length - j); g += R(px, y + 12, 42, 27, 'st09-tg ' + tg, {rx: 6}) + T(px + 21, y + 31.5, TS[tg], 'st09-tgt'); });
+      g += R(FX0, y, FW, FH, 'pl-pick', {rx: 10});
+      fc += G(g, {class: 'pl-in st09-fac', 'data-f': f.id, 'data-tip': `${f.nm} — ${f.tg.map(t => TAG[t]).join(' · ')}\n누르면 이어진 결과가 진해집니다`});
+    });
+    OUTS.forEach(([id, nm], j) => {
+      const y = oTop(j);
+      fc += G(R(OX, y, OW, OH, 'pl-outb', {rx: 10}) + T(OX + 16, y + 38, nm, 't-sub', 'start') + `<g data-ob="${id}"></g>` + R(OX, y, OW, OH, 'pl-pick', {rx: 10}),
+        {class: 'st09-out', 'data-o9': id, 'data-tip': nm + ' — 누르면 거꾸로, 이 결과로 이어지는 인자들'});
+    });
+    // 범례: 선 모양 = 확신, 색 = 방향
+    let fl = T(44, 1058, '선', 'st09-lgt', 'start');
+    [['L', '법칙'], ['T', '보통 경향'], ['D', '조건에 따라']].forEach(([c, t], j) => { const x = 84 + j * 200; fl += L(x, 1052, x + 52, 1052, 'st09-ls st09-' + c) + T(x + 62, 1058, t, 'st09-lg', 'start'); });
+    fl += T(44, 1098, '색', 'st09-lgt', 'start');
+    [['pl-egc', '좋아짐'], ['pl-ebc', '나빠짐'], ['pl-ecc', '달라짐 · 조건에 따라 양쪽']].forEach(([c, t], j) => { const x = 92 + j * 150; fl += C(x, 1092, 9, c) + T(x + 16, 1098, t, 'st09-lg', 'start'); });
+    fl += T(660, 1098, '↑ 늘어남 · ↓ 줄어듦 · ± 양쪽 (인자를 올릴 때)', 'st09-lg', 'start');
+    fc += LB(fl, tip('선 모양 = 얼마나 확실한가 (실선 법칙 · 긴 점선 보통 경향 · 점선 조건에 따라)\n색 = 인자를 올렸을 때 결과가 좋아지나 나빠지나'));
+    fc += `<g data-v="fpanel"></g>`;
+    s += G(fc, only('factor'));
+
+    /* ---------- doe: lot 나누기 2 × 2 ---------- */
+    let de = T(40, 136, '같은 lot을 나눠 두 가지만 바꾼다 — 2 × 2 나눠 흘리기 (예시)', 't-acc', 'start');
+    de += T(40, 166, 'lot 25장 — 슬롯마다 묶음을 섞어 배정 (슬롯 효과가 조건 효과와 겹치지 않게)', 't-dim', 'start');
+    for (let i = 0; i < 25; i++){
+      const x = 60 + i * 40, gk = SEQ[i];
+      de += R(x + 5, 182, 30, 92, gk ? 'st09-g' + GRP[gk].cl : 'st09-gx', {rx: 5}) + (gk ? T(x + 20, 236, gk, 'st09-glt') : '');
+      if ([0, 4, 9, 14, 19, 24].includes(i)) de += T(x + 20, 300, String(i + 1), 't-dim');
+    }
+    de += T(1010, 324, '25 = 예비', 't-dim', 'middle');
+    de += K.arrow(560, 308, 560, 348, 's-arr') + T(580, 336, '4묶음 × 6장', 't-dim', 'start');
+    const CX = [220, 640], RY = [412, 600], CW = 410, RH = 180;
+    de += T(125, 386, '시간 \\ 헹굼', 't-dim');
+    [['헹굼: 중간 용제 → 물', 0], ['헹굼: 바로 물', 1]].forEach(([t, j]) => { de += R(CX[j], 352, CW, 52, 'pl-hlbox', {rx: 10}) + T(CX[j] + CW / 2, 386, t, 'st09-bt'); });
+    [[['시간 기본', '(지금 레시피)'], 0], [['시간 +30 %', '(여유 ↑)'], 1]].forEach(([ls, r]) => { de += R(40, RY[r], 170, RH, 'pl-lane', {rx: 10}) + T(125, RY[r] + 80, ls[0], 'st09-bt') + T(125, RY[r] + 108, ls[1], 't-dim'); });
+    ['A', 'B', 'C', 'D'].forEach((gk, n) => {
+      const x = CX[n % 2], y = RY[n >> 1], gr = GRP[gk];
+      const slots = [...SEQ].map((c, i) => c === gk ? i + 1 : 0).filter(Boolean);
+      let c = R(x, y, CW, RH, 'pl-lane', {rx: 12}) + T(x + 22, y + 40, gk, 'st09-gl ' + gr.cl, 'start') + T(x + 54, y + 38, gr.nm, 't-sub', 'start');
+      slots.forEach((sl, k) => { const wx = x + 40 + k * 50, wy = y + 92; c += C(wx, wy, 20, 'st09-g' + gr.cl) + PG([[wx - 4, wy + 21], [wx + 4, wy + 21], [wx, wy + 15]], 'st09-notch') + T(wx, wy + 46, String(sl), 't-dim'); });
+      c += R(x + 330, y + 72, 30, 30, 'f-cu2') + R(x + 368, y + 72, 30, 30, 'f-sn2') + T(x + 345, y + 128, 'Cu', 't-dim') + T(x + 383, y + 128, 'Sn', 't-dim');
+      c += T(x + 22, y + 168, gr.rd, 't-dim', 'start');
+      de += G(c, tip(`${gk} 칸 — ${gr.nm}\n슬롯 ${slots.join(' · ')} + 블랭킷 Cu · Sn 시편\n읽을 것: ${gr.rd}`));
+    });
+    de += T(40, 820, '시간 효과 = (C + D)/2 − (A + B)/2', 'st09-fx', 'start') + T(500, 820, '헹굼 효과 = (B + D)/2 − (A + C)/2', 'st09-fx', 'start');
+    de += T(40, 850, '상호작용 = (A + D)/2 − (B + C)/2 — 한 번에 하나씩 바꾸면 못 본다 (A~D = 칸 평균)', 't-dim', 'start');
+    de += T(40, 900, '읽을 것 — 칸마다 같은 자리 · 같은 대기 시간에서', 'pl-hdg', 'start');
+    [['틈 바닥 SEM', '시간 효과 — 가장 좁은 틈, EBR 경계, 노치에서'], ['Cu · Sn 시편 손실', '헹굼 효과 — 면저항 · XRF로, 같은 탱크 · 슬롯에서'], ['물 접촉각 · XPS', '얇은 막 · 재석출 — 탄소 · 질소 신호'], ['시드 식각 뒤 누설', '최종 판정 — 단락 맵을 잔여 자리와 겹쳐 보기']].forEach(([t, d], j) => {
+      const x = 40 + j * 259.3;
+      de += R(x, 916, 250, 160, 'pl-lane', {rx: 10}) + T(x + 14, 950, t, 'st09-bt', 'start') + TT(x + 14, 982, wrap(d, 11.5), 't-dim', 'start', 24);
+    });
+    // 오른쪽 패널
+    let dp = T(DX0, 172, '한 번에 하나 vs 2 × 2', 'pl-hdg', 'start');
+    let dy = 206;
+    wrap('한 번에 하나씩 바꾸면 실험이 두 번 필요하고, 두 인자가 함께 작용하는 것(상호작용)을 놓칩니다. 2\u00a0×\u00a02는 같은 24장으로 두 효과와 상호작용을 함께 봅니다.', 23.5).forEach(l => { dp += T(DX0, dy, l, 'st09-ft', 'start'); dy += 25; });
+    dy += 22;
+    dp += T(DX0, dy, '이것도 함께', 'pl-hdg3', 'start'); dy += 32;
+    ['새 액 · 지친 액으로 나누기 — 액 나이 효과 (06장)', '블랭킷 Cu · Sn 시편을 칸마다 — 금속 손실을 바로 잰다', '슬롯 섞기(배치) — 왼쪽 위 막대처럼', '대기 시간 · 측정 자리는 칸마다 같게'].forEach(t => { wrap('· ' + t, 23.5).forEach((l, i) => { dp += T(DX0 + (i ? 14 : 0), dy, l, 'st09-ft', 'start'); dy += 25; }); dy += 4; });
+    dy += 8;
+    wrap('헹굼 순서는 약품 공급사가 검증한 범위 안에서만 바꿉니다.', 23.5).forEach(l => { dp += T(DX0, dy, l, 'st09-wn', 'start'); dy += 25; });
+    // 상호작용 읽는 그림 (개념) — 칸 평균 넷을 선 두 개로. 점선 = 두 효과가 그냥 더해질 때(나란함)의 D
+    const gx0 = 1150, gx1 = 1500, gy0 = 1030, gy1 = 730, gy = f => gy0 - f * (gy0 - gy1);
+    const pA = [gx0 + 40, gy(0.16)], pB = [gx1 - 40, gy(0.36)], pC = [gx0 + 40, gy(0.26)], pD = [gx1 - 40, gy(0.82)], p0 = [gx1 - 40, gy(0.46)];
+    dp += T(DX0, 686, '읽는 법 — 칸 평균 넷을 선 둘로', 'st09-bt', 'start');
+    dp += L(gx0, gy0, gx1 + 10, gy0, 's-axis') + L(gx0, gy0, gx0, gy1 - 10, 's-axis') + T(gx0 + 12, gy1 + 4, '결과 (칸 평균)', 't-dim', 'start');
+    dp += P(`M${pC[0]},${pC[1]} L${p0[0]},${p0[1]}`, 'st09-l0') + L(p0[0], p0[1] - 9, p0[0], pD[1] + 10, 'st09-iab') + C(p0[0], p0[1], 7, 'st09-g0');
+    dp += P(`M${pA[0]},${pA[1]} L${pB[0]},${pB[1]}`, 'st09-l1') + P(`M${pC[0]},${pC[1]} L${pD[0]},${pD[1]}`, 'st09-l2');
+    [[pA, 'a', 'A'], [pB, 'b', 'B'], [pC, 'c', 'C'], [pD, 'd', 'D']].forEach(([pt, c, k]) => { dp += C(pt[0], pt[1], 8, 'st09-g' + c) + T(pt[0] + (pt[0] < 1300 ? -14 : 14), pt[1] + 7, k, 'st09-gl ' + c + ' st09-pk', pt[0] < 1300 ? 'end' : 'start'); });
+    const onL = (q0, q1, x) => q0[1] + (q1[1] - q0[1]) * (x - q0[0]) / (q1[0] - q0[0]);
+    dp += T(1330, onL(pA, pB, 1330) + 34, '시간 기본', 't-dim') + T(1262, onL(pC, pD, 1262) - 18, '시간 +30 %', 't-dim', 'end');
+    dp += T(1448, 868, '상호작용', 'st09-ia', 'end');
+    dp += T(pA[0], gy0 + 28, '중간 용제', 't-dim') + T(pB[0], gy0 + 28, '바로 물', 't-dim');
+    dp += T(DX1, 1094, '점선 = 나란할 때 (상호작용 없음) · 개념 그림', 't-dim', 'end');
+    de += LB(dp);
+    s += G(de, only('doe'));
+    return s;
+  },
+  body(K){
+    return `<div class="pl-w"><div class="hd">직접 해 보기 — 불량 고르기 (장면의 타일을 눌러도 됩니다)</div>
+      <div class="pl-seg pl-chips" data-g="def">${DEF.map(d => `<button data-v="${d.id}" aria-pressed="false">${d.sn || d.nm}</button>`).join('')}</div>
+      ${K.kpis([['원인 후보', 'k-n', '꼬리표 달린 후보'], ['스트립 몫', 'k-s', '장비 · 액 · 조건'], ['앞 · 뒤 공정 몫', 'k-o', '다른 팀과 함께'], ['처음 보임', 'k-st', '가장 이른 검사']])}
+      <div class="pl-pcard st09-card" data-o="dcard"></div>
+      <p class="hint">${CATS.map(c => `<span class="st09-tag ${c}">${TAG[c]}</span>`).join('')} — 원인 꼬리표. 앞의 셋은 스트립에서 바꿀 수 있는 것, 뒤의 둘은 앞뒤 공정이 정하는 것입니다.</p>
+      ${K.model('타일의 원인 · 처음 보이는 단계 · 맵 무늬는 공개 문헌 수준의 일반 경향입니다. \'먼저 볼 쪽\'은 처음 보인 단계 × 맵 무늬 × 꼬리표로 후보 순서를 정하는 개념 규칙이고 계산은 없습니다. 내 라인의 데이터(공통점 찾기 · 나눠 흘리기)로 확인하세요. 인자 하나를 바꿀 때의 배수는 노트 「한 걸음 더」 표(03 · 04 · 06 · 07 · 08장 모델)에 있습니다.')}</div>`;
+  },
+  mount(K, ctx){
+    const {R, T, TT, G, L, C, LB} = K, wrap = (t, em) => K.wrap(NB(t), em);
+    let picked = false, fpicked = false, fcur = null;
+    ctx.card.classList.add('st09-card2');                         // 단계 설명 높이를 고정해 단계가 바뀌어도 카드 길이가 그대로이게
+    // 오른쪽 상세 패널: 그림 + 지시선 → 이름 · 생김새 → 처음 보이는 단계 → 맵 → 원인 후보 → 확인 → 대책 (넘치면 글자를 줄이고, 그래도 넘치면 대책 · 확인 끝을 카드로 미룬다)
+    function detail(d){
+      let s = R(DX0, 142, DX1 - DX0, 250, 'pl-lane', {rx: 12});
+      const PS = 5, pcx = 1330, pb = 348, X = u => pcx + u * PS, Y = v => pb - v * PS;
+      s += bump(K, d.id, pcx, pb, PS);
+      (NOTE[d.id] || []).forEach(n => {
+        let g = TT(X(n.t[0]), Y(n.t[1]), n.s, 'st09-note', n.a || 'middle', 21);
+        if (n.p) g = L(X(n.p[0]), Y(n.p[1]), X(n.l[0]), Y(n.l[1]), 's-lead') + C(X(n.p[0]), Y(n.p[1]), 3.5, 'k-lead') + g;
+        s += LB(g);
+      });
+      let y = 424;
+      s += T(DX0, y, d.nm, 't-lbl', 'start'); y += 30;
+      wrap(d.def, 24).forEach(l => { s += T(DX0, y, l, 'st09-def', 'start'); y += 24; });
+      y += 8;
+      if (d.st.length){
+        s += T(DX0, y + 4, '처음 보이는 단계', 'st09-h', 'start'); y += 16;
+        STG.forEach((t, j) => { const on = d.st.includes(j), x = DX0 + (j % 3) * 156, yy = y + Math.floor(j / 3) * 34; s += R(x, yy, 148, 28, 'st09-stc' + (on ? ' on' : ''), {rx: 8}) + T(x + 74, yy + 20, t, 'st09-stt' + (on ? ' on' : '')); });
+        y += 92;
+      }
+      wrap('맵 무늬 — ' + d.map, 24).forEach(l => { s += T(DX0, y, l, 'st09-map', 'start'); y += 24; });
+      y += 12;
+      // 아래 블록은 남은 높이에 맞춰 글자 크기를 고른다
+      const room = 1110 - y;
+      const plan = (fs, lh, withFix, kMax) => {
+        const cw = (DX1 - DX0 - 78) / fs, kw = (DX1 - DX0 - 12) / fs;
+        const cl = d.c.map(([tg, tx]) => wrap(tx, cw)), kl = d.k.slice(0, kMax).map(tx => wrap('· ' + tx, kw));
+        const fl = withFix && d.f ? wrap(d.f, kw) : [];
+        const n = cl.flat().length + kl.flat().length + fl.length + d.c.length * 0.25;
+        const h = (d.c.length ? 32 : 0) + 32 + (fl.length ? 32 : 0) + n * lh + 8;
+        return {fs, lh, cl, kl, fl, h};
+      };
+      let best = null;
+      for (const [fix, kMax] of [[true, 9], [false, 9], [false, 4], [false, 3]]){
+        for (const [fs, lh] of [[19, 24], [18, 22.5], [17, 21]]){
+          const p = plan(fs, lh, fix, kMax), cut = (d.f && !fix) || kMax < d.k.length;
+          if (p.h + (cut ? 24 : 0) <= room){ best = p; break; }
+        }
+        if (best) break;
+      }
+      if (!best) best = plan(17, 21, false, 2);
+      const fc = 'st09-tx f' + best.fs;
+      if (d.c.length){
+        s += T(DX0, y + 4, '원인 후보', 'pl-hdg2', 'start'); y += 32;
+        d.c.forEach(([tg], j) => { s += R(DX0, y - best.fs + 1, 70, best.fs + 6, 'st09-tg ' + tg, {rx: 6}) + T(DX0 + 35, y + 1, TD[tg], 'st09-tgt'); best.cl[j].forEach(l => { s += T(DX0 + 78, y, l, fc, 'start'); y += best.lh; }); y += best.lh * 0.25; });
+      }
+      s += T(DX0, y + 4, d.c.length ? '확인' : '무엇으로 재나', 'pl-hdg', 'start'); y += 32;
+      best.kl.forEach((ls, j) => ls.forEach((l, i) => { s += T(DX0 + (i ? 14 : 0), y, l, fc + (j === 0 && d.c.length ? ' st09-com' : ''), 'start'); y += best.lh; }));
+      if (best.fl.length){ y += 6; s += T(DX0, y + 4, '대책 방향', 'pl-hdg3', 'start'); y += 32; best.fl.forEach(l => { s += T(DX0, y, l, fc, 'start'); y += best.lh; }); }
+      else if (d.f || best.kl.length < d.k.length) s += T(DX1, Math.min(1112, y + 4), '… 나머지는 카드의 「직접 해 보기」에', 'st09-more', 'end');
+      return s;
+    }
+    // '먼저 볼 쪽' — 처음 보인 단계 × 맵 무늬 × 꼬리표로 후보 순서를 정하는 개념 규칙
+    function hints(d){
+      const h = [];
+      if (!d.st.length) return ['정상 범프를 같은 자리 · 같은 측정으로 늘 함께 봅니다'];
+      if (d.st.includes(0)) h.push('도금 직후에도 보이면 먼저 도금 · 포토 쪽 [앞 공정]');
+      else if (d.st[0] === 1) h.push('PR 제거 뒤에 처음 보이면 스트립, 또는 PR에 가려 있던 앞 공정 흔적(도금 중 들뜸 등) — 도금 직후 검사와 비교');
+      if (d.st[0] >= 2) h.push('시드 식각 뒤 · 리플로우 뒤에 처음 보이면 [뒤 공정] 후보도 함께 — 스트립 직후 사진 · 단면과 비교');
+      else if (d.st.some(k => k >= 2)) h.push('뒤 공정에서 커지거나 드러나기도 함 — 스트립 직후와 그 공정 뒤를 나눠 봄');
+      if (d.pm.includes(6)) h.push('샷 · 한쪽 무늬면 앞 공정 맵(도금 높이 · PR 두께 · 노광)과 먼저 겹쳐 봄');
+      if (d.pm.includes(5)) h.push('가장자리 고리면 EBR 경계 · 노치[앞 공정]와 가장자리 액[장비]을 함께');
+      if (d.pm.some(k => k <= 2)) h.push('위아래 · 슬롯 · 카세트 무늬면 배치 탱크 · 카세트 · 흐름[장비]');
+      if (d.pm.some(k => k === 3 || k === 4)) h.push('고리 · 호 무늬면 매엽 분사 · 노즐 · 온도[장비 · 조건]');
+      if (d.pm.includes(7)) h.push('무작위 점이면 조각 · 필터 · 입자');
+      if (!d.pm.length) h.push('웨이퍼 전체에 고르면 액 · 헹굼 · 건조처럼 모든 장이 함께 겪은 것 — 액 사용 일수와 겹쳐 봄');
+      return h;
+    }
+    function show(id, user){
+      const d = BY[id]; if (!d) return;
+      if (user) picked = true;
+      ctx.$$('.pl-def').forEach(g => g.classList.toggle('pl-sel', g.getAttribute('data-def') === id));
+      ctx.card.querySelectorAll('[data-g="def"] button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === id ? 'true' : 'false'));
+      ctx.$('[data-v="detail"]').innerHTML = detail(d);
+      // 맵 단계: 맞는 맵 무늬 · 처음 보이는 단계 칸 강조 + 고른 불량 한 줄
+      ctx.$('[data-v="msel"]').innerHTML = d.pm.map(i => R(MC[i][0] - 122, MC[i][1] - 104, 244, 284, 'pl-hlbox', {rx: 14})).join('');
+      ctx.$$('.st09-wm').forEach(g => g.classList.toggle('dim', d.pm.length > 0 && !d.pm.includes(+g.getAttribute('data-m'))));
+      ctx.$('[data-v="bsel"]').innerHTML = d.st.map(j => R(BX(j), BY0, BW, BH, 'pl-hlbox', {rx: 10})).join('');
+      const head = `고른 불량: ${d.nm}` + (d.st.length ? ` — 처음 보임: ${d.st.map(k => STG[k]).join(' · ')} (아래 띠)` : ' — 비교 기준');
+      ctx.$('[data-v="mline"]').innerHTML = T(40, 780, head, 't-acc', 'start') + TT(40, 810, wrap('맵 무늬 — ' + d.map + (d.pm.length ? ' (위에서 테두리 친 무늬)' : ''), 53).slice(0, 2), 't-dim', 'start', 24);
+      // 카드: 전체 내용
+      const cs = d.c.map(x => x[0]), ns = cs.filter(c => c === 'eq' || c === 'bath' || c === 'cond').length;
+      ctx.out('k-n', d.c.length ? `${d.c.length}개` : '—');
+      ctx.out('k-s', d.c.length ? `${ns}개` : '—');
+      ctx.out('k-o', d.c.length ? `${d.c.length - ns}개` : '—');
+      ctx.out('k-st', d.st.length ? STG[d.st[0]] : '비교 기준');
+      // 카드의 불량 설명: 12개를 한 칸에 겹쳐 두고 고른 것만 보인다 — 카드 높이가 가장 긴 것에 맞춰 고정돼, 고를 때 · 단계가 바뀔 때 카드가 출렁이지 않는다
+      dcard.querySelectorAll('.st09-dc').forEach(e => e.classList.toggle('on', e.getAttribute('data-d') === id));
+      ctx.refresh();
+    }
+    function dcardHTML(d){
+      const st = d.st.length ? `<div class="st09-row"><b>처음 보이는 단계</b> ${STG.map((t, j) => `<span class="st09-st${d.st.includes(j) ? ' on' : ''}">${t}</span>`).join('')}</div>` : '';
+      return `<b>${d.nm}</b> — ${d.def}.` + st + `<div class="st09-row"><b>맵 무늬</b> ${d.map}</div>`
+        + `<div class="st09-row"><b>먼저 볼 쪽</b> ${hints(d).map(t => `<span class="st09-hint">${t}</span>`).join('')}</div>`
+        + (d.c.length ? `<div class="st09-row"><b>원인 후보</b>${d.c.map(([tg, tx]) => `<div class="st09-li"><span class="st09-tag ${tg}">${TAG[tg]}</span>${tx}</div>`).join('')}</div>` : '')
+        + `<div class="st09-row"><b>${d.c.length ? '확인' : '무엇으로 재나'}</b><ol>${d.k.map(t => `<li>${t}</li>`).join('')}</ol></div>`
+        + (d.f ? `<div class="st09-row"><b>대책 방향</b> ${d.f}</div>` : '');
+    }
+    const dcard = ctx.q('[data-o=dcard]');
+    dcard.innerHTML = DEF.map(d => `<div class="st09-dc" data-d="${d.id}">${dcardHTML(d)}</div>`).join('');
+    // 인자 지도: 인자 하나 → 결과들, 결과 하나 ← 인자들
+    const badge = (o, l) => { const y = oTop(OUTS.findIndex(x => x[0] === o)) + OH / 2, t = tone(l); return C(OX - 22, y, 15, 'st09-bd ' + t) + T(OX - 22, y + 7, DIRS[l[1]], 'st09-bdt'); };
+    function fpanel(f){
+      let s = T(DX0, 176, f.nm, 't-lbl', 'start'), y = 216;
+      f.tg.forEach((tg, j) => { s += R(DX0 + j * 128, y - 20, 120, 28, 'st09-tg ' + tg, {rx: 6}) + T(DX0 + j * 128 + 60, y, TAG[tg], 'st09-tgt'); });
+      y += 48;
+      s += T(DX0, y, '이어진 결과 — 인자를 올리면', 'pl-hdg', 'start'); y += 34;
+      f.l.forEach(l => {
+        const o = OUTS.find(x => x[0] === l[0]), t = tone(l);
+        s += T(DX0, y, `${DIRS[l[1]]} ${o[1]}`, 'st09-fl ' + t, 'start') + T(DX1, y, CONF[l[2]], 'st09-cf', 'end'); y += 25;
+        wrap(l[3], 23.5).forEach(ln => { s += T(DX0 + 22, y, ln, 't-dim', 'start'); y += 24; });
+        y += 10;
+      });
+      y += 10;
+      s += T(DX0, y, '누구와 상의', 'pl-hdg3', 'start'); y += 30;
+      wrap(f.who, 23.5).forEach(ln => { s += T(DX0, y, ln, 'st09-ft', 'start'); y += 25; });
+      y += 12;
+      s += T(DX0, y, '자세히 — ' + f.ch, 'st09-ft', 'start'); y += 44;
+      if (f.ex){ s += T(DX0, y, '크기 예 — 개념 모델 · 예시', 'pl-hdg', 'start'); y += 30; wrap(f.ex, 23.5).forEach(ln => { s += T(DX0, y, ln, 'st09-ex', 'start'); y += 25; }); }
+      s += tiles([...new Set(f.l.flatMap(l => ODEF[l[0]] || []))], '관련 불량 타일 (1단계)', y);
+      s += TT(DX0, 1062, ['다른 배수 · 기준 조건은', '노트 「한 걸음 더」 표에'], 't-dim', 'start', 24);
+      return s;
+    }
+    // 인자 · 결과 패널 아래: 이어지는 불량 타일 이름 (남은 자리에 들어갈 때만)
+    function tiles(ids, head, y){
+      if (!ids.length) return '';
+      const ls = wrap(ids.map(k => BY[k].sn.replace(/ /g, '\u00a0')).join(' · '), 23.5);   // 타일 이름은 한 덩어리로
+      if (y + 14 + 30 + ls.length * 25 > 1036) return '';
+      y += 14;
+      return T(DX0, y, head, 'pl-hdg3', 'start') + ls.map((ln, i) => T(DX0, y + 30 + i * 25, ln, 'st09-ft', 'start')).join('');
+    }
+    function opanel(id){
+      const o = OUTS.find(x => x[0] === id), from = FAC.filter(f => f.l.some(l => l[0] === id));
+      let s = T(DX0, 176, o[1], 't-lbl', 'start'), y = 214;
+      const nS = from.filter(f => f.tg.some(t => t === 'eq' || t === 'bath' || t === 'cond')).length;
+      s += T(DX0, y, `이어지는 인자 ${from.length}개 — 스트립 ${nS} · 앞뒤 공정 ${from.length - nS}`, 'st09-ft', 'start'); y += 44;
+      from.forEach(f => {
+        const l = f.l.find(x => x[0] === id), t = tone(l);
+        s += T(DX0, y, `${f.nm}  →  ${DIRS[l[1]]}`, 'st09-fl ' + t, 'start') + T(DX1, y, CONF[l[2]], 'st09-cf', 'end'); y += 25;
+        wrap(`[${f.tg.map(x => TD[x]).join(' · ')}] ${l[3]}`, 23.5).forEach(ln => { s += T(DX0 + 22, y, ln, 't-dim', 'start'); y += 24; });
+        y += 8;
+      });
+      s += tiles(ODEF[id] || [], '이 결과가 보이는 불량 타일', y + 4);
+      s += TT(DX0, 1062, ['결과에서 거꾸로 — 꼬리표로 나누면', '누구와 상의할지 바로 보입니다'], 't-dim', 'start', 24);
+      return s;
+    }
+    function selFac(id, user){
+      if (user) fpicked = true;
+      const f = FBY[id]; if (!f) return;
+      fcur = ['f', id];
+      ctx.$$('.st09-fac').forEach(g => { g.classList.toggle('pl-sel', g.getAttribute('data-f') === id); g.classList.remove('dim'); });
+      ctx.$$('.st09-out').forEach(g => { g.classList.remove('pl-sel'); g.classList.toggle('dim', !f.l.some(l => l[0] === g.getAttribute('data-o9'))); });
+      ctx.$$('.st09-e').forEach(e => { const on = e.getAttribute('data-f') === id; e.classList.toggle('on', on); ['pl-eg', 'pl-eb', 'pl-ec'].forEach(c => e.classList.toggle(c, on && EC[e.getAttribute('data-t')] === c)); });
+      ctx.$$('[data-ob]').forEach(g => { const l = f.l.find(x => x[0] === g.getAttribute('data-ob')); g.innerHTML = l ? badge(l[0], l) : ''; });
+      ctx.$('[data-v="fpanel"]').innerHTML = fpanel(f);
+      ctx.refresh();
+    }
+    function selOut(id){
+      fpicked = true;
+      fcur = ['o', id];
+      const from = FAC.filter(f => f.l.some(l => l[0] === id));
+      ctx.$$('.st09-out').forEach(g => { g.classList.toggle('pl-sel', g.getAttribute('data-o9') === id); g.classList.toggle('dim', g.getAttribute('data-o9') !== id); });
+      ctx.$$('.st09-fac').forEach(g => { g.classList.remove('pl-sel'); g.classList.toggle('dim', !from.some(f => f.id === g.getAttribute('data-f'))); });
+      ctx.$$('.st09-e').forEach(e => { const on = e.getAttribute('data-o9') === id; e.classList.toggle('on', on); ['pl-eg', 'pl-eb', 'pl-ec'].forEach(c => e.classList.toggle(c, on && EC[e.getAttribute('data-t')] === c)); });
+      ctx.$$('[data-ob]').forEach(g => { g.innerHTML = ''; });
+      ctx.$('[data-v="fpanel"]').innerHTML = opanel(id);
+      ctx.refresh();
+    }
+    ctx.card.querySelector('[data-g="def"]').addEventListener('click', ev => {
+      const b = ev.target.closest('button'); if (!b) return;
+      show(b.dataset.v, true);
+      const sid = ctx.step(); if (sid && sid !== 'tiles' && sid !== 'map') ctx.go('tiles');
+    });
+    ctx.scene.addEventListener('click', ev => {
+      const t = ev.target.closest && ev.target;
+      if (!t) return;
+      const gd = t.closest('.pl-def'), gf = t.closest('.st09-fac'), go = t.closest('.st09-out');
+      if (gd) show(gd.getAttribute('data-def'), true);
+      else if (gf) selFac(gf.getAttribute('data-f'), true);
+      else if (go) selOut(go.getAttribute('data-o9'));
+    });
+    // 손대기 전에는 단계마다 예시 (타일: 틈 잔여, 맵: Sn 표면, 인자: 온도)
+    ctx.demo = sid => {
+      if (DEMO[sid] && !picked) show(DEMO[sid]);
+      if (sid === 'factor' && !fpicked && !(fcur && fcur[1] === 'temp')) selFac('temp');
+    };
+    show('gapres'); selFac('temp');
+  },
+  onStep(K, ctx, sid){ if (ctx.demo) ctx.demo(sid); },
+  notes(K){
+    return K.terms([
+      ['처음 보이는 단계', '불량이 처음 검출된 검사 시점 (도금 직후 · PR 제거 뒤 · 시드 식각 뒤 · 리플로우 뒤 · 적층 뒤 · 고온 시험 뒤). 원인 공정을 가장 빨리 좁힌다'],
+      ['맵 무늬', '불량이 웨이퍼 어디에 있나 — 위아래 · 슬롯 반복 · 고리 · 가장자리 고리 · 호 · 한쪽 · 샷 반복 · 무작위'],
+      ['슬롯', '카세트에서 웨이퍼가 꽂히는 자리 번호. 배치 장비에서는 슬롯마다 흐름 · 온도 · 마르는 순서가 조금씩 다르다'],
+      ['공통점 찾기', '불량 웨이퍼끼리 무엇을 함께 겪었나 — 장비 · 탱크 · 챔버 · 액 사용 일수 · 슬롯 · PR lot · 도금 장비'],
+      ['원인 꼬리표', '스트립-장비 · 스트립-액 · 스트립-조건(이 공정이 바꿀 수 있는 것)과 앞 공정 · 뒤 공정(다른 팀이 정하는 것)'],
+      ['나눠 흘리기 (split lot · DOE)', '같은 lot을 나눠 조건 몇 개만 바꿔 원인과 효과를 확인하는 작은 실험'],
+      ['블랭킷 시편', '무늬 없이 금속(Cu · Sn)만 입힌 시험 웨이퍼 조각. 제품과 함께 흘려 금속 손실을 면저항 · XRF로 잰다']
+    ]) + K.field([
+      '첫 질문 두 개: <b>어디서 처음 보였나</b>, <b>어디에 있나</b>. 같은 \'범프 없음\'도 도금 직후 검사에 이미 있었으면 도금 · 포토 문제, PR 제거 뒤에 처음이면 탈락입니다 → <a href="#go-plating-12">전해도금 12장</a>.',
+      '맵 읽기: 배치 장비는 <b>위아래 차이</b> → 탱크 흐름 방향 · 가라앉는 조각 · 옮길 때 마름, <b>슬롯 반복</b> → 카세트 · 로봇 · 탱크 자리. 매엽은 <b>동심 고리</b> → 분사 · 온도, <b>호 · 줄</b> → 노즐 스윙. <b>가장자리 고리</b> → EBR 경계 · 노치(앞 공정)와 매엽 가장자리 액 (<a data-go="tool.batch">05장</a>).',
+      '계면 홈 · 밑동 파임은 <b>크기부터</b> 봅니다. nm~수십 nm면 스트립 · 헹굼(<a data-go="metal.galv">07장</a>), µm면 시드 식각의 갈바닉 · 언더컷(<a href="#go-etch-05">시드 식각 05장</a> · <a href="#go-etch-04">04장</a>)을 먼저 의심하고, 시드 식각 전 단면과 비교합니다.',
+      '확인 방법의 첫 줄은 늘 <b>공통점 찾기</b>입니다(8D의 근본 원인 분석). 원인을 [스트립-장비] · [스트립-액] · [스트립-조건] · [앞 공정] · [뒤 공정]으로 나누면 누구와 상의할지 바로 보입니다 (<a href="#go-edu-5">05 제조기술의 기초 — 8D</a>). 판정이 끝나면 증상 → 확인 → 원인 → 대책을 <a href="#go-map">업무 알고리즘 맵</a>으로 남겨 둡니다.',
+      '잔여 · 손실 판정은 <b>측정 자리 정의</b>(가장 좁은 틈 · 고립 범프 · EBR 경계 · 노치)와 <b>측정 전 대기 시간</b>이 같아야 비교됩니다. 블랭킷 시편은 제품과 같은 탱크 · 슬롯 · 헹굼으로 흘립니다 (<a data-go="residue.find">08장</a>).'
+    ]) + K.deep(`<p><b>무엇으로 재나</b></p>
+      <table class="pl-tb st09-tb"><tr><th>보는 것</th><th>측정</th><th>주의</th></tr>
+      <tr><td>조각 · 점 · 큰 잔여</td><td>외관 검사 (AOI)</td><td>µm 이상, 얇은 막은 못 봄</td></tr>
+      <tr><td>잔여 PR 빠른 훑기</td><td>형광 외관 검사</td><td>얇은 막 · 형광이 없는 유기물은 못 봄, PR에 따라</td></tr>
+      <tr><td>틈 바닥 · 밑동 · 가장자리 잔여</td><td>SEM (기울여 보기) · 단면</td><td>측정 자리 정의가 중요</td></tr>
+      <tr><td>얇은 유기막</td><td>물 접촉각 · XPS · ToF-SIMS</td><td>대기 시간 · 오염에 민감</td></tr>
+      <tr><td>금속 손실</td><td>블랭킷 시편 면저항 · XRF · 단면 SEM</td><td>제품과 같은 탱크 · 슬롯에서</td></tr>
+      <tr><td>범프 높이 · 지름 · 동일 평면성</td><td>3D 측정</td><td>PR이 걷힌 뒤 처음 바로 잼 — 높이 이상은 보통 도금 쪽</td></tr>
+      <tr><td>솔더 표면 산화</td><td>XPS · 오제 · 리플로우 시험</td><td>리플로우 교차 실험이 빠름</td></tr>
+      <tr><td>액 상태</td><td>칼 피셔(물) · 적정(알칼리) · 흡광(녹은 PR) · ICP(금속)</td><td>검량선은 액마다</td></tr>
+      <tr><td>조각 부담</td><td>필터 차압 · 입자 계수</td><td>교체 이력과 함께</td></tr>
+      <tr><td>단락</td><td>시드 식각 뒤 누설 시험</td><td>잔여 위치 맵과 겹쳐 보기</td></tr></table>
+      <p><b>인자 하나 바꾸면 — 03 · 04 · 06 · 07 · 08장 모델로 계산 (개념 모델 · 예시)</b><br>기준: 70 °C · PR 60 µm(전해도금 탭 예시 — 이 탭 그림은 35 µm) · 틈 30 µm · 순환 · 물 3 % · 억제제 · 중간 용제 헹굼 · 액 나이 0 · 가교 PR은 중간 방식</p>
+      <table class="pl-tb st09-tb"><tr><th>바꾼 것 · 꼬리표</th><th>결과 (개념 모델 · 예시)</th><th>경향 · 근거 장</th></tr>
+      <tr><td>온도 +10 °C <span class="st09-tt">조건</span></td><td>스트립 시간 ×0.78(녹는 PR · 순환) / ×0.66(가교) · 금속 손실 속도 ×1.81(부식 Ea 60 가정) → 시간을 줄여도 한 번 손실 ×1.4 / ×1.2 (부식 Ea가 20이면 ×0.95 / ×0.81), 시간을 그대로 두면 ×1.8 · 인화점까지 여유 −10 °C · 증발 · 분해 ↑</td><td>방향은 법칙, 크기는 가정 · 03 · 07 · 04장</td></tr>
+      <tr><td>시간 +30 % <span class="st09-tt">조건</span></td><td>틈 바닥 여유 +30 %p · 스트립 중 금속 손실 ×1.3 · 배치 처리량 ×0.86</td><td>법칙 · 08 · 07 · 05장</td></tr>
+      <tr><td>교반: 순환 → 분사 · 메가소닉 <span class="st09-tt">장비</span></td><td>녹는 PR 시간 ×0.69(17.5 → 12분) · 틈 바닥 배수 1.75 → 1.5 · 가는 구조 손상 위험 ↑</td><td>보통 · 03 · 08장</td></tr>
+      <tr><td>순환 → 고압 분사 (가교 PR) <span class="st09-tt">장비 · 조건</span></td><td>시간 ×0.63(14.6 → 9.2분) · 두께 2배 배수 ×2.3 → ×1.9 · 범프 기울어짐 위험 ↑</td><td>조건에 따라 · 03 · 05장</td></tr>
+      <tr><td>액 나이 +50 g/L <span class="st09-tt">액</span></td><td>클리어 시간 ×1.5 · 얇은 막 · 재석출 ↑</td><td>보통 · 06장</td></tr>
+      <tr><td>물 3 → 8 % <span class="st09-tt">액</span></td><td>아민계 가교 공격 ×1.19 · TMAH계 가교 공격 ×0.69 · 금속 손실 속도 ×1.29 · 석출 ↑</td><td>보통 (TMAH계 방향은 염기 세기 측정에서) · 04 · 07장</td></tr>
+      <tr><td>헹굼: 중간 용제 → 바로 물 (아민계) <span class="st09-tt">조건</span></td><td>헹굼 순간 손실 ×5 · 재석출 ↑ · 갈바닉 범위 ↑ — 물로 바로 헹구게 만든 약품에서는 작음</td><td>조건에 따라 · 07 · 08장</td></tr>
+      <tr><td>박리형 → 용해형 약품 <span class="st09-tt">액</span></td><td>가교 PR 조각 → 녹음(네거티브 60 µm 약 40분 · 35 µm 약 23분) · 필터 부담 ↓ · 녹은 PR ↑(액 수명 ↓) · 금속 손실은 약품마다</td><td>조건에 따라 · 02 · 06장</td></tr>
+      <tr><td>PR 두께 35 → 60 µm <span class="st09-tt">앞</span></td><td>녹는 PR 시간 ×1.7 · 가교 PR 스며드는 시간 ×1.7~2.9(중간 방식 ×2.1) · 깊이/폭 1.2 → 2.0 · 웨이퍼당 PR 2.2 → 3.8 g(같은 장수면 액 수명 ×0.58)</td><td>법칙 · 보통 · 01 · 03 · 06장</td></tr>
+      <tr><td>가교 ↑ (과한 굽기) <span class="st09-tt">앞</span></td><td>녹음 → 들떠 조각(박리형) / 느리게 녹음(용해형) · 얇은 막이면 붙어 남음</td><td>보통 · 02장</td></tr>
+      <tr><td>피치 55 → 40 µm (지름 25 → 22) <span class="st09-tt">앞 · 설계</span></td><td>틈 30 → 18 µm · 실질 깊이/폭 1.5 → 2.8 · 틈 바닥 배수 1.75 → 2.4 · 필요한 여유 75 → 140 % (그림 기준 PR 35 µm면 33 → 72 %)</td><td>가정 계수 · 08장</td></tr></table>
+      <ul><li><b>처음 보이는 단계 표</b> — 도금 직후: 범프 누락 · 높이 이상(비교 기준) / PR 제거 뒤: 틈 · 밑동 · 가장자리 잔여, 조각, 물자국, 기울어짐 · 떨어짐 / 시드 식각 뒤: 얇은 막 · 단락 · 언더컷 커짐(Cu 손실 — <a href="#go-etch-09">시드 식각 09장</a>) / 리플로우 뒤: 젖음 불량 · 비용융(Sn 표면 · 얇은 막 · 산화 — <a href="#go-reflow-09">리플로우 09장</a>) / 적층 뒤: 접합 불량 / 고온 시험 뒤: 계면 문제. 뒤 단계에서 처음 보였어도 원인이 스트립일 수 있으므로, 스트립 직후 사진 · 단면을 남겨 두면 가를 수 있습니다.</li>
+      <li><b>배치 맵의 물리</b> — 담그고 빼는 몇 초 차이는 수십 분 스트립에 비해 작아 위아래 차이를 설명하지 못합니다. 위아래 차이는 주로 ① 탱크 흐름 방향(아래 입구 쪽이 새 액 · 따뜻한 액) ② 가라앉는 조각이 아래쪽에 다시 붙음 ③ 헹굼으로 옮길 때 위쪽이 먼저 마름(물자국 · 굳은 잔여)에서 옵니다. 카세트 빗살 · 닿는 자리는 흐름 그늘을 만듭니다.</li>
+      <li><b>매엽 맵의 물리</b> — 가운데에 뿌린 액이 바깥으로 흐르며 식고 녹은 PR이 늘어 고리 무늬가 생기기 쉽습니다. 노즐이 스윙하면 호 · 나선 줄무늬가 생깁니다. 가장자리는 PR이 가장 두껍고(EBR 경계 턱) 액이 가장 지친 자리라 고리로 남기 쉽습니다.</li>
+      <li><b>공통점 찾기 요령</b> — 불량 웨이퍼와 정상 웨이퍼를 장비 · 탱크 · 슬롯 · 액 사용 일수 · PR lot · 도금 장비별로 나눠 비율을 비교합니다(분할표). 한 칸에 몰리면 의심하되, 칸이 많으면 우연히 몰리는 칸도 생기므로 다음 lot에서 다시 확인합니다. 액 교체 직후 vs 직전처럼 시간 순서로도 그려 봅니다.</li>
+      <li><b>나눠 흘리기 설계 예</b> — 2 × 2(시간 기본 · +30 % × 헹굼 중간 용제 → 물 · 바로 물), 칸마다 웨이퍼 6장 + 블랭킷 Cu · Sn 시편. 읽을 것: 틈 바닥 SEM(시간 효과), 시편 손실(헹굼 효과), 접촉각(재석출), 시드 식각 뒤 누설(최종). 칸마다 6장(모두 24장)이면 주효과(예: 아래 줄 평균 − 위 줄 평균)의 표준오차는 2σ/√24 ≈ 0.41σ(σ: 웨이퍼 사이 산포)입니다. 같은 24장으로 한 번에 하나씩(6장 대 6장을 두 번) 하면 0.58σ에 상호작용도 못 봅니다. 배치에서는 슬롯 위치를 칸마다 섞어 슬롯 효과와 조건 효과가 겹치지 않게 하고, 헹굼 순서 실험은 약품 공급사 검증 범위 안에서 합니다.</li>
+      <li><b>대기 시간(Q-time)</b> — 스트립 → 시드 식각, 스트립 → 리플로우 사이 시간이 길면 시드 Cu 산화 · 솔더 산화 · 유기물 흡착이 늘어 뒤 공정 결과가 바뀝니다 (<a href="#go-reflow-03">리플로우 03장</a>). 불량 lot의 대기 시간을 공통점 찾기에 넣습니다.</li></ul>`);
+  },
+  css: `.pl-svg .st09-tg.off{fill:none;stroke:rgba(148,163,184,.28);stroke-width:1.2}
+.pl-svg .st09-tg.eq{fill:rgba(248,113,113,.34)}
+.pl-svg .st09-tg.bath{fill:rgba(56,189,248,.34)}
+.pl-svg .st09-tg.cond{fill:rgba(45,212,191,.32)}
+.pl-svg .st09-tg.up{fill:rgba(167,139,250,.38)}
+.pl-svg .st09-tg.dn{fill:rgba(245,158,11,.34)}
+.pl-svg .st09-tgt{font-size:17px;font-weight:800;fill:#f1f5f9 !important;text-anchor:middle;stroke:none !important}
+.pl-svg .st09-tgt.off{fill:#475569 !important}
+.pl-svg .st09-ms{fill:none;stroke:rgba(148,163,184,.32);stroke-width:1.2}
+.pl-svg .st09-ms.on{fill:rgba(245,158,11,.85);stroke:#fbbf24}
+.pl-svg .st09-lgt{font-size:19px;font-weight:800;fill:#cbd5e1 !important}
+.pl-svg .st09-lg{font-size:19px;fill:#cbd5e1 !important}
+.pl-svg .st09-film{fill:rgba(216,180,254,.9)}
+.pl-svg .st09-stain{fill:#3b3326;stroke:#1c1917;stroke-width:.6;opacity:.9}
+.pl-svg .st09-mark{fill:rgba(226,232,240,.07);stroke:#e2e8f0;stroke-width:1.6;opacity:.85}
+.pl-svg .st09-short{fill:#ef4444;stroke:#fca5a5;stroke-width:1}
+.pl-svg .st09-grv{fill:#070d18;stroke:#f87171;stroke-width:1.4}
+.pl-svg .st09-was{fill:none;stroke:#f3b07a;stroke-width:1.2;stroke-dasharray:4 4;opacity:.85}
+.pl-svg .st09-hot{fill:none;stroke:#f87171;stroke-width:1.8;stroke-dasharray:3 3}
+.pl-svg .st09-def{font-size:19px;fill:#e2e8f0 !important}
+.pl-svg .st09-map{font-size:19px;fill:#c4b5fd !important}
+.pl-svg .st09-h{font-size:19px;font-weight:800;fill:#fcd34d !important}
+.pl-svg .st09-stc{fill:none;stroke:rgba(148,163,184,.3);stroke-width:1.2}
+.pl-svg .st09-stc.on{fill:rgba(245,158,11,.85);stroke:#fbbf24}
+.pl-svg .st09-stt{font-size:18px;font-weight:700;fill:#64748b !important;text-anchor:middle;stroke:none !important}
+.pl-svg .st09-stt.on{fill:#1b1203 !important;font-weight:900}
+.pl-svg .st09-tx{fill:#cbd5e1 !important}
+.pl-svg .st09-tx.f19{font-size:19px}.pl-svg .st09-tx.f18{font-size:18px}.pl-svg .st09-tx.f17{font-size:17px}
+.pl-svg .st09-com{fill:#fde68a !important;font-weight:700}
+.pl-svg .st09-more{font-size:17px;fill:#94a3b8 !important}
+.jz.pl.pres .pl-svg .st09-more{display:none}
+.pl-svg .st09-note{font-size:18px;font-weight:700;fill:#fde68a !important}
+.pl-svg .st09-wf{fill:#25324b}
+.pl-svg .st09-wf0{fill:#25324b}
+.pl-svg .st09-wfo{fill:none;stroke:#94a3b8;stroke-width:1.6}
+.pl-svg .st09-notch{fill:#0b1222;stroke:#94a3b8;stroke-width:1}
+.pl-svg .st09-d1{fill:rgba(239,68,68,.22)}
+.pl-svg .st09-d2{fill:rgba(239,68,68,.4)}
+.pl-svg .st09-d3{fill:rgba(239,68,68,.62)}
+.pl-svg .st09-dm{fill:rgba(248,113,113,.85)}
+.pl-svg .st09-mk{fill:rgba(226,232,240,.1);stroke:#e2e8f0;stroke-width:1.6}
+.pl-svg .st09-cas{fill:rgba(10,20,38,.9);stroke:#94a3b8;stroke-width:2}
+.pl-svg .st09-rail{fill:#334155}
+.pl-svg .st09-slot{fill:#56667f}
+.pl-svg .st09-slotx{fill:#ef4444}
+.pl-svg .st09-arc{fill:none;stroke:rgba(239,68,68,.6);stroke-width:8}
+.pl-svg .st09-ring{fill:none;stroke:rgba(239,68,68,.62);stroke-width:13}
+.pl-svg .st09-shot{fill:none;stroke:rgba(148,163,184,.3);stroke-width:1}
+.pl-svg .st09-wm{transition:opacity .3s}
+.pl-svg g.st09-wm.dim{opacity:.45}
+.pl-svg .st09-bt{font-size:21px;font-weight:800;fill:#e2e8f0 !important}
+.pl-svg .st09-rk{font-size:20px;font-weight:800;fill:#fcd34d !important}
+.pl-svg .st09-wn{font-size:19px;font-weight:700;fill:#fbbf24 !important}
+.pl-svg .st09-ft{font-size:19px;fill:#e2e8f0 !important}
+.pl-svg .st09-gl{font-size:21px;font-weight:800}
+.pl-svg .st09-gl.up{fill:#c4b5fd !important}.pl-svg .st09-gl.dn{fill:#fcd34d !important}
+.pl-svg .st09-gl.a{font-size:28px;fill:#7dd3fc !important}.pl-svg .st09-gl.b{font-size:28px;fill:#5eead4 !important}.pl-svg .st09-gl.c{font-size:28px;fill:#fbbf24 !important}.pl-svg .st09-gl.d{font-size:28px;fill:#c4b5fd !important}
+.pl-svg .pl-edge.st09-e:not(.on){stroke:rgba(148,163,184,.28)}
+.pl-svg .pl-edge.st09-T{stroke-dasharray:14 9}
+.pl-svg .pl-edge.st09-D{stroke-dasharray:3 7}
+.pl-svg .st09-ls{fill:none;stroke:#e2e8f0;stroke-width:4}
+.pl-svg .st09-ls.st09-T{stroke-dasharray:14 9}.pl-svg .st09-ls.st09-D{stroke-dasharray:3 7}
+.pl-svg .st09-bd.g{fill:#14532d;stroke:#4ade80;stroke-width:2}
+.pl-svg .st09-bd.b{fill:#450a0a;stroke:#f87171;stroke-width:2}
+.pl-svg .st09-bd.c{fill:#2e1065;stroke:#a78bfa;stroke-width:2}
+.pl-svg .st09-bdt{font-size:20px;font-weight:900;fill:#f1f5f9 !important;text-anchor:middle;stroke:none !important}
+.pl-svg .st09-fl{font-size:20px;font-weight:800}
+.pl-svg .st09-fl.g{fill:#86efac !important}.pl-svg .st09-fl.b{fill:#fca5a5 !important}.pl-svg .st09-fl.c{fill:#c4b5fd !important}
+.pl-svg .st09-cf{font-size:18px;fill:#94a3b8 !important}
+.pl-svg .st09-ex{font-size:19px;font-weight:700;fill:#fde68a !important}
+.pl-svg .st09-out{cursor:pointer}
+.pl-svg .st09-out.pl-sel .pl-outb{stroke:#f59e0b;stroke-width:3;fill:rgba(40,30,10,.7)}
+.pl-svg .st09-ga{fill:rgba(56,189,248,.75);stroke:#7dd3fc;stroke-width:1.2}
+.pl-svg .st09-gb{fill:rgba(45,212,191,.7);stroke:#5eead4;stroke-width:1.2}
+.pl-svg .st09-gc{fill:rgba(245,158,11,.75);stroke:#fbbf24;stroke-width:1.2}
+.pl-svg .st09-gd{fill:rgba(167,139,250,.75);stroke:#c4b5fd;stroke-width:1.2}
+.pl-svg .st09-gx{fill:rgba(100,116,139,.45);stroke:#94a3b8;stroke-width:1.2;stroke-dasharray:4 3}
+.pl-svg .st09-glt{font-size:19px;font-weight:900;fill:#0b1222 !important;text-anchor:middle;stroke:none !important}
+.pl-svg .st09-gl.st09-pk{font-size:22px}
+.pl-svg .st09-fx{font-size:21px;font-weight:800;fill:#fde68a !important}
+.pl-svg .st09-l1{fill:none;stroke:#7dd3fc;stroke-width:3.4}
+.pl-svg .st09-l2{fill:none;stroke:#fbbf24;stroke-width:3.4}
+.pl-svg .st09-l0{fill:none;stroke:#fbbf24;stroke-width:2.4;stroke-dasharray:7 6;opacity:.7}
+.pl-svg .st09-g0{fill:#0b1222;stroke:#fbbf24;stroke-width:2}
+.pl-svg .st09-iab{fill:none;stroke:#fde68a;stroke-width:2;stroke-dasharray:3 4}
+.pl-svg .st09-ia{font-size:19px;font-weight:800;fill:#fde68a !important}
+.jc .st09-tag{display:inline-block;font-size:11px;font-weight:800;border-radius:6px;padding:0 6px;margin-right:4px;vertical-align:1px}
+.jc .st09-tag.eq{background:rgba(248,113,113,.2);color:#fca5a5}
+.jc .st09-tag.bath{background:rgba(56,189,248,.2);color:#7dd3fc}
+.jc .st09-tag.cond{background:rgba(45,212,191,.2);color:#5eead4}
+.jc .st09-tag.up{background:rgba(167,139,250,.22);color:#c4b5fd}
+.jc .st09-tag.dn{background:rgba(245,158,11,.2);color:#fcd34d}
+.jc.st09-card2 .steps li.open em{min-height:72px}
+.jc .st09-card{display:grid}
+.jc .st09-card>.st09-dc{grid-area:1/1;visibility:hidden}
+.jc .st09-card>.st09-dc.on{visibility:visible}
+.jc .st09-card .st09-row{margin-top:5px}
+.jc .st09-card .st09-li{margin:2px 0 2px 2px}
+.jc .st09-card ol{margin:2px 0 0;padding-left:18px}
+.jc .st09-card ol li:first-child{color:#fde68a}
+.jc .st09-hint{display:block;margin:1px 0 1px 2px;color:#bae6fd}
+.jc .st09-hint::before{content:'→ ';color:#7dd3fc}
+.jc .st09-st{display:inline-block;font-size:11px;border:1px solid rgba(148,163,184,.3);border-radius:6px;padding:0 5px;margin:1px 2px;color:#64748b}
+.jc .st09-st.on{background:rgba(245,158,11,.85);border-color:#fbbf24;color:#1b1203;font-weight:800}
+.jc table.st09-tb th,.jc table.st09-tb td{word-break:keep-all}
+.jc .st09-tt{display:inline-block;font-size:10.5px;border:1px solid rgba(148,163,184,.4);border-radius:5px;padding:0 4px;color:#cbd5e1;white-space:nowrap}`
+});
+function q2(v){ return Math.round(v * 100) / 100; }
+})();

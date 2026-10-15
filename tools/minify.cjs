@@ -7,7 +7,7 @@
  * 안전장치
  *  - JS 는 TypeScript 파서로 토큰을 나눠 다시 잇는다. 문자열 · 템플릿 · 정규식은 그대로, 줄바꿈도 그대로(자동 세미콜론 규칙 보존).
  *  - 줄인 코드를 다시 파싱해 "주석 없이 다시 찍은 원본"과 글자 하나까지 같은지 확인한다. 다르면 그 블록은 줄이지 않는다.
- *  - type 이 있는 <script>(JSON 데이터)는 건드리지 않는다. 탭 스크립트(<script data-part="탭">)는 줄인 뒤 빌드가 압축한다.
+ *  - type 이 있는 <script>(JSON 데이터)는 건드리지 않는다. 묶음(<script data-part> · <style data-part>)은 줄인 뒤 빌드가 압축한다.
  */
 'use strict';
 const fs = require('fs');
@@ -98,7 +98,7 @@ if (require.main === module){
   let kept = 0;
   const res = html
     .replace(/<script((?: data-part="\w+")?)>([\s\S]*?)<\/script>/g, (m, attr, code) => { const r = minJs(code); if (r == null){ kept++; return m; } return '<script' + attr + '>' + r + '</script>'; })
-    .replace(/<style>([\s\S]*?)<\/style>/g, (m, css) => '<style>' + minCss(css) + '</style>');
+    .replace(/<style((?: data-part="\w+")?)>([\s\S]*?)<\/style>/g, (m, attr, css) => '<style' + attr + '>' + minCss(css) + '</style>');
   fs.writeFileSync(outp, res);
   const b0 = Buffer.byteLength(html), b1 = Buffer.byteLength(res);
   console.log(`minify: ${b0} → ${b1} bytes (${Math.round((1 - b1 / b0) * 100)} % 줄임)${kept ? ` · 검증에 실패해 그대로 둔 <script> ${kept}개` : ''}`);

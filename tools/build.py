@@ -7,16 +7,18 @@
         python3 tools/build.py --no-min    (코드를 줄이지 않고 압축하지 않은 읽기 쉬운 결과물 — 디버깅용)
 결과물은 외부 파일·CDN 없이 더블클릭만으로 열리는 하나의 HTML 파일이다.
 코드의 주석 · 빈칸은 tools/minify.cjs 로 덜어 내고(Node.js + typescript 필요, 없으면 그대로 두고 알린다),
-교육 콘텐츠(JSON)와 탭 스크립트는 DEFLATE 로 압축해 base64 로 넣는다(앱의 inflateRaw 가 풀고, 탭 스크립트는 EngrRunParts 가 순서대로 실행).
+교육 콘텐츠(JSON) · 앱 본체 · 탭 스타일 · 탭 스크립트는 LZMA 로 압축해 base64 로 넣는다
+(앱 맨 앞의 작은 스크립트가 EngrUnpack 으로 풀고, EngrRunParts 가 묶음마다 순서대로 끼워 넣어 실행).
 일부 앱 보기 화면은 HTML 파일의 앞 1 MB 정도만 읽으므로 결과물을 1,000,000 바이트 아래로 유지한다.
 """
 import base64
 import json
+import lzma
 import re
+import struct
 import shutil
 import subprocess
 import sys
-import zlib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -94,8 +96,9 @@ def inject_parts(html, only=None):
     for marker, paths in PARTS.items():
         if html.count(marker) != 1:
             sys.exit(f"src/app.html 에서 {marker} 자리를 찾지 못했습니다")
-        m = re.search(r'<script data-part="(\w+)">' + re.escape(marker), html)
+        m = re.search(r'<(script|style) data-part="(\w+)">' + re.escape(marker), html)
         tag = m.group(0)[:-len(marker)] if m else "<script>"
+        end = f"</{m.group(1)}>" if m else "</script>"
         codes = []
         for path in paths if isinstance(paths, list) else [paths]:
             d, nn = path.parent.name, path.name[:2]
@@ -106,31 +109,41 @@ def inject_parts(html, only=None):
             if re.search(r"</(script|style)|<!--", code, re.I):
                 sys.exit(f"{path.name}: '</script', '</style', '<!--' 는 인라인으로 넣을 수 없습니다")
             codes.append(code)
-        html = html.replace(marker, f"\n</script>\n{tag}\n".join(codes) if isinstance(paths, list) else codes[0], 1)
+        html = html.replace(marker, f"\n{end}\n{tag}\n".join(codes) if isinstance(paths, list) else codes[0], 1)
     return html
 
 
-PART_RE = re.compile(r'<script data-part="(\w+)">(.*?)</script>', re.S)
+PART_RE = re.compile(r'<(script|style) data-part="(\w+)">(.*?)</\1>', re.S)
+
+
+def pack(data):
+    """LZMA1 원시 스트림 + 머리(특성 1 · 사전 크기 4 · 풀린 크기 4 바이트) → base64. 앱의 EngrUnpack 이 푼다."""
+    lc, lp, pb, dict_size = 3, 0, 0, 1 << 22
+    raw = lzma.compress(data, format=lzma.FORMAT_RAW, filters=[{"id": lzma.FILTER_LZMA1, "preset": 9 | lzma.PRESET_EXTREME, "lc": lc, "lp": lp, "pb": pb, "dict_size": dict_size}])
+    return base64.b64encode(bytes([(pb * 5 + lp) * 9 + lc]) + struct.pack("<II", dict_size, len(data)) + raw).decode("ascii")
 
 
 def pack_parts(html):
-    """탭 스크립트(<script data-part="탭">)를 DEFLATE + base64 로 줄이고, 탭 묶음이 끝날 때마다 EngrRunParts() 를 넣는다.
-    앱의 EngrRunParts 가 문서 순서대로 풀어 실행한다 (묶음마다 실행하므로 파일이 뒤에서 잘려도 앞쪽 탭은 돈다)."""
-    out, pos, last = [], 0, None
+    """묶음(<script data-part="이름"> · <style data-part="이름">)마다 파일들을 한 LZMA 스트림으로 줄이고, 묶음 끝에 EngrRunParts() 를 넣는다.
+    스트림 안은 파일마다 '종류 글자(j 스크립트 · c 스타일) + 내용'을 NUL 로 이은 것. 묶음마다 풀어 실행하므로 파일이 뒤에서 잘려도 앞쪽 묶음은 돈다."""
+    out, pos, cur, buf = [], 0, None, []
+
+    def flush():
+        if cur:
+            payload = "\0".join(buf).encode("utf-8")
+            out.append(f'<script type="application/octet-stream" data-part="{cur}" data-z="lzma">{pack(payload)}</script><script>EngrRunParts()</script>')
     for m in PART_RE.finditer(html):
         gap = html[pos:m.start()]
-        if last and gap.strip():                       # 다른 내용이 끼면 앞 묶음을 닫는다
-            out.append("<script>EngrRunParts()</script>")
-            last = None
+        if cur and (gap.strip() or cur != m.group(2)):   # 다른 내용이 끼거나 묶음 이름이 바뀌면 앞 묶음을 닫는다
+            flush()
+            cur, buf = None, []
         out.append(gap)
-        if last and last != m.group(1):
-            out.append("<script>EngrRunParts()</script>")
-        z = zlib.compressobj(9, zlib.DEFLATED, -15, 9)
-        b64 = base64.b64encode(z.compress(m.group(2).encode("utf-8")) + z.flush()).decode("ascii")
-        out.append(f'<script type="application/octet-stream" data-part="{m.group(1)}" data-z="deflate">{b64}</script>')
-        last, pos = m.group(1), m.end()
-    if last:
-        out.append("<script>EngrRunParts()</script>")
+        if "\0" in m.group(3):
+            sys.exit(f"{m.group(2)}: 코드에 NUL 문자가 있어 묶을 수 없습니다")
+        cur = m.group(2)
+        buf.append(("c" if m.group(1) == "style" else "j") + m.group(3))
+        pos = m.end()
+    flush()
     out.append(html[pos:])
     return "".join(out)
 
@@ -158,10 +171,9 @@ def main():
     if "--no-min" in sys.argv:
         html = pattern.sub(lambda m: m.group(1) + payload + m.group(3), html, count=1)
     else:
-        # 교육 콘텐츠(글 · 그림)는 압축해 base64 로 넣는다 — 앱(loadEdu)이 inflateRaw 로 푼다
-        z = zlib.compressobj(9, zlib.DEFLATED, -15, 9)
-        packed = base64.b64encode(z.compress(payload.replace("<\\/", "</").encode("utf-8")) + z.flush()).decode("ascii")
-        html = pattern.sub(lambda m: '<script type="application/octet-stream" id="edu-data" data-z="deflate">' + packed + m.group(3), html, count=1)
+        # 교육 콘텐츠(글 · 그림)는 압축해 base64 로 넣는다 — 앱(loadEdu)이 EngrUnpack 으로 푼다
+        packed = pack(payload.replace("<\\/", "</").encode("utf-8"))
+        html = pattern.sub(lambda m: '<script type="application/octet-stream" id="edu-data" data-z="lzma">' + packed + m.group(3), html, count=1)
     html = inject_parts(html, only)
     check_self_contained(html)
     out.parent.mkdir(parents=True, exist_ok=True)

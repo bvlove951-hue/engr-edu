@@ -197,14 +197,20 @@ tools/figlib.py, figs_*.py, make_figures.py  그림 생성 코드
 src/app.html             앱 원본 (HTML·CSS·JS 한 파일, 외부 의존 없음)
 src/journey.js, .css     HBM 역추적 탭 (장면 SVG·줌 카메라·카드·위젯) — 빌드 때 app.html 에 들어감
 src/bump.js, .css        범프 공정 탭 (웨이퍼·다이·범프 세 화면, 공정 12단계) — journey.css 의 카드·HUD 스타일을 함께 씀
-src/plating.js, .css     전해도금 탭 엔진 (무대·카드·HUD·스크롤·발표 모드, 그림 도구 K)
+src/theatre.js, .css     도면 극장 엔진 (무대·카드·HUD·스크롤·발표 모드, 그림 도구 K) — 전해도금 · PR 스트립 · 시드 식각 · 리플로우 탭이 함께 씀
+src/plating.js           전해도금 탭 설정 (표지 · 소개 카드 · 부 이름) — window.EngrTheatre({...})
 src/plating/NN-id.js     전해도금 13장 — 장마다 한 파일 (장면·단계·위젯·노트)
+src/strip.js, strip/     PR 스트립 탭 설정 + 9장
+src/etch.js, etch/       시드 식각 탭 설정 + 9장
+src/reflow.js, reflow/   리플로우 탭 설정 + 9장
 docs/전해도금_탭_기획.md   전해도금 탭 기획과 검토 기록 (rev.2 정정 내역)
+docs/도금후공정_탭_기획.md PR 스트립 · 시드 식각 · 리플로우 탭 기획 요약과 검토 기록
 src/systems.js, .css     사내 시스템 탭 (시스템 지도, 시스템별 카드, 이야기 9단계) — journey.css 의 카드·HUD 스타일을 함께 씀
 docs/HBM_역추적_초안.md    HBM 역추적 기획: 흐름 초안, 표현 방식 예시, 최종안
 docs/screenshots/*.png   탭 화면 모음 (HBM 역추적, 범프 공정, 사내 시스템 지도 · 이야기)
 tools/make_doc_figures.py 기획 문서 그림(docs/figures/*.svg) 생성
-tools/build.py           education/*.md 와 journey.* · bump.* · systems.* · plating.* 를 앱에 넣어 dist/engr-edu.html 생성
+tools/build.py           education/*.md 와 journey.* · bump.* · systems.* · theatre.* · 탭 파일들을 앱에 넣고 줄이고 압축해 dist/engr-edu.html 생성
+tools/minify.cjs         코드의 주석 · 빈칸 덜기 (구문 나무가 같은지 확인)
 dist/engr-edu.html       배포용 단일 파일 ← 이것만 나눠 주면 됨
 tests/smoke.cjs          Playwright 브라우저 테스트
 ```
@@ -215,19 +221,21 @@ tests/smoke.cjs          Playwright 브라우저 테스트
 2. 흐름도는 ```` ```flow ```` 코드 블록 안에 흐름 문법으로 씁니다. 문법은 `education/06_업무알고리즘_작성법.md` 를 보세요.
 3. 그림은 `![설명](figures/이름.svg)`로 넣습니다. 그림을 고치거나 추가하려면 `tools/figs_*.py`를 수정합니다.
 4. 시뮬레이터는 본문에 `<!-- widget:cpk -->` 처럼 넣습니다 (cpk, control, cte, diffusion, faraday, yield).
-5. 다른 탭으로 가는 링크는 `[글](#go-hbm)`, `[글](#go-bump)`, `[글](#go-plating)`, `[글](#go-sys)`, `[글](#go-map)`, `[글](#go-edu-4)`(교육 모듈 번호)로 씁니다.
+5. 다른 탭으로 가는 링크는 `[글](#go-hbm)`, `[글](#go-bump)`, `[글](#go-plating)`, `[글](#go-strip)`, `[글](#go-etch)`, `[글](#go-reflow)`, `[글](#go-sys)`, `[글](#go-map)`, `[글](#go-edu-4)`(교육 모듈 번호)로 씁니다. 도면 극장 탭(전해도금 · 스트립 · 식각 · 리플로우)은 `#go-reflow-03` 처럼 장 번호를 붙이면 그 장으로 갑니다.
 6. HBM 역추적의 장면·카드·단계 제목은 `src/journey.js` 의 `SCENES`, `CARDS`, `TITLES` 에 있습니다.
-7. 전해도금은 장마다 `src/plating/NN-id.js` 를 고칩니다. 장 순서는 파일 이름 번호(`no`)이고, 다른 장으로 가는 카드 링크는 `<a data-go="장id.단계id">` 입니다. 장 전용 스타일은 장 정의의 `css` 에 둡니다.
+7. 전해도금 · PR 스트립 · 시드 식각 · 리플로우는 장마다 `src/<탭>/NN-id.js` 를 고칩니다 (탭 설정은 `src/<탭>.js`). 장 순서는 파일 이름 번호(`no`)이고, 다른 장으로 가는 카드 링크는 `<a data-go="장id.단계id">` 입니다. 장 전용 스타일은 장 정의의 `css` 에 둡니다.
 8. 빌드합니다.
 
 ```bash
 python3 tools/make_figures.py   # 그림을 바꿨을 때 (글자 넘침 경고도 보여 줌)
 python3 tools/build.py
-python3 tools/build.py --out /tmp/x.html --only 03,07   # 작업 중 확인: 다른 곳에, 전해도금은 그 장만
+python3 tools/build.py --out /tmp/x.html --only 03,reflow/05   # 작업 중 확인: 다른 곳에, 도면 극장 탭은 그 장만 (NN = 전해도금, 탭/NN = 그 탭)
 python3 tools/build.py --no-min                         # 코드를 줄이지 않은 읽기 쉬운 결과물 (디버깅용)
 ```
 
-빌드는 `tools/minify.cjs`(Node.js + typescript)로 코드의 주석 · 빈칸을 덜어 냅니다. 줄인 코드는 구문 나무가 원본과 같은지 확인한 뒤에만 씁니다. 일부 앱 미리보기는 HTML 파일의 앞 1 MB 정도만 읽어서, 파일이 그보다 크면 맨 뒤에 있는 전해도금 탭이 까맣게 보입니다. 그래서 결과물을 **1,000,000 바이트 아래**로 유지하고(넘으면 빌드가 경고하고 테스트가 실패), 엔진이 실리지 못하면 탭에 안내 글이 보이게 했습니다.
+빌드는 `tools/minify.cjs`(Node.js + typescript)로 코드의 주석 · 빈칸을 덜어 냅니다. 줄인 코드는 구문 나무가 원본과 같은지 확인한 뒤에만 씁니다. 그다음 앱 본체 · 탭 스타일 · 탭 스크립트 · 교육 콘텐츠를 **LZMA로 압축해 base64로** 넣습니다. 파일 맨 앞의 작은 스크립트(`EngrUnpack` · `EngrRunParts`)가 열 때 묶음(앱 · HBM · 범프 · 시스템 · 전해도금 · 스트립 · 식각 · 리플로우)마다 풀어 원래 순서대로 실행하므로, 동작은 압축하지 않은 파일과 같습니다 (`--no-min` 으로 비교).
+
+일부 앱 미리보기는 HTML 파일의 앞 1 MB 정도만 읽어서, 파일이 그보다 크면 뒤쪽 탭이 까맣게 보입니다. 그래서 결과물을 **1,000,000 바이트 아래**로 유지하고(넘으면 빌드가 경고하고 테스트가 실패), 묶음마다 따로 풀어 실행해 파일 뒤가 잘려도 앞쪽 탭은 돌며, 엔진이 실리지 못한 탭에는 안내 글이 보이게 했습니다.
 
 ## 테스트
 

@@ -341,10 +341,124 @@ details.menu .menu-pop.left{left:0;right:auto}
   .icon-btn{padding:4px 5px;font-size:12px}
 }
 </style>
-<style>/*@JOURNEY_CSS@*/</style>
-<style>/*@BUMP_CSS@*/</style>
-<style>/*@SYS_CSS@*/</style>
-<style>/*@THEATRE_CSS@*/</style>
+<script>
+/* 압축 풀기 · 탭 스크립트 실행 — 빌드가 탭 스타일 · 탭 스크립트 · 앱 본체 · 교육 콘텐츠를 LZMA 로 줄여 base64 로 넣는다
+   (일부 보기 화면은 큰 HTML 파일의 앞부분만 읽는다). 이 작은 스크립트만 그대로 두고 맨 앞에서 실행한다 */
+(function(){
+'use strict';
+  // 압축 풀기 (LZMA1 원시 스트림). 빌드가 탭 스크립트 · 교육 콘텐츠를 줄여 넣는다 — 일부 보기 화면은 큰 HTML 파일의 앞부분만 읽기 때문
+  // 입력: [특성 1바이트(lc · lp · pb)][사전 크기 4바이트][풀린 크기 4바이트(LE)][LZMA1 스트림]. 출력은 Uint8Array
+  const unlzma = src => {
+    const props = src[0], size = (src[5] | src[6] << 8 | src[7] << 16 | src[8] << 24) >>> 0;
+    const lc = props % 9, lp = (props / 9 | 0) % 5, pb = props / 45 | 0;
+    const out = new Uint8Array(size);
+    let ip = 14, range = 0xFFFFFFFF, code = (src[10] << 24 | src[11] << 16 | src[12] << 8 | src[13]) >>> 0, op = 0;   // 스트림 첫 바이트(9)는 0
+    const P = n => new Uint16Array(n).fill(1024);
+    const bit = (p, i) => {                                         // 확률 p[i]로 한 비트
+      const bound = (range >>> 11) * p[i] >>> 0;
+      let b;
+      if (code < bound){ range = bound; p[i] += (2048 - p[i]) >> 5; b = 0; }
+      else { range = range - bound >>> 0; code = code - bound >>> 0; p[i] -= p[i] >> 5; b = 1; }
+      if (range < 0x1000000){ range = range << 8 >>> 0; code = (code << 8 | src[ip++]) >>> 0; }
+      return b;
+    };
+    const tree = (p, base, n) => { let m = 1; for (let i = 0; i < n; i++) m = m << 1 | bit(p, base + m); return m - (1 << n); };
+    const rtree = (p, base, n) => { let m = 1, s = 0; for (let i = 0; i < n; i++){ const b = bit(p, base + m); m = m << 1 | b; s |= b << i; } return s; };
+    const direct = n => {
+      let s = 0;
+      for (let i = 0; i < n; i++){
+        range >>>= 1;
+        let b = 0;
+        if (code >= range){ code = code - range >>> 0; b = 1; }
+        s = (s << 1 | b) >>> 0;
+        if (range < 0x1000000){ range = range << 8 >>> 0; code = (code << 8 | src[ip++]) >>> 0; }
+      }
+      return s;
+    };
+    const lenDec = () => ({c: P(2), low: P(16 << 3), mid: P(16 << 3), high: P(256)});
+    const len = (L, ps) => !bit(L.c, 0) ? tree(L.low, ps << 3, 3) : !bit(L.c, 1) ? 8 + tree(L.mid, ps << 3, 3) : 16 + tree(L.high, 0, 8);
+    const lit = P(0x300 << (lc + lp)), isMatch = P(192), isRep = P(12), isG0 = P(12), isG1 = P(12), isG2 = P(12), isLong = P(192);
+    const slot = P(256), spec = P(115), align = P(16), mLen = lenDec(), rLen = lenDec();
+    let state = 0, r0 = 0, r1 = 0, r2 = 0, r3 = 0;
+    const pbm = (1 << pb) - 1, lpm = (1 << lp) - 1;
+    while (op < size){
+      const ps = op & pbm;
+      if (!bit(isMatch, (state << 4) + ps)){                        // 글자 하나
+        const prev = op ? out[op - 1] : 0, base = 0x300 * (((op & lpm) << lc) + (prev >> (8 - lc)));
+        let s = 1;
+        if (state >= 7){                                              // 직전이 일치였으면 그 자리 글자를 참고
+          let mb = out[op - r0 - 1];
+          do {
+            const m = (mb >> 7) & 1; mb <<= 1;
+            const b = bit(lit, base + ((1 + m) << 8) + s);
+            s = s << 1 | b;
+            if (m !== b) break;
+          } while (s < 0x100);
+        }
+        while (s < 0x100) s = s << 1 | bit(lit, base + s);
+        out[op++] = s & 0xFF;
+        state = state < 4 ? 0 : state < 10 ? state - 3 : state - 6;
+        continue;
+      }
+      let n;
+      if (bit(isRep, state)){                                         // 앞서 쓴 거리 다시
+        if (!bit(isG0, state)){
+          if (!bit(isLong, (state << 4) + ps)){ state = state < 7 ? 9 : 11; out[op] = out[op - r0 - 1]; op++; continue; }
+        } else {
+          let d;
+          if (!bit(isG1, state)) d = r1;
+          else { if (!bit(isG2, state)) d = r2; else { d = r3; r3 = r2; } r2 = r1; }
+          r1 = r0; r0 = d;
+        }
+        n = len(rLen, ps);
+        state = state < 7 ? 8 : 11;
+      } else {                                                        // 새 거리
+        r3 = r2; r2 = r1; r1 = r0;
+        n = len(mLen, ps);
+        state = state < 7 ? 7 : 10;
+        const sl = tree(slot, (n < 4 ? n : 3) << 6, 6);
+        if (sl < 4) r0 = sl;
+        else {
+          const nd = (sl >> 1) - 1;
+          r0 = (2 | (sl & 1)) << nd;
+          if (sl < 14) r0 += rtree(spec, r0 - sl, nd);
+          else r0 = r0 + (direct(nd - 4) << 4) + rtree(align, 0, 4) >>> 0;
+          if (r0 === 0xFFFFFFFF) break;                               // 끝 표시
+        }
+      }
+      for (n += 2; n > 0 && op < size; n--, op++) out[op] = out[op - r0 - 1];
+    }
+    return out;
+  };
+  // base64 → 바이트 → 풀기 → 글자
+  window.EngrUnpack = b64 => {
+    const b = atob(b64.replace(/\s+/g, '')), u = new Uint8Array(b.length);
+    for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(unlzma(u));
+  };
+  // 압축한 묶음(<script type="application/octet-stream" data-part="묶음" data-z="lzma">)을 문서 순서대로 풀어 파일마다 끼워 넣는다.
+  // 스크립트는 묶음 바로 뒤에 <script> 로(끼워 넣는 순간 일반 <script> 처럼 전역에서 실행되고, 한 파일의 오류는 다음 파일을 멈추지 않는다),
+  // 스타일은 <head> 끝에 <style> 로. 빌드가 묶음마다 끝에 EngrRunParts() 를 넣는다 (파일이 뒤에서 잘려도 앞쪽 묶음은 돈다)
+  window.EngrRunParts = () => {
+    document.querySelectorAll('script[data-part][data-z="lzma"]:not([data-ran])').forEach(el => {
+      el.setAttribute('data-ran', '');
+      let txt;
+      try { txt = window.EngrUnpack(el.textContent); } catch (e){ console.error('묶음을 풀지 못했습니다', el.dataset.part, e); return; }
+      let at = el;
+      txt.split('\u0000').forEach(p => {
+        const css = p[0] === 'c', n = document.createElement(css ? 'style' : 'script');
+        n.setAttribute('data-unpacked', el.dataset.part);
+        n.textContent = p.slice(1);
+        if (css) document.head.appendChild(n); else { at.after(n); at = n; }
+      });
+    });
+  };
+})();
+</script>
+<style data-part="css">/*@JOURNEY_CSS@*/</style>
+<style data-part="css">/*@BUMP_CSS@*/</style>
+<style data-part="css">/*@SYS_CSS@*/</style>
+<style data-part="css">/*@THEATRE_CSS@*/</style>
 </head>
 <body>
 <div id="app">
@@ -487,7 +601,7 @@ details.menu .menu-pop.left{left:0;right:auto}
 
 <script type="application/json" id="edu-data">[]</script>
 <script type="application/json" id="preload-maps">null</script>
-<script>
+<script data-part="app">
 (function(){
 'use strict';
 
@@ -1071,112 +1185,12 @@ function renderMarkdown(md, flows, heads){
   }
   return html;
 }
-// 압축 풀기 (RFC 1951 raw DEFLATE). 빌드가 교육 콘텐츠를 줄여 넣는다 — 일부 보기 화면은 큰 HTML 파일의 앞부분만 읽기 때문
-const inflateRaw = (() => {
-  const LB = [3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258];
-  const LX = [0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0];
-  const DB = [1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577];
-  const DX = [0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13];
-  const ORD = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];
-  // 정규 허프만 표: 길이별 개수 + 길이 순 기호
-  const table = (len, n) => {
-    const count = new Uint16Array(16), offs = new Uint16Array(16), sym = new Uint16Array(n);
-    for (let i = 0; i < n; i++) count[len[i]]++;
-    count[0] = 0;
-    for (let i = 1; i < 16; i++) offs[i] = offs[i - 1] + count[i - 1];
-    for (let i = 0; i < n; i++) if (len[i]) sym[offs[len[i]]++] = i;
-    return {count, sym};
-  };
-  let FL = null, FD = null;
-  return src => {
-    let pos = 0, bit = 0, nb = 0, out = new Uint8Array(src.length * 4 + 1024), n = 0;
-    const room = k => { if (n + k > out.length){ const o = new Uint8Array(Math.max(out.length * 2, n + k)); o.set(out.subarray(0, n)); out = o; } };
-    const bits = k => {
-      while (nb < k){ if (pos >= src.length) throw new Error('inflate: data ended'); bit |= src[pos++] << nb; nb += 8; }
-      const v = bit & ((1 << k) - 1); bit >>>= k; nb -= k; return v;
-    };
-    const dec = h => {
-      let code = 0, first = 0, index = 0;
-      for (let len = 1; len < 16; len++){
-        code |= bits(1);
-        const c = h.count[len];
-        if (code - c < first) return h.sym[index + (code - first)];
-        index += c; first = (first + c) << 1; code <<= 1;
-      }
-      throw new Error('inflate: bad code');
-    };
-    const codes = (lc, dc) => {
-      for (;;){
-        let s = dec(lc);
-        if (s < 256){ room(1); out[n++] = s; continue; }
-        if (s === 256) return;
-        s -= 257; if (s >= 29) throw new Error('inflate: bad length');
-        let len = LB[s] + bits(LX[s]);
-        const d = dec(dc); if (d >= 30) throw new Error('inflate: bad distance');
-        const dist = DB[d] + bits(DX[d]); if (dist > n) throw new Error('inflate: distance too far');
-        room(len);
-        while (len--){ out[n] = out[n - dist]; n++; }
-      }
-    };
-    let last;
-    do {
-      last = bits(1);
-      const type = bits(2);
-      if (type === 0){
-        bit = 0; nb = 0;
-        if (pos + 4 > src.length) throw new Error('inflate: data ended');
-        const len = src[pos] | src[pos + 1] << 8, nlen = src[pos + 2] | src[pos + 3] << 8; pos += 4;
-        if (len !== (~nlen & 0xffff) || pos + len > src.length) throw new Error('inflate: bad stored block');
-        room(len); out.set(src.subarray(pos, pos + len), n); n += len; pos += len;
-      } else if (type === 1){
-        if (!FL){ const l = new Uint8Array(288); l.fill(8, 0, 144); l.fill(9, 144, 256); l.fill(7, 256, 280); l.fill(8, 280, 288); FL = table(l, 288); FD = table(new Uint8Array(30).fill(5), 30); }
-        codes(FL, FD);
-      } else if (type === 2){
-        const nlen = bits(5) + 257, ndist = bits(5) + 1, ncode = bits(4) + 4;
-        if (nlen > 286 || ndist > 30) throw new Error('inflate: bad counts');
-        const lens = new Uint8Array(320);
-        for (let i = 0; i < 19; i++) lens[ORD[i]] = i < ncode ? bits(3) : 0;
-        const cl = table(lens, 19);
-        let i = 0;
-        while (i < nlen + ndist){
-          let s = dec(cl);
-          if (s < 16){ lens[i++] = s; continue; }
-          let v = 0;
-          if (s === 16){ if (!i) throw new Error('inflate: repeat with no length'); v = lens[i - 1]; s = 3 + bits(2); }
-          else if (s === 17) s = 3 + bits(3);
-          else s = 11 + bits(7);
-          if (i + s > nlen + ndist) throw new Error('inflate: too many lengths');
-          while (s--) lens[i++] = v;
-        }
-        codes(table(lens.subarray(0, nlen), nlen), table(lens.subarray(nlen, nlen + ndist), ndist));
-      } else throw new Error('inflate: bad block type');
-    } while (!last);
-    return out.subarray(0, n);
-  };
-})();
-// 압축해 실은 탭 스크립트(<script type="application/octet-stream" data-part="탭" data-z="deflate">)를 문서 순서대로 풀어 실행한다.
-// 빌드가 탭 묶음마다 끝에 EngrRunParts() 를 넣는다. 새 <script> 를 끼워 넣는 순간 일반 <script> 처럼 전역에서 실행되고, 한 파일의 오류는 다음 파일을 멈추지 않는다
-window.EngrRunParts = () => {
-  document.querySelectorAll('script[data-part][data-z="deflate"]:not([data-ran])').forEach(el => {
-    el.setAttribute('data-ran', '');
-    try {
-      const b = atob(el.textContent.replace(/\s+/g, '')), u = new Uint8Array(b.length);
-      for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
-      const sc = document.createElement('script');
-      sc.textContent = new TextDecoder('utf-8').decode(inflateRaw(u));
-      el.after(sc);
-    } catch (e){ console.error('탭 스크립트를 풀지 못했습니다', el.dataset.part, e); }
-  });
-};
 function loadEdu(){
   let data = [];
   try {
     const el = $('#edu-data');
-    if (el.dataset.z === 'deflate'){                                   // 빌드가 줄여 넣은 내용: base64 → 압축 풀기 → UTF-8 → JSON
-      const b = atob(el.textContent.replace(/\s+/g, '')), u = new Uint8Array(b.length);
-      for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
-      data = JSON.parse(new TextDecoder('utf-8').decode(inflateRaw(u))) || [];
-    } else data = JSON.parse(el.textContent) || [];
+    if (el.dataset.z === 'lzma') data = JSON.parse(window.EngrUnpack(el.textContent)) || [];   // 빌드가 줄여 넣은 내용 (맨 앞 스크립트가 푼다)
+    else data = JSON.parse(el.textContent) || [];
   } catch(e){ console.error('교육 콘텐츠를 읽지 못했습니다', e); }
   S.edu = Array.isArray(data) ? data : (data.modules || []);
   S.figs = Array.isArray(data) ? {} : (data.figures || {});
@@ -2083,15 +2097,15 @@ function openHelp(){
       h('li', null, '「내보내기 → 공유용 HTML」 로 팀에 배포 (받은 사람이 열면 맵이 그대로 보입니다)')),
     h('h4', null, 'HBM 역추적'),
     h('p', null, 'AI 데이터센터에서 DRAM 셀까지 스크롤할 때마다 한 단계씩 줌인합니다. 화면의 점선 상자를 누르면 그 안으로, 위쪽 장 버튼으로 바로 이동합니다. 「제조 순서」는 같은 화면을 거꾸로(줌아웃) 보여 주고, 「▶ 발표 모드」는 전체 화면에서 ← → 키로 넘깁니다.'),
-    h('h4', null, '범프 공정 · 전해도금'),
-    h('p', null, '범프 공정은 앞면 범프 12단계를 웨이퍼 · 다이 · 범프 세 단위로, 전해도금은 도금의 원리부터 장비 · 도금액 · 불량까지 13장으로 설명합니다. 스크롤하거나 ← → 키로 넘기고, 아래 칩을 누르면 바로 이동합니다. 전해도금의 「깊게 보기」는 카드마다 접혀 있는 「한 걸음 더」를 모두 펼칩니다.'),
+    h('h4', null, '범프 공정 · 전해도금 · PR 스트립 · 시드 식각 · 리플로우'),
+    h('p', null, '범프 공정은 앞면 범프 12단계를 웨이퍼 · 다이 · 범프 세 단위로 한 화면에 보여 줍니다. 전해도금(13장)과 그 뒤 공정인 PR 스트립 · 시드 식각 · 리플로우(각 9장)는 같은 화면으로, 원리부터 장비 · 약품 · 불량까지 장마다 질문 하나씩 설명합니다. 스크롤하거나 ← → 키로 넘기고, 아래 칩이나 표지의 차례 타일을 누르면 바로 이동합니다. 표지 오른쪽 위의 공정 순서 칸을 누르면 그 공정 탭으로 갑니다. 「깊게 보기」는 카드마다 접혀 있는 「한 걸음 더」를 모두 펼칩니다.'),
     h('h4', null, '사내 시스템'),
     h('p', null, 'MES, RTD · MCS, 기준정보(GMDM · MMDM), EAP, PCS(RMS · EC · APC), FDC, TAS, EES, GIPMS, SPC, YES를 한 장의 지도로 봅니다. 상자나 아래 칩을 누르면 그 시스템 설명으로, 스크롤하면 그 시스템과 화살표만 밝아집니다. 「LOT-001의 하루」는 알람이 울렸을 때 시스템이 이어지는 순서를 따라갑니다.'),
     h('h4', null, '저장'),
     h('p', null, '맵은 이 브라우저(IndexedDB)에 자동 저장됩니다. 브라우저 데이터를 지우면 사라지니 「JSON (모든 맵 백업)」 으로 주기적으로 백업하세요.'),
     h('h4', null, '단축키'),
     h('p', null, '맵 — Delete: 선택 삭제 · Ctrl+Z: 되돌리기 · Ctrl+Y: 다시 · Esc: 선택 해제'),
-    h('p', null, 'HBM 역추적 · 범프 공정 · 전해도금 — ← →: 이전·다음 단계 · ↓ PageDown Space: 스크롤 · 발표 모드에서 Home/End: 처음·끝, Esc: 닫기')
+    h('p', null, 'HBM 역추적 · 범프 공정 · 전해도금 · PR 스트립 · 시드 식각 · 리플로우 — ← →: 이전·다음 단계 · ↓ PageDown Space: 스크롤 · 발표 모드에서 Home/End: 처음·끝, Esc: 닫기')
   ]);
 }
 
@@ -2238,6 +2252,9 @@ function runRule(){
 function buildShareHTML(maps){
   const doc = document.documentElement.cloneNode(true);
   doc.removeAttribute('data-theme');
+  // 실행하며 풀어 넣은 것은 빼고 처음 파일 모양으로 (받은 사람이 열면 다시 푼다)
+  doc.querySelectorAll('[data-unpacked], style#fig-style, style[id$="-chcss"]').forEach(n => n.remove());
+  doc.querySelectorAll('[data-ran]').forEach(n => n.removeAttribute('data-ran'));
   doc.querySelector('#app').innerHTML = INITIAL_APP_HTML;
   const payload = JSON.stringify({exportedAt: new Date().toISOString(), maps}).replace(/</g, '\\u003c');
   doc.querySelector('#preload-maps').textContent = payload;

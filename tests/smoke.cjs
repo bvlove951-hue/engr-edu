@@ -470,6 +470,62 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   ok(/계속/.test(ss0) && /\d+ %/.test(ss5) && plNum(t95) === 60 && outM < outT, `11 도금액 관리: bleed 0 → ${ss0}, 5 %/일 → 멈추는 수준 ${ss5} · 95 % 도달 ${t95}, 첨가제 이탈 시간 기준 ${outT}일 → Ah + 시간 ${outM}일`);
   await page.screenshot({ path: path.join(OUT, '09-plating.png') });
 
+  // 도금 다음 공정 세 탭 (같은 도면 극장 엔진): 장 수, 스크롤로 모든 단계, 지금 단계 글, 타일 · 칩 이동, 깊게 보기, 발표 모드
+  for (const [tab, name, nch] of [['strip', 'PR 스트립', 9], ['etch', '시드 식각', 9], ['reflow', '리플로우', 9]]){
+    console.log(name);
+    await page.click(`[data-tab="${tab}"]`, { force: true });
+    await page.waitForSelector(`#view-${tab}.active .pl-svg`);
+    const th = await page.evaluate(t => { const a = window.EngrTheatres[t]; return { ch: a.chapters, beats: a.state.beats, scenes: a.scenes().length,
+      attached: document.querySelectorAll(`#view-${t} .pl-scene`).length, chips: document.querySelectorAll(`#view-${t} .pl-line button`).length,
+      tiles: document.querySelectorAll(`#view-${t} .pl-scene[data-ch="intro"] .pl-go`).length, flow: document.querySelectorAll(`#view-${t} .pl-scene[data-ch="intro"] a.pl-tablink`).length }; }, tab);
+    const parts = [1, 2, 3].map(p => th.ch.filter(c => c.part === p).length).join('/');
+    ok(th.ch.length === nch && th.scenes === nch + 1 && th.attached === 1 && th.chips === nch && th.tiles >= nch && th.flow === 5, `${nch}장 (부별 ${parts}) · 장면 ${th.scenes} · 칩 ${th.chips} · 차례 타일 ${th.tiles} · 공정 순서 칸 링크 ${th.flow}`);
+    const order = await page.evaluate(t => window.EngrTheatres[t].order, tab);
+    let reached = 0, scene = 0, vis = 0;
+    for (const s of order){
+      await page.evaluate(([t, s]) => { document.getElementById('view-' + t).scrollTop = window.EngrTheatres[t].pos(s); }, [tab, s]);
+      await page.waitForTimeout(110);
+      const r = await page.evaluate(t => { const a = window.EngrTheatres[t], V = document.getElementById('view-' + t).getBoundingClientRect(), li = document.querySelector(`#view-${t} .jc.active .steps li.on`);
+        const lr = li && li.getBoundingClientRect();
+        return { st: a.state.state, cur: [...document.querySelectorAll(`#view-${t} .pl-scene.cur`)].map(g => g.dataset.ch).join(), vis: !!lr && lr.top >= V.top - 1 && lr.bottom <= V.bottom + 1 }; }, tab);
+      if (r.st === s) reached++;
+      if (r.cur === (s === 'intro' ? 'intro' : s.split('.')[0])) scene++;
+      if (s === 'intro' || r.vis) vis++;
+    }
+    ok(reached === order.length && scene === order.length && vis === order.length, `스크롤하면 ${order.length}개 상태를 차례로 지나고 장면이 바뀌며 지금 단계 글이 보인다 (${reached} · ${scene} · ${vis})`);
+    await page.evaluate(t => { document.getElementById('view-' + t).scrollTop = 0; }, tab);
+    await page.waitForTimeout(300);
+    const pick = th.ch[Math.min(4, nch - 1)];
+    await page.click(`#view-${tab} .pl-scene.cur .pl-go[data-go="${pick.id}"] .pl-tile`);
+    await page.waitForTimeout(1700);
+    const atTile = await page.evaluate(t => window.EngrTheatres[t].state.chapter, tab);
+    await page.click(`#view-${tab} .pl-line button >> nth=${nch - 1}`);
+    await page.waitForTimeout(1700);
+    const atChip = await page.evaluate(t => window.EngrTheatres[t].state.chapter, tab);
+    ok(atTile === pick.id && atChip === th.ch[nch - 1].id, `차례 타일 → ${atTile}, 마지막 칩 → ${atChip}`);
+    await page.click(`#view-${tab} .jz-tools [data-act="deep"]`);
+    const dn = await page.evaluate(t => { const d = [...document.querySelectorAll(`#view-${t} details.pl-deep`)]; return { n: d.length, open: d.filter(x => x.open).length }; }, tab);
+    await page.click(`#view-${tab} .jz-tools [data-act="deep"]`);
+    ok(dn.n >= nch && dn.open === dn.n, `깊게 보기: 「한 걸음 더」 ${dn.n}개를 모두 펼침`);
+    await page.click(`#view-${tab} .jz-tools .pres`);
+    const k0 = await page.evaluate(t => window.EngrTheatres[t].state.pres, tab);
+    await page.keyboard.press('ArrowRight'); await page.waitForTimeout(400);
+    const k1 = await page.evaluate(t => ({ k: window.EngrTheatres[t].state.pres, s: window.EngrTheatres[t].state.state, cap: document.querySelector(`#view-${t} .jz-cap .t`).textContent }), tab);
+    await page.screenshot({ path: path.join(OUT, `11-${tab}-pres.png`) });
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => !document.fullscreenElement, null, { timeout: 6000 }).catch(() => {});
+    await page.waitForTimeout(600);
+    const kOut = await page.evaluate(t => ({ pres: window.EngrTheatres[t].state.pres, s: window.EngrTheatres[t].state.state }), tab);
+    ok(k1.k === k0 + 1 && k1.cap.length > 3 && kOut.pres === null && kOut.s === k1.s, `발표 모드: → 로 다음 (${k1.cap}), Esc로 닫으면 그 단계 (${kOut.s})`);
+  }
+  // 탭 사이 장 링크: #go-reflow-03 → 리플로우 탭 03장
+  await page.evaluate(() => { const a = document.createElement('a'); a.href = '#go-reflow-03'; a.id = 'tst-go'; a.textContent = 'x'; document.querySelector('#view-strip').appendChild(a); });
+  await page.click('[data-tab="strip"]', { force: true });
+  await page.click('#tst-go');
+  await page.waitForTimeout(1800);
+  ok(await page.evaluate(() => window.EngrEdu.state.tab === 'reflow' && window.EngrTheatres.reflow.chapters[2].id === window.EngrTheatres.reflow.state.chapter), '#go-reflow-03 링크 → 리플로우 탭 03장');
+  await page.evaluate(() => document.getElementById('tst-go').remove());
+
   console.log('사내 시스템');
   await page.click('[data-tab="edu"]');
   await page.click('.toc-item >> nth=5');
