@@ -13,6 +13,7 @@
 | **HBM 역추적** | AI 데이터센터(12 m)에서 DRAM 셀(수십 nm)까지 스크롤할 때마다 줌인하며 "이건 어디서 왔지?"를 거꾸로 따라가는 이야기 (12개 장면, 약 1억 배) |
 | **범프 공정** | 앞면 범프 도금 12단계를 **웨이퍼 · 다이 · 범프** 세 단위로 한 화면에서 순서대로 (PVD Ti/Cu → … → 스크러버) |
 | **전해도금** | 도금의 원리부터 현장까지 **13장** — 도금조 · 패러데이 법칙 · 이온이 오는 길 · 과전압 / 첨가제 · 막의 속 · 웨이퍼 분포 · 패턴 효과 / 장비 해부 · Cu·Ni·SnAg · 도금액 관리 · 불량 도감 · 인자 지도. 쉬운 설명 + 비유 + 장면을 바꾸는 직접 해 보기 + 「한 걸음 더(전문)」 |
+| **사내 시스템** | 반도체 공장을 돌리는 사내 시스템(MES, RTD · MCS, GMDM · MMDM, EAP, PCS(RMS · EC · APC), FDC, TAS, EES, GIPMS, SPC, YES)을 **한 장의 지도**로 — 시스템마다 고등학생 눈높이 비유, 「LOT-001의 하루」 이야기 9단계 |
 
 ### 교육과정의 시각화
 
@@ -117,6 +118,41 @@ HBM 역추적 9장(앞면 범프)을 공정 단위로 펼친 탭입니다. 무�
 - 장 하나가 파일 하나입니다: `src/plating/NN-id.js` 의 `steps`(단계 제목 · 설명), `draw`(장면), `body`(위젯), `notes`(용어 · 현장 · 한 걸음 더)
 - 13장 화면 모음(발표 모드): [`docs/screenshots/electroplating.png`](docs/screenshots/electroplating.png)
 
+### 사내 시스템 — 한 장의 지도
+
+반도체 공장에서 일하는 사내 시스템들이 **무엇을 맡고, 서로 무엇을 주고받는지**를 그림 한 장으로 보여 주는 탭입니다. 신입 엔지니어는 물론 고등학생도 따라올 수 있게, 시스템마다 일상 속 **비유**를 붙였습니다.
+
+![사내 시스템 지도](docs/screenshots/systems-map.png)
+
+| 묶음 (색) | 시스템 | 하는 일 | 비유 |
+|---|---|---|---|
+| 기준정보 (보라) | **GMDM** | MMDM에 필요한 최초 기준정보 | 도로명 주소 원본 |
+| | **MMDM** | MES 기준정보 setup — 제품 설명, lot 코드, 제품별 공정, 공정별 recipe, 장비 이름 · 기준정보, FOUP, stocker | 내비의 지도 데이터 |
+| 생산 관리 (파랑) | **MES** | lot과 장비의 상태, lot flow, lot hold, lot 이력 | 택배 배송 조회 + 내비 |
+| 물류 (연두) | **RTD** | MES의 lot · 장비 상태를 보고 다음에 넣을 lot과 장비를 정함 (dispatching) | 택시 배차 앱 |
+| | **MCS** | OHT · stocker(AMHS)에 반송 명령, FOUP 위치 추적 | 물류센터 로봇 관제실 |
+| 장비 연결 (회색) | **EAP / EIF** | 장비 말(SECS/GEM) ↔ 시스템 말 통역 — 작업 지시 · 보고 · ALID · 센서 값 · DCOL · recipe · ECID가 모두 지난다 (지도에서 FAB 위아래 띠) | 통역사 |
+| 공정 조건 (초록) | **PCS · RMS** | recipe 관리 (원본 보관 · 장비 recipe와 비교) | 요리책 원본 |
+| | **PCS · EC** | 장비 상수(ECID) 관리 | 오븐 기본 설정 |
+| | **PCS · APC** | 자동 recipe 보정 (앞 결과 → 다음 조건) | 간 보고 다시 맞추기 |
+| 감시 · 분석 (노랑) | **FDC** | 장비 source data에 spec → 벗어나면 알람 | 자동차 계기판 경고등 |
+| | **TAS** | DCOL(장비 data)을 차트로 | 스마트워치 건강 그래프 |
+| | **EES** | ALID(장비 알람)가 울리면 MES에 장비 DOWN 신호 | 화재경보기 자동 신고 |
+| 정비 (주황) | **GIPMS** | 장비 down inform note, PM 주기, part 출고 · 수리 | 자동차 정비 수첩 |
+| 품질 (분홍) | **SPC** | 계측값(공정 결과)을 관리도로, 관리 한계를 벗어나면 알림 | 성적표 추이 그래프 |
+| | **YES** | defect data와 defect image | 건강검진 결과지 + X-ray |
+
+데이터 분석은 별도 시스템이 아니라 **IPA나 Python**으로 여러 시스템의 데이터를 모아 직접 합니다 (지도 맨 아래 줄). lot 이력은 MES에서 봅니다.
+
+- **지도**: 가운데 FAB 현장(stocker, OHT, 장비 5대와 상태등, lot)과 그 위아래 EAP 띠, 위에 MES · 기준정보 · EES · GIPMS, 왼쪽에 RTD → MCS, 아래에 PCS · FDC · TAS · SPC · YES. 화살표는 주고받는 정보이고, 움직이는 점이 정보의 흐름입니다.
+- **카드**: 지도 → 먼저 알아 둘 말(lot, FOUP, recipe, spec, hold, PM …) → 시스템별 설명(비유, 예시 화면, 받는 것 · 주는 것) → 이야기 → 정리. 스크롤하면 그 시스템과 화살표만 밝아집니다.
+- **이야기 「LOT-001의 하루 — 알람이 울린 날」**: 새 제품 등록(GMDM → MMDM → MES) → lot 출발(RTD가 순서, MCS가 반송) → 시작 전 확인(RMS · EC · APC) → 가공 중 감시(EAP → FDC · TAS) → FDC 알람과 lot hold → 장비 ALID → EAP → EES → MES DOWN → GIPMS 수리 · PM → SPC · YES 검사 판정과 release → 다음 공정 (기록은 MES lot 이력에). 장비 상태등, MES의 장비 칸, lot의 위치 · 상태(WAIT/RUN/HOLD/MOVE)가 단계마다 함께 바뀝니다.
+
+![LOT-001의 하루 — 이야기 9단계](docs/screenshots/systems-story.png)
+
+- 상자를 누르거나 아래 칩을 누르면 그 시스템으로 이동, ← → 키로 한 단계씩, **▶ 발표 모드 · ⏵ 자동 재생**. 전화기에서는 밝힌 시스템 쪽으로 지도가 확대됩니다.
+- 시스템 이름과 나뉘는 방식은 회사마다 다를 수 있고, 화면의 숫자 · 코드(ALID 번호, 보정값, recipe 이름)는 설명용 예시입니다. 시스템 · 화살표 · 이야기는 `src/systems.js` 의 `SYS`, `EDGES`, `ST` 에서 고칩니다.
+
 ### 업무 알고리즘 맵 기능
 
 - **글 → 도형 변환**
@@ -164,9 +200,11 @@ src/bump.js, .css        범프 공정 탭 (웨이퍼·다이·범프 세 화면
 src/plating.js, .css     전해도금 탭 엔진 (무대·카드·HUD·스크롤·발표 모드, 그림 도구 K)
 src/plating/NN-id.js     전해도금 13장 — 장마다 한 파일 (장면·단계·위젯·노트)
 docs/전해도금_탭_기획.md   전해도금 탭 기획과 검토 기록 (rev.2 정정 내역)
+src/systems.js, .css     사내 시스템 탭 (시스템 지도, 시스템별 카드, 이야기 9단계) — journey.css 의 카드·HUD 스타일을 함께 씀
 docs/HBM_역추적_초안.md    HBM 역추적 기획: 흐름 초안, 표현 방식 예시, 최종안
+docs/screenshots/*.png   탭 화면 모음 (HBM 역추적, 범프 공정, 사내 시스템 지도 · 이야기)
 tools/make_doc_figures.py 기획 문서 그림(docs/figures/*.svg) 생성
-tools/build.py           education/*.md 와 journey.* · bump.* · plating.* 를 앱에 넣어 dist/engr-edu.html 생성
+tools/build.py           education/*.md 와 journey.* · bump.* · systems.* · plating.* 를 앱에 넣어 dist/engr-edu.html 생성
 dist/engr-edu.html       배포용 단일 파일 ← 이것만 나눠 주면 됨
 tests/smoke.cjs          Playwright 브라우저 테스트
 ```
@@ -177,7 +215,7 @@ tests/smoke.cjs          Playwright 브라우저 테스트
 2. 흐름도는 ```` ```flow ```` 코드 블록 안에 흐름 문법으로 씁니다. 문법은 `education/06_업무알고리즘_작성법.md` 를 보세요.
 3. 그림은 `![설명](figures/이름.svg)`로 넣습니다. 그림을 고치거나 추가하려면 `tools/figs_*.py`를 수정합니다.
 4. 시뮬레이터는 본문에 `<!-- widget:cpk -->` 처럼 넣습니다 (cpk, control, cte, diffusion, faraday, yield).
-5. 다른 탭으로 가는 링크는 `[글](#go-hbm)`, `[글](#go-bump)`, `[글](#go-plating)`, `[글](#go-map)`, `[글](#go-edu-4)`(교육 모듈 번호)로 씁니다.
+5. 다른 탭으로 가는 링크는 `[글](#go-hbm)`, `[글](#go-bump)`, `[글](#go-plating)`, `[글](#go-sys)`, `[글](#go-map)`, `[글](#go-edu-4)`(교육 모듈 번호)로 씁니다.
 6. HBM 역추적의 장면·카드·단계 제목은 `src/journey.js` 의 `SCENES`, `CARDS`, `TITLES` 에 있습니다.
 7. 전해도금은 장마다 `src/plating/NN-id.js` 를 고칩니다. 장 순서는 파일 이름 번호(`no`)이고, 다른 장으로 가는 카드 링크는 `<a data-go="장id.단계id">` 입니다. 장 전용 스타일은 장 정의의 `css` 에 둡니다.
 8. 빌드합니다.
@@ -207,6 +245,7 @@ ENGR_HTML=/tmp/x.html node tests/smoke.cjs   # 다른 빌드 파일로
 - 따라가기
 - LLM: 요청 형식(모의 응답)과 거절 응답 처리
 - 공유용 HTML 왕복
+- 사내 시스템: 27개 상태 차례 전환, 이야기 단계마다 밝아지는 시스템 · 화살표(RTD → MCS 반송 포함), FDC 알람과 lot HOLD, 장비 DOWN · PM이 상태등과 MES 칸에 함께 보이는지, 상자 · 칩으로 이동, 발표 모드
 - 범프 공정: 17개 상태 차례 전환, 공정에 따라 층이 쌓이고 사라지는지, 리플로우 모양 변화, 보기 확대, 발표 모드, 공정 칩 이동
 - 전해도금: 13장 · 부별 장 수, 모든 단계를 스크롤로 지나며 장면이 바뀌는지, 차례 타일 · 칩 이동, 마우스 설명, 깊게 보기, 발표 모드, 위젯 계산값
 - HBM 역추적: 12개 장면 차례 전환, 장면 사이 줌 겹침, 배율·눈금, 위젯이 화면을 바꾸는지(데이터선 수·웨이퍼 맵·단수), 카드 안 단계와 ← → 키, 제조 순서 모드, 발표 모드, 탭 사이 링크

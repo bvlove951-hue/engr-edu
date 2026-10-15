@@ -469,6 +469,61 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   await plSeg('bath', 'dose', 'mix'); const outM = plNum(await plOut('bath', 'k-out'));
   ok(/계속/.test(ss0) && /\d+ %/.test(ss5) && plNum(t95) === 60 && outM < outT, `11 도금액 관리: bleed 0 → ${ss0}, 5 %/일 → 멈추는 수준 ${ss5} · 95 % 도달 ${t95}, 첨가제 이탈 시간 기준 ${outT}일 → Ah + 시간 ${outM}일`);
   await page.screenshot({ path: path.join(OUT, '09-plating.png') });
+
+  console.log('사내 시스템');
+  await page.click('[data-tab="edu"]');
+  await page.click('.toc-item >> nth=5');
+  await page.click('#edu-doc a[href="#go-sys"]');
+  await page.waitForSelector('#view-sys.active .sy-svg');
+  ok(await page.evaluate(() => window.EngrEdu.state.tab) === 'sys', '05 모듈의 링크로 사내 시스템 탭 열기');
+  const sy = await page.evaluate(() => ({
+    sys: [...new Set([...document.querySelectorAll('#view-sys [data-sys]')].map(e => e.dataset.sys))].length,
+    edges: document.querySelectorAll('#view-sys .sy-edge').length, beats: window.EngrSys.state.beats,
+    chips: document.querySelectorAll('#view-sys .sy-nav button').length, cards: document.querySelectorAll('#view-sys .jc').length }));
+  ok(sy.sys === 17 && sy.edges === 19 && sy.beats === 27 && sy.chips === 17, `시스템 15개 + PCS 묶음 + FAB · 화살표 ${sy.edges}개 · 단계 ${sy.beats}개 · 카드 ${sy.cards}장`);
+  const syAt = async s => {
+    await page.evaluate(s => { const b = window.EngrSys.blocks().find(x => x.states.includes(s)); const V = document.getElementById('view-sys'); V.scrollTop = b.top + (b.states.indexOf(s) + 0.5) / b.n * b.h - V.clientHeight * 0.5; }, s);
+    await page.waitForTimeout(150);
+    return page.evaluate(() => window.EngrSys.state.state);
+  };
+  const syOrder = await page.evaluate(() => window.EngrSys.order);
+  let syReached = 0;
+  for (const s of syOrder) if (await syAt(s) === s) syReached++;
+  ok(syReached === syOrder.length, `스크롤하면 ${syOrder.length}개 상태를 차례로 지난다 (${syReached}/${syOrder.length})`);
+  const syLook = () => page.evaluate(() => {
+    const q = s => document.querySelector('#view-sys ' + s), shown = s => !q(s).closest('.off');
+    return { lamp: q('.sy-lamp[data-lamp="plate"]').getAttribute('data-s'), chip: q('.sy-chip[data-lamp="plate"]').getAttribute('data-s'),
+      lot: q('#sy-lot').getAttribute('data-lot'), lotHidden: q('#sy-lot').style.opacity === '0', alarm: shown('[data-sys="fdc"] .sy-alarm'),
+      on: [...document.querySelectorAll('#view-sys .sy-edge.on')].map(e => e.dataset.edge).sort().join(','),
+      dim: [...document.querySelectorAll('#view-sys [data-sys].dim')].map(e => e.dataset.sys) };
+  });
+  await syAt('s1'); const l1 = await syLook();
+  await syAt('s2'); const l2 = await syLook();
+  await syAt('s5'); const l5 = await syLook();
+  await syAt('s6'); const l6 = await syLook();
+  await syAt('s7'); const l7 = await syLook();
+  ok(l1.lotHidden && l1.on === 'g-m,m-mes' && l1.dim.includes('fdc') && !l1.dim.includes('gmdm'), '이야기 1: 기준정보만 밝고 lot은 아직 없다');
+  ok(l2.lot === 'MOVE' && l2.on === 'mcs-fab,mes-rtd,rtd-mcs' && !l2.dim.includes('rtd') && !l2.dim.includes('mcs'), '이야기 2: MES → RTD(다음 lot) → MCS(반송), lot MOVE');
+  ok(l5.alarm && l5.lot === 'HOLD' && l5.on === 'fab-fdc,fab-tas', '이야기 5: FDC 알람 → lot HOLD');
+  ok(l6.lamp === 'down' && l6.chip === 'down' && l6.on === 'ees-mes,fab-ees' && !l6.alarm && !l6.dim.includes('eap'), '이야기 6: ALID → EAP → EES → MES, 장비 상태등과 MES 칸이 함께 DOWN');
+  ok(l7.lamp === 'pm' && l7.on === 'gi-fab,mes-gi', '이야기 7: GIPMS 정비, 장비 PM');
+  await page.click('#view-sys [data-sys="yes"] .sy-card', { force: true });  // 상자 안 글자를 눌러도 상자로 간다
+  await page.waitForTimeout(1600);
+  ok((await page.evaluate(() => window.EngrSys.state.state)) === 'yes', '지도의 상자를 누르면 그 시스템 카드로 (YES)');
+  await page.click('#view-sys .sy-nav button >> nth=8');
+  await page.waitForTimeout(1600);
+  ok((await page.evaluate(() => window.EngrSys.state.state)) === 'rms', '아래 칩을 누르면 이동 (PCS → RMS)');
+  await page.screenshot({ path: path.join(OUT, '09-sys.png') });
+  await page.click('#view-sys .sy .jz-tools .pres');
+  const sk0 = await page.evaluate(() => window.EngrSys.state.pres);
+  await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(300);
+  const sk1 = await page.evaluate(() => window.EngrSys.state);
+  const cap = await page.evaluate(() => document.querySelector('#view-sys .jz-cap .t').textContent);
+  await page.screenshot({ path: path.join(OUT, '10-sys-pres.png') });
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  ok(sk1.pres === sk0 + 1 && sk1.state === 'ec' && /EC/.test(cap) && (await page.evaluate(() => window.EngrSys.state.pres)) === null, `발표 모드: → 로 다음 (${sk1.state} · ${cap}), Esc로 닫기`);
   await page.click('[data-tab="map"]');
   // 파일 크기: 앞부분만 읽는 보기 화면에서도 끝(전해도금 엔진)까지 들어오도록
   const htmlPath = FILE.replace(/^file:\/\//, '');

@@ -4,16 +4,19 @@
 사용법:  python3 tools/build.py            (dist/engr-edu.html)
         python3 tools/build.py --out 경로  (다른 곳에 만들기 — 작업 중 비교용)
         python3 tools/build.py --out 경로 --only 03,07  (전해도금 탭에 그 장만 넣기)
-        python3 tools/build.py --no-min    (코드를 줄이지 않은 읽기 쉬운 결과물 — 디버깅용)
+        python3 tools/build.py --no-min    (코드를 줄이지 않고 교육 콘텐츠도 압축하지 않은 읽기 쉬운 결과물 — 디버깅용)
 결과물은 외부 파일·CDN 없이 더블클릭만으로 열리는 하나의 HTML 파일이다.
-코드의 주석 · 빈칸은 tools/minify.cjs 로 덜어 낸다(Node.js + typescript 필요, 없으면 그대로 두고 알린다).
+코드의 주석 · 빈칸은 tools/minify.cjs 로 덜어 내고(Node.js + typescript 필요, 없으면 그대로 두고 알린다),
+교육 콘텐츠(JSON)는 DEFLATE 로 압축해 base64 로 넣는다(앱의 inflateRaw 가 푼다).
 일부 앱 보기 화면은 HTML 파일의 앞 1 MB 정도만 읽으므로 결과물을 1,000,000 바이트 아래로 유지한다.
 """
+import base64
 import json
 import re
 import shutil
 import subprocess
 import sys
+import zlib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -27,6 +30,8 @@ PARTS = {
     "/*@JOURNEY_JS@*/": ROOT / "src" / "journey.js",     # HBM 역추적 탭 (스크롤 줌 스토리)
     "/*@BUMP_CSS@*/": ROOT / "src" / "bump.css",         # 범프 공정 탭 스타일
     "/*@BUMP_JS@*/": ROOT / "src" / "bump.js",           # 범프 공정 탭 (웨이퍼·다이·범프 한 화면)
+    "/*@SYS_CSS@*/": ROOT / "src" / "systems.css",       # 사내 시스템 지도 탭 스타일
+    "/*@SYS_JS@*/": ROOT / "src" / "systems.js",         # 사내 시스템 지도 탭 (MES·FDC·… 한 장 지도)
     "/*@PLATING_CSS@*/": ROOT / "src" / "plating.css",   # 전해도금 탭 스타일
     # 전해도금 탭: 장(章)마다 한 파일(src/plating/NN-*.js)을 번호 순으로 싣고, 마지막에 엔진(src/plating.js)
     "/*@PLATING_JS@*/": [*sorted((ROOT / "src" / "plating").glob("*.js")), ROOT / "src" / "plating.js"],
@@ -117,7 +122,13 @@ def main():
     pattern = re.compile(r'(<script type="application/json" id="edu-data">)(.*?)(</script>)', re.S)
     if not pattern.search(html):
         sys.exit("src/app.html 에서 edu-data 자리를 찾지 못했습니다")
-    html = pattern.sub(lambda m: m.group(1) + payload + m.group(3), html, count=1)
+    if "--no-min" in sys.argv:
+        html = pattern.sub(lambda m: m.group(1) + payload + m.group(3), html, count=1)
+    else:
+        # 교육 콘텐츠(글 · 그림)는 압축해 base64 로 넣는다 — 앱(loadEdu)이 inflateRaw 로 푼다
+        z = zlib.compressobj(9, zlib.DEFLATED, -15, 9)
+        packed = base64.b64encode(z.compress(payload.replace("<\\/", "</").encode("utf-8")) + z.flush()).decode("ascii")
+        html = pattern.sub(lambda m: '<script type="application/octet-stream" id="edu-data" data-z="deflate">' + packed + m.group(3), html, count=1)
     html = inject_parts(html, only)
     check_self_contained(html)
     out.parent.mkdir(parents=True, exist_ok=True)
