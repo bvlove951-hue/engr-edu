@@ -1,5 +1,6 @@
 /* 시드 식각 09 — 불량 도감: 이 불량은 어디서 왔을까? (범프 · 웨이퍼)
-   그림은 베이스 다이 범프(Cu 기둥 12 + Ni 3 + 상부 Cu 3 + SnAg 12 µm) 기준, 코어 다이(Ni 5 + SnAg 12 µm) 불량은 die: 'core' 타일로 — 모두 예시 값 (plans/stack.md) */
+   그림은 베이스 다이 범프(Cu 기둥 12 + Ni 3 + 상부 Cu 3 + SnAg 12 µm) 기준, 코어 다이(Ni 5 + SnAg 12 µm) 불량은 die: 'core' 타일로 — 모두 예시 값 (plans/stack.md)
+   die = 그 다이에만 있는 불량(타일 표시) · fig = 그림만 코어 다이 */
 (function(){
 // 원인 꼬리표: 식각 인자 셋 + 비식각 인자 둘 (타일 · 상세 · 인자 지도 모두 같은 다섯 개)
 const CATS = ['eq', 'bath', 'cond', 'up', 'dn'];
@@ -10,7 +11,7 @@ const TD = {eq: '장비', bath: '액', cond: '조건', up: '앞 공정', dn: '�
 const STG = ['식각 직후', '누설 시험', '리플로우 뒤', '본딩 · 적층 뒤', '신뢰성 시험 뒤'];
 const STGL = ['식각 직후 (외관 · 표본 단면)', '누설(전기) 시험 — 시험 패턴 · 표본', '리플로우 뒤', '본딩 · 적층 뒤 (임시 접합 · 디본딩 포함)', '신뢰성 시험 뒤 (HAST 등)'];
 const COMMON = '공통점 찾기 — 식각 장비 · 액 나이 · 단계 사이 시간 · PVD 챔버 · 도금 · 스트립 lot';
-// 불량 16종: sn 타일 이름 · nm 이름 · def 생김새 · die 그림 · 표시 다이('base' 그 다이만 · 'core' 코어 다이 그림 — 없으면 두 다이 공통, 그림은 베이스) · dn 다이 메모
+// 불량 16종: sn 타일 이름 · nm 이름 · def 생김새 · die 그 다이에만 있는 불량('base' · 'core', 타일 표시 — 없으면 두 다이 공통, 그림은 베이스) · fig 그림만 코어 다이('core', 표시 없음) · dn 다이 메모
 // st 처음 보이는 단계 · map 맵 무늬(m: 웨이퍼 그림 종류) · c 원인 [꼬리표, 짧게, 더] · k 확인 · f 대책 · go 더 보기
 const DIEL = {base: '베이스', core: '코어'};
 const DIEF = {base: '베이스 다이 Cu / Ni / Cu / SnAg', core: '코어 다이 Ni / SnAg'};
@@ -83,7 +84,7 @@ const DEF = [
     c: [['bath', '산화제 · pH · 조성, 늙은 Cu 식각액', '산화제가 모자란 늙은 Cu 식각액에서는 녹은 Cu가 Sn 위에 다시 석출될 수 있다'], ['eq', '헹굼 · 건조 지연'], ['dn', '플라즈마 처리 · 리플로우 분위기 · 대기 시간']],
     k: ['외관 색 · XPS · AES — 산화막 두께', '리플로우 뒤 모양 · 젖음'], f: '식각액 조성 · 시간, 헹굼 · 건조, 리플로우 전 처리 (→ 리플로우 03장)',
     go: [['#go-reflow-03', '리플로우 03장']]},
-  {id: 'nier', die: 'core', sn: 'Ni · SnAg 침식', nm: 'Ni · SnAg 침식 (선택비 부족)', def: '식각액이 Cu만 고르지 못해 Ni · SnAg 옆면도 녹았습니다. 겉이 Ni · SnAg뿐인 코어 다이는 이것이 범프 옆 손실의 대부분 — Ni 단면 · 솔더 양이 줄어듭니다.',
+  {id: 'nier', fig: 'core', sn: 'Ni · SnAg 침식', nm: 'Ni · SnAg 침식 (선택비 부족)', def: '식각액이 Cu만 고르지 못해 Ni · SnAg 옆면도 녹았습니다. 겉이 Ni · SnAg뿐인 코어 다이는 이것이 범프 옆 손실의 대부분 — Ni 단면 · 솔더 양이 줄어듭니다.',
     dn: '그림은 코어 다이(Ni 몸통 · SnAg) — 베이스 다이도 Cu 기둥과 상부 Cu 사이 Ni 띠 · SnAg가 같은 액에 닿습니다',
     st: [0, 2], map: '웨이퍼 전체 — 액 조성 · 시간과 함께 움직인다', m: ['all'],
     c: [['bath', '산 · 산화제 조성 · 억제제 — Cu 대 Ni · Sn 선택비', '같은 과산화수소 + 산 계열도 조성 · pH에 따라 Ni · Sn을 녹이는 정도가 크게 다르다 (06장 표)'], ['cond', '시간 · 온도'], ['up', 'Ni 도금 조건 (응력 · 불순물)']],
@@ -205,7 +206,9 @@ function bump(K, id, cx, by, k, mk){
         + ghost([[-87.5, KS, -7], [-32.5, KS, -7], [32.5, KS, -7], [87.5, KS, -7]]) + ring(-30, -14, 7, 10) + ring(30, -14, 7, 10);
     case 'sidewet': {
       let s = pas() + col(-60, {sa: 'dome', ni: 2.5, top: -66}) + col(60, {sa: 'dome', ni: 2.5, top: -66});
-      [-60, 60].forEach(bx => { s += rect(bx - W - 3.4, YU + 1, bx - W, -6, 'f-sn2') + rect(bx + W, YU + 1, bx + W + 3.4, -6, 'f-sn2') + rect(bx - W - 0.9, YU + 2, bx - W, -7, 'f-imc') + rect(bx + W, YU + 2, bx + W + 0.9, -7, 'f-imc'); });
+      // 흘러내린 솔더는 파인 Ni 자리도 메운다 — IMC는 상부 Cu · 기둥 옆면과 Ni 옆면(안쪽)에
+      [-60, 60].forEach(bx => { s += rect(bx - W - 3.4, YU + 1, bx - W, -6, 'f-sn2') + rect(bx + W, YU + 1, bx + W + 3.4, -6, 'f-sn2') + rect(bx - W, YN, bx - W + 2.5, YC, 'f-sn2') + rect(bx + W - 2.5, YN, bx + W, YC, 'f-sn2')
+        + [[YU + 2, YN], [YC, -7]].map(([a, b]) => rect(bx - W - 0.9, a, bx - W, b, 'f-imc') + rect(bx + W, a, bx + W + 0.9, b, 'f-imc')).join('') + rect(bx - W + 1.6, YN, bx - W + 2.5, YC, 'f-imc') + rect(bx + W - 2.5, YN, bx + W - 1.6, YC, 'f-imc'); });
       s += E(X(-29), Y(-6.5), 5.5 * k, 4.5 * k, 'f-sn2') + E(X(29), Y(-6.5), 5.5 * k, 4.5 * k, 'f-sn2');
       return s + ring(-30, -24, 7, 22) + ring(30, -24, 7, 22);
     }
@@ -288,7 +291,7 @@ const INS = [
   ['flow', '흐름 · 회전 · 노즐 맵', '흐름 · 회전 · 유량 · 노즐(속도) 맵', 'eq', [['resid', 'good', 'T', '공급 지배면 빨라지고 빽빽한 곳이 덜 늦다'], ['under', 'bad', 'D', '같은 시간이면 더 깎인다 — 좁은 틈 속 옆면은 조건에 따라'], ['unif', 'good', 'T', '속도 맵을 시드 맵에 맞추면 끝점 맵이 평평해진다']]],
   ['delay', '헹굼 지연 ↑', '식각 → 헹굼 전환 지연 ↑', 'eq', [['under', 'bad', 'L', '고인 곳에서 지연 × 속도만큼 더 깎인다'], ['stain', 'bad', 'T', '마른 자리 · 얼룩 · 산화'], ['unif', 'bad', 'T', '배치 위아래 · 웨이퍼 안 차이']]],
   ['midr', '단계 사이 헹굼 부족', 'Cu 식각 → Ti 식각 사이 헹굼 · 회수 경로 부족', 'eq', [['stain', 'bad', 'T', 'Cu²⁺가 Ti 식각액으로 → Ti · Sn 위 Cu 치환 석출'], ['resid', 'bad', 'D', '석출된 Cu가 Ti를 가려 국부 잔여'], ['unif', 'bad', 'T', 'Ti 식각액이 빨리 지친다']]],
-  ['seed', '시드 두께 · 산포 ↑', 'PVD 시드 두께 · 산포 ↑', 'up', [['resid', 'bad', 'T', '시간을 그대로 두면 두꺼운 곳에 잔여'], ['under', 'bad', 'L', '시간을 늘리면 얇은 곳 · 기둥 깎임↑'], ['unif', 'bad', 'T', '끝점 맵이 시드 맵을 닮는다 (속도 맵으로 상쇄 가능)']]],
+  ['seed', '시드 두께 · 산포 ↑', 'PVD 시드 두께 · 산포 ↑', 'up', [['resid', 'bad', 'T', '시간을 그대로 두면 두꺼운 곳에 잔여'], ['under', 'bad', 'L', '시간을 늘리면 얇은 곳 밑동 깎임↑ (베이스 Cu 기둥 · 상부 Cu, 코어 Ni 발 밑 시드)'], ['unif', 'bad', 'T', '끝점 맵이 시드 맵을 닮는다 (속도 맵으로 상쇄 가능)']]],
   ['dens', '패턴 밀도 차이 ↑', '패턴 밀도 차이 (빽빽한 블록 vs 외톨이) ↑', 'up', [['resid', 'bad', 'T', '빽빽한 곳이 늦게 지워진다'], ['under', 'bad', 'T', '외톨이 · 성긴 곳이 오래 녹는다'], ['unif', 'bad', 'T', '다이 안 · 다이 사이 차이']]],
   ['prres', 'PR 찌꺼기 · 입자', 'PR 스트립 찌꺼기 · 입자', 'up', [['resid', 'bad', 'T', '가린 자리만 안 녹는다 (점 · 섬)'], ['stain', 'bad', 'T', '얼룩 · 입자']]],
   ['ecdcu', '도금 Cu 결정', '도금 Cu 결정 (풀림 전 · 잔 결정)', 'up', [['metal', 'bad', 'D', '베이스 다이 Cu 기둥 · 상부 Cu 띠가 더 빨리 얇아진다'], ['under', 'bad', 'D', '계면 홈']]],
@@ -370,7 +373,7 @@ function sizeOf(id, k){
   ],
   icon(K){
     const {R, P, E} = K;
-    return R(2, 46, 62, 7, 'f-pas') + [8, 42].map(x => R(x, 28, 18, 16, 'f-cu2') + R(x, 23, 18, 5, 'f-ni') + R(x, 18, 18, 5, 'f-cu2') + R(x, 6, 18, 12, 'f-sn2')).join('')
+    return R(2, 46, 62, 7, 'f-pas') + [8, 42].map(x => R(x, 30, 18, 14, 'f-cu2') + R(x, 26, 18, 4, 'f-ni') + R(x, 22, 18, 4, 'f-cu2') + R(x, 8, 18, 14, 'f-sn2')).join('')
       + R(8, 44, 18, 2, 'f-seed2') + R(46, 44, 10, 2, 'f-seed2') + R(26, 43, 16, 3, 'f-seed2') + E(34, 44.5, 11, 5, 'et09-mk');
   },
   draw(K){
@@ -396,7 +399,7 @@ function sizeOf(id, k){
     tl += LB(lg, tip('식각 인자: 식각-장비 · 식각-액 · 식각-조건 (이 공정 엔지니어가 바꿀 수 있는 것)\n비식각 인자: 앞 공정(PVD · 도금 · 스트립) · 뒤 공정(플라즈마 · 리플로우 · 임시 접합/디본딩 · 본딩)\n원인을 나누면 누구와 상의할지가 바로 보인다'));
     Object.keys(GCAP).forEach(k => { tl += LB(T(1556, 592, GCAP[k], 't-acc', 'end'), only(k)); });
     // 아래 상세 판 (위젯이 그린다)
-    tl += R(40, 608, 1520, 502, 'pl-panel', {rx: 14}) + R(56, 620, 548, 262, 'pl-lane', {rx: 10}) + `<g data-v="detail"></g>`;
+    tl += R(40, 608, 1520, 502, 'pl-panel', {rx: 14}) + R(56, 620, 548, 270, 'pl-lane', {rx: 10}) + `<g data-v="detail"></g>`;
     s += G(tl, {'data-off': 'map'});
     // ---- map 단계: 인자 지도 (15 × 7) + 크기 막대 ----
     let mp = T(IX, 152, '손잡이 (인자)', 't-acc', 'start') + T(OX, 152, '결과 (불량 · 품질)', 't-acc', 'start') + `<g data-v="sel"></g>`;
@@ -462,7 +465,7 @@ function sizeOf(id, k){
         s += L(px, py, mx, my + (dy < 0 ? 14 : -14), 'et09-ld') + C(px, py, 4, 'et09-ldk') + C(mx, my, 15, 'et09-nb') + T(mx, my + 7, String(j + 1), 'et09-nbt');
       });
       // 층 이름표 (왼쪽 범프 옆) + 어느 다이 그림인지
-      const dk = d.die === 'core' ? 'core' : 'base', lx = DCX - 87.5 * DK - 14;
+      const dk = (d.fig || d.die) === 'core' ? 'core' : 'base', lx = DCX - 87.5 * DK - 14;
       s += LB(LAYL[dk].map(([t, ly]) => T(lx, DBY + ly * DK + 6, t, 'et09-ll', 'end')).join(''));
       s += T(70, 648, d.sn, 'et09-h', 'start') + T(598, 879, `${DIEF[dk]} · 두께 · 깎임 과장`, 't-dim', 'end');
       ns.forEach(([, , , , tx], j) => { s += C(74, 904 + j * 32, 12, 'et09-nb') + T(74, 910 + j * 32, String(j + 1), 'et09-nbt') + T(94, 911 + j * 32, tx, 'et09-tx', 'start'); });

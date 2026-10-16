@@ -173,8 +173,8 @@ const VKPI = {short: 'ng', leak: 'warn', open: 'ok', ox: 'warn', isl: 'ok', none
     BX.forEach(c => { kp += R(c - HW - 4, Y_SD - 4, 2 * HW + 8, Y_PAS - Y_SD + 8, 'et01-keep', {rx: 4}) + T(c, Y_SD - 14, '남길 곳', 'pl-hdg3'); });
     [[584, 624], ...GAPS.map(([a, b]) => [a + 8, b - 8]), [1496, 1536]].forEach(([a, b]) => { kp += R(a, Y_SD - 4, b - a, Y_PAS - Y_SD + 8, 'et01-del', {rx: 4}); });
     GAPS.forEach(([a, b]) => { kp += T((a + b) / 2, Y_SD - 24, '지울 곳', 'pl-hdg2'); });
-    kp += K.lead(BX[1] + HW - 3, Y_SD + 8, BX[1] + HW + 16, 418, '밑동 파임 → 04장', 'start', 't-dim');
-    kp += K.lead(BX[1] + HW - KE + 1, (Y_UC + Y_NI) / 2, BX[1] + HW + 16, 354, '상부 Cu 홈 → 04장', 'start', 't-dim');
+    kp += K.lead(BX[1] + HW - 3, Y_SD + 8, BX[1] + HW + 8, 418, '밑동 파임 → 04장', 'start', 't-dim');
+    kp += K.lead(BX[1] + HW - KE + 1, (Y_UC + Y_NI) / 2, BX[1] + HW + 8, 354, '상부 Cu 홈 → 04장', 'start', 't-dim');
     kp += LB(T(580, 600, '덜 지우면 잔여 · 누설 ↔ 더 지우면 밑동이 파인다 (언더컷 → 04장)', 't-sub', 'start') + T(580, 632, '범프 밑 시드는 남아 범프를 붙잡는다 — 그림의 파임은 과장', 't-dim', 'start'));
     s += G(kp, W(only('keep'), tip('초록 = 남길 곳(범프 밑) · 빨간 점선 = 지울 곳(범프 사이)')));
     // ── ③ 아래 패널 (확대 단계에서는 흐리게)
