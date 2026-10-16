@@ -221,7 +221,7 @@ function drawCowos(){
   let mb = '';
   for (let x = -1010; x <= 545; x += 30) mb += R(x - 9, 478, 18, 22, 'f-sn', {rx: 4});
   for (let x = 640; x <= 1190; x += 30) mb += R(x - 9, 478, 18, 22, 'f-sn', {rx: 4});
-  s += G(mb, Object.assign(st('1 2 3 4 5'), {'data-hlk': '1'}, tip('마이크로범프 — HBM·GPU를 인터포저에 붙인다 (피치 수십 µm)')));
+  s += G(mb, Object.assign(st('1 2 3 4 5'), {'data-hlk': '1'}, tip('마이크로범프 — HBM·GPU를 인터포저에 붙인다 (피치 수십 µm)\nHBM 쪽은 베이스 다이 앞면 범프: Cu / Ni / Cu / SnAg')));
   // 언더필 (2)
   s += G(PG([[XL, 478], [560, 478], [585, 500], [XL, 500]], 'f-uf') + PG([[620, 478], [1207, 478], [1232, 500], [598, 500]], 'f-uf'),
     Object.assign(st('2 3 4 5'), {'data-hlk': '2'}, tip('언더필 — 범프 사이를 채워 기계적으로 보강')));
@@ -410,16 +410,16 @@ function drawStackCut(N){
     poly([[t - w, c, z1], [t + w, c, z1], [t + w, c, z0], [t - w, c, z0]], cls);
   const DIE = ['f-core', 'f-coreL', 'f-coreR', 'f-cutR', 'f-cutL'];
   const GAP = ['f-mufT', 'f-muf', 'f-muf', 'f-muf', 'f-muf'];
-  let s = slab(0, 11, 0, sg.base, ['f-base', 'f-baseS', 'f-baseS', 'f-baseC', 'f-baseC'], tip('베이스 다이 — 로직·인터페이스\n(HBM4부터 파운드리 로직 공정을 쓰는 사례)'));
+  let s = slab(0, 11, 0, sg.base, ['f-base', 'f-baseS', 'f-baseS', 'f-baseC', 'f-baseC'], tip('베이스 다이 — 로직·인터페이스\n(HBM4부터 파운드리 로직 공정을 쓰는 사례)\n앞면 범프는 아래 인터포저 쪽: Cu 기둥 / Ni / 상부 Cu / SnAg'));
   s += G(TSV_AT.map(t => band(t, 0.11, 2, sg.base, 'f-cu')).join(''));
   for (let k = 0; k < N; k++){
     const z = sg.zOf(k), zg = z - sg.g;
-    // 접합부: 채움재 + 마이크로범프 (아래 다이 후면 패드 → 솔더 → 위 다이 Cu 기둥)
+    // 접합부: 채움재 + 마이크로범프 (아래 다이 후면 패드 → 솔더 → 위 다이 앞면 범프의 Ni). 코어 다이 범프는 Ni / SnAg — Cu 기둥 없음
     let jn = slab(0.15, 10.85, zg, z, GAP);
-    jn += TSV_AT.map(t => band(t, 0.24, zg, zg + 1.2, 'f-ni') + band(t, 0.24, zg + 1.2, zg + 3.4, 'f-sn') + band(t, 0.2, zg + 3.4, z, 'f-cu')).join('');
-    s += G(jn, tip('접합부 — 마이크로범프 + 빈틈 채움재\n(MR-MUF는 몰드, TC-NCF는 필름으로 채운다)'));
+    jn += TSV_AT.map(t => band(t, 0.24, zg, zg + 1, 'f-ni') + band(t, 0.24, zg + 1, zg + 4.2, 'f-sn') + band(t, 0.22, zg + 4.2, z, 'f-ni')).join('');
+    s += G(jn, tip('접합부 — 마이크로범프 + 빈틈 채움재\n위 다이 앞면의 Ni / SnAg 범프 → 아래 다이 후면 패드\n(MR-MUF는 몰드, TC-NCF는 필름으로 채운다)'));
     s += slab(0.3, 10.7, z, z + sg.dz, DIE, tip(`코어 다이 #${k + 1} (DRAM)\n두께 수십 µm · TSV 수천 개`));
-    s += G(TSV_AT.map(t => band(t, 0.11, z, z + sg.dz, 'f-cu')).join(''), tip('TSV — 다이를 관통한 Cu 기둥'));
+    s += G(TSV_AT.map(t => band(t, 0.11, z, z + sg.dz, 'f-cu')).join(''), tip('TSV — 다이를 관통해 Cu로 채운 통로'));
   }
   // 몰드: 바깥을 반투명 껍질로
   const zm = sg.zTop + 3;
@@ -439,7 +439,7 @@ function drawStackCut(N){
 function drawStackExploded(N){
   const sg = stackGeom(N, true), Pj = sg.Pj;
   const tsv = [[5.5, 2.5], [5.5, 4], [5.5, 5.5], [5.5, 7], [5.5, 8.5]];
-  let s = isoBox(Pj, 0, 0, 11, 11, 0, sg.base, 'f-base', 'f-baseS', 'f-baseS', tip('베이스 다이 — 로직·인터페이스\n(HBM4부터 파운드리 로직 공정을 쓰는 사례)'));
+  let s = isoBox(Pj, 0, 0, 11, 11, 0, sg.base, 'f-base', 'f-baseS', 'f-baseS', tip('베이스 다이 — 로직·인터페이스\n(HBM4부터 파운드리 로직 공정을 쓰는 사례)\n앞면 범프는 아래 인터포저 쪽: Cu 기둥 / Ni / 상부 Cu / SnAg'));
   for (let k = 0; k < N; k++){
     const z = sg.zOf(k);
     for (const [x, y] of tsv){
@@ -474,14 +474,14 @@ function drawStack(p){
 
 /* 장면 8 — 후면 공정 (캐리어 위에 뒤집힌 코어 웨이퍼), 화면 폭 200 µm. 상태 0~5 */
 function drawBack(){
-  const xs = [-400, 0, 400, 800, 1200, 1600, 2000];     // TSV·범프 자리 (피치 ≈ 50 µm, 예시)
+  const xs = [-400, 0, 400, 800, 1200, 1600, 2000];     // TSV·범프 자리 (피치 ≈ 50 µm, 예시) — 1 µm = 8
   const each = f => xs.map(f).join('');
   let s = '';
   s += G(R(XL, 880, XW, 520, 'f-car') + LB(T(1580, 955, '캐리어 웨이퍼', 't-sub', 'end')), tip('캐리어 웨이퍼 — 얇아진 웨이퍼를 받치는 받침 (유리 또는 Si)'));
-  s += G(R(XL, 690, XW, 190, 'f-adh') + LB(T(1580, 862, '임시 접착제', 't-sub', 'end')), tip('임시 접착제 — 후면 공정이 끝나면 떼어 낸다 (디본딩)'));
-  s += G(each(x => R(x - 80, 690, 160, 80, 'f-cu') + R(x - 80, 770, 160, 16, 'f-ni') +
-    P(`M${x - 80},786 L${x + 80},786 L${x + 80},800 Q${x + 80},852 ${x},852 Q${x - 80},852 ${x - 80},800 Z`, 'f-sn')),
-    tip('앞면 범프 (뒤집힌 상태)\nCu 기둥 + Ni + SnAg'));
+  s += G(R(XL, 690, XW, 190, 'f-adh') + LB(T(1490, 862, '임시 접착제', 't-sub', 'end')), tip('임시 접착제 — 후면 공정이 끝나면 떼어 낸다 (디본딩)'));
+  // 앞면 범프 (코어 다이: Ni / SnAg, Cu 기둥 없음) — 지름 25 µm, Ni 5 µm, 리플로우한 솔더 돔 높이 ≈ 15.7 µm (예시), 뒤집혀 아래로 볼록
+  s += G(each(x => R(x - 100, 690, 200, 40, 'f-ni') + P(`M${x - 100},730 A103,103 0 1 0 ${x + 100},730 Z`, 'f-sn') + R(x - 100, 730, 200, 3, 'f-imc')),
+    tip('앞면 범프 (뒤집힌 상태)\n코어 다이: Ni / SnAg — Cu 기둥 없음'));
   let beol = R(XL, 640, XW, 50, 'f-beol');
   for (let x = -1080; x < XR; x += 110) beol += R(x, 652, 60, 7, 'f-metal') + R(x + 40, 670, 50, 7, 'f-metal');
   s += G(beol, tip('회로층(BEOL) — 앞면. 지금은 아래를 보고 있다'));
@@ -492,23 +492,24 @@ function drawBack(){
   // TSV
   const tsv = () => each(x => R(x - 28, 255, 4, 385, 'f-ox') + R(x + 24, 255, 4, 385, 'f-ox') + R(x - 24, 255, 48, 385, 'f-cu'));
   s += G(tsv(), Object.assign(st('0 1'), {opacity: 0.5}));
-  s += G(tsv(), Object.assign(st('2 3 4 5'), tip('TSV — 실리콘을 관통한 Cu 기둥 (지름 수 µm, 길이 수십 µm)')));
+  s += G(tsv(), Object.assign(st('2 3 4 5'), tip('TSV — 실리콘을 관통해 Cu로 채운 통로 (지름 수 µm, 길이 수십 µm)')));
   s += G(each(x => R(x - 28, 251, 56, 4, 'f-ox')), st('0 1 2 3'));
   s += G(R(XL, 263, XW, 8, 'f-pas') + each(x => R(x - 36, 243, 72, 8, 'f-pas') + R(x - 36, 243, 8, 28, 'f-pas') + R(x + 28, 243, 8, 28, 'f-pas')), st('3'));
   s += G(R(XL, 255, XW, 16, 'f-pas') + each(x => R(x - 24, 255, 48, 16, 'f-cu')), st('4 5'));
-  s += G(each(x => R(x - 88, 235, 176, 20, 'f-ni') + R(x - 88, 231, 176, 4, 'f-au')), Object.assign(st('5'), tip('후면 패드 — 위 다이의 범프가 여기에 붙는다')));
+  s += G(each(x => R(x - 88, 235, 176, 20, 'f-ni') + R(x - 88, 231, 176, 4, 'f-au')), Object.assign(st('5'), tip('후면 패드 — 위 다이의 Ni / SnAg 범프가 여기에 붙는다')));
   s += G(lead(1224, 400, 1320, 400, 'TSV (Cu)'), st('2 3 4 5'));
-  s += lead(1280, 810, 1340, 730, '앞면 범프 (뒤집힘)');
+  s += lead(1270, 800, 1316, 744, '앞면 범프 (뒤집힘)');
   s += lead(1590, 665, 1500, 600, '회로층', 'end');
   s += G(lead(1290, 236, 1360, 196, '후면 패드'), st('5'));
   s += callout({x: 800, y: 770, w: 480}, '◀◀ 뒤집어서 앞면으로', 'below');
   return s;
 }
 
-/* 장면 9 — 앞면 범프 도금 + 캐리어 본딩, 화면 폭 60 µm. 상태 0~8
-   가운데 범프(533~1067)와 양옆 이웃 범프 (피치 ≈ 40 µm, 예시) */
+/* 장면 9 — 코어 웨이퍼 앞면 범프 도금 + 캐리어 본딩, 화면 폭 60 µm (1 µm ≈ 26.7). 상태 0~8
+   코어 다이 범프 = Ni / SnAg (Cu 기둥 없음). 예시: 지름 25 µm, Ni 5 µm, SnAg 12 µm → 리플로우 돔 꼭대기 ≈ 15.7 µm
+   가운데 범프(467~1133)와 양옆 이웃 범프 (피치 ≈ 50 µm, 예시 — 장면 8의 범프 자리와 겹친다) */
 function drawFront(){
-  const BX = [-1067, 0, 1067];
+  const BX = [-1333, 0, 1333], B0 = 467, BW = 666, YN = 609, YT = 289;   // 범프 왼쪽 끝·폭, Ni 윗면(시드 윗면 742), SnAg 윗면
   const each = f => BX.map(f).join('');
   let s = '';
   s += G(R(XL, 860, XW, 540, 'f-si') + each(d => R(720 + d, 820, 8, 580, 'f-ox') + R(872 + d, 820, 8, 580, 'f-ox') + R(728 + d, 820, 144, 580, 'f-cu')),
@@ -519,24 +520,26 @@ function drawFront(){
   s += G(beol, tip('회로층(BEOL) — 금속 배선'));
   s += G(R(XL, 748, XW, 12, 'f-pas'), tip('보호막(패시베이션)'));
   s += G(each(d => R(600 + d, 748, 400, 12, 'f-al')), tip('패드 — 범프가 서는 금속'));
-  s += G(R(XL, 742, XW, 6, 'f-cu'), st('1 2 3 4 5'));
-  s += G(each(d => R(533 + d, 742, 534, 6, 'f-cu')), st('6 7 8'));
-  const pr = [[XL, -534], [0, 533], [1067, 1600], [2134, XR]];      // 감광막: 범프 자리만 비운다
-  s += G(pr.map(([a, b]) => R(a, 210, b - a, 532, 'f-pr')).join(''), Object.assign(st('2 3 4 5'), tip('감광막(PR) — 도금할 자리만 연 틀')));
-  s += G(each(d => R(533 + d, 482, 534, 260, 'f-cu')), Object.assign(st('3 4 5 6 7 8'), tip('Cu 기둥 — 전기가 흐르는 몸통, 높이를 만든다')));
-  s += G(each(d => R(533 + d, 428, 534, 54, 'f-ni')), Object.assign(st('4 5 6 7 8'), tip('Ni — 솔더와 Cu가 과하게 반응하지 않게 막는다')));
-  s += G(each(d => R(533 + d, 228, 534, 200, 'f-sn')), Object.assign(st('5 6'), tip('SnAg 솔더 — 녹아서 붙는 접합재')));
-  s += G(each(d => P(`M${533 + d},428 L${533 + d},330 C${533 + d},168 ${1067 + d},168 ${1067 + d},330 L${1067 + d},428 Z`, 'f-sn') + R(533 + d, 420, 534, 8, 'f-imc')),
-    Object.assign(st('7 8'), tip('리플로우 후 솔더 + IMC(금속간화합물)')));
-  s += G(R(XL, 160, XW, 588, 'f-adh') + R(XL, -400, XW, 560, 'f-car') + LB(T(1580, 120, '캐리어 웨이퍼', 't-sub', 'end') + T(1580, 210, '임시 접착제', 't-sub', 'end')), st('8'));
-  s += G(R(1110, 300, 360, 56, 'f-part', {rx: 28}) + T(1290, 336, '★ 전해도금 (ECD)', 't-warn'), st('3 4 5'));
-  s += G(lead(1067, 600, 1180, 640, 'Cu 기둥'), st('3 4 5 6 7 8'));
-  s += G(lead(1067, 455, 1180, 470, 'Ni'), st('4 5 6 7 8'));
-  s += G(lead(1067, 300, 1180, 230, 'SnAg 솔더'), st('5 6 7'));
-  s += G(lead(1067, 424, 1180, 410, 'IMC'), st('7'));
-  s += G(lead(300, 742, 260, 690, '시드층', 'end'), st('1 2'));
-  s += G(lead(300, 600, 260, 560, '감광막 틀', 'end'), st('2'));
-  s += lead(980, 754, 1180, 720, '패드');
+  s += G(R(XL, 742, XW, 6, 'f-cu'), Object.assign(st('1 2 3 4 5'), tip('시드층 — Ti 위 Cu (PVD). 실제 수백 nm — 그림은 과장')));
+  s += G(each(d => R(B0 + d, 742, BW, 6, 'f-cu')), st('6 7 8'));
+  const ed = [XL, ...BX.flatMap(d => [B0 + d, B0 + BW + d]), XR];      // 감광막: 범프 자리만 비운다
+  let pr = '';
+  for (let k = 0; k < ed.length; k += 2) pr += R(ed[k], 210, ed[k + 1] - ed[k], 532, 'f-pr');
+  s += G(pr, Object.assign(st('2 3 4'), tip('감광막(PR) — 도금할 자리만 연 틀')));
+  s += G(each(d => R(B0 + d, YN, BW, 742 - YN, 'f-ni')), Object.assign(st('3 4 5 6 7 8'), tip('Ni — 몸통 겸 방벽 (Cu 기둥 없음)\n시드 위에 바로 도금, 예시 5 µm')));
+  s += G(each(d => R(B0 + d, YT, BW, YN - YT, 'f-sn')), Object.assign(st('4 5 6'), tip('SnAg — 녹아서 붙는 솔더 (예시 12 µm)')));
+  s += G(each(d => P(`M${B0 + d},${YN} A342,342 0 1 1 ${B0 + BW + d},${YN} Z`, 'f-sn') + R(B0 + d, YN - 9, BW, 9, 'f-imc')),
+    Object.assign(st('7 8'), tip('리플로우 후 — 솔더가 Ni 위에서 돔이 된다\n플럭스·포름산은 솔더 겉 산화막을 걷는다\n(Ni 도금 뒤 SnAg까지 지체되면 Ni 면이 산화돼 덜 젖을 수 있다)\n계면 IMC = Ni₃Sn₄ (Ni가 조금씩 먹힌다)')));
+  s += G(R(XL, 130, XW, 618, 'f-adh') + R(XL, -400, XW, 530, 'f-car') + LB(T(1580, 100, '캐리어 웨이퍼', 't-sub', 'end') + T(1580, 186, '임시 접착제', 't-sub', 'end')), st('8'));
+  s += G(R(1170, 300, 360, 56, 'f-part', {rx: 28}) + T(1350, 336, '★ 전해도금 (ECD)', 't-warn'), st('3 4'));
+  s += G(lead(1133, 690, 1200, 668, 'Ni — 몸통 겸 방벽'), st('3 4 5 6 7 8'));
+  s += G(lead(1133, 450, 1200, 410, 'SnAg 솔더'), st('4 5 6 7'));
+  s += G(lead(1134, 604, 1200, 590, 'IMC (Ni₃Sn₄)'), st('7'));
+  s += G(lead(300, 744, 260, 690, '시드층 (Ti/Cu)', 'end'), st('1 2'));
+  s += G(lead(300, 744, 260, 690, '드러난 시드', 'end'), st('5'));
+  s += G(lead(300, 752, 260, 690, '범프 사이 시드 제거', 'end'), st('6'));
+  s += G(lead(300, 600, 260, 560, '감광막 틀', 'end'), st('2 3 4'));
+  s += lead(990, 757, 1200, 772, '패드');
   s += lead(1400, 812, 1460, 900, '회로층 (BEOL)');
   s += lead(872, 950, 960, 960, 'TSV');
   s += callout({x: 800, y: 800, w: 800}, '칩 속으로 →', 'left');
@@ -548,8 +551,12 @@ function drawFront(){
 function drawDie(){
   let s = '';
   s += G(T(800, 250, '(아직 배선·범프 없음)', 't-dim'), st('t0 t1 t2 t3 t4'));
-  s += G(R(266, -500, 1068, 784, 'f-cu') + R(266, 284, 1068, 12, 'f-cu') + R(400, 296, 800, 24, 'f-al') + R(XL, 296, 400 - XL, 24, 'f-pas') + R(1200, 296, XR - 1200, 24, 'f-pas'),
-    Object.assign(st('final'), tip('범프 바닥(Cu)과 패드 — 앞 장면에서 내려온 곳')));
+  // 범프 바닥: 코어 다이 범프는 Cu 기둥 없이 Ni가 시드(Cu) 위에 바로 선다. 앞 장면 ×2 — x 467~1133 → 134~1466,
+  // Ni 5 µm(133 → 266) 위에 IMC 띠와 SnAg 돔(반지름 342 → 684)이 그대로 이어진다
+  s += G(P('M134,18 A684,684 0 1 1 1466,18 Z', 'f-sn') + R(134, 0, 1332, 18, 'f-imc'),
+    Object.assign(st('final'), tip('SnAg 솔더와 계면 IMC(Ni₃Sn₄) — 앞 장면의 범프 돔')));
+  s += G(R(134, 18, 1332, 266, 'f-ni') + R(134, 284, 1332, 12, 'f-cu') + R(400, 296, 800, 24, 'f-al') + R(XL, 296, 400 - XL, 24, 'f-pas') + R(1200, 296, XR - 1200, 24, 'f-pas'),
+    Object.assign(st('final'), tip('범프 바닥(Ni, 예시 5 µm) · 시드(Cu)와 패드 — 앞 장면에서 내려온 곳')));
   let beol = R(XL, 320, XW, 120, 'f-beol');
   for (let x = -1030; x < XR; x += 130) beol += R(x, 330, 90, 16, 'f-metal');
   for (let x = -1030; x < XR; x += 90) beol += R(x, 364, 50, 11, 'f-metal');
@@ -571,7 +578,7 @@ function drawDie(){
   s += G(R(640, 440, 320, 880, 'f-ox') + R(652, 452, 296, 868, 'f-ni') + R(658, 458, 284, 862, 'f-cu'),
     Object.assign(st('t5 final'), tip('TSV (via-middle) — 트랜지스터를 만든 뒤, 배선 전에 뚫어 Cu로 채운다')));
   s += G(P('M480,440 L1120,440 L1120,1320 M480,440 L480,1320', 's-acc2', {'stroke-dasharray': '10 7'}) + LB(T(1136, 940, 'KOZ — TSV 주변 소자 금지 구역', 't-dim', 'start')), st('t5 final'));
-  s += G(lead(1334, 140, 1400, 120, '범프 바닥 (Cu)') + lead(1200, 308, 1420, 262, '패드·보호막'), st('final'));
+  s += G(lead(1420, -40, 1480, -80, 'SnAg 솔더') + lead(1440, 160, 1480, 120, '범프 (Ni)') + lead(1210, 306, 1480, 284, '패드·보호막'), st('final'));
   s += G(lead(1590, 380, 1500, 360, '금속 배선 (BEOL)', 'end'), st('t5 final'));
   s += lead(200, 520, 150, 640, '셀 어레이', 'start');
   s += lead(1400, 510, 1430, 640, '주변 회로');
@@ -638,8 +645,8 @@ const TITLES = {
   stack: {assembled: '적층 완료 — 앞쪽 모서리를 잘라 낸 모습 (TSV·범프가 보인다)', exploded: '분해도 — 층마다 TSV와 마이크로범프로 연결'},
   back: {'0': '⓪ 캐리어에 붙인 직후 — 웨이퍼는 아직 두껍다', '1': '① 백그라인딩 — 뒷면을 갈아 수십 µm만 남긴다', '2': '② 실리콘 식각 — TSV 끝이 드러난다 (TSV reveal)',
     '3': '③ 절연막(SiN·SiO₂)으로 덮기', '4': '④ CMP — TSV 머리만 연다', '5': '⑤ 후면 패드 형성 (예: Ni/Au)'},
-  front: {'0': '⓪ 패드가 열린 웨이퍼 (앞면이 위)', '1': '① 시드층 — 전기가 흐를 얇은 금속막', '2': '② 감광막 패턴 — 범프 자리만 연 틀', '3': '③ Cu 도금 — 기둥',
-    '4': '④ Ni 도금 — 확산 방지층', '5': '⑤ SnAg 도금 — 솔더', '6': '⑥ 감광막 제거 · 시드 식각', '7': '⑦ 리플로우 — 솔더를 녹여 둥글게, 계면에 IMC',
+  front: {'0': '⓪ 패드가 열린 코어 웨이퍼 (앞면이 위)', '1': '① 시드층 — 전기가 흐를 얇은 금속막', '2': '② 감광막 패턴 — 범프 자리만 연 틀', '3': '③ Ni 도금 — 몸통 겸 방벽 (Cu 기둥 없음)',
+    '4': '④ SnAg 도금 — 솔더', '5': '⑤ 감광막 제거 — 범프 사이 시드가 드러난다', '6': '⑥ 시드 식각 — 범프 사이 시드를 걷어 낸다', '7': '⑦ 리플로우 — 솔더를 녹여 둥글게, 계면에 Ni₃Sn₄',
     '8': '⑧ 캐리어 본딩 — 임시 접착제로 붙인다'},
   die: {t0: '⓪ 트랜지스터·셀 완성 직후', t1: '① 깊은 실리콘 식각 — 폭 수 µm, 깊이 수십 µm', t2: '② 절연막(라이너)', t3: '③ 배리어·시드',
     t4: '④ Cu 전해도금 — void 없이 채운다', t5: '⑤ CMP 평탄화 → 그 위에 금속 배선(BEOL)', final: 'DRAM 다이 단면 — 범프 아래 칩 속'},
@@ -702,7 +709,7 @@ const CARDS = {
       ['①', 'Chip on Wafer', 'GPU·HBM을 인터포저 웨이퍼에 마이크로범프로 접합'], ['②', '언더필', '범프 사이 빈틈을 채워 보강'],
       ['③', '인터포저 박화 · C4', '얇게 갈아 TSV를 드러내고 C4 범프 → 개별 절단'], ['④', 'on Substrate', '패키지 기판에 접합, 열전달재(TIM)·리드'],
       ['⑤', '보드 실장', '서버 모듈 보드에 BGA로']])},
-    {t: '여기서 HBM 범프가 중요해지는 이유', state: '5', html: `<p>HBM 바닥의 범프 수천 개가 인터포저에 <b>한 번에</b> 붙습니다. 범프 높이가 고르지 않거나(산포) 패키지가 휘면(warpage) 일부가 덜 붙고, 그러면 <b>비싼 GPU 패키지 전체</b>가 불량이 됩니다.</p>
+    {t: '여기서 HBM 범프가 중요해지는 이유', state: '5', html: `<p>HBM 바닥, 곧 <b>베이스 다이 앞면의 범프</b>(Cu / Ni / Cu / SnAg) 수천 개가 인터포저에 <b>한 번에</b> 붙습니다. 범프 높이가 고르지 않거나(산포) 패키지가 휘면(warpage) 일부가 덜 붙고, 그러면 <b>비싼 GPU 패키지 전체</b>가 불량이 됩니다.</p>
       <div class="chips">${chip('수십 µm', '마이크로범프 피치')}${chip('100~200 µm', 'C4 피치')}${chip('≈ 1 mm', 'BGA 피치')}</div><p class="hint">모두 대략값입니다.</p>`}
   ],
   ship: [
@@ -721,7 +728,7 @@ const CARDS = {
     {t: 'Slice — 스택을 하나씩 잘라 낸다', state: 'dice', html: `<p>블레이드나 레이저로 스택 사이의 길(스크라이브 라인)을 따라 잘라 개별 큐브로 나눕니다. 잘린 면의 칩핑·크랙, 몰드 박리도 검사합니다.</p>`}
   ],
   stack: [
-    {t: '코어 다이를 쌓는다', state: {rev: 'assembled', fwd: 'exploded'}, html: `<ul class="jl"><li>맨 아래 <b>베이스 다이</b>(로직·인터페이스) 위에 <b>코어 다이</b>(DRAM) 8~16장</li><li>다이마다 <b>TSV</b> 수천 개가 위아래를 잇는다</li><li>다이 사이는 <b>마이크로범프</b>로 접합</li></ul>`},
+    {t: '코어 다이를 쌓는다', state: {rev: 'assembled', fwd: 'exploded'}, html: `<ul class="jl"><li>맨 아래 <b>베이스 다이</b>(로직·인터페이스) 위에 <b>코어 다이</b>(DRAM) 8~16장</li><li>다이마다 <b>TSV</b> 수천 개가 위아래를 잇는다</li><li>다이 사이는 <b>마이크로범프</b>로 접합 — 위 다이 앞면의 <b>Ni / SnAg</b> 범프가 아래 다이의 후면 패드에 붙는다</li><li>베이스 다이의 앞면 범프는 아래 인터포저 쪽을 본다 — Cu 기둥 → Ni → 상부 Cu(Ni 위에 얇게 한 번 더 올린 Cu) → SnAg</li></ul>`},
     {t: '한 층씩 떼어 보기 — 접합 방식', state: 'exploded', html: `<ul class="jl"><li><b>TC-NCF</b> — 한 층씩 열·압력으로 접합, 비전도성 필름으로 빈틈을 채움</li><li><b>MR-MUF</b> — 층을 쌓은 뒤 한 번에 리플로우하고 액상 몰드로 빈틈을 채움 (방열 유리)</li><li><b>하이브리드 본딩</b> — 범프 없이 Cu–Cu 직접 접합 (차세대)</li></ul><p class="hint">업체·세대마다 방식이 다릅니다.</p>`},
     {t: '높이 예산 — 왜 더 얇게 갈아야 하나', state: 'assembled', w: 'height', cap: '단수가 늘수록 코어 다이는 얇아진다'}
   ],
@@ -733,13 +740,15 @@ const CARDS = {
     {t: '관리 포인트', state: '5', html: `<div class="chips">${chip('두께 편차', '(TTV)')}${chip('TSV 돌출 높이', '')}${chip('휨', '')}${chip('패드 높이·표면', '')}</div><p>모두 다음 단계인 <b>적층 접합 품질</b>로 이어집니다.</p>`}
   ],
   front: [
-    {t: '앞면에 범프를 도금하고, 캐리어에 붙인다', state: {rev: '8', fwd: '7'}, star: true, html: `<p>회로가 있는 앞면의 패드 위에 마이크로범프를 <b>전해도금(ECD)</b>으로 쌓습니다: <b>Cu 기둥 → Ni(확산 방지) → SnAg(솔더)</b>.</p><p>범프를 다 만든 뒤 <b>임시 접착제</b>로 앞면을 캐리어 웨이퍼에 붙이고 뒤집어 후면 공정으로 보냅니다.</p>`},
+    {t: '앞면에 범프를 도금하고, 캐리어에 붙인다', state: {rev: '8', fwd: '7'}, star: true, html: `<p>회로가 있는 앞면의 패드 위에 마이크로범프를 <b>전해도금(ECD)</b>으로 쌓습니다. 이 장은 <b>코어 다이</b>(DRAM) 웨이퍼를 따라갑니다: <b>Ni(몸통 겸 방벽) → SnAg(솔더)</b>, Cu 기둥이 없습니다.</p><p>12~16단을 정해진 높이 안에 넣으려면 접합부가 낮을수록 좋아서, 보통 Cu 기둥을 빼고 Ni가 몸통을 맡습니다. 맨 아래 <b>베이스 다이</b>의 앞면 범프는 인터포저 쪽에 붙고 더 높은 <b>Cu 기둥 / Ni / 상부 Cu(Ni 위에 얇게 한 번 더 올린 Cu) / SnAg</b>입니다 — <a href="#go-bump">범프 공정</a> 탭.</p><p>범프를 다 만든 뒤 <b>임시 접착제</b>로 앞면을 캐리어 웨이퍼에 붙이고 뒤집어 후면 공정으로 보냅니다.</p>`},
     {t: '범프 도금 순서 — 스크롤하면 한 단계씩', states: ['0', '1', '2', '3', '4', '5', '6', '7', '8'], html: steps([
-      ['⓪', '패드가 열린 웨이퍼', ''], ['①', '시드층', '전기가 흐를 얇은 금속막'], ['②', '감광막 패턴', '범프 자리만 연 틀'], ['③', 'Cu 도금', '기둥'],
-      ['④', 'Ni 도금', '확산 방지층'], ['⑤', 'SnAg 도금', '솔더'], ['⑥', '감광막 제거 · 시드 식각', ''], ['⑦', '리플로우', '솔더를 녹여 둥글게, 계면에 IMC'],
+      ['⓪', '패드가 열린 웨이퍼', '코어 다이 웨이퍼의 앞면'], ['①', '시드층', '전기가 흐를 얇은 금속막 (Ti 위 Cu)'], ['②', '감광막 패턴', '범프 자리만 연 틀'],
+      ['③', 'Ni 도금', '몸통 겸 방벽 — 시드 위에 바로 (예시 5 µm)'], ['④', 'SnAg 도금', '솔더 (예시 12 µm)'], ['⑤', '감광막 제거', '범프 사이의 Cu 시드가 드러난다'],
+      ['⑥', '시드 식각', 'Cu → Ti 순서로 걷어 범프끼리 전기를 끊는다'], ['⑦', '리플로우', '솔더를 녹여 둥글게, 계면에 IMC(Ni₃Sn₄)'],
       ['⑧', '캐리어 본딩', '임시 접착제로 붙이고 뒤집는다']])},
-    {t: '도금 공정 관리 포인트', state: {rev: '7', fwd: '8'}, html: `<div class="chips">${chip('두께', '전류 × 시간')}${chip('조성', 'Ag 함량 → 녹는 거동')}${chip('높이 산포', '→ 적층·실장 접합')}${chip('void', '')}</div>
-      <p class="hint">12단계 전체를 웨이퍼·다이·범프로 보려면 <a href="#go-bump">범프 공정 탭</a>. 계산은 <a href="#go-edu-3">03 모듈의 도금 두께 계산기</a>, 순서는 <a href="#go-edu-5">05 모듈의 범프 도금 순서</a>.</p>`}
+    {t: '도금 공정 관리 포인트', state: {rev: '7', fwd: '8'}, html: `<div class="chips">${chip('두께', '전류 × 시간')}${chip('조성', 'Ag 함량 → 녹는 거동')}${chip('높이 산포', '→ 적층·실장 접합')}${chip('void', '')}${chip('Ni 두께', '→ IMC로 먹혀도 남게')}${chip('Ni 응력·밀착', '시드 위 첫 막')}</div>
+      <p>코어 다이에서는 Ni가 몸통이라 두께와 막의 응력, 시드 위 밀착을 함께 챙깁니다. 리플로우·적층 본딩을 거칠 때마다 Ni₃Sn₄가 자라며 Ni가 조금씩 줄어듭니다.</p>
+      <p class="hint">12단계 전체를 웨이퍼·다이·범프로 보려면 <a href="#go-bump">범프 공정 탭</a>. 계산은 <a href="#go-edu-3">03 모듈의 도금 두께 계산기</a>, 순서는 <a href="#go-edu-5">05 모듈의 범프 도금 순서</a>. 공정별로 자세히: <a href="#go-plating">전해도금</a> · <a href="#go-strip">PR 스트립</a> · <a href="#go-etch">시드 식각</a> · <a href="#go-reflow">리플로우</a> 탭.</p>`}
   ],
   die: [
     {t: '범프 아래 칩 속', state: 'final', html: `<ul class="jl"><li>위에서부터 <b>패드·보호막 → 금속 배선층(BEOL) → 셀·트랜지스터 → 실리콘</b></li><li>가운데 굵은 기둥이 <b>TSV</b> — 셀 수만 개가 들어갈 자리를 차지할 만큼 크다</li><li>TSV 주변은 소자를 두지 않는 <b>KOZ</b>(금지 구역)</li></ul>`},
@@ -904,8 +913,9 @@ const WIDGETS = {
     el.insertAdjacentHTML('beforeend', `<div class="btns" data-g="N">${[8, 12, 16].map(v => `<button class="jb" data-v="${v}" aria-pressed="${v === sc.p.N}">${v}단</button>`).join('')}</div>
       <div class="btns" data-g="H"><button class="jb" data-v="720" aria-pressed="true">높이 720 µm (HBM3E)</button><button class="jb" data-v="775">775 µm (HBM4)</button></div>
       <div class="ctl"><label>접합부 두께 (층마다) <output data-o="b"></output></label><input type="range" data-i="b" min="0" max="25" step="1" value="15"></div>
-      <div class="kpis"><div class="kpi"><div class="k">코어 다이 두께</div><div class="v" data-o="t"></div><div class="s" data-o="ts"></div></div></div>
-      <p class="note">가정: 베이스 다이·여유 60 µm, 층마다 접합부(범프+채움재) 두께가 같다. 0 µm는 하이브리드 본딩에 가깝다. 실제 값과 다릅니다. 화면의 단수도 바뀝니다.</p>`);
+      <div class="kpis"><div class="kpi"><div class="k">코어 다이 두께</div><div class="v" data-o="t"></div><div class="s" data-o="ts"></div></div><div class="kpi"><div class="k">Cu 기둥 12 µm를 넣으면</div><div class="v" data-o="tc"></div><div class="s" data-o="tcs"></div></div></div>
+      <p>그래서 코어 다이 범프는 보통 Cu 기둥 없이 <b>Ni / SnAg</b>로 낮게 만듭니다 (전면·캐리어 장).</p>
+      <p class="note">가정: 베이스 다이·여유 60 µm, 층마다 접합부(범프+채움재) 두께가 같다. 기본 15 µm는 코어 다이의 Ni / SnAg 범프(예시 5 + 12 µm)가 후면 패드에 붙어 솔더가 녹고 눌린 뒤의 대략적인 높이. 0 µm는 하이브리드 본딩에 가깝다. 실제 값과 다릅니다. 화면의 단수도 바뀝니다.</p>`);
     let H = 720;
     const calc = () => {
       const N = sc.p.N, b = +el.querySelector('[data-i=b]').value;
@@ -913,6 +923,9 @@ const WIDGETS = {
       el.querySelector('[data-o=b]').textContent = b + ' µm' + (b === 0 ? ' (하이브리드 본딩)' : '');
       el.querySelector('[data-o=t]').textContent = t > 0 ? '≈ ' + t.toFixed(0) + ' µm' : '불가능';
       el.querySelector('[data-o=ts]').textContent = t > 0 ? `종이 한 장(≈ 100 µm)의 ${(t / 100).toFixed(2)}배` : '높이 예산 초과';
+      const tc = t - 12;      // 접합부가 층마다 12 µm 높아지면 다이는 12 µm씩 얇아져야 한다
+      el.querySelector('[data-o=tc]').textContent = b === 0 ? '—' : tc > 0 ? '≈ ' + tc.toFixed(0) + ' µm' : '불가능';
+      el.querySelector('[data-o=tcs]').textContent = b === 0 ? '범프가 없는 접합' : `접합부 ${b + 12} µm · 스택 높이 ${12 * N} µm 더 씀`;
     };
     el.querySelectorAll('[data-g=N] button').forEach(btn => btn.addEventListener('click', () => {
       el.querySelectorAll('[data-g=N] button').forEach(x => x.setAttribute('aria-pressed', x === btn ? 'true' : 'false'));
@@ -1124,7 +1137,7 @@ function buildCards(){
   const last = ord[ord.length - 1];
   const outro = h('div', 'jcw');
   outro.innerHTML = `<div class="jc"><div class="kick">정리</div><h3>한 장으로 다시 보기 — 만드는 순서</h3>
-    <ol class="flow"><li>DRAM 웨이퍼 — 셀·트랜지스터·TSV <span>(nm ~ µm)</span></li><li>앞면 범프 도금 → 캐리어 본딩 <span>(수십 µm)</span></li><li>후면 그라인딩·TSV 노출·후면 패드 <span>(수십 µm)</span></li><li>코어 다이 적층·몰드 <span>(mm)</span></li><li>스택 웨이퍼 테스트·분석 → 다이싱 <span>(300 mm)</span></li><li>출하 (KGSD) <span>(1 cm)</span></li><li>TSMC CoWoS — GPU 옆에 실장 <span>(수 cm)</span></li><li>서버 → AI 데이터센터 <span>(1 m ~ 수백 m)</span></li></ol>
+    <ol class="flow"><li>DRAM 웨이퍼 — 셀·트랜지스터·TSV <span>(nm ~ µm)</span></li><li>앞면 범프 도금(코어 다이 Ni / SnAg) → 캐리어 본딩 <span>(수십 µm)</span></li><li>후면 그라인딩·TSV 노출·후면 패드 <span>(수십 µm)</span></li><li>코어 다이 적층·몰드 <span>(mm)</span></li><li>스택 웨이퍼 테스트·분석 → 다이싱 <span>(300 mm)</span></li><li>출하 (KGSD) <span>(1 cm)</span></li><li>TSMC CoWoS — GPU 옆에 실장 <span>(수 cm)</span></li><li>서버 → AI 데이터센터 <span>(1 m ~ 수백 m)</span></li></ol>
     <div class="btns"><button class="jb primary" data-act="mode">${mode === 'rev' ? '제조 순서로 다시 보기 (줌아웃)' : '역추적으로 다시 보기 (줌인)'}</button><button class="jb" data-act="top">처음으로</button><button class="jb" data-act="pres">▶ 발표 모드</button></div>
     <p><b>스스로 점검</b></p><ul class="jl"><li>토큰 생성 속도는 왜 메모리 대역폭에 묶일까?</li><li>HBM이 "넓고 느리게" 동작한다는 뜻은?</li><li>HBM 스택 하나의 불량이 왜 GPU 패키지 전체의 손실이 될까?</li><li>16단에서 코어 다이를 더 얇게 해야 하는 이유는?</li><li>캐리어 웨이퍼는 왜 필요할까?</li><li>내 공정은 이 흐름의 어디에 있고, 앞뒤 공정에 무엇을 넘겨주나?</li></ul>
     <p class="hint">더 보기: <a href="https://news.skhynix.co.kr/hbm_pakage_interview_2024/" target="_blank" rel="noopener noreferrer">SK하이닉스 뉴스룸 — HBM 패키징</a> · <a href="https://3dfabric.tsmc.com/english/dedicatedFoundry/technology/cowos.htm" target="_blank" rel="noopener noreferrer">TSMC CoWoS</a> · <a href="https://www.trendforce.com/news/2025/04/21/news-jedec-finalizes-hbm4-standard-potentially-easing-pressure-on-hybrid-bonding-adoption/" target="_blank" rel="noopener noreferrer">JEDEC HBM4 표준 (TrendForce)</a> · <a href="https://www.eamesoffice.com/the-work/powers-of-ten/" target="_blank" rel="noopener noreferrer">Powers of Ten (Eames)</a> · <a href="#go-edu-4">04 반도체의 기초</a></p></div>`;

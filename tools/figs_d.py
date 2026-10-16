@@ -1,6 +1,6 @@
 """05 제조기술의 기초 · 06 업무 알고리즘 작성법 그림."""
 import math
-from figlib import Fig, f
+from figlib import Fig, f, tw
 
 
 def m4e1():
@@ -149,41 +149,57 @@ def oee():
 
 
 def ecd_seq():
-    g = Fig("ecd-seq", 720, 380, "웨이퍼 레벨 범프 도금 순서 (단면)")
-    steps = ["① 시드층", "② 감광막 패턴", "③ Cu 도금", "④ Ni 도금", "⑤ SnAg 도금", "⑥ 감광막 제거", "⑦ 시드 식각", "⑧ 리플로우"]
-    for i, t in enumerate(steps):
-        c, r = i % 4, i // 4
-        px, py = 18 + c * 174, 18 + r * 176
-        g.rect(px, py, 162, 160, "pn", rx=10)
-        base = py + 126
-        cx = px + 81
-        g.rect(px + 10, base, 142, 16, "m-si", rx=2)
-        if i < 7:
-            seed_w = (142, 0) if i < 6 else (40, 51)
-            if i < 6:
-                g.rect(px + 10, base - 4, 142, 4, "m-cu", rx=1)
-            else:
-                g.rect(cx - 20, base - 4, 40, 4, "m-cu", rx=1)
+    """범프 도금 순서 — 베이스 다이(Cu 기둥 → Ni → 상부 Cu → SnAg) 기준, 마지막 칸은 코어 다이(Ni → SnAg)."""
+    g = Fig("ecd-seq", 720, 400, "웨이퍼 레벨 범프 도금 순서 (단면, 베이스 다이 기준 · 코어 다이는 Ni → SnAg만 도금)")
+    s = 2.3                                   # px / µm (예시 두께)
+    bw, pr_h = 56, 35 * s                     # 지름 약 25 µm, PR 35 µm
+    steps = [("① 시드층", "Ti · Cu 얇은 막"), ("② 감광막 패턴", "범프 자리만 연다"), ("③ Cu 기둥 도금", "예 12 µm"),
+             ("④ Ni 도금", "방벽 · 예 3 µm"), ("⑤ 상부 Cu 도금", "Ni 위 얇은 Cu · 예 3 µm"), ("⑥ SnAg 도금", "솔더 · 예 12 µm"),
+             ("⑦ 감광막 제거", "스트립"), ("⑧ 시드 식각", "범프 아래만 남긴다"), ("⑨ 리플로우", "녹여 둥글게 · IMC"),
+             ("코어 다이 범프", "Ni → SnAg만 도금")]
+    base_stack = [(12, "m-cu"), (3, "m-ni"), (3, "m-cu"), (12, "m-sn")]   # 아래부터 (µm, 클래스)
+    for i, (t, sub) in enumerate(steps):
+        c, r = i % 5, i // 5
+        px, py = 20 + c * 138, 16 + r * 180
+        g.rect(px, py, 128, 170, "pn", rx=10)
+        core = i == 9
+        if core:
+            g.rect(px + 1, py + 1, 126, 168, "ed", rx=9, sw=1.4, dash="5 4")
+        base = py + 140
+        cx = px + 64
+        g.rect(px + 8, base, 112, 16, "m-si", rx=2)
+        if i < 7 or core:
+            g.rect(px + 8, base - 4, 112, 4, "m-cu", rx=1)
         else:
-            g.rect(cx - 20, base - 4, 40, 4, "m-cu", rx=1)
-        if 1 <= i <= 4:
-            g.rect(px + 10, base - 84, 51, 80, "m-pr", rx=1)
-            g.rect(cx + 20, base - 84, 51, 80, "m-pr", rx=1)
-        h_cu = 40 if i >= 2 else 0
-        if h_cu:
-            g.rect(cx - 20, base - 4 - h_cu, 40, h_cu, "m-cu", rx=1)
-        if i >= 3:
-            g.rect(cx - 20, base - 52, 40, 8, "m-ni", rx=1)
-        if 4 <= i <= 6:
-            g.rect(cx - 20, base - 78, 40, 26, "m-sn", rx=1)
-        if i == 7:
-            g.rect(cx - 20, base - 55, 40, 3, "m-imc", rx=1)
-            g.path(f"M{cx - 21},{base - 54} C{cx - 24},{base - 92} {cx + 24},{base - 92} {cx + 21},{base - 54} Z", "m-sn")
-        g.text(cx, py + 26, t, "ink", 13, weight=700)
-    lg = [("m-si", "웨이퍼"), ("m-pr", "감광막"), ("m-cu", "Cu·시드"), ("m-ni", "Ni"), ("m-sn", "SnAg"), ("m-imc", "IMC")]
-    for i, (c, t) in enumerate(lg):
-        g.rect(90 + i * 96, 362, 12, 12, c, rx=2)
-        g.text(106 + i * 96, 372, t, "sub", 11.5, anchor="start")
+            g.rect(cx - bw / 2, base - 4, bw, 4, "m-cu", rx=1)
+        if 1 <= i <= 5 or core:
+            g.rect(px + 8, base - 4 - pr_h, cx - bw / 2 - px - 8, pr_h, "m-pr", rx=1)
+            g.rect(cx + bw / 2, base - 4 - pr_h, px + 120 - cx - bw / 2, pr_h, "m-pr", rx=1)
+        if core:
+            stack = [(5, "m-ni"), (12, "m-sn")]
+        elif i == 8:
+            stack = [(12, "m-cu"), (3, "m-ni"), (2, "m-cu")]
+        else:
+            stack = base_stack[:max(0, min(i, 6) - 1)]
+        y = base - 4
+        for th, cls in stack:
+            sn = cls == "m-sn"           # 옅은 SnAg는 가는 테두리로 구분
+            g.rect(cx - bw / 2, y - th * s, bw, th * s, "m-sn ed" if sn else cls, rx=1, sw=0.8 if sn else None)
+            y -= th * s
+        if i == 8:
+            g.rect(cx - bw / 2, y - 3, bw, 3, "m-imc", rx=1)
+            y -= 3
+            yc = y - 15.7 * s / 0.75
+            g.path(f"M{f(cx - bw / 2 - 1)},{f(y)} C{f(cx - bw / 2 - 4)},{f(yc)} {f(cx + bw / 2 + 4)},{f(yc)} {f(cx + bw / 2 + 1)},{f(y)} Z", "m-sn ed", sw=0.8)
+        g.text(cx, py + 24, t, "ink", 13, weight=700, maxw=120)
+        g.text(cx, py + 41, sub, "sub", 11, maxw=120)
+    lg = [("m-si", "웨이퍼"), ("m-pr", "감광막"), ("m-cu", "Cu (기둥 · 상부 Cu · 시드)"), ("m-ni", "Ni"), ("m-sn", "SnAg"), ("m-imc", "IMC")]
+    widths = [16 + tw(t, 11.5) + 22 for _, t in lg]
+    x = 360 - (sum(widths) - 22) / 2
+    for (c, t), w in zip(lg, widths):
+        g.rect(x, 378, 12, 12, "m-sn ed" if c == "m-sn" else c, rx=2, sw=0.8 if c == "m-sn" else None)
+        g.text(x + 16, 388, t, "sub", 11.5, anchor="start")
+        x += w
     return g
 
 

@@ -146,31 +146,75 @@ def photo():
 
 
 def bump():
-    g = Fig("bump", 720, 320, "범프 구조 — 도금 직후와 리플로우 후")
-    def stack(cx, reflow):
-        g.rect(cx - 110, 250, 220, 30, "m-si", rx=2)
-        g.rect(cx - 50, 242, 100, 8, "m-al", rx=1)
-        g.rect(cx - 110, 244, 50, 6, "m-ox", rx=1)
-        g.rect(cx + 60, 244, 50, 6, "m-ox", rx=1)
-        g.rect(cx - 42, 150, 84, 92, "m-cu", rx=1)
-        g.rect(cx - 42, 138, 84, 12, "m-ni", rx=1)
-        if reflow:
-            g.rect(cx - 42, 132, 84, 6, "m-imc", rx=1)
-            g.path(f"M{cx - 44},{132} C{cx - 48},{70} {cx + 48},{70} {cx + 44},{132} Z", "m-sn")
+    """두 다이의 앞면 범프 — 베이스 다이 Cu 기둥/Ni/상부 Cu/SnAg, 코어 다이 Ni/SnAg (같은 축척, 예시 두께)."""
+    g = Fig("bump", 720, 312, "범프 구조 — 베이스 다이(Cu / Ni / Cu / SnAg)와 코어 다이(Ni / SnAg), 도금 직후와 리플로우 후")
+    s = 3.2                      # px / µm (두 다이 같은 축척)
+    bw = 25 * s                  # 지름 25 µm (예시)
+    yb = 206                     # 범프 바닥(패드 위)
+    cap = 15.7 * s               # 리플로우 뒤 돔 높이 15.7 µm (SnAg 12 µm 원기둥과 같은 부피)
+
+    def dome(cx, y0):
+        x0, x1 = cx - bw / 2 - 1, cx + bw / 2 + 1
+        yc = y0 - cap / 0.75
+        g.path(f"M{f(x0)},{f(y0)} C{f(x0 - 4)},{f(yc)} {f(x1 + 4)},{f(yc)} {f(x1)},{f(y0)} Z", "m-sn ed", sw=0.8)
+
+    def layers(cx, stack):
+        """stack: 아래부터 (두께 µm, 클래스). 맨 위 y를 돌려준다."""
+        y = yb
+        for t, cls in stack:
+            h = t * s
+            sn = cls == "m-sn"           # 옅은 SnAg는 가는 테두리로 구분
+            g.rect(cx - bw / 2, y - h, bw, h, "m-sn ed" if sn else cls, rx=1, sw=0.8 if sn else None)
+            y -= h
+        return y
+
+    def label(x, ty, ly, name, desc):
+        g.line(x, ty, px + 206, ly - 4, "ed", 1.1)
+        g.text(px + 210, ly, name, "ink", 12, anchor="start", weight=700, maxw=126)
+        g.text(px + 210, ly + 15, desc, "sub", 11, anchor="start", maxw=126)
+
+    for k, (title, sub) in enumerate((("베이스 다이 범프 — Cu / Ni / Cu / SnAg", "인터포저 쪽 · 예시 12 / 3 / 3 / 12 µm"),
+                                       ("코어 다이 범프 — Ni / SnAg", "아래 다이에 적층 · 예시 5 / 12 µm"))):
+        px = 12 + k * 354
+        ax, bx = px + 56, px + 146
+        g.rect(px, 12, 342, 260, "pn", rx=10)
+        g.text(px + 16, 38, title, "ink", 14, anchor="start", weight=700, maxw=316)
+        g.text(px + 16, 58, sub, "sub", 11.5, anchor="start", maxw=316)
+        # 웨이퍼 · 보호막 · 패드
+        g.rect(px + 10, yb + 8, 186, 26, "m-si", rx=2)
+        g.rect(px + 10, yb + 3, 186, 5, "m-ox", rx=1)
+        for cx in (ax, bx):
+            g.rect(cx - bw / 2 - 4, yb, bw + 8, 8, "m-al", rx=1)
+        g.text((ax + bx) / 2, yb + 26, "웨이퍼 · 패드", "sub", 11)
+        g.text(ax, yb + 52, "도금 직후", "ink", 12.5, weight=700)
+        g.text(bx, yb + 52, "리플로우 후", "ink", 12.5, weight=700)
+        if k == 0:
+            top = layers(ax, [(12, "m-cu"), (3, "m-ni"), (3, "m-cu"), (12, "m-sn")])
+            g.text(ax, top - 8, "높이 30 µm", "mut", 11.5)
+            # 리플로우 뒤: 상부 Cu 일부가 Cu₆Sn₅ 로 바뀌고, 그 위에 돔
+            top = layers(bx, [(12, "m-cu"), (3, "m-ni"), (2, "m-cu")])
+            g.rect(bx - bw / 2, top - 4, bw, 4, "m-imc", rx=1)
+            dome(bx, top - 4)
+            r = bx + bw / 2 + 2
+            label(r - 8, top - 26, 100, "SnAg 솔더", "녹아서 붙는 접합재")
+            label(r, top - 2, 132, "IMC — Cu₆Sn₅", "상부 Cu와 솔더 사이")
+            label(r, top + 3, 164, "상부 Cu", "솔더가 처음 만나는 면")
+            label(r, yb - 13.5 * s, 196, "Ni", "Cu 기둥과 솔더 사이 방벽")
+            label(r, yb - 6 * s, 228, "Cu 기둥", "높이 · 전기")
         else:
-            g.rect(cx - 42, 84, 84, 54, "m-sn", rx=1)
-    stack(170, False)
-    stack(470, True)
-    g.text(170, 34, "도금 직후", "ink", 14, weight=700)
-    g.text(470, 34, "리플로우 후", "ink", 14, weight=700)
-    g.text(170, 304, "웨이퍼 / 패드", "sub", 12)
-    labels = [(104, ["SnAg 솔더", "녹아서 붙는 접합재"]), (144, ["Ni — 확산 방지층"]), (200, ["Cu — 몸통", "(전기·높이)"])]
-    for y, t in labels:
-        g.line(212, y, 250, y, "ed", 1.2)
-        g.text(254, y + 4, t, "ink", 12, anchor="start", weight=600, maxw=150)
-    g.line(512, 135, 560, 135, "ed", 1.2)
-    g.text(564, 132, ["IMC (금속간화합물)", "접합에 필요하지만", "너무 자라면 취약"], "ink", 12, anchor="start", weight=600)
-    g.text(470, 304, "솔더가 둥글게 · 계면에 IMC 생성", "sub", 12)
+            top = layers(ax, [(5, "m-ni"), (12, "m-sn")])
+            g.text(ax, top - 8, "높이 17 µm", "mut", 11.5)
+            hb = yb - 30 * s
+            g.line(px + 10, hb, px + 196, hb, "ax", 1.2, dash="4 3")
+            g.text(px + 16, hb - 6, "베이스 범프 높이 (30 µm)", "mut", 11, anchor="start")
+            top = layers(bx, [(4.3, "m-ni")])
+            g.rect(bx - bw / 2, top - 4, bw, 4, "m-imc", rx=1)
+            dome(bx, top - 4)
+            r = bx + bw / 2 + 2
+            label(r - 8, top - 26, 146, "SnAg 솔더", "두 다이 같은 양")
+            label(r, top - 2, 184, "IMC — Ni₃Sn₄", "Ni와 솔더 사이")
+            label(r, yb - 2.2 * s, 222, "Ni — 몸통 겸 방벽", ["Cu 기둥 없이", "시드 위에 바로"])
+    g.text(360, 296, "같은 축척 · 두께는 예시 — 상부 Cu는 Ni 위에 얇게 한 번 더 올린 Cu (베이스 다이만)", "sub", 12, maxw=690)
     return g
 
 
