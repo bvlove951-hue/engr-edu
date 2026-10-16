@@ -12,12 +12,18 @@
 .bp-head .nm{font-size:22px;font-weight:900;color:#f8fafc;letter-spacing:-.4px;line-height:1.15}
 .bp-head .tl2{display:inline-block;font-size:12px;color:#fde68a;border:1px solid rgba(245,158,11,.45);border-radius:99px;padding:0 8px;margin-top:2px}
 .bp-head .sb{font-size:13px;color:#cbd5e1;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bp-head .tx{min-width:0}
 .bp .jz-tools{top:14px}
 .bp-views{position:absolute;right:14px;top:48px;display:flex;gap:4px}
 .bp-views button{font:inherit;font-size:12px;border:1px solid rgba(148,163,184,.3);background:rgba(10,18,34,.78);color:#cbd5e1;border-radius:8px;padding:3px 9px;cursor:pointer}
 .bp-views button[aria-pressed="true"]{background:var(--j-acc);border-color:var(--j-acc);color:#03121e;font-weight:800}
 .bp .jz-tools button.on{background:var(--j-acc2);color:#1b1203;font-weight:800}
 .bp .jz-pres button.on{background:var(--j-acc2);color:#1b1203}
+/* 「범프 구조」 버튼 줄 — 보기 버튼(.bp-views) 아래 · 발표 모드는 위 가운데 · 전화기는 보기 버튼 위 (아래 @media) */
+.bp-die{position:absolute;right:14px;top:80px;display:flex;gap:4px;align-items:center}
+.bp-die .lb{font-size:11.5px;color:#8193ad;margin-right:2px}
+.bp-die button{font:inherit;font-size:12px;border:1px solid rgba(245,158,11,.4);background:rgba(10,18,34,.78);color:#e2d3b0;border-radius:8px;padding:3px 9px;cursor:pointer}
+.bp-die button[aria-pressed="true"]{background:var(--j-acc2);border-color:var(--j-acc2);color:#1b1203;font-weight:800}
 
 /* 하단 공정 타임라인 */
 .bp-line{position:absolute;left:14px;right:14px;bottom:12px}
@@ -31,7 +37,8 @@
 .jz.pres.bp .bp-line{bottom:auto;top:72px;left:20px;right:20px}
 .jz.pres.bp .bp-head .sb{display:none}
 .jz.pres.bp .bp-views{top:44px}
-.jz.pres.bp .jz-cap{bottom:24px}
+.jz.pres.bp .jz-cap{bottom:24px;left:20px;transform:none;width:min(880px,calc(100% - 420px))}   /* 오른쪽 아래 발표 버튼 줄과 겹치지 않게 (도면 극장 탭과 같은 자리) */
+.jz.pres.bp .bp-die{top:40px;right:auto;left:50%;transform:translateX(-50%)}
 
 /* 카드 */
 .jc .bp-def{font-size:12.6px;color:#fca5a5}
@@ -46,6 +53,8 @@
 .bp-svg [data-on],.bp-svg [data-off],.bp-svg [data-st],.bp-svg [data-step]{transition:opacity .55s ease}
 .bp-svg .gy{transform-box:fill-box;transform-origin:50% 100%;transition:transform 1.1s cubic-bezier(.25,.8,.3,1),opacity .35s}
 .bp-svg .off{opacity:0 !important;pointer-events:none}
+/* 사라진 요소의 무한 애니메이션(bpPulse 등)을 멈춘다 — 그대로 두면 Chromium이 사라진 리플로우 열기 · 플라즈마 띠를 화면에 남겨 두기도 한다 */
+.bp-svg .off,.bp-svg .off *{animation:none}
 .bp-svg .gy.off,.bp-svg .off .gy{transform:scaleY(.002)}
 .f-ti{fill:#93a3bf}
 .f-seed{fill:#e0904f}
@@ -53,7 +62,7 @@
 .bp-oxide{fill:#7c8797;opacity:.9}
 .bp-res{fill:#a3e635;opacity:.9}
 .bp-part{fill:#f87171}
-.bp-uv{stroke:#c4b5fd;stroke-width:2.5;stroke-dasharray:8 8;animation:jzflow .6s linear infinite;filter:url(#bp-glow)}
+.bp-uv{stroke:#c4b5fd;stroke-width:2.5;stroke-dasharray:8 8;animation:jzflow .6s linear infinite}   /* 세로선이라 상자 폭이 0 — bp-glow 필터를 걸면 아예 그려지지 않는다 */
 .bp-bath{fill:rgba(56,189,248,.14)}
 .bp-dev{fill:rgba(96,165,250,.12)}
 .bp-strip{fill:rgba(245,158,11,.10)}
@@ -152,10 +161,19 @@
   .bp .jz-tools{top:auto;bottom:44px;right:8px;left:auto;z-index:2}
   .bp-views{top:auto;bottom:44px;left:8px;right:auto;z-index:2}
   .bp .jz-tools .tl,.bp-views .tl{display:none}
+  .bp .jz-tools .ts{display:inline}
   .bp-views button,.bp .jz-tools button{font-size:11px;padding:3px 7px}
   .bp-line .chipsr{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none}
   .bp-line button{flex:none}
   .bp .jcw.multi{min-height:0 !important}  /* 전화기: 카드 자체 높이를 하위 단계로 나눈다 (카드가 무대 뒤로 숨지 않게) */
+  .bp-die,.jz.pres.bp .bp-die{top:auto;bottom:76px;left:8px;right:auto;transform:none;z-index:2}
+  .bp-die button{font-size:11px;padding:3px 7px}
+  /* 전화기 발표 모드: 보기 버튼이 위아래로 늘어나고 설명 상자가 좁아지던 것을 바로잡는다 (위 .jz.pres.bp 규칙보다 뒤에 있어야 이긴다) */
+  .jz.pres.bp .bp-views,.jz.pres.bp .jz-tools{top:auto;bottom:52px}
+  .jz.pres.bp .bp-die{bottom:84px}
+  .jz.pres.bp .jz-cap{left:8px;width:calc(100% - 16px);transform:none;bottom:116px;padding:8px 12px}
+  .jz.pres.bp .jz-cap .t{font-size:17px}
+  .jz.pres.bp .jz-cap .d{font-size:13px;line-height:1.5}
 }
 @media (prefers-reduced-motion: reduce){
   .bp-svg .gy{transition:none}

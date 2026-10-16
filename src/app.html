@@ -51,8 +51,13 @@ a{color:var(--accent)}
 .topbar{display:flex;align-items:center;gap:12px;padding:0 14px;height:48px;background:var(--panel);border-bottom:1px solid var(--line);flex:none}
 .brand{font-weight:700;letter-spacing:-.2px;white-space:nowrap}
 .brand small{font-weight:500;color:var(--muted);margin-left:6px}
-.tabs{display:flex;gap:4px;margin-left:8px}
-.tab{border:0;background:transparent;padding:6px 12px;border-radius:8px;color:var(--muted);font-weight:600;white-space:nowrap}
+.tabs{display:flex;gap:4px;margin-left:8px;min-width:0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+/* 탭 줄이 화면보다 길면(좁은 화면) 옆으로 밀어 보고, 가려진 쪽 끝을 흐리게 */
+.tabs.fade-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent)}
+.tabs.fade-l{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 22px),transparent)}
+.tabs.fade-l.fade-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 22px,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to right,transparent,#000 22px,#000 calc(100% - 22px),transparent)}
+.tab{flex:none;border:0;background:transparent;padding:6px 12px;border-radius:8px;color:var(--muted);font-weight:600;white-space:nowrap}
 .tab[aria-selected="true"]{background:var(--accent-weak);color:var(--accent)}
 .ts{display:none}
 .spacer{flex:1}
@@ -301,6 +306,14 @@ details.menu .menu-pop.left{left:0;right:auto}
 .img-card{position:relative}
 .canvas-wrap.drop-over{outline:3px dashed var(--accent);outline-offset:-6px}
 
+@media (max-width: 1440px){
+  .brand small{display:none}
+}
+@media (max-width: 1180px){
+  /* 탭이 아홉 개라 좁은 화면에서는 짧은 이름으로 (더 좁으면 탭 줄을 옆으로 민다) */
+  .tabs .tl,.icon-btn .tl{display:none}
+  .tabs .ts,.icon-btn .ts{display:inline}
+}
 @media (max-width: 900px){
   .edu-side{display:none}
   .edu-main{padding:18px 16px 60px}
@@ -319,11 +332,133 @@ details.menu .menu-pop.left{left:0;right:auto}
 }
 @media (max-width: 440px){
   .brand{display:none}
-  .tab{padding:6px 7px}
+  .topbar{gap:4px;padding:0 6px}
+  .tab{padding:6px 5px;font-size:13px}
+  .icon-btn{padding:5px 7px}
+}
+@media (max-width: 340px){
+  .tab{padding:6px 3px;font-size:12px}
+  .icon-btn{padding:4px 5px;font-size:12px}
 }
 </style>
-<style>/*@JOURNEY_CSS@*/</style>
-<style>/*@BUMP_CSS@*/</style>
+<script>
+/* 압축 풀기 · 탭 스크립트 실행 — 빌드가 탭 스타일 · 탭 스크립트 · 앱 본체 · 교육 콘텐츠를 LZMA 로 줄여 base64 로 넣는다
+   (일부 보기 화면은 큰 HTML 파일의 앞부분만 읽는다). 이 작은 스크립트만 그대로 두고 맨 앞에서 실행한다 */
+(function(){
+'use strict';
+  // 압축 풀기 (LZMA1 원시 스트림). 빌드가 탭 스크립트 · 교육 콘텐츠를 줄여 넣는다 — 일부 보기 화면은 큰 HTML 파일의 앞부분만 읽기 때문
+  // 입력: [특성 1바이트(lc · lp · pb)][사전 크기 4바이트][풀린 크기 4바이트(LE)][LZMA1 스트림]. 출력은 Uint8Array
+  const unlzma = src => {
+    const props = src[0], size = (src[5] | src[6] << 8 | src[7] << 16 | src[8] << 24) >>> 0;
+    const lc = props % 9, lp = (props / 9 | 0) % 5, pb = props / 45 | 0;
+    const out = new Uint8Array(size);
+    let ip = 14, range = 0xFFFFFFFF, code = (src[10] << 24 | src[11] << 16 | src[12] << 8 | src[13]) >>> 0, op = 0;   // 스트림 첫 바이트(9)는 0
+    const P = n => new Uint16Array(n).fill(1024);
+    const bit = (p, i) => {                                         // 확률 p[i]로 한 비트
+      const bound = (range >>> 11) * p[i] >>> 0;
+      let b;
+      if (code < bound){ range = bound; p[i] += (2048 - p[i]) >> 5; b = 0; }
+      else { range = range - bound >>> 0; code = code - bound >>> 0; p[i] -= p[i] >> 5; b = 1; }
+      if (range < 0x1000000){ range = range << 8 >>> 0; code = (code << 8 | src[ip++]) >>> 0; }
+      return b;
+    };
+    const tree = (p, base, n) => { let m = 1; for (let i = 0; i < n; i++) m = m << 1 | bit(p, base + m); return m - (1 << n); };
+    const rtree = (p, base, n) => { let m = 1, s = 0; for (let i = 0; i < n; i++){ const b = bit(p, base + m); m = m << 1 | b; s |= b << i; } return s; };
+    const direct = n => {
+      let s = 0;
+      for (let i = 0; i < n; i++){
+        range >>>= 1;
+        let b = 0;
+        if (code >= range){ code = code - range >>> 0; b = 1; }
+        s = (s << 1 | b) >>> 0;
+        if (range < 0x1000000){ range = range << 8 >>> 0; code = (code << 8 | src[ip++]) >>> 0; }
+      }
+      return s;
+    };
+    const lenDec = () => ({c: P(2), low: P(16 << 3), mid: P(16 << 3), high: P(256)});
+    const len = (L, ps) => !bit(L.c, 0) ? tree(L.low, ps << 3, 3) : !bit(L.c, 1) ? 8 + tree(L.mid, ps << 3, 3) : 16 + tree(L.high, 0, 8);
+    const lit = P(0x300 << (lc + lp)), isMatch = P(192), isRep = P(12), isG0 = P(12), isG1 = P(12), isG2 = P(12), isLong = P(192);
+    const slot = P(256), spec = P(115), align = P(16), mLen = lenDec(), rLen = lenDec();
+    let state = 0, r0 = 0, r1 = 0, r2 = 0, r3 = 0;
+    const pbm = (1 << pb) - 1, lpm = (1 << lp) - 1;
+    while (op < size){
+      const ps = op & pbm;
+      if (!bit(isMatch, (state << 4) + ps)){                        // 글자 하나
+        const prev = op ? out[op - 1] : 0, base = 0x300 * (((op & lpm) << lc) + (prev >> (8 - lc)));
+        let s = 1;
+        if (state >= 7){                                              // 직전이 일치였으면 그 자리 글자를 참고
+          let mb = out[op - r0 - 1];
+          do {
+            const m = (mb >> 7) & 1; mb <<= 1;
+            const b = bit(lit, base + ((1 + m) << 8) + s);
+            s = s << 1 | b;
+            if (m !== b) break;
+          } while (s < 0x100);
+        }
+        while (s < 0x100) s = s << 1 | bit(lit, base + s);
+        out[op++] = s & 0xFF;
+        state = state < 4 ? 0 : state < 10 ? state - 3 : state - 6;
+        continue;
+      }
+      let n;
+      if (bit(isRep, state)){                                         // 앞서 쓴 거리 다시
+        if (!bit(isG0, state)){
+          if (!bit(isLong, (state << 4) + ps)){ state = state < 7 ? 9 : 11; out[op] = out[op - r0 - 1]; op++; continue; }
+        } else {
+          let d;
+          if (!bit(isG1, state)) d = r1;
+          else { if (!bit(isG2, state)) d = r2; else { d = r3; r3 = r2; } r2 = r1; }
+          r1 = r0; r0 = d;
+        }
+        n = len(rLen, ps);
+        state = state < 7 ? 8 : 11;
+      } else {                                                        // 새 거리
+        r3 = r2; r2 = r1; r1 = r0;
+        n = len(mLen, ps);
+        state = state < 7 ? 7 : 10;
+        const sl = tree(slot, (n < 4 ? n : 3) << 6, 6);
+        if (sl < 4) r0 = sl;
+        else {
+          const nd = (sl >> 1) - 1;
+          r0 = (2 | (sl & 1)) << nd;
+          if (sl < 14) r0 += rtree(spec, r0 - sl, nd);
+          else r0 = r0 + (direct(nd - 4) << 4) + rtree(align, 0, 4) >>> 0;
+          if (r0 === 0xFFFFFFFF) break;                               // 끝 표시
+        }
+      }
+      for (n += 2; n > 0 && op < size; n--, op++) out[op] = out[op - r0 - 1];
+    }
+    return out;
+  };
+  // base64 → 바이트 → 풀기 → 글자
+  window.EngrUnpack = b64 => {
+    const b = atob(b64.replace(/\s+/g, '')), u = new Uint8Array(b.length);
+    for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(unlzma(u));
+  };
+  // 압축한 묶음(<script type="application/octet-stream" data-part="묶음" data-z="lzma">)을 문서 순서대로 풀어 파일마다 끼워 넣는다.
+  // 스크립트는 묶음 바로 뒤에 <script> 로(끼워 넣는 순간 일반 <script> 처럼 전역에서 실행되고, 한 파일의 오류는 다음 파일을 멈추지 않는다),
+  // 스타일은 <head> 끝에 <style> 로. 빌드가 묶음마다 끝에 EngrRunParts() 를 넣는다 (파일이 뒤에서 잘려도 앞쪽 묶음은 돈다)
+  window.EngrRunParts = () => {
+    document.querySelectorAll('script[data-part][data-z="lzma"]:not([data-ran])').forEach(el => {
+      el.setAttribute('data-ran', '');
+      let txt;
+      try { txt = window.EngrUnpack(el.textContent); } catch (e){ console.error('묶음을 풀지 못했습니다', el.dataset.part, e); return; }
+      let at = el;
+      txt.split('\u0000').forEach(p => {
+        const css = p[0] === 'c', n = document.createElement(css ? 'style' : 'script');
+        n.setAttribute('data-unpacked', el.dataset.part);
+        n.textContent = p.slice(1);
+        if (css) document.head.appendChild(n); else { at.after(n); at = n; }
+      });
+    });
+  };
+})();
+</script>
+<style data-part="css">/*@JOURNEY_CSS@*/</style>
+<style data-part="css">/*@BUMP_CSS@*/</style>
+<style data-part="css">/*@SYS_CSS@*/</style>
+<style data-part="css">/*@THEATRE_CSS@*/</style>
 </head>
 <body>
 <div id="app">
@@ -334,6 +469,11 @@ details.menu .menu-pop.left{left:0;right:auto}
       <button class="tab" role="tab" data-tab="map" aria-selected="false"><span class="tl">업무 알고리즘 맵</span><span class="ts">맵</span></button>
       <button class="tab" role="tab" data-tab="hbm" aria-selected="false" title="AI에서 DRAM 셀까지 스크롤 줌"><span class="tl">HBM 역추적</span><span class="ts">HBM</span></button>
       <button class="tab" role="tab" data-tab="bump" aria-selected="false" title="앞면 범프 도금 공정 — 웨이퍼·다이·범프 한 화면"><span class="tl">범프 공정</span><span class="ts">범프</span></button>
+      <button class="tab" role="tab" data-tab="plating" aria-selected="false" title="전해도금 — 원리부터 현장까지 13장"><span class="tl">전해도금</span><span class="ts">도금</span></button>
+      <button class="tab" role="tab" data-tab="strip" aria-selected="false" title="PR 스트립 — 도금이 끝난 뒤 PR 틀 벗기기"><span class="tl">PR 스트립</span><span class="ts">스트립</span></button>
+      <button class="tab" role="tab" data-tab="etch" aria-selected="false" title="시드 식각 — 범프 사이의 시드 금속 지우기"><span class="tl">시드 식각</span><span class="ts">식각</span></button>
+      <button class="tab" role="tab" data-tab="reflow" aria-selected="false" title="리플로우 — 솔더를 녹여 둥글게"><span class="tl">리플로우</span><span class="ts">리플로우</span></button>
+      <button class="tab" role="tab" data-tab="sys" aria-selected="false" title="반도체 공장의 사내 시스템 — 한 장 지도"><span class="tl">사내 시스템</span><span class="ts">시스템</span></button>
     </nav>
     <div class="spacer"></div>
     <button class="icon-btn" id="btn-help" title="도움말"><span class="tl">도움말</span><span class="ts">?</span></button>
@@ -348,6 +488,11 @@ details.menu .menu-pop.left{left:0;right:auto}
 
   <section class="view" id="view-hbm" aria-label="HBM 역추적 — AI에서 DRAM 셀까지"></section>
   <section class="view" id="view-bump" aria-label="범프 공정 — 웨이퍼·다이·범프"></section>
+  <section class="view thv" id="view-plating" aria-label="전해도금 — 원리부터 현장까지"><div class="pl-fallback"><b>전해도금 탭을 불러오지 못했습니다.</b><p>이 화면이 파일의 앞부분만 읽었거나(일부 앱 미리보기는 큰 HTML 파일을 잘라 읽습니다) 스크립트를 막았을 수 있습니다. <code>dist/engr-edu.html</code> 파일을 내려받아 Chrome · Edge · Safari 같은 브라우저로 직접 열어 주세요.</p></div></section>
+  <section class="view thv" id="view-strip" aria-label="PR 스트립 — 도금이 끝난 뒤 PR 틀 벗기기"><div class="pl-fallback"><b>PR 스트립 탭을 불러오지 못했습니다.</b><p>이 화면이 파일의 앞부분만 읽었거나(일부 앱 미리보기는 큰 HTML 파일을 잘라 읽습니다) 스크립트를 막았을 수 있습니다. <code>dist/engr-edu.html</code> 파일을 내려받아 Chrome · Edge · Safari 같은 브라우저로 직접 열어 주세요.</p></div></section>
+  <section class="view thv" id="view-etch" aria-label="시드 식각 — 범프 사이의 시드 금속 지우기"><div class="pl-fallback"><b>시드 식각 탭을 불러오지 못했습니다.</b><p>이 화면이 파일의 앞부분만 읽었거나(일부 앱 미리보기는 큰 HTML 파일을 잘라 읽습니다) 스크립트를 막았을 수 있습니다. <code>dist/engr-edu.html</code> 파일을 내려받아 Chrome · Edge · Safari 같은 브라우저로 직접 열어 주세요.</p></div></section>
+  <section class="view thv" id="view-reflow" aria-label="리플로우 — 솔더를 녹여 둥글게"><div class="pl-fallback"><b>리플로우 탭을 불러오지 못했습니다.</b><p>이 화면이 파일의 앞부분만 읽었거나(일부 앱 미리보기는 큰 HTML 파일을 잘라 읽습니다) 스크립트를 막았을 수 있습니다. <code>dist/engr-edu.html</code> 파일을 내려받아 Chrome · Edge · Safari 같은 브라우저로 직접 열어 주세요.</p></div></section>
+  <section class="view" id="view-sys" aria-label="사내 시스템 지도 — 반도체 공장을 돌리는 시스템"></section>
 
   <section class="view" id="view-map">
     <aside class="map-side">
@@ -456,7 +601,7 @@ details.menu .menu-pop.left{left:0;right:auto}
 
 <script type="application/json" id="edu-data">[]</script>
 <script type="application/json" id="preload-maps">null</script>
-<script>
+<script data-part="app">
 (function(){
 'use strict';
 
@@ -1042,7 +1187,11 @@ function renderMarkdown(md, flows, heads){
 }
 function loadEdu(){
   let data = [];
-  try { data = JSON.parse($('#edu-data').textContent) || []; } catch(e){}
+  try {
+    const el = $('#edu-data');
+    if (el.dataset.z === 'lzma') data = JSON.parse(window.EngrUnpack(el.textContent)) || [];   // 빌드가 줄여 넣은 내용 (맨 앞 스크립트가 푼다)
+    else data = JSON.parse(el.textContent) || [];
+  } catch(e){ console.error('교육 콘텐츠를 읽지 못했습니다', e); }
   S.edu = Array.isArray(data) ? data : (data.modules || []);
   S.figs = Array.isArray(data) ? {} : (data.figures || {});
   if (data.figStyle && !document.getElementById('fig-style')){
@@ -1948,11 +2097,15 @@ function openHelp(){
       h('li', null, '「내보내기 → 공유용 HTML」 로 팀에 배포 (받은 사람이 열면 맵이 그대로 보입니다)')),
     h('h4', null, 'HBM 역추적'),
     h('p', null, 'AI 데이터센터에서 DRAM 셀까지 스크롤할 때마다 한 단계씩 줌인합니다. 화면의 점선 상자를 누르면 그 안으로, 위쪽 장 버튼으로 바로 이동합니다. 「제조 순서」는 같은 화면을 거꾸로(줌아웃) 보여 주고, 「▶ 발표 모드」는 전체 화면에서 ← → 키로 넘깁니다.'),
+    h('h4', null, '범프 공정 · 전해도금 · PR 스트립 · 시드 식각 · 리플로우'),
+    h('p', null, '범프 공정은 앞면 범프 12단계를 웨이퍼 · 다이 · 범프 세 단위로 한 화면에 보여 줍니다. 전해도금(13장)과 그 뒤 공정인 PR 스트립 · 시드 식각 · 리플로우(각 9장)는 같은 화면으로, 원리부터 장비 · 약품 · 불량까지 장마다 질문 하나씩 설명합니다. 스크롤하거나 ← → 키로 넘기고, 아래 칩이나 표지의 차례 타일을 누르면 바로 이동합니다. 표지 오른쪽 위의 공정 순서 칸을 누르면 그 공정 탭으로 갑니다. 「깊게 보기」는 카드마다 접혀 있는 「한 걸음 더」를 모두 펼칩니다.'),
+    h('h4', null, '사내 시스템'),
+    h('p', null, 'MES, RTD · MCS, 기준정보(GMDM · MMDM), EAP, PCS(RMS · EC · APC), FDC, TAS, EES, GIPMS, SPC, YES를 한 장의 지도로 봅니다. 상자나 아래 칩을 누르면 그 시스템 설명으로, 스크롤하면 그 시스템과 화살표만 밝아집니다. 「LOT-001의 하루」는 알람이 울렸을 때 시스템이 이어지는 순서를 따라갑니다.'),
     h('h4', null, '저장'),
     h('p', null, '맵은 이 브라우저(IndexedDB)에 자동 저장됩니다. 브라우저 데이터를 지우면 사라지니 「JSON (모든 맵 백업)」 으로 주기적으로 백업하세요.'),
     h('h4', null, '단축키'),
     h('p', null, '맵 — Delete: 선택 삭제 · Ctrl+Z: 되돌리기 · Ctrl+Y: 다시 · Esc: 선택 해제'),
-    h('p', null, 'HBM 역추적 — ← →: 이전·다음 단계 · ↓ PageDown Space: 스크롤 · 발표 모드에서 Home/End: 처음·끝, Esc: 닫기')
+    h('p', null, 'HBM 역추적 · 범프 공정 · 전해도금 · PR 스트립 · 시드 식각 · 리플로우 — ← →: 이전·다음 단계 · ↓ PageDown Space: 스크롤 · 발표 모드에서 Home/End: 처음·끝, Esc: 닫기')
   ]);
 }
 
@@ -2099,6 +2252,9 @@ function runRule(){
 function buildShareHTML(maps){
   const doc = document.documentElement.cloneNode(true);
   doc.removeAttribute('data-theme');
+  // 실행하며 풀어 넣은 것은 빼고 처음 파일 모양으로 (받은 사람이 열면 다시 푼다)
+  doc.querySelectorAll('[data-unpacked], style#fig-style, style[id$="-chcss"]').forEach(n => n.remove());
+  doc.querySelectorAll('[data-ran]').forEach(n => n.removeAttribute('data-ran'));
   doc.querySelector('#app').innerHTML = INITIAL_APP_HTML;
   const payload = JSON.stringify({exportedAt: new Date().toISOString(), maps}).replace(/</g, '\\u003c');
   doc.querySelector('#preload-maps').textContent = payload;
@@ -2163,17 +2319,32 @@ function setTab(t){
   if (!$('#view-' + t)) t = 'edu';
   S.tab = t;
   $$('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t ? 'true' : 'false'));
+  // 고른 탭이 탭 줄 밖(좁은 화면)이면 보이게 민다
+  const nav = $('.tabs'), sb = nav.querySelector(`.tab[data-tab="${t}"]`);
+  if (sb && nav.scrollWidth > nav.clientWidth + 1){
+    const nr = nav.getBoundingClientRect(), br = sb.getBoundingClientRect();
+    if (br.left < nr.left + 24 || br.right > nr.right - 24) nav.scrollLeft += (br.left + br.width / 2) - (nr.left + nr.width / 2);
+  }
+  tabsFade();
   $$('#app > .view').forEach(v => v.classList.toggle('active', v.id === 'view-' + t));
   store.set('engr-edu.tab', t);
   if (t === 'map'){ renderCanvas(); requestAnimationFrame(() => { if (!S.fitted){ fit(); S.fitted = true; } }); }
   document.dispatchEvent(new CustomEvent('engr:tab', {detail: t}));
 }
 $$('.tab').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
-// 탭 사이 이동 링크: #go-hbm, #go-bump, #go-map, #go-edu-4 (교육 모듈 번호)
+// 좁은 화면: 탭 줄 끝이 가려졌으면 그쪽을 흐리게
+function tabsFade(){
+  const nav = $('.tabs'), over = nav.scrollWidth > nav.clientWidth + 1;
+  nav.classList.toggle('fade-l', over && nav.scrollLeft > 2);
+  nav.classList.toggle('fade-r', over && nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 2);
+}
+$('.tabs').addEventListener('scroll', tabsFade, {passive: true});
+window.addEventListener('resize', tabsFade);
+// 탭 사이 이동 링크: #go-hbm, #go-bump, #go-plating, #go-sys, #go-map, #go-edu-4 (교육 모듈 번호), #go-reflow-03 (도면 극장 탭의 장 번호)
 document.addEventListener('click', ev => {
   const a = ev.target.closest && ev.target.closest('a[href^="#go-"]');
   if (!a) return;
-  const m = a.getAttribute('href').match(/^#go-(edu|map|hbm|bump)(?:-(\d+))?$/);
+  const m = a.getAttribute('href').match(/^#go-(edu|map|hbm|bump|plating|strip|etch|reflow|sys)(?:-(\d+))?$/);
   if (!m) return;
   ev.preventDefault();
   if (m[1] === 'edu' && m[2] != null && S.edu.length){
@@ -2181,6 +2352,8 @@ document.addEventListener('click', ev => {
     renderEdu(); $('.edu-main').scrollTop = 0;
   }
   setTab(m[1]);
+  const th = window.EngrTheatres && window.EngrTheatres[m[1]];
+  if (th && m[2] != null) requestAnimationFrame(() => requestAnimationFrame(() => th.gotoNo(m[2])));   // 탭이 자리를 잡은 뒤 그 장으로
 });
 $$('.panel-tabs button').forEach(b => b.addEventListener('click', () => setPtab(b.dataset.ptab)));
 $('#btn-settings').addEventListener('click', openSettings);
@@ -2294,7 +2467,12 @@ window.EngrEdu = {parseFlow, layoutMap, renderMarkdown, normalizeMap, buildShare
 init();
 })();
 </script>
-<script>/*@JOURNEY_JS@*/</script>
-<script>/*@BUMP_JS@*/</script>
+<script data-part="hbm">/*@JOURNEY_JS@*/</script>
+<script data-part="bump">/*@BUMP_JS@*/</script>
+<script data-part="sys">/*@SYS_JS@*/</script>
+<script data-part="plating">/*@PLATING_JS@*/</script>
+<script data-part="strip">/*@STRIP_JS@*/</script>
+<script data-part="etch">/*@ETCH_JS@*/</script>
+<script data-part="reflow">/*@REFLOW_JS@*/</script>
 </body>
 </html>
