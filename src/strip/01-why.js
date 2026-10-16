@@ -1,14 +1,15 @@
 /* PR 스트립 01 — 왜 걷어 내나: PR 틀은 어디까지 없애야 할까 (웨이퍼 · 범프 · 수십 µm) */
 (function(){
-// 그림 예시 범프 (세 탭 공통 — plans/shared.md (a)): 지름 25 · 피치 55 µm (틈 30), Cu 15 + Ni 3 + SnAg 12 µm, PR 35 µm
+// 그림 예시 범프 (plans/stack.md · shared.md (a)): 베이스 다이 범프 — 지름 25 · 피치 55 µm (틈 30),
+//   Cu 기둥 12 + Ni 3 + 상부 Cu 3 + SnAg 12 µm (= 30 µm), PR 35 µm. 코어 다이 범프(Ni 5 + SnAg 12 = 17 µm)는 글로만 짚는다
 const S = 7;                                             // 1 µm = 7 px (단면 그림)
-const DIA = 25, PITCH = 55, GAP = 30, HCU = 15, HNI = 3, HSN = 12, HPR = 35;
+const DIA = 25, PITCH = 55, GAP = 30, HCU = 12, HNI = 3, HUC = 3, HSN = 12, HPR = 35;
 const X0 = 60, X1 = 830;                                 // 단면 가로 범위 (반 틈 + 범프 + 틈 + 범프 + 반 틈)
 const BX = [X0 + GAP / 2 * S, X0 + (GAP / 2 + PITCH) * S]; // 범프 왼쪽 x (165 · 550)
 const BW = DIA * S;                                      // 범프 폭 175
 const CX = BX.map(x => x + BW / 2);                      // 범프 가운데 (252.5 · 637.5)
 const BASE = 1006;                                       // 시드 Cu 윗면
-const YCU = BASE - HCU * S, YNI = YCU - HNI * S, YSN = YNI - HSN * S, PRT = BASE - HPR * S;   // 901 · 880 · 796 · 761
+const YCU = BASE - HCU * S, YNI = YCU - HNI * S, YUC = YNI - HUC * S, YSN = YUC - HSN * S, PRT = BASE - HPR * S;   // 922 · 901 · 880 · 796 · 761
 const PRSEG = [[X0, BX[0]], [BX[0] + BW, BX[1]], [BX[1] + BW, X1]];                    // PR 세 토막
 const RX = 1120, RW = 450, RY = 120, RH = 680;           // 오른쪽 패널
 const MB = {x: 1120, y: 816, w: 450, h: 290};            // 계량 상자 (위젯이 그린다)
@@ -18,7 +19,7 @@ const PIT = {n: [40, 22], m: [55, 25], w: [100, 50]};    // 범프 간격 예시
 const DEMO = {frame: {t: 35, f: 20, e: 2, p: 'm'}, next: {t: 35, f: 20, e: 2, p: 'n'}, keep: {t: 35, f: 20, e: 2, p: 'm'}, handoff: {t: 60, f: 20, e: 2, p: 'm'}};
 const STEPS = ['frame', 'next', 'keep', 'handoff'];
 // 좁은 세로 화면 전용 확대: 단면(+층 이름) 또는 오른쪽 패널
-const VN_SEC = {x: 30, y: 130, w: 1080, h: 980}, VN_PAN = {x: 1110, y: 112, w: 470, h: 696};
+const VN_SEC = {x: 30, y: 130, w: 1080, h: 994}, VN_PAN = {x: 1110, y: 112, w: 470, h: 696};
 
 (window.EngrStripChapters = window.EngrStripChapters || []).push({
   no: '01', id: 'why', part: 1, short: '왜 걷어 내나', scale: '웨이퍼 · 범프 · 수십 µm',
@@ -29,12 +30,12 @@ const VN_SEC = {x: 30, y: 130, w: 1080, h: 980}, VN_PAN = {x: 1110, y: 112, w: 4
   steps: [
     {id: 'frame', t: '틀의 일 — 도금 동안 모양을 잡았다', d: '도금 동안 PR은 범프 자리만 뚫린 틀이었습니다. 금속은 열린 구멍에만 쌓였고, 나머지 시드는 PR이 액에서 가려 주었습니다. 이제 틀은 할 일을 다 했고, 다음 공정을 위해 비켜 줘야 합니다.', viewN: VN_SEC},
     {id: 'next', t: '걷어 내는 이유 — 다음은 시드 식각', d: '범프들은 아직 얇은 시드(Cu · Ti)로 모두 이어져 있습니다. 시드 식각액이 범프 사이 시드에 닿으려면 PR이 남김없이 없어져야 합니다. PR이 남은 자리는 그 아래 시드가 식각되지 않고 남을 수 있고, 남은 시드가 이웃 범프까지 이어지면 단락입니다.', viewN: VN_PAN},
-    {id: 'keep', t: '없앨 것과 지킬 것', d: 'PR만 없애고 Cu · Ni · SnAg와 시드는 그대로 둬야 합니다. 한쪽만 골라 없애는 정도를 선택비(PR이 없어지는 속도 ÷ 금속이 없어지는 속도)라고 합니다. 스트리퍼는 PR을 녹이는 힘과 금속을 지키는 힘을 함께 갖춰야 하고, 두 힘은 자주 부딪힙니다.', viewN: VN_SEC},
+    {id: 'keep', t: '없앨 것과 지킬 것', d: 'PR만 없애고 범프와 시드는 지켜야 합니다. 범프 금속은 베이스 다이 Cu 기둥 · Ni · 상부 Cu(Ni 위에 얇게 한 번 더 올린 Cu) · SnAg, 코어 다이 Ni · SnAg입니다. 한쪽만 골라 없애는 정도가 선택비(PR 제거 속도 ÷ 금속 손실 속도)이고, 녹이는 힘과 지키는 힘은 자주 부딪힙니다.', viewN: VN_SEC},
     {id: 'handoff', t: '앞뒤로 주고받는 것', d: '받는 것은 도금을 거친 PR 틀과 도금액 흔적, 넘기는 것은 깨끗한 시드와 다치지 않은 범프입니다. 스트립 결과는 시드 식각(잔여 · 단락 · 언더컷)과 리플로우(젖음 · 모양)에서 다시 드러납니다.', viewN: VN_PAN}
   ],
   icon(K){
     const {R, P} = K;
-    return R(8, 38, 48, 14, 'f-si') + R(8, 36, 48, 3, 'f-seed2') + P('M8,36 L8,18 L20,16 L20,36 Z', 'f-pr') + R(24, 14, 16, 22, 'f-cu2') + R(24, 12, 16, 5, 'f-sn2') +
+    return R(8, 38, 48, 14, 'f-si') + R(8, 36, 48, 3, 'f-seed2') + P('M8,36 L8,18 L20,16 L20,36 Z', 'f-pr') + R(24, 27, 16, 9, 'f-cu2') + R(24, 24, 16, 3, 'f-ni') + R(24, 21, 16, 3, 'f-cu2') + R(24, 12, 16, 9, 'f-sn2') +
       R(44, 10, 12, 20, 'f-pr', {transform: 'rotate(25 50 20)'}) + P('M44,34 L50,30 M48,36 L56,32', 's-arr');
   },
   draw(K){
@@ -51,12 +52,14 @@ const VN_SEC = {x: 30, y: 130, w: 1080, h: 980}, VN_PAN = {x: 1110, y: 112, w: 4
     BX.forEach(x => { s += R(x + 18, 1022, BW - 36, 12, 'f-al', tip('패드 — 범프 아래 보호막이 열린 자리 (칩 안 배선과 이어진다)')); });
     s += R(X0, 1016, X1 - X0, 6, 'f-ti', tip('Ti — 시드 아래 접착 · 방벽층 (예시 100 nm — 그림은 크게 과장)'));
     s += R(X0, BASE, X1 - X0, 10, 'f-seed2', tip('시드 Cu (예시 300 nm) — 범프끼리 아직 이어 주는 전기 길. 스트립 뒤 시드 식각으로 지운다.\n실제 수백 nm — 그림은 과장'));
-    // 범프 둘 (Cu · Ni · SnAg)
+    // 범프 둘 — 베이스 다이 범프 (Cu 기둥 · Ni · 상부 Cu · SnAg, 실제 비율)
     BX.forEach(x => {
-      s += R(x, YCU, BW, BASE - YCU, 'f-cu2', tip('Cu 기둥 (예시 15 µm) — 높이를 만들고 전기 · 열을 나른다'));
-      s += R(x, YNI, BW, YCU - YNI, 'f-ni', tip('Ni 방벽 (예시 3 µm) — Cu와 솔더가 서로 섞이지 않게 막는다'));
-      s += R(x, YSN, BW, YNI - YSN, 'f-sn2', tip('SnAg 솔더 (예시 12 µm, 리플로우 전 원기둥) — 리플로우 때 녹아 둥글어진다'));
+      s += R(x, YCU, BW, BASE - YCU, 'f-cu2', tip('Cu 기둥 — 높이 · 전기 (예시 12 µm) · 열도 나른다'));
+      s += R(x, YNI, BW, YCU - YNI, 'f-ni', tip('Ni — Cu 기둥과 솔더 사이 방벽 (예시 3 µm)'));
+      s += R(x, YUC, BW, YNI - YUC, 'f-cu2', tip('상부 Cu — 솔더가 처음 만나는 면 · IMC를 Cu₆Sn₅ 쪽으로 (예시 3 µm)\nNi 위에 얇게 한 번 더 올린 Cu. PR이 걷히면 Ni와 SnAg 사이 얇은 띠로 액에 닿는다'));
+      s += R(x, YSN, BW, YUC - YSN, 'f-sn2', tip('SnAg — 녹아서 붙는 솔더 (예시 12 µm, 리플로우 전 원기둥) — 리플로우 때 녹아 둥글어진다'));
     });
+    s += T(X0, 1112, '그림 = 베이스 다이 범프 (예시) · 코어 다이 범프는 Ni · SnAg (Cu 기둥 없음)', 't-dim', 'start', tip('베이스 다이 Cu 기둥 12 + Ni 3 + 상부 Cu 3 + SnAg 12 = 30 µm\n코어 다이 Ni 5 + SnAg 12 = 17 µm (같은 지름 25 µm, 예시)'));
     // PR 틀 — frame · keep 은 그대로, next 는 반복해서 옅어짐, handoff 에서는 없음
     const prTip = tip('PR 틀 (예시 35 µm) — 도금 동안 범프 자리만 열려 있었다. 이제 걷어 낼 차례');
     const prs = PRSEG.map(([a, b]) => R(a, PRT, b - a, BASE - PRT, 'f-pr', prTip)).join('');
@@ -104,6 +107,9 @@ const VN_SEC = {x: 30, y: 130, w: 1080, h: 980}, VN_PAN = {x: 1110, y: 112, w: 4
     kz += TT(78, 330, wrap('시드는 Ti 100 nm 위 Cu 300 nm (예시). Cu 시드는 범프 높이 30 µm의 1/100입니다.', 14), 't-sub', 'start', 30);
     kz += TT(78, 450, wrap('PR은 수십 µm를 없애야 하고, 시드는 nm 단위로 지켜야 합니다.', 14), 't-sub', 'start', 30);
     kz += T(78, 556, '→ 아주 큰 선택비가 필요', 't-warn', 'start');
+    // 지킬 범프 금속은 다이마다 다르다 (PR이 걷히면 범프 옆면이 처음 액에 닿는다 → 07장)
+    kz += G(T(78, 626, '지킬 범프 옆면 — 다이마다 다르다', 't-sub', 'start') + T(78, 656, '베이스: Cu 기둥 · Ni · 상부 Cu 띠 · SnAg', 't-dim', 'start') + T(78, 682, '코어: Ni · SnAg (범프에 Cu 없음)', 't-dim', 'start'),
+      tip('PR이 걷히면 범프 옆면이 처음 액에 닿는다.\n베이스 다이: Cu 기둥 옆면, 그리고 Ni와 SnAg 사이의 얇은 상부 Cu 띠(3 µm)가 아민 · 알칼리에 먹힐 수 있다 — 띠가 얇아 조금만 먹혀도 홈\n코어 다이: 옆면은 Ni(비교적 강함) · SnAg(알칼리에 약함)뿐\n두 다이 모두 범프 사이 Cu 시드는 드러난다 (→ 07장)'));
     const Z = {x: 600, y: 452, r: 168}, ZS = 470, ZPX = 100;        // 확대 원: 1 µm = 100 px, 시드 Cu 윗면 y 470, 범프 왼쪽 벽 x 600
     let zi = R(Z.x - Z.r, Z.y - Z.r, Z.r, ZS - (Z.y - Z.r), 'f-pr') + R(Z.x, Z.y - Z.r, Z.r, ZS - (Z.y - Z.r), 'f-cu2');
     zi += R(Z.x - Z.r, ZS, 2 * Z.r, 0.3 * ZPX, 'f-seed2') + R(Z.x - Z.r, ZS + 0.3 * ZPX, 2 * Z.r, 0.1 * ZPX, 'f-ti') + R(Z.x - Z.r, ZS + 0.4 * ZPX, 2 * Z.r, Z.r, 'f-pas');
@@ -141,11 +147,12 @@ const VN_SEC = {x: 30, y: 130, w: 1080, h: 980}, VN_PAN = {x: 1110, y: 112, w: 4
     // [이름, 끝점 x, y, 글 y, [frame, next, keep, handoff] 둘째 줄, 클래스]
     const LAY = [
       ['PR 틀 (35 µm, 예시)', 770, 790, 700, ['범프 자리만 열린 틀', '걷어 내는 중 — 남김없이', '없앤다 ✕', null], ['t-dim', 'st01-wt', 'st01-ng', null]],
-      ['SnAg 솔더 (12 µm)', 705, 830, 770, ['리플로우 전 원기둥', null, '지킨다 ✓', '깨끗한 표면 → 리플로우'], ['t-dim', null, 'st01-ok', 'st01-ok']],
-      ['Ni 방벽 (3 µm)', 705, 890, 838, ['Cu와 솔더 사이를 막는다', null, '지킨다 ✓', '그대로'], ['t-dim', null, 'st01-ok', 't-dim']],
-      ['Cu 기둥 (15 µm)', 705, 955, 906, ['높이 · 전기 · 열의 길', null, '지킨다 ✓', '다치지 않은 기둥'], ['t-dim', null, 'st01-ok', 'st01-ok']],
-      ['시드 Cu · Ti', 800, BASE + 5, 974, ['수백 nm · 도금 전류의 길', '아직 모든 범프를 잇는다', '지킨다 ✓ (식각 전까지)', '깨끗하게 → 시드 식각'], ['t-dim', 'st01-wt', 'st01-ok', 'st01-ok']],
-      ['보호막 · Si (칩)', 790, 1028, 1044, ['스트립 때는 시드가 덮음', null, '지킨다 ✓', '그대로'], ['t-dim', null, 'st01-ok', 't-dim']]
+      ['SnAg 솔더 (12 µm)', 705, 830, 756, ['녹아서 붙는 솔더 · 원기둥', null, '지킨다 ✓', '깨끗한 표면 → 리플로우'], ['t-dim', null, 'st01-ok', 'st01-ok']],
+      ['상부 Cu (3 µm)', 705, (YUC + YNI) / 2, 813, ['솔더가 처음 만나는 면', null, '지킨다 ✓ (얇은 띠)', '홈 없는 띠 그대로'], ['t-dim', null, 'st01-ok', 'st01-ok']],
+      ['Ni 방벽 (3 µm)', 705, (YNI + YCU) / 2, 870, ['Cu 기둥과 솔더 사이 방벽', null, '지킨다 ✓', '그대로'], ['t-dim', null, 'st01-ok', 't-dim']],
+      ['Cu 기둥 (12 µm)', 705, 950, 927, ['높이 · 전기 · 열의 길', null, '지킨다 ✓', '다치지 않은 기둥'], ['t-dim', null, 'st01-ok', 'st01-ok']],
+      ['시드 Cu · Ti', 800, BASE + 5, 984, ['수백 nm · 도금 전류의 길', '아직 모든 범프를 잇는다', '지킨다 ✓ (식각 전까지)', '깨끗하게 → 시드 식각'], ['t-dim', 'st01-wt', 'st01-ok', 'st01-ok']],
+      ['보호막 · Si (칩)', 790, 1028, 1041, ['스트립 때는 시드가 덮음', null, '지킨다 ✓', '그대로'], ['t-dim', null, 'st01-ok', 't-dim']]
     ];
     let lb = '';
     LAY.forEach(([nm, px, py, ty, v, c], i) => {
@@ -175,9 +182,9 @@ const VN_SEC = {x: 30, y: 130, w: 1080, h: 980}, VN_PAN = {x: 1110, y: 112, w: 4
     ITEMS.forEach(([h, d], k) => {
       const y = RY + 70 + k * 196, ix = RX + 18;
       let ic = R(ix, y, 112, 120, 'pl-lane', {rx: 8});
-      if (k === 0){ ic += R(ix + 8, y + 26, 28, 80, 'f-pr') + R(ix + 76, y + 26, 28, 80, 'f-pr') + R(ix + 36, y + 46, 40, 60, 'f-cu2') + R(ix + 36, y + 36, 40, 12, 'f-sn2') + P(`M${ix + 40},${y + 18} L${ix + 72},${y + 18}`, 's-arr2', W(K.mk('s-arr2'), {'marker-start': K.url('arr-a')})); }
+      if (k === 0){ ic += R(ix + 8, y + 26, 28, 80, 'f-pr') + R(ix + 76, y + 26, 28, 80, 'f-pr') + R(ix + 36, y + 78, 40, 28, 'f-cu2') + R(ix + 36, y + 71, 40, 7, 'f-ni') + R(ix + 36, y + 64, 40, 7, 'f-cu2') + R(ix + 36, y + 36, 40, 28, 'f-sn2') + P(`M${ix + 40},${y + 18} L${ix + 72},${y + 18}`, 's-arr2', W(K.mk('s-arr2'), {'marker-start': K.url('arr-a')})); }
       if (k === 1){ ic += R(ix + 6, y + 100, 100, 6, 'f-seed2') + R(ix + 6, y + 50, 64, 50, 'f-pr') + R(ix + 72, y + 64, 34, 36, 'f-cu2'); [0, 1].forEach(q => { ic += C(ix + 22 + q * 28, y + 30, 7, 'k-acc2') + P(`M${ix + 16 + q * 28},${y + 42} l12,-6 m-12,0 l12,6`, 's-arrr'); }); ic += C(ix + 89, y + 46, 7, 'k-acc2'); }
-      if (k === 2){ ic += R(ix + 6, y + 100, 100, 6, 'f-seed2') + R(ix + 10, y + 40, 34, 60, 'f-cu2') + R(ix + 68, y + 40, 34, 60, 'f-cu2') + R(ix + 44, y + 30, 24, 70, 'f-pr') + R(ix + 10, y + 30, 34, 10, 'f-sn2') + R(ix + 68, y + 30, 34, 10, 'f-sn2'); }
+      if (k === 2){ ic += R(ix + 6, y + 100, 100, 6, 'f-seed2') + R(ix + 44, y + 30, 24, 70, 'f-pr'); [ix + 10, ix + 68].forEach(bx => { ic += R(bx, y + 72, 34, 28, 'f-cu2') + R(bx, y + 65, 34, 7, 'f-ni') + R(bx, y + 58, 34, 7, 'f-cu2') + R(bx, y + 30, 34, 28, 'f-sn2'); }); }
       p1 += ic + T(RX + 146, y + 26, h, 't-lbl', 'start') + TT(RX + 146, y + 62, wrap(d, 13), 't-sub', 'start', 28);
     });
     p1 += T(RX + 20, RY + 652, '→ 할 일을 다 한 틀 — 이제 걷어 낼 차례', 't-warn', 'start');
@@ -187,7 +194,7 @@ const VN_SEC = {x: 30, y: 130, w: 1080, h: 980}, VN_PAN = {x: 1110, y: 112, w: 4
     const mini = (x, y, kind) => {
       // kind: clean · etch · sep · res · etchres · short
       let m = R(x, y, 130, 132, 'pl-lane', {rx: 8});
-      const sy = y + 110, b1 = x + 9, b2 = x + 88, bw = 36;     // 본 단면과 같은 비율: 높이 = 폭 × 30/25, 틈 = 폭 × 30/25
+      const sy = y + 110, b1 = x + 9, b2 = x + 88, bw = 36;     // 본 단면과 같은 비율: 높이 = 폭 × 30/25, 틈 = 폭 × 30/25 (얇은 Ni · 상부 Cu는 조금 과장)
       if (kind === 'etch' || kind === 'etchres') m += R(x + 2, y + 20, 126, sy - y - 20, 'f-etl');
       m += R(x + 2, sy + 6, 126, 14, 'f-si');
       const seedAll = kind === 'clean' || kind === 'res';
@@ -197,7 +204,7 @@ const VN_SEC = {x: 30, y: 130, w: 1080, h: 980}, VN_PAN = {x: 1110, y: 112, w: 4
         if (kind === 'etch') m += R(x + 2, sy + 2, 126, 2, 'f-seed2', {opacity: .5});
         if (kind === 'etchres' || kind === 'short') m += R(b1 + bw, sy, b2 - b1 - bw, 6, 'f-seed2');
       }
-      [b1, b2].forEach(bx => { m += R(bx, sy - 22, bw, 22, 'f-cu2') + R(bx, sy - 26, bw, 4, 'f-ni') + R(bx, sy - 43, bw, 17, 'f-sn2'); });
+      [b1, b2].forEach(bx => { m += R(bx, sy - 16, bw, 16, 'f-cu2') + R(bx, sy - 21, bw, 5, 'f-ni') + R(bx, sy - 26, bw, 5, 'f-cu2') + R(bx, sy - 43, bw, 17, 'f-sn2'); });
       if (kind === 'res' || kind === 'etchres') m += R(b1 + bw, sy - 9, b2 - b1 - bw, 9, 'f-res');
       if (kind === 'sep') m += T(x + 65, y + 34, '✓', 'st01-ck');
       if (kind === 'short') m += P(`M${b1 + 4},${sy + 3} L${b2 + bw - 4},${sy + 3}`, 'st01-short') + T(x + 65, y + 34, '✗', 'st01-bad');
@@ -289,14 +296,16 @@ const VN_SEC = {x: 30, y: 130, w: 1080, h: 980}, VN_PAN = {x: 1110, y: 112, w: 4
       s += T(MB.x + 22, MB.y + 184, `PR ${st.t} µm · 개구율 ${st.f} %`, 't-dim', 'start') + T(MB.x + 22, MB.y + 210, `EBR ${st.e} mm · ρ ${RHO} g/cm³`, 't-dim', 'start');
       const warn = c.ar > 3;
       s += T(MB.x + 22, MB.y + 252, `틈 깊이 : 폭 = ${c.ar.toFixed(1)}`, warn ? 'pl-warn' : 't-sub', 'start');
-      // 틈 미니 그림 — 가로 · 세로 같은 배율 (1 µm = 1.8 px), 범프 벽은 PR 높이의 30/35
+      // 틈 미니 그림 — 가로 · 세로 같은 배율 (1 µm = 1.8 px), 범프 벽은 PR 높이의 30/35 (베이스 다이 범프 — PR이 30 µm보다 얇으면 코어 다이 범프). 얇은 Ni · 상부 Cu는 보이게 6 px 이상
       const k = 1.8, gx = MB.x + 370, gb = MB.y + MB.h - 46, gw = c.g * k, gh = st.t * k, ww = 24, hb = gh * 30 / 35;
       let fg = R(gx - gw / 2 - ww - 8, gb, gw + 2 * ww + 16, 5, 'f-seed2') + R(gx - gw / 2 - ww - 8, gb + 5, gw + 2 * ww + 16, 10, 'f-si');
       fg += R(gx - gw / 2, gb - gh, gw, gh, 'f-pr');
-      [gx - gw / 2 - ww, gx + gw / 2].forEach(x => { fg += R(x, gb - hb * 15 / 30, ww, hb * 15 / 30, 'f-cu2') + R(x, gb - hb * 18 / 30, ww, hb * 3 / 30, 'f-ni') + R(x, gb - hb, ww, hb * 12 / 30, 'f-sn2'); });
+      // PR이 30 µm보다 얇으면 베이스 다이 범프(30 µm)는 들어가지 않으므로 코어 다이 범프(Ni 5 : SnAg 12)로 그린다
+      const core = st.t < 30, th = Math.max(6, hb * 3 / 30), hc = (hb - 2 * th) / 2;   // 베이스: Ni = 상부 Cu 두께, Cu 기둥 = SnAg
+      [gx - gw / 2 - ww, gx + gw / 2].forEach(x => { fg += core ? R(x, gb - hb * 5 / 17, ww, hb * 5 / 17, 'f-ni') + R(x, gb - hb, ww, hb * 12 / 17, 'f-sn2') : R(x, gb - hc, ww, hc, 'f-cu2') + R(x, gb - hc - th, ww, th, 'f-ni') + R(x, gb - hc - 2 * th, ww, th, 'f-cu2') + R(x, gb - hb, ww, hc, 'f-sn2'); });
       fg += P(`M${gx - gw / 2},${gb + 24} L${gx + gw / 2},${gb + 24}`, 's-acc2') + T(gx, gb + 42, `${c.g} µm`, 't-dim');
       fg += T(gx, gb - gh - 10, `${st.t} µm`, 't-dim');
-      s += G(fg, tip(`틈 단면 (그림 예시 · 가로 세로 같은 배율)\n폭 ${c.g} µm (피치 ${c.p} − 지름 ${c.d}) · 깊이 ${st.t} µm → 깊이 : 폭 ${c.ar.toFixed(1)}\n깊고 좁을수록 틈 바닥이 늦게 걷힌다 (→ 08장)`));
+      s += G(fg, tip(`틈 단면 (그림 예시 · 가로 세로 같은 배율)\n폭 ${c.g} µm (피치 ${c.p} − 지름 ${c.d}) · 깊이 ${st.t} µm → 깊이 : 폭 ${c.ar.toFixed(1)}\n깊고 좁을수록 틈 바닥이 늦게 걷힌다 (→ 08장)\n${core ? '범프: 코어 다이 Ni / SnAg (PR이 베이스 다이 범프 30 µm보다 얇음, 예시)' : '범프: 베이스 다이 Cu / Ni / Cu / SnAg (예시)'}`));
       ctx.$('[data-v="meter"]').innerHTML = s;
       ctx.refresh();
       ctx.out('k-v', `${c.V.toFixed(2)} mL`); ctx.out('k-m', `${c.m.toFixed(1)} g`); ctx.out('k-l', `${c.lot.toFixed(0)} g`); ctx.out('k-ar', `${c.ar.toFixed(1)} : 1`);
@@ -335,7 +344,7 @@ const VN_SEC = {x: 30, y: 130, w: 1080, h: 980}, VN_PAN = {x: 1110, y: 112, w: 4
       '\'PR 제거 뒤\'에 처음 보이는 불량(밑동 치마 · PR 발 · 버섯 머리 아래 잔여 · 범프 떨어짐)은 원인이 도금 · 포토에 있는 경우가 많습니다. 스트립은 불량을 \'만드는\' 단계일 수도, \'드러내는\' 단계일 수도 있습니다 → <a href="#go-plating-12">전해도금 12장</a>.',
       '스트립 조건을 바꿀 때는 시드 식각 · 리플로우 담당과 함께 봅니다. 시드 표면 상태(산화 · 유기막 · 얇아짐)가 식각 속도와 언더컷을 바꿉니다 → <a href="#go-etch-04">시드 식각 04장</a>.',
       'PR 종류 · 두께 · 굽기 조건이 바뀌면(포토 변경) 스트립 조건도 다시 확인합니다 — 변경 관리 항목입니다.',
-      '이 탭 그림은 세 탭이 함께 쓰는 예시 범프(지름 25 · 피치 55 µm, PR 35 µm)입니다. 실제 HBM은 피치가 40 µm 안팎까지 좁아져 틈 깊이 : 폭이 2 가까이 되기도 합니다(위젯의 \'좁게\'). 전해도금 탭의 PR 60 µm 예시면 웨이퍼당 PR은 약 3.8 g입니다. 내 제품의 PR 두께 · 피치로 위젯 값을 바꿔 보세요.'
+      '이 탭 그림은 세 탭이 함께 쓰는 예시 범프 — 베이스 다이 범프(Cu 기둥 12 + Ni 3 + 상부 Cu 3 + SnAg 12 = 30 µm, 지름 25 · 피치 55 µm, PR 35 µm)입니다. 실제 HBM은 피치가 40 µm 안팎까지 좁아져 틈 깊이 : 폭이 2 가까이 되기도 합니다(위젯의 \'좁게\'). <b>코어 다이</b> 범프(Ni 5 + SnAg 12 = 17 µm, 예시)는 낮아서, 같은 여유(범프 + 5 µm)라면 PR을 약 22 µm로 얇게 쓸 수 있습니다(위젯: 약 1.4 g/장 · 깊이 : 폭 약 0.7) — PR 두께가 다르면 스트립 시간 · 액 수명도 다이마다 따로 잡습니다(<a data-go="soak.square">03장</a> · <a data-go="bath.load">06장</a>). 내 제품의 PR 두께 · 피치로 위젯 값을 바꿔 보세요.'
     ]) + K.deep(`<ul>
       <li><b>선택비</b> S = (PR이 없어지는 속도) ÷ (금속이 없어지는 속도). 예(가정): 35 µm PR을 약 10분에 걷고(약 3.5 µm/분) 억제제가 든 액에서 Cu 손실이 0.14 nm/분(<a data-go="chem">04</a> · <a data-go="metal">07장</a> 위젯 기본값)이면 S ≈ 2.5×10⁴. 숫자는 커 보여도 시드는 수백 nm뿐이라, 오버 스트립(다 걷힌 뒤 더 담가 두는 여유 시간)과 헹굼 순간의 손실까지 더하면 여유가 빠르게 줄어듭니다(<a data-go="metal.rinse">07장</a>).</li>
       <li><b>PR 무게</b> m = ρ · π(R − e)² · (1 − f) · t. 300 mm, EBR 2 mm(면적 약 688 cm²), 개구율 20 %, ρ 1.15 g/cm³ → PR 35 µm면 약 2.2 g/장(25장 약 55 g), 60 µm면 약 3.8 g/장(25장 약 95 g). 제품마다 PR 두께 · 개구율이 달라 같은 장수라도 액이 다르게 지칩니다(<a data-go="bath.load">06장</a>).</li>
