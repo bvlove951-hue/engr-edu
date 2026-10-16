@@ -54,7 +54,7 @@ const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor
     // ③ 옆: 전자 2개 + 이온 → 원자
     calc += G(ion(700, 552, 'e') + ion(726, 552, 'e') + T(756, 559, '+', 't-lbl') + `<g data-v="ion">${ion(794, 552, 'cu')}</g>` + T(830, 559, '→', 't-lbl') + C(868, 552, 15, 'f-atom'), on('n'));
     // 오른쪽: PR 구멍 속에서 자라는 범프 (단면)
-    calc += R(960, 130, 620, 960, 'pl-panel', {rx: 16}) + T(984, 172, '범프 하나 (단면) — 계산한 두께만큼 자란다', 't-acc', 'start');
+    calc += R(960, 130, 620, 960, 'pl-panel', {rx: 16}) + T(984, 172, '범프 구멍 하나 (단면) — 고른 금속 한 층이 자란다', 't-acc', 'start');
     calc += R(990, BASE + 16, 560, 60, 'f-si') + R(990, BASE + 4, 560, 12, 'f-pas') + R(OX - OW / 2 - 20, BASE + 4, OW + 40, 12, 'f-al');
     calc += R(990, BASE, 560, 4, 'f-seed2', tip('시드층 — 여기서부터 도금이 쌓인다'));
     calc += R(1010, PRT, OX - OW / 2 - 1010, BASE - PRT, 'f-pr', tip(`PR(포토레지스트, 감광막) 틀 — 범프 자리만 구멍을 뚫어 둔 틀. 높이 예시 ${PR_UM} µm`)) + R(OX + OW / 2, PRT, 1530 - OX - OW / 2, BASE - PRT, 'f-pr');
@@ -171,7 +171,7 @@ const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor
       ctx.$('[data-v="bubs"]').setAttribute('transform', `translate(0 ${top})`);
       const nb = Math.round(K.clamp((1 - eff) / 0.3) * 9);
       for (let k = 0; k < 9; k++) ctx.$(`[data-v="b${k}"]`).style.display = k < nb ? '' : 'none';
-      ctx.$('[data-v="warn"]').textContent = over > 0 ? `⚠ PR 높이를 넘었습니다 → 옆으로 퍼진 버섯 모양 (오버 도금)` : `범프 높이 ${real.toFixed(1)} µm / PR ${PR_UM} µm`;
+      ctx.$('[data-v="warn"]').textContent = over > 0 ? `⚠ PR 높이를 넘었습니다 → 옆으로 퍼진 버섯 모양 (오버 도금)` : `${M.nm} 두께 ${real.toFixed(1)} µm / PR ${PR_UM} µm (한 층만 계산)`;
       const v1 = 1 / 100 * 60 / F / M.n * M.M / M.rho * 1e4;           // 1 ASD, 효율 100 %일 때 µm/분
       ctx.q('[data-o=msg]').innerHTML = `${M.eff}. 예시 두께: ${M.ex}. 1 ASD당 ${v1.toFixed(3)} µm/분 (효율 100 %). 1 Ah마다 ${M.nm === 'SnAg' ? 'Sn' : M.nm} 약 <b>${M.gAh.toFixed(2)} g</b>이 웨이퍼에 쌓입니다. 가용성 양극(애노드, +)이면 양극이 그만큼 녹아 채우고, 불용성이면 약품으로 보충합니다.`;
       // 레시피: 전류 = 목표 전류밀도 × 열린 면적

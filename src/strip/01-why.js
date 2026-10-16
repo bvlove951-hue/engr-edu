@@ -182,9 +182,9 @@ const VN_SEC = {x: 30, y: 130, w: 1080, h: 994}, VN_PAN = {x: 1110, y: 112, w: 4
     ITEMS.forEach(([h, d], k) => {
       const y = RY + 70 + k * 196, ix = RX + 18;
       let ic = R(ix, y, 112, 120, 'pl-lane', {rx: 8});
-      if (k === 0){ ic += R(ix + 8, y + 26, 28, 80, 'f-pr') + R(ix + 76, y + 26, 28, 80, 'f-pr') + R(ix + 36, y + 78, 40, 28, 'f-cu2') + R(ix + 36, y + 71, 40, 7, 'f-ni') + R(ix + 36, y + 64, 40, 7, 'f-cu2') + R(ix + 36, y + 36, 40, 28, 'f-sn2') + P(`M${ix + 40},${y + 18} L${ix + 72},${y + 18}`, 's-arr2', W(K.mk('s-arr2'), {'marker-start': K.url('arr-a')})); }
+      if (k === 0){ ic += R(ix + 8, y + 26, 28, 80, 'f-pr') + R(ix + 76, y + 26, 28, 80, 'f-pr') + R(ix + 36, y + 79, 40, 27, 'f-cu2') + R(ix + 36, y + 71, 40, 8, 'f-ni') + R(ix + 36, y + 63, 40, 8, 'f-cu2') + R(ix + 36, y + 36, 40, 27, 'f-sn2') + P(`M${ix + 40},${y + 18} L${ix + 72},${y + 18}`, 's-arr2', W(K.mk('s-arr2'), {'marker-start': K.url('arr-a')})); }
       if (k === 1){ ic += R(ix + 6, y + 100, 100, 6, 'f-seed2') + R(ix + 6, y + 50, 64, 50, 'f-pr') + R(ix + 72, y + 64, 34, 36, 'f-cu2'); [0, 1].forEach(q => { ic += C(ix + 22 + q * 28, y + 30, 7, 'k-acc2') + P(`M${ix + 16 + q * 28},${y + 42} l12,-6 m-12,0 l12,6`, 's-arrr'); }); ic += C(ix + 89, y + 46, 7, 'k-acc2'); }
-      if (k === 2){ ic += R(ix + 6, y + 100, 100, 6, 'f-seed2') + R(ix + 44, y + 30, 24, 70, 'f-pr'); [ix + 10, ix + 68].forEach(bx => { ic += R(bx, y + 72, 34, 28, 'f-cu2') + R(bx, y + 65, 34, 7, 'f-ni') + R(bx, y + 58, 34, 7, 'f-cu2') + R(bx, y + 30, 34, 28, 'f-sn2'); }); }
+      if (k === 2){ ic += R(ix + 6, y + 100, 100, 6, 'f-seed2') + R(ix + 44, y + 30, 24, 70, 'f-pr'); [ix + 10, ix + 68].forEach(bx => { ic += R(bx, y + 73, 34, 27, 'f-cu2') + R(bx, y + 65, 34, 8, 'f-ni') + R(bx, y + 57, 34, 8, 'f-cu2') + R(bx, y + 30, 34, 27, 'f-sn2'); }); }
       p1 += ic + T(RX + 146, y + 26, h, 't-lbl', 'start') + TT(RX + 146, y + 62, wrap(d, 13), 't-sub', 'start', 28);
     });
     p1 += T(RX + 20, RY + 652, '→ 할 일을 다 한 틀 — 이제 걷어 낼 차례', 't-warn', 'start');
@@ -194,7 +194,7 @@ const VN_SEC = {x: 30, y: 130, w: 1080, h: 994}, VN_PAN = {x: 1110, y: 112, w: 4
     const mini = (x, y, kind) => {
       // kind: clean · etch · sep · res · etchres · short
       let m = R(x, y, 130, 132, 'pl-lane', {rx: 8});
-      const sy = y + 110, b1 = x + 9, b2 = x + 88, bw = 36;     // 본 단면과 같은 비율: 높이 = 폭 × 30/25, 틈 = 폭 × 30/25 (얇은 Ni · 상부 Cu는 조금 과장)
+      const sy = y + 110, b1 = x + 9, b2 = x + 88, bw = 36;     // 본 단면과 같은 비율: 높이 = 폭 × 30/25, 틈 = 폭 × 30/25 (얇은 Ni · 상부 Cu는 8 px로 과장)
       if (kind === 'etch' || kind === 'etchres') m += R(x + 2, y + 20, 126, sy - y - 20, 'f-etl');
       m += R(x + 2, sy + 6, 126, 14, 'f-si');
       const seedAll = kind === 'clean' || kind === 'res';
@@ -204,7 +204,7 @@ const VN_SEC = {x: 30, y: 130, w: 1080, h: 994}, VN_PAN = {x: 1110, y: 112, w: 4
         if (kind === 'etch') m += R(x + 2, sy + 2, 126, 2, 'f-seed2', {opacity: .5});
         if (kind === 'etchres' || kind === 'short') m += R(b1 + bw, sy, b2 - b1 - bw, 6, 'f-seed2');
       }
-      [b1, b2].forEach(bx => { m += R(bx, sy - 16, bw, 16, 'f-cu2') + R(bx, sy - 21, bw, 5, 'f-ni') + R(bx, sy - 26, bw, 5, 'f-cu2') + R(bx, sy - 43, bw, 17, 'f-sn2'); });
+      [b1, b2].forEach(bx => { m += R(bx, sy - 13.5, bw, 13.5, 'f-cu2') + R(bx, sy - 21.5, bw, 8, 'f-ni') + R(bx, sy - 29.5, bw, 8, 'f-cu2') + R(bx, sy - 43, bw, 13.5, 'f-sn2'); });
       if (kind === 'res' || kind === 'etchres') m += R(b1 + bw, sy - 9, b2 - b1 - bw, 9, 'f-res');
       if (kind === 'sep') m += T(x + 65, y + 34, '✓', 'st01-ck');
       if (kind === 'short') m += P(`M${b1 + 4},${sy + 3} L${b2 + bw - 4},${sy + 3}`, 'st01-short') + T(x + 65, y + 34, '✗', 'st01-bad');
@@ -296,16 +296,16 @@ const VN_SEC = {x: 30, y: 130, w: 1080, h: 994}, VN_PAN = {x: 1110, y: 112, w: 4
       s += T(MB.x + 22, MB.y + 184, `PR ${st.t} µm · 개구율 ${st.f} %`, 't-dim', 'start') + T(MB.x + 22, MB.y + 210, `EBR ${st.e} mm · ρ ${RHO} g/cm³`, 't-dim', 'start');
       const warn = c.ar > 3;
       s += T(MB.x + 22, MB.y + 252, `틈 깊이 : 폭 = ${c.ar.toFixed(1)}`, warn ? 'pl-warn' : 't-sub', 'start');
-      // 틈 미니 그림 — 가로 · 세로 같은 배율 (1 µm = 1.8 px), 범프 벽은 PR 높이의 30/35 (베이스 다이 범프 — PR이 30 µm보다 얇으면 코어 다이 범프). 얇은 Ni · 상부 Cu는 보이게 6 px 이상
-      const k = 1.8, gx = MB.x + 370, gb = MB.y + MB.h - 46, gw = c.g * k, gh = st.t * k, ww = 24, hb = gh * 30 / 35;
+      // 틈 미니 그림 — 가로 · 세로 같은 배율 (1 µm = 1.8 px), 범프 높이 = PR − 5 µm (08장과 같은 규칙, 너무 얇으면 PR의 60 %). 얇은 Ni · 상부 Cu는 보이게 8 px 이상
+      const k = 1.8, gx = MB.x + 370, gb = MB.y + MB.h - 46, gw = c.g * k, gh = st.t * k, ww = 24, hb = Math.max(0.6 * gh, (st.t - 5) * k);
       let fg = R(gx - gw / 2 - ww - 8, gb, gw + 2 * ww + 16, 5, 'f-seed2') + R(gx - gw / 2 - ww - 8, gb + 5, gw + 2 * ww + 16, 10, 'f-si');
       fg += R(gx - gw / 2, gb - gh, gw, gh, 'f-pr');
-      // PR이 30 µm보다 얇으면 베이스 다이 범프(30 µm)는 들어가지 않으므로 코어 다이 범프(Ni 5 : SnAg 12)로 그린다
-      const core = st.t < 30, th = Math.max(6, hb * 3 / 30), hc = (hb - 2 * th) / 2;   // 베이스: Ni = 상부 Cu 두께, Cu 기둥 = SnAg
+      // PR이 35 µm(베이스 다이 범프 30 µm + 여유 5 µm)보다 얇으면 코어 다이 범프(Ni 5 : SnAg 12)로 그린다 — PR 35 → 베이스 30 µm, PR 22 → 코어 17 µm
+      const core = st.t < 35, th = Math.max(8, hb * 3 / 30), hc = (hb - 2 * th) / 2;   // 베이스: Ni = 상부 Cu 두께, Cu 기둥 = SnAg
       [gx - gw / 2 - ww, gx + gw / 2].forEach(x => { fg += core ? R(x, gb - hb * 5 / 17, ww, hb * 5 / 17, 'f-ni') + R(x, gb - hb, ww, hb * 12 / 17, 'f-sn2') : R(x, gb - hc, ww, hc, 'f-cu2') + R(x, gb - hc - th, ww, th, 'f-ni') + R(x, gb - hc - 2 * th, ww, th, 'f-cu2') + R(x, gb - hb, ww, hc, 'f-sn2'); });
       fg += P(`M${gx - gw / 2},${gb + 24} L${gx + gw / 2},${gb + 24}`, 's-acc2') + T(gx, gb + 42, `${c.g} µm`, 't-dim');
       fg += T(gx, gb - gh - 10, `${st.t} µm`, 't-dim');
-      s += G(fg, tip(`틈 단면 (그림 예시 · 가로 세로 같은 배율)\n폭 ${c.g} µm (피치 ${c.p} − 지름 ${c.d}) · 깊이 ${st.t} µm → 깊이 : 폭 ${c.ar.toFixed(1)}\n깊고 좁을수록 틈 바닥이 늦게 걷힌다 (→ 08장)\n${core ? '범프: 코어 다이 Ni / SnAg (PR이 베이스 다이 범프 30 µm보다 얇음, 예시)' : '범프: 베이스 다이 Cu / Ni / Cu / SnAg (예시)'}`));
+      s += G(fg, tip(`틈 단면 (그림 예시 · 가로 세로 같은 배율)\n폭 ${c.g} µm (피치 ${c.p} − 지름 ${c.d}) · 깊이 ${st.t} µm → 깊이 : 폭 ${c.ar.toFixed(1)}\n깊고 좁을수록 틈 바닥이 늦게 걷힌다 (→ 08장)\n${core ? '범프: 코어 다이 Ni / SnAg (PR이 베이스 다이 범프 30 µm + 여유 5 µm보다 얇음, 예시)' : '범프: 베이스 다이 Cu / Ni / Cu / SnAg (예시)'}`));
       ctx.$('[data-v="meter"]').innerHTML = s;
       ctx.refresh();
       ctx.out('k-v', `${c.V.toFixed(2)} mL`); ctx.out('k-m', `${c.m.toFixed(1)} g`); ctx.out('k-l', `${c.lot.toFixed(0)} g`); ctx.out('k-ar', `${c.ar.toFixed(1)} : 1`);
