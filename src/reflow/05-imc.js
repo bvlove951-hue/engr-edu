@@ -192,7 +192,7 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
     const chips = h => h.replace('class="pl-seg"', 'class="pl-seg pl-chips"');
     return `<div class="pl-w"><div class="hd">직접 해 보기 — IMC 예산</div>
       ${chips(K.seg('die', [['b', '베이스 다이 (Cu/Ni/Cu/SnAg)'], ['c', '코어 다이 (Ni/SnAg)']], DEF.die, '다이'))}
-      ${K.ctl('n', '녹이는 횟수 (웨이퍼 리플로우 · 본딩(코어 적층 · 베이스 → 인터포저) · 재작업)', 1, 10, 1, DEF.n)}${K.ctl('tl', '한 번에 녹아 있는 시간 (초)', 20, 180, 5, DEF.tl)}
+      ${K.ctl('n', '녹이는 횟수 (웨이퍼 리플로우 · 본딩 · 재작업)', 1, 10, 1, DEF.n)}${K.ctl('tl', '한 번에 녹아 있는 시간 (초)', 20, 180, 5, DEF.tl)}
       ${K.ctl('ht', '고체 상태 고온 시간 (캐리어 본딩 · 뒷면 공정 · 시험을 150 °C로 환산, 시간)', 0, 2000, 50, DEF.ht)}${K.ctl('ni', 'Ni 두께 (µm)', 1, 6, 0.5, DEF.ni)}${K.ctl('tc', '상부 Cu 두께 (µm, 베이스 다이)', 1, 5, 0.5, DEF.tc)}
       ${chips(K.seg('cu', [['0', '없음 (Ni 위 SnAg)'], ['lo', '조금 (0.4 % 미만)'], ['hi', '많이 (0.6 % 넘음)']], DEF.cu, '솔더 속 Cu (코어 다이)'))}
       ${chips(K.seg('side', [['1', '웨이퍼 리플로우만 (계면 1개)'], ['2', '본딩 뒤 (아래 · 위 계면 2개)']], DEF.side, '계면 수'))}
@@ -322,7 +322,7 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
         const cuPx = m.used ? 0 : yNi0 - yN;
         if (cuPx >= 40) w += tag(K, X0 + 22, (yN + yNi0) / 2 + 8, `상부 Cu — 남은 ${f2(m.cuLeft)} µm`, 't-sub');
         if (cuPx >= 70 && sid !== 'dissolve') w += tag(K, 984, yN + 32, '↑ Cu₃Sn — 진한 얇은 띠 (개념 그림)', 't-dim', 'end');
-        else if (niPx >= 110){
+        else if (niPx >= 84){                                            // budget 단계는 배율이 작아 Ni가 얇게 그려진다 (3 µm ≈ 96 px)
           w += tag(K, X0 + 22, yT + 30, m.used ? '↑ 상부 Cu 다 쓰임 — IMC가 Ni 위에 바로' : `↑ 상부 Cu — 남은 ${f2(m.cuLeft)} µm`, 't-dim');
           yNiTag = Math.max(yNiTag, yT + 72);
         }

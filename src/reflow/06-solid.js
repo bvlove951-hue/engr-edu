@@ -223,7 +223,7 @@ function hatch(K, th, cx, cy, n, clip){
   },
   body(K){
     return `<div class="pl-w"><div class="hd">직접 해 보기 — 굳는 순서</div>
-      ${K.ctl('ag', '도금한 솔더 Ag (wt%)', 0.5, 4, 0.1, DEF.ag)}${K.ctl('sn', 'Sn 소모 — 여러 번 녹여 IMC로 빠진 몫 (%, 05장 — 베이스 다이는 상부 Cu 몫만 약 48 %)', 0, 65, 1, DEF.sn)}
+      ${K.ctl('ag', '도금한 솔더 Ag (wt%)', 0.5, 4, 0.1, DEF.ag)}${K.ctl('sn', 'Sn 소모 (05장 — 베이스는 상부 Cu 몫만 약 48 %)', 0, 65, 1, DEF.sn)}
       ${K.ctl('cr', '냉각 속도 (°C/초)', 0, 100, 1, DEF.cr)}${K.ctl('d', '솔더 크기 (지름 µm)', 0, 100, 1, DEF.d)}
       ${K.seg('g', [['1', '① 하나 · c축 세로'], ['3', '② 셋 (쌍정)'], ['h', '③ 하나 · c축 가로']], DEF.g, '다시 굳혀 보기 (결정 모양 예)')}
       ${K.kpis([['과냉', 'k-dt', 'β-Sn 굳기 시작까지'], ['판이 자라는 창', 'k-w', '실효 Ag <span data-o="k-c">2.5</span> % 기준'], ['판이 자랄 수 있는 길이', 'k-l', '추정'], ['β-Sn 결정', 'k-g', '보통 1~몇 개']])}
@@ -266,7 +266,9 @@ function hatch(K, th, cx, cy, n, clip){
       s += L(pN[0], pN[1], pE[0], pE[1], 'rf06-sol', tip('굳은 솔더 (β-Sn + Ag₃Sn)'));
       s += L(pN[0], pN[1] - 15, pN[0], pN[1] + 15, 'rf06-tk') + C(pN[0], pN[1], 7, 'k-ng', tip(`β-Sn 굳기 시작 ${f0(m.TN)} °C — 씨앗 하나가 생기면 범프 전체가 순식간에 굳는다`)) + C(pN[0], pN[1], 16, 'co-ring');
       // 범례 (오른쪽 위 — 곡선이 지나지 않는 자리)
-      let lg = L(300, 199, 340, 199, 'rf06-sc') + T(352, 206, `과냉 액체 ${f0(m.dT)} °C — 액상선 아래인데 아직 액체`, 'rf06-lg', 'start');
+      // 범례 바탕: 실효 Ag가 높으면(약 4.4~5.4 %) Ag₃Sn 선 · 창 위끝이 범례 줄을 지나간다 → 바탕으로 가린다 (창 줄은 ag3sn부터)
+      let lg = G(R(290, 182, 458, 60, 'rf06-lgbg', {rx: 8}), K.only('under grain')) + G(R(290, 182, 458, 88, 'rf06-lgbg', {rx: 8}), K.on('ag3sn'));
+      lg += L(300, 199, 340, 199, 'rf06-sc') + T(352, 206, `과냉 액체 ${f0(m.dT)} °C — 액상선 아래인데 아직 액체`, 'rf06-lg', 'start');
       lg += C(320, 226, 6, 'k-ng') + C(320, 226, 13, 'co-ring') + T(352, 233, '굳기 시작 — 씨앗 하나로 순식간에', 'rf06-lg', 'start');
       lg += G(R(300, 245, 40, 16, 'rf06-win') + T(352, 260, m.W > 0 ? `판이 자라는 창 ${f1(m.W)} °C · ${f1(m.tw)}초` : '창 닫힘 — β-Sn이 먼저 굳는다', 'rf06-lab rf06-lta', 'start'), K.on('ag3sn'));
       s += LB(lg);
@@ -408,7 +410,14 @@ function hatch(K, th, cx, cy, n, clip){
         let ym = (py(m.TL) + py(m.TN)) / 2 + 8;
         if (!left && m221 && Math.abs(ym - y221) < 26) ym = y221 + 30;                  // 옮긴 221 °C 이름표와 겹치면 그 아래로
         s += K.arrow(xc - 12, py(m.TL) + 6, xc - 12, py(m.TN) - 3, 's-arrr') + LB(T(left ? xc - 22 : xc + 22, ym, `과냉 ${f0(m.dT)} °C`, 'rf06-lab rf06-ltn', left ? 'end' : 'start'));
-        if (m.W > 0){ const ta = Math.min(250, m.TA), wy = (py(ta) + py(m.TN)) / 2 + 8; s += L(xc + 9, py(ta), xc + 9, py(m.TN), 'rf06-wseg2') + LB(T(xc + 22, left || Math.abs(wy - ym) > 26 ? wy : ym + 28, `창 ${f1(m.W)} °C`, 'rf06-lab rf06-lta', 'start')); }
+        if (m.W > 0){
+          // 창 이름표는 창 막대 오른쪽 — 실효 Ag가 그래프 오른쪽 끝(약 4.7 % 넘음)이면 무대 밖으로 나가므로 왼쪽(과냉 이름표와 안 겹치게)
+          const ta = Math.min(250, m.TA), wt = `창 ${f1(m.W)} °C`, rt = xc + 22 + 12 * wt.length <= 1584;
+          let wy = (py(ta) + py(m.TN)) / 2 + 8;
+          if (rt) wy = left || Math.abs(wy - ym) > 26 ? wy : ym + 28;
+          else if (left && Math.abs(wy - ym) < 28) wy = ym - 28;
+          s += L(xc + 9, py(ta), xc + 9, py(m.TN), 'rf06-wseg2') + LB(T(rt ? xc + 22 : xc - 22, wy, wt, 'rf06-lab rf06-lta', rt ? 'start' : 'end'));
+        }
       }
       return s;
     }
@@ -497,7 +506,7 @@ function hatch(K, th, cx, cy, n, clip){
       ['굳는 열', '액체가 굳을 때 나오는 열. 큰 시편(DSC — 열 출입을 재며 데우고 식히는 시험)에서는 온도가 잠깐 튀어 오르지만, 웨이퍼 위 범프는 열이 바로 아래 금속 · 웨이퍼로 빠져 거의 보이지 않는다'],
       ['전자이동', '큰 전류가 흐를 때 전자가 원자를 밀어 옮기는 현상. Sn 속 Ni · Cu는 c축을 따라 빨리 옮겨 간다']
     ]) + K.field([
-      '큰 Ag₃Sn 판이 보이면 <span class="pl-tag up">앞 공정</span> Ag %(XRF — X선 형광으로 잰 조성) 맵, <span class="pl-tag rf06-cond">리플로우-조건</span> 냉각 속도 · 녹아 있던 시간, <span class="pl-tag dn">뒤 공정</span> 다시 녹인 횟수(적층 본딩)를 함께 봅니다. 여러 번 · 오래 녹이면 Sn이 IMC로 빠져 남은 솔더의 Ag가 진해집니다(위 · 아래 두 계면이면 두 배 빨리, 상부 Cu 위 Cu₆Sn₅가 Sn을 더 먹는 베이스 다이가 보통 더 빨리) → <a data-go="imc.budget">05장</a> · <a href="#go-plating-10">전해도금 10장</a>.',
+      '큰 Ag₃Sn 판이 보이면 <span class="pl-tag up">앞 공정</span> Ag %(XRF — X선 형광으로 잰 조성) 맵, <span class="pl-tag rf06-cond">리플로우-조건</span> 냉각 속도 · 녹아 있던 시간, <span class="pl-tag dn">뒤 공정</span> 다시 녹인 횟수(본딩 — 코어 적층 · 베이스 → 인터포저)를 함께 봅니다. 여러 번 · 오래 녹이면 Sn이 IMC로 빠져 남은 솔더의 Ag가 진해집니다(위 · 아래 두 계면이면 두 배 빨리, 상부 Cu 위 Cu₆Sn₅가 Sn을 더 먹는 베이스 다이가 보통 더 빨리) → <a data-go="imc.budget">05장</a> · <a href="#go-plating-10">전해도금 10장</a>.',
       '같은 조건에서도 범프마다 결정 방향이 달라 신뢰성 시험(열 순환 · 전자이동) 결과가 흩어집니다. 표본 수를 넉넉히 잡고, 불량 범프의 결정 방향(EBSD — 전자선으로 결정 방향을 재는 분석)을 함께 봅니다.',
       '냉각 장치(냉각판 · 질소 바람 · 이송 속도)가 바뀌면 냉각 속도가 바뀝니다. 측정용 웨이퍼로 냉각 구간도 잽니다 → <a data-go="profile.cool">02장</a>. 다만 작은 범프에서는 냉각보다 Ag가 판을 더 크게 좌우한다는 보고가 있어, 냉각만으로 판을 잡으려 하지 않습니다.',
       '재료 자료의 DSC 과냉 값은 mg 크기 시편이라 마이크로범프보다 작게 나옵니다. 범프는 그보다 더 낮은 온도까지 액체로 남을 수 있다고 생각하고, Ag₃Sn 판은 실제 범프 단면(연마 · 가벼운 식각 · 전자 현미경)으로 확인합니다.'
@@ -542,6 +551,7 @@ function hatch(K, th, cx, cy, n, clip){
 .pl-svg .rf06-cellf{fill:rgba(148,163,184,.08);stroke:#94a3b8;stroke-width:1.8}
 .pl-svg .rf06-nid{fill:#e2e8f0;stroke:#475569;stroke-width:1}
 .pl-svg .rf06-lab{font-size:20px;font-weight:800;paint-order:stroke;stroke:#0b1220;stroke-width:5px;stroke-linejoin:round}
+.pl-svg .rf06-lgbg{fill:rgba(11,18,32,.82);stroke:rgba(148,163,184,.22);stroke-width:1}
 .pl-svg .rf06-lg{font-size:19px;fill:#cbd5e1 !important;paint-order:stroke;stroke:#0b1220;stroke-width:5px;stroke-linejoin:round}
 .pl-svg .rf06-ltl{fill:#e2e8f0 !important}
 .pl-svg .rf06-l221{fill:#94a3b8 !important}
