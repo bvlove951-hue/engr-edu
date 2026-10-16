@@ -151,6 +151,7 @@
 @media (min-width: 1001px){
   #view-hbm .jz.pres .jz-tools{top:100px}
   #view-hbm .jz.pres .jz-step{top:100px}
+  #view-hbm .jz.pres .jz-cap{left:max(236px,calc(50% - 440px));transform:none}   /* 좁은 데스크톱(~1180 px 아래)에서 설명 상자가 왼쪽 아래 배율 상자를 덮지 않게 */
 }
 
 /* ---------- stage SVG ---------- */
@@ -296,8 +297,9 @@
   .jz-scale [data-o=w],.jz-scale [data-o=real],.jz-scale .nt{display:none}
   .jz-badge{font-size:15px;padding:7px 12px}
   /* 전화기 발표 모드: 설명 상자가 가운데 90 px 기둥으로 좁아져 화면 밖까지 길어지던 것 — 폭을 다 쓰고 발표 버튼 줄 위에 둔다.
+     bottom 76 px는 사내 시스템 탭의 오른쪽 아래 자동 · 발표 버튼(.sy .jz-tools, bottom 40 px)도 비켜 간다.
      배율 상자는 발표 버튼 줄(쪽수)과 겹쳐 숨긴다. 범프 · 도면 극장 탭은 자기 규칙(.jz.pres.bp · .jz.pres.pl)이 이긴다 */
-  .jz.pres .jz-cap{left:8px;right:8px;width:auto;transform:none;bottom:56px;max-height:34vh;overflow:auto;pointer-events:auto;padding:8px 12px}
+  .jz.pres .jz-cap{left:8px;right:8px;width:auto;transform:none;bottom:76px;max-height:34vh;overflow:auto;pointer-events:auto;padding:8px 12px}
   .jz.pres .jz-cap .t{font-size:17px}
   .jz.pres .jz-cap .d{font-size:13px;line-height:1.5}
   .jz.pres .jz-pres{right:8px;bottom:10px}

@@ -573,7 +573,7 @@ function hud(){
   // 전화기: 칩 줄이 옆으로 넘치면 지금 단계 칩을 가운데로 (페이지는 움직이지 않게 scrollLeft만)
   const onB = stage.querySelector('.bp-line button.on'), row = onB ? onB.parentElement : stage.querySelector('.bp-line .chipsr');
   if (row && !onB) row.scrollLeft = 0;
-  else if (row && row.scrollWidth > row.clientWidth) row.scrollLeft +=onB.getBoundingClientRect().left - row.getBoundingClientRect().left - (row.clientWidth - onB.offsetWidth) / 2;
+  else if (row && row.scrollWidth > row.clientWidth) row.scrollLeft += onB.getBoundingClientRect().left - row.getBoundingClientRect().left - (row.clientWidth - onB.offsetWidth) / 2;
   const pr = stage.querySelector('.bp-line .bar i');
   pr.style.width = (100 * IDX[cur] / (ORDER.length - 1)) + '%';
 }
