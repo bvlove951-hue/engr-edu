@@ -77,7 +77,7 @@ const STEPS = [
     why: {base: '웨이퍼를 도금액에 담그고 시드층에 전류를 흘리면 PR 구멍 안에만 금속이 쌓입니다. 베이스 다이는 Cu 기둥 → Ni → 상부 Cu → SnAg 네 번 도금합니다. 두께는 전류 × 시간에 비례합니다.',
       core: '웨이퍼를 도금액에 담그고 시드층에 전류를 흘리면 PR 구멍 안에만 금속이 쌓입니다. 코어 다이는 Cu 기둥 없이 시드 위에 바로 Ni → SnAg 두 번 도금합니다. 두께는 전류 × 시간에 비례합니다.'},
     check: {base: ['범프 높이 (웨이퍼 안·다이 안)', '상부 Cu 두께 · Ni 위 밀착', 'SnAg 조성 (Ag 함량)', '도금액 농도·첨가제·온도', '전류·시간'],
-      core: ['범프 높이 (웨이퍼 안·다이 안)', 'Ni 두께 · 막 응력 · 시드 위 밀착', 'SnAg 조성 (Ag 함량)', '도금액 농도·첨가제·온도', '전류·시간']},
+      core: ['범프 높이 (웨이퍼 안·다이 안)', 'Ni 두께 · 막 응력 · 시드 위 밀착', 'Ni → SnAg 사이 대기 (Ni 면 산화)', 'SnAg 조성 (Ag 함량)', '도금액 농도·첨가제·온도', '전류·시간']},
     defect: {base: ['높이 산포 (가장자리가 두꺼워지기 쉬움)', '상부 Cu/Ni 계면 들뜸', '상부 Cu 두께 산포 (얇으면 일찍 다 쓰여 IMC가 바뀌고, 두꺼우면 Cu₃Sn · 보이드가 늘기 쉬움)', '보이드·노듈(혹)', '조성 이탈 → 녹는 거동 변화'],
       core: ['높이 산포 (가장자리가 두꺼워지기 쉬움)', 'Ni 밀착 불량 · 응력 → 들뜸', '보이드·노듈(혹)', '조성 이탈 → 녹는 거동 변화']},
     out: {base: 'PR 틀 안에 쌓인 Cu / Ni / Cu / SnAg 범프 (베이스 다이)', core: 'PR 틀 안에 쌓인 Ni / SnAg 범프 (코어 다이)'}},
@@ -98,8 +98,8 @@ const STEPS = [
     out: '산화막이 걷힌 솔더'},
   {id: 'reflow', no: '10', name: '리플로우', short: 'Reflow', tool: '리플로우 장비', states: ['reflow'],
     why: {base: '솔더를 녹는점 위로 올렸다가 식혀 둥근 모양으로 만듭니다. 베이스 다이는 솔더가 상부 Cu를 적셔 계면에 금속간화합물(IMC) Cu₆Sn₅가 생깁니다. 산화를 막는 분위기(예: 질소)에서 합니다.',
-      core: '솔더를 녹는점 위로 올렸다가 식혀 둥근 모양으로 만듭니다. 코어 다이는 솔더가 Ni를 적셔 계면에 금속간화합물(IMC) Ni₃Sn₄가 생깁니다 — Ni 표면 산화막이 남으면 잘 젖지 않습니다. 산화를 막는 분위기(예: 질소)에서 합니다.'},
-    check: {base: ['온도 프로파일 (예열·최고 온도·냉각)', '범프 높이·모양', '보이드', 'IMC 두께 (상부 Cu가 얼마나 남았나)'], core: ['온도 프로파일 (예열·최고 온도·냉각)', '범프 높이·모양', '보이드', 'IMC(Ni₃Sn₄) 두께 · 남은 Ni']}, defect: ['보이드', '브리지 (이웃 범프와 붙음)', '모양 불량·범프 누락'],
+      core: '솔더를 녹는점 위로 올렸다가 식혀 둥근 모양으로 만듭니다. 코어 다이는 솔더가 Ni를 적셔 계면에 금속간화합물(IMC) Ni₃Sn₄가 생깁니다 — SnAg 밑 Ni 면이 도금 사이에 산화됐다면 리플로우에서는 걷히지 않아 덜 젖습니다. 산화를 막는 분위기(예: 질소)에서 합니다.'},
+    check: {base: ['온도 프로파일 (예열·최고 온도·냉각)', 'IMC 두께 (상부 Cu가 얼마나 남았나)', '범프 높이·모양', '보이드'], core: ['온도 프로파일 (예열·최고 온도·냉각)', 'IMC(Ni₃Sn₄) 두께 · 남은 Ni', '범프 높이·모양', '보이드']}, defect: ['보이드', '브리지 (이웃 범프와 붙음)', '모양 불량·범프 누락'],
     out: '둥근 솔더 범프'},
   {id: 'post', no: '11', name: '후처리 플라즈마', short: 'Post PLT', tool: '플라즈마 장비', states: ['post'],
     why: '리플로우 뒤 남은 잔여물·유기물을 플라즈마로 정리해 다음 공정(검사·캐리어 본딩)에 깨끗한 표면을 넘깁니다.',
@@ -118,7 +118,7 @@ const SUBN = {in: '패드가 열린 웨이퍼 (회로 완성, 앞면이 위)', '
   'ecd-ni': {base: 'Ni — Cu 기둥과 솔더 사이 방벽', core: 'Ni — 몸통 겸 방벽 (시드 위에 바로, 두껍게)'},
   'ecd-cu2': {base: '상부 Cu — Ni 위에 얇게 한 번 더 올린 Cu · 솔더가 처음 만나는 면', core: '상부 Cu (건너뜀) — 코어 다이는 Ni 위에 바로 SnAg'},
   'ecd-sn': 'SnAg — 녹아서 붙는 솔더',
-  'etch-cu': {base: 'Cu 시드 식각 — Cu 기둥 · 상부 Cu 옆면도 조금 깎임', core: 'Cu 시드 식각 — Ni 아래 시드 언더컷'}, 'etch-ti': 'Ti 식각'};
+  'etch-cu': 'Cu 시드 식각 — Ti 위의 Cu 시드부터 녹인다', 'etch-ti': 'Ti 식각'};   // 다이마다 다른 점은 STEPS etch.why가 말한다 (발표 자막에 두 번 나오지 않게)
 const SKIP = {core: ['ecd-cu', 'ecd-cu2']};                       // 그 다이에는 없는 하위 단계
 let die = 'base';                                                 // 지금 고른 범프 구조
 const dv = v => v && typeof v === 'object' && !Array.isArray(v) ? v[die] : v;
@@ -325,7 +325,7 @@ const OPEN = BXS.map(d => [BC + d - 50, BC + d + 50]);
 //  top = 솔더가 앉는 면(베이스 = 상부 Cu, 코어 = Ni), ti · cs = 범프 아래 Ti · Cu 시드가 범프 가장자리에서 들어간 폭(시드 식각 뒤 보임)
 const GEO = {
   base: {pr: 208, cu: 407, ni: 381, cu2: 355, sn: 251, top: 355, ti: 8, cs: 5},
-  core: {pr: 320, ni: 468, sn: 364, top: 468, ti: 4, cs: 6}
+  core: {pr: 320, ni: 468, sn: 364, top: 468, ti: 8, cs: 6}       // Ti는 Cu 시드가 걷힌 자리부터 드러나므로 Cu 시드보다 덜 들어가지 않는다
 };
 const DIES = ['base', 'core'];
 const DOME = 136;   // 리플로우 뒤 돔 높이: SnAg 원기둥 12 µm(104) → 꼭대기 약 15.7 µm (리플로우 탭 04장 계산, 두 다이 같은 부피)
@@ -352,7 +352,8 @@ function body(d, y, cls){
 }
 function solderPath(d, m, g){
   const x0 = BC + d - HALF, x1 = BC + d + HALF, b = g.top, top = lerp(g.sn, b - DOME, m), r = Math.min(HALF, lerp(4, HALF, m)), bulge = 8 * m;
-  return `M${q1(x0)},${b} C${q1(x0 - bulge)},${q1(b - 30)} ${q1(x0 - bulge)},${q1(top + r)} ${q1(x0)},${q1(top + r)} Q${q1(x0)},${q1(top)} ${q1(x0 + r)},${q1(top)} L${q1(x1 - r)},${q1(top)} Q${q1(x1)},${q1(top)} ${q1(x1)},${q1(top + r)} C${q1(x1 + bulge)},${q1(top + r)} ${q1(x1 + bulge)},${q1(b - 30)} ${q1(x1)},${b} Z`;
+  // 옆 곡선이 위 사분원에 세로로 이어지게 (꺾임 없이)
+  return `M${q1(x0)},${b} C${q1(x0 - bulge)},${q1(b - 30)} ${q1(x0 - bulge)},${q1(top + r + 30)} ${q1(x0 - bulge)},${q1(top + r)} Q${q1(x0 - bulge)},${q1(top)} ${q1(x0 + r)},${q1(top)} L${q1(x1 - r)},${q1(top)} Q${q1(x1 + bulge)},${q1(top)} ${q1(x1 + bulge)},${q1(top + r)} C${q1(x1 + bulge)},${q1(top + r + 30)} ${q1(x1 + bulge)},${q1(b - 30)} ${q1(x1)},${b} Z`;
 }
 function drawBump(){
   const each = f => BXS.map(f).join('');
@@ -488,7 +489,7 @@ const DIE_NAME = {base: '베이스 다이 · Cu/Ni/Cu/SnAg', core: '코어 다�
 const dieBtns = cls => DIES.map(n => `<button${cls ? ` class="${cls}"` : ''} data-dsel="${n}" aria-pressed="${n === die}">${esc(DIE_NAME[n])}</button>`).join('');
 const DNOTE = {
   base: '<b>베이스 다이</b>(맨 아래 로직 · 인터페이스 다이)의 범프는 아래 인터포저 쪽에 붙습니다. Cu 기둥이 높이 · 전기 · 열을, Ni가 Cu 기둥과 솔더 사이 방벽을 맡고, <b>상부 Cu</b>(Ni 위에 얇게 한 번 더 올린 Cu)가 솔더가 처음 만나는 면이 됩니다 — 잘 젖고, 계면 IMC가 Ni₃Sn₄ 대신 Cu₆Sn₅ 쪽으로 갑니다 (흔히 드는 이유). 그래서 Cu 도금액을 두 번 씁니다(Cu 기둥 · 상부 Cu). 보통 한 장비 안에서 Ni를 헹군 뒤 마르지 않게 바로 상부 Cu 셀로 옮깁니다 — Ni 표면에는 금방 얇은 산화막(부동태)이 생겨 그 위 Cu의 밀착이 약해질 수 있기 때문입니다 (필요하면 산 담금으로 활성화).',
-  core: '<b>코어 다이</b>(DRAM 다이, 여러 장 쌓임)의 범프는 아래 다이의 후면 패드에 붙습니다. 12~16단을 정해진 높이 안에 넣어야 해서 접합부가 낮을수록 좋아, Cu 기둥 없이 시드 위에 바로 Ni를 두껍게 올려 몸통 겸 방벽으로 씁니다 (흔히 드는 이유). 도금이 두 단계라 짧고, 시드 위 첫 밀착과 Ni 막 응력이 중요합니다. Ni는 Sn과 반응해 Ni₃Sn₄가 되므로 다 먹히지 않을 만큼은 있어야 합니다.'
+  core: '<b>코어 다이</b>(DRAM 다이, 여러 장 쌓임)의 범프는 아래 다이의 후면 패드에 붙습니다. 12~16단을 정해진 높이 안에 넣어야 해서 접합부가 낮을수록 좋아, Cu 기둥 없이 시드 위에 바로 Ni를 두껍게 올려 몸통 겸 방벽으로 씁니다 (흔히 드는 이유). 도금이 두 단계라 짧고, 시드 위 첫 밀착과 Ni 막 응력이 중요합니다. Ni는 Sn과 반응해 Ni₃Sn₄가 되므로 다 먹히지 않을 만큼은 있어야 합니다. Ni를 헹군 뒤에는 지체 없이 SnAg 셀로 옮깁니다 — Ni 면이 산화된 채 SnAg에 덮이면 리플로우의 플럭스 · 포름산이 닿지 않아 계면이 덜 젖고 약해질 수 있습니다.'
 };
 function subHtml(s){
   const t = subn(s), k = t.indexOf(' — '), skip = (SKIP[die] || []).includes(s);
@@ -500,7 +501,7 @@ function stepCard(sp){
   const subs = sp.states.length > 1 ? `<ol class="steps">${sp.states.map((s, k) => `<li data-k="${k}"><span class="n">${k + 1}</span>${subHtml(s)}</li>`).join('')}</ol>` : '';
   let extra = '';
   if (sp.id === 'ecd') extra = `<div class="btns" role="group" aria-label="범프 구조">${dieBtns('jb')}</div><p class="bp-dnote">${DNOTE[die]}</p>
-    <p class="hint">예시 두께 (공개 문헌 수준) — 베이스 다이: Cu 기둥 12 + Ni 3 + 상부 Cu 3 + SnAg 12 = 30 µm · 코어 다이: Ni 5 + SnAg 12 = 17 µm. ③ 단면의 범프 층도 이 비율로 그렸습니다 (시드층 두께와 가로 배율은 과장).</p>
+    <p class="hint">예시 두께 (공개 문헌 수준) — 베이스 다이: Cu 기둥 12 + Ni 3 + 상부 Cu 3 + SnAg 12 = 30 µm · 코어 다이: Ni 5 + SnAg 12 = 17 µm. ③ 단면의 범프 층도 이 비율로 그렸습니다 (시드층 두께는 과장, 범프 사이 틈은 실제보다 좁게).</p>
     <div class="btns"><button class="jb" data-act="map" aria-pressed="false">웨이퍼 안 높이 분포 보기 (예시)</button></div><p class="hint">두께 계산은 <a href="#go-edu-3">03 모듈의 도금 두께 계산기</a>, 관리 포인트는 <a href="#go-edu-5">05 모듈 10절</a>, 도금의 원리 · 장비 · 불량은 <a href="#go-plating">전해도금</a> 탭.</p>`;
   if (sp.id === 'reflow') extra = `<div class="bp-rf"><svg viewBox="0 0 400 150" class="bp-rfsvg"><path d="M20,130 L390,130 M20,130 L20,10" class="s-edge"/><path class="tl-prof" d="M22,126 C60,110 90,96 130,90 L200,86 C230,80 246,36 262,32 C276,30 290,62 306,92 L388,124"/><line x1="22" y1="58" x2="390" y2="58" class="s-acc2" stroke-dasharray="6 5"/><text x="388" y="52" class="t-warn" text-anchor="end" style="font-size:14px">녹는점</text><text x="24" y="146" class="t-dim" style="font-size:13px">예열</text><text x="250" y="146" class="t-dim" style="font-size:13px">녹임</text><text x="340" y="146" class="t-dim" style="font-size:13px">냉각</text><circle class="k-acc2 bp-rfdot" r="7" cx="22" cy="126"/></svg>
     <div class="ctl"><label>시간을 움직여 보기 <output data-o="rf"></output></label><input type="range" data-i="rf" min="0" max="100" value="100"></div><p class="note">녹는점을 넘는 순간 솔더가 둥글어진다 (범프 단면에 바로 보임). 프로파일 모양은 예시.</p></div>`;
@@ -569,6 +570,10 @@ function hud(){
     const k = +b.dataset.k, si = sp ? SI[step] : -1;
     b.classList.toggle('on', k === si); b.classList.toggle('past', k < si);
   });
+  // 전화기: 칩 줄이 옆으로 넘치면 지금 단계 칩을 가운데로 (페이지는 움직이지 않게 scrollLeft만)
+  const onB = stage.querySelector('.bp-line button.on'), row = onB ? onB.parentElement : stage.querySelector('.bp-line .chipsr');
+  if (row && !onB) row.scrollLeft = 0;
+  else if (row && row.scrollWidth > row.clientWidth) row.scrollLeft +=onB.getBoundingClientRect().left - row.getBoundingClientRect().left - (row.clientWidth - onB.offsetWidth) / 2;
   const pr = stage.querySelector('.bp-line .bar i');
   pr.style.width = (100 * IDX[cur] / (ORDER.length - 1)) + '%';
 }
@@ -607,23 +612,8 @@ function setFocus(name){
   fanim = requestAnimationFrame(f);
 }
 
-// 「범프 구조」 버튼 줄 — 보기 버튼(.bp-views) 아래 · 발표 모드는 위 가운데 · 전화기는 보기 버튼 위
-// .off 인 요소의 무한 애니메이션(bpPulse 등)을 멈춘다 — 그대로 두면 Chromium이 사라진 리플로우 열기 · 플라즈마 띠를 화면에 남겨 두기도 한다
-// .bp-uv 는 세로선이라 상자 폭이 0 — bp-glow 필터를 걸면 아예 그려지지 않아 필터를 뺀다
-const DIE_CSS = `.bp-svg .off,.bp-svg .off *{animation:none}
-.bp-svg .bp-uv{filter:none}
-.bp-head .tx{min-width:0}
-.bp-die{position:absolute;right:14px;top:80px;display:flex;gap:4px;align-items:center}
-.bp-die .lb{font-size:11.5px;color:#8193ad;margin-right:2px}
-.bp-die button{font:inherit;font-size:12px;border:1px solid rgba(245,158,11,.4);background:rgba(10,18,34,.78);color:#e2d3b0;border-radius:8px;padding:3px 9px;cursor:pointer}
-.bp-die button[aria-pressed="true"]{background:var(--j-acc2);border-color:var(--j-acc2);color:#1b1203;font-weight:800}
-.jz.pres.bp .bp-die{top:40px;right:auto;left:50%;transform:translateX(-50%)}
-@media (max-width:1000px){.bp-die,.jz.pres.bp .bp-die{top:auto;bottom:76px;left:8px;right:auto;transform:none;z-index:2}.bp-die button{font-size:11px;padding:3px 7px}
-.jz.pres.bp .bp-views,.jz.pres.bp .jz-tools{top:auto;bottom:52px}.jz.pres.bp .bp-die{bottom:84px}
-.jz.pres.bp .jz-cap{left:8px;width:calc(100% - 16px);transform:none;bottom:116px;padding:8px 12px}.jz.pres.bp .jz-cap .t{font-size:17px}.jz.pres.bp .jz-cap .d{font-size:13px;line-height:1.5}}`;   // 전화기 발표 모드: 보기 버튼이 위아래로 늘어나고 설명 상자가 좁아지던 것을 바로잡는다
 function build(){
   built = true;
-  if (!document.getElementById('bp-die-css')){ const st = document.createElement('style'); st.id = 'bp-die-css'; st.textContent = DIE_CSS; document.head.appendChild(st); }
   VIEW.innerHTML = '';
   VIEW.tabIndex = -1;
   root = h('div', 'jz bp');

@@ -173,8 +173,9 @@ def ecd_seq():
         else:
             g.rect(cx - bw / 2, base - 4, bw, 4, "m-cu", rx=1)
         if 1 <= i <= 5 or core:
-            g.rect(px + 8, base - 4 - pr_h, cx - bw / 2 - px - 8, pr_h, "m-pr", rx=1)
-            g.rect(cx + bw / 2, base - 4 - pr_h, px + 120 - cx - bw / 2, pr_h, "m-pr", rx=1)
+            ph = 22 * s if core else pr_h     # 코어 다이 PR 약 22 µm (범프 17 + 5 µm, 예시)
+            g.rect(px + 8, base - 4 - ph, cx - bw / 2 - px - 8, ph, "m-pr", rx=1)
+            g.rect(cx + bw / 2, base - 4 - ph, px + 120 - cx - bw / 2, ph, "m-pr", rx=1)
         if core:
             stack = [(5, "m-ni"), (12, "m-sn")]
         elif i == 8:

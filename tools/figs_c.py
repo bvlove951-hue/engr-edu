@@ -207,7 +207,7 @@ def bump():
             hb = yb - 30 * s
             g.line(px + 10, hb, px + 196, hb, "ax", 1.2, dash="4 3")
             g.text(px + 16, hb - 6, "베이스 범프 높이 (30 µm)", "mut", 11, anchor="start")
-            top = layers(bx, [(4.3, "m-ni")])
+            top = layers(bx, [(4.7, "m-ni")])   # Ni₃Sn₄ 1 µm에 Ni 약 0.26 µm (몰 부피) — IMC 띠 4 px ≈ 1.25 µm → Ni 약 0.3 µm 줄어듦
             g.rect(bx - bw / 2, top - 4, bw, 4, "m-imc", rx=1)
             dome(bx, top - 4)
             r = bx + bw / 2 + 2
@@ -241,8 +241,8 @@ def hbm():
         g.line(x, 76, x, 236, "l2", 2.2)
     for x in range(400, 584, 14):
         g.circle(x, 248, 2.6, "m-sn")
-    g.label_bg(490, 231, "base die (로직)", 11.5, "ink")
-    g.label_bg(490, 119, "core die (DRAM)", 11.5, "ink")
+    g.label_bg(490, 231, "베이스 다이 (로직)", 11.5, "ink")
+    g.label_bg(490, 119, "코어 다이 (DRAM)", 11.5, "ink")
     g.text(490, 34, "× 8~16단", "ink", 13, weight=700)
     labels = [(84, "몰드·언더필", 588), (148, "TSV (관통 전극)", 542), (190, "마이크로범프", 574)]
     for y, t, x in labels:

@@ -524,7 +524,7 @@ function drawFront(){
   s += G(each(d => R(B0 + d, 742, BW, 6, 'f-cu')), st('6 7 8'));
   const ed = [XL, ...BX.flatMap(d => [B0 + d, B0 + BW + d]), XR];      // 감광막: 범프 자리만 비운다
   let pr = '';
-  for (let k = 0; k < ed.length; k += 2) pr += R(ed[k], 210, ed[k + 1] - ed[k], 532, 'f-pr');
+  for (let k = 0; k < ed.length; k += 2) pr += R(ed[k], 155, ed[k + 1] - ed[k], 587, 'f-pr');   // PR 약 22 µm (범프 17 + 5 µm, 예시)
   s += G(pr, Object.assign(st('2 3 4'), tip('감광막(PR) — 도금할 자리만 연 틀')));
   s += G(each(d => R(B0 + d, YN, BW, 742 - YN, 'f-ni')), Object.assign(st('3 4 5 6 7 8'), tip('Ni — 몸통 겸 방벽 (Cu 기둥 없음)\n시드 위에 바로 도금, 예시 5 µm')));
   s += G(each(d => R(B0 + d, YT, BW, YN - YT, 'f-sn')), Object.assign(st('4 5 6'), tip('SnAg — 녹아서 붙는 솔더 (예시 12 µm)')));
@@ -740,15 +740,15 @@ const CARDS = {
     {t: '관리 포인트', state: '5', html: `<div class="chips">${chip('두께 편차', '(TTV)')}${chip('TSV 돌출 높이', '')}${chip('휨', '')}${chip('패드 높이·표면', '')}</div><p>모두 다음 단계인 <b>적층 접합 품질</b>로 이어집니다.</p>`}
   ],
   front: [
-    {t: '앞면에 범프를 도금하고, 캐리어에 붙인다', state: {rev: '8', fwd: '7'}, star: true, html: `<p>회로가 있는 앞면의 패드 위에 마이크로범프를 <b>전해도금(ECD)</b>으로 쌓습니다. 이 장은 <b>코어 다이</b>(DRAM) 웨이퍼를 따라갑니다: <b>Ni(몸통 겸 방벽) → SnAg(솔더)</b>, Cu 기둥이 없습니다.</p><p>12~16단을 정해진 높이 안에 넣으려면 접합부가 낮을수록 좋아서, 보통 Cu 기둥을 빼고 Ni가 몸통을 맡습니다. 맨 아래 <b>베이스 다이</b>의 앞면 범프는 인터포저 쪽에 붙고 더 높은 <b>Cu 기둥 / Ni / 상부 Cu(Ni 위에 얇게 한 번 더 올린 Cu) / SnAg</b>입니다 — <a href="#go-bump">범프 공정</a> 탭.</p><p>범프를 다 만든 뒤 <b>임시 접착제</b>로 앞면을 캐리어 웨이퍼에 붙이고 뒤집어 후면 공정으로 보냅니다.</p>`},
+    {t: '앞면에 범프를 도금하고, 캐리어에 붙인다', state: {rev: '8', fwd: '7'}, star: true, html: `<p>회로가 있는 앞면의 패드 위에 마이크로범프를 <b>전해도금(ECD)</b>으로 쌓습니다. 이 장은 <b>코어 다이</b>(DRAM) 웨이퍼를 따라갑니다: <b>Ni(몸통 겸 방벽) → SnAg(솔더)</b>, Cu 기둥이 없습니다.</p><p>12~16단을 정해진 높이 안에 넣으려면 접합부가 낮을수록 좋아서, 보통 Cu 기둥을 빼고 Ni가 몸통을 맡습니다. 맨 아래 <b>베이스 다이</b>의 앞면 범프는 인터포저 쪽에 붙고 더 높은 <b>Cu 기둥 / Ni / 상부 Cu(Ni 위에 얇게 한 번 더 올린 Cu) / SnAg</b>입니다 — <a href="#go-bump" data-die="base">범프 공정</a> 탭.</p><p>범프를 다 만든 뒤 <b>임시 접착제</b>로 앞면을 캐리어 웨이퍼에 붙이고 뒤집어 후면 공정으로 보냅니다.</p>`},
     {t: '범프 도금 순서 — 스크롤하면 한 단계씩', states: ['0', '1', '2', '3', '4', '5', '6', '7', '8'], html: steps([
       ['⓪', '패드가 열린 웨이퍼', '코어 다이 웨이퍼의 앞면'], ['①', '시드층', '전기가 흐를 얇은 금속막 (Ti 위 Cu)'], ['②', '감광막 패턴', '범프 자리만 연 틀'],
-      ['③', 'Ni 도금', '몸통 겸 방벽 — 시드 위에 바로 (예시 5 µm)'], ['④', 'SnAg 도금', '솔더 (예시 12 µm)'], ['⑤', '감광막 제거', '범프 사이의 Cu 시드가 드러난다'],
+      ['③', 'Ni 도금', '몸통 겸 방벽 · 시드 위에 바로 (예시 5 µm)'], ['④', 'SnAg 도금', '솔더 (예시 12 µm)'], ['⑤', '감광막 제거', '범프 사이의 Cu 시드가 드러난다'],
       ['⑥', '시드 식각', 'Cu → Ti 순서로 걷어 범프끼리 전기를 끊는다'], ['⑦', '리플로우', '솔더를 녹여 둥글게, 계면에 IMC(Ni₃Sn₄)'],
       ['⑧', '캐리어 본딩', '임시 접착제로 붙이고 뒤집는다']])},
-    {t: '도금 공정 관리 포인트', state: {rev: '7', fwd: '8'}, html: `<div class="chips">${chip('두께', '전류 × 시간')}${chip('조성', 'Ag 함량 → 녹는 거동')}${chip('높이 산포', '→ 적층·실장 접합')}${chip('void', '')}${chip('Ni 두께', '→ IMC로 먹혀도 남게')}${chip('Ni 응력·밀착', '시드 위 첫 막')}</div>
-      <p>코어 다이에서는 Ni가 몸통이라 두께와 막의 응력, 시드 위 밀착을 함께 챙깁니다. 리플로우·적층 본딩을 거칠 때마다 Ni₃Sn₄가 자라며 Ni가 조금씩 줄어듭니다.</p>
-      <p class="hint">12단계 전체를 웨이퍼·다이·범프로 보려면 <a href="#go-bump">범프 공정 탭</a>. 계산은 <a href="#go-edu-3">03 모듈의 도금 두께 계산기</a>, 순서는 <a href="#go-edu-5">05 모듈의 범프 도금 순서</a>. 공정별로 자세히: <a href="#go-plating">전해도금</a> · <a href="#go-strip">PR 스트립</a> · <a href="#go-etch">시드 식각</a> · <a href="#go-reflow">리플로우</a> 탭.</p>`}
+    {t: '도금 공정 관리 포인트', state: {rev: '7', fwd: '8'}, html: `<div class="chips">${chip('두께', '전류 × 시간')}${chip('조성', 'Ag 함량 → 녹는 거동')}${chip('높이 산포', '→ 적층·실장 접합')}${chip('void', '')}${chip('Ni 두께', '→ IMC로 먹혀도 남게')}${chip('Ni 응력·밀착', '시드 위 첫 막')}${chip('Ni → SnAg 대기', 'Ni 면 산화 → 덜 젖음')}</div>
+      <p>코어 다이에서는 Ni가 몸통이라 두께와 막의 응력, 시드 위 밀착을 함께 챙깁니다. 리플로우·적층 본딩을 거칠 때마다 Ni₃Sn₄가 자라며 Ni가 조금씩 줄어듭니다. Ni를 헹군 뒤 SnAg 셀로 지체 없이 옮기는 것도 챙깁니다 — 산화된 Ni 면은 SnAg 밑에 묻혀 리플로우에서 걷히지 않습니다.</p>
+      <p class="hint">12단계 전체를 웨이퍼·다이·범프로 보려면 <a href="#go-bump" data-die="core">범프 공정 탭 (코어 다이)</a>. 계산은 <a href="#go-edu-3">03 모듈의 도금 두께 계산기</a>, 순서는 <a href="#go-edu-5">05 모듈의 범프 도금 순서</a>. 공정별로 자세히: <a href="#go-plating">전해도금</a> · <a href="#go-strip">PR 스트립</a> · <a href="#go-etch">시드 식각</a> · <a href="#go-reflow">리플로우</a> 탭.</p>`}
   ],
   die: [
     {t: '범프 아래 칩 속', state: 'final', html: `<ul class="jl"><li>위에서부터 <b>패드·보호막 → 금속 배선층(BEOL) → 셀·트랜지스터 → 실리콘</b></li><li>가운데 굵은 기둥이 <b>TSV</b> — 셀 수만 개가 들어갈 자리를 차지할 만큼 크다</li><li>TSV 주변은 소자를 두지 않는 <b>KOZ</b>(금지 구역)</li></ul>`},
@@ -913,8 +913,8 @@ const WIDGETS = {
     el.insertAdjacentHTML('beforeend', `<div class="btns" data-g="N">${[8, 12, 16].map(v => `<button class="jb" data-v="${v}" aria-pressed="${v === sc.p.N}">${v}단</button>`).join('')}</div>
       <div class="btns" data-g="H"><button class="jb" data-v="720" aria-pressed="true">높이 720 µm (HBM3E)</button><button class="jb" data-v="775">775 µm (HBM4)</button></div>
       <div class="ctl"><label>접합부 두께 (층마다) <output data-o="b"></output></label><input type="range" data-i="b" min="0" max="25" step="1" value="15"></div>
-      <div class="kpis"><div class="kpi"><div class="k">코어 다이 두께</div><div class="v" data-o="t"></div><div class="s" data-o="ts"></div></div><div class="kpi"><div class="k">Cu 기둥 12 µm를 넣으면</div><div class="v" data-o="tc"></div><div class="s" data-o="tcs"></div></div></div>
-      <p>그래서 코어 다이 범프는 보통 Cu 기둥 없이 <b>Ni / SnAg</b>로 낮게 만듭니다 (전면·캐리어 장).</p>
+      <div class="kpis"><div class="kpi"><div class="k">코어 다이 두께</div><div class="v" data-o="t"></div><div class="s" data-o="ts"></div></div><div class="kpi"><div class="k">Cu 기둥 12 µm를 넣으면 (코어 다이 두께)</div><div class="v" data-o="tc"></div><div class="s" data-o="tcs"></div></div></div>
+      <p>그래서 코어 다이 범프는 보통 Cu 기둥 없이 <b>Ni / SnAg</b>로 낮게 만듭니다 (역추적 9장 「전면·캐리어」).</p>
       <p class="note">가정: 베이스 다이·여유 60 µm, 층마다 접합부(범프+채움재) 두께가 같다. 기본 15 µm는 코어 다이의 Ni / SnAg 범프(예시 5 + 12 µm)가 후면 패드에 붙어 솔더가 녹고 눌린 뒤의 대략적인 높이. 0 µm는 하이브리드 본딩에 가깝다. 실제 값과 다릅니다. 화면의 단수도 바뀝니다.</p>`);
     let H = 720;
     const calc = () => {
@@ -1056,6 +1056,11 @@ function build(){
     const i = +co.closest('.jz-scene').dataset.i;
     if (pres){ const k = beats.findIndex(b => b.si === i + 1); if (k >= 0) presGo(k); return; }
     gotoScene(i + 1);
+  });
+  // 범프 공정 탭 링크에 data-die가 있으면 그 범프 구조(base · core)로 연다 — 탭 이동은 앱의 #go- 링크 처리가 하고, 그 뒤에 고른다
+  root.addEventListener('click', ev => {
+    const a = ev.target.closest && ev.target.closest('a[data-die]');
+    if (a && window.EngrBump) setTimeout(() => window.EngrBump.setDie(a.dataset.die), 0);
   });
   root.appendChild(stage);
   const col = h('div', 'jz-cards');
