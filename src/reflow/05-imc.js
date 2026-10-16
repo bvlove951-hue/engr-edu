@@ -103,7 +103,7 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
   no: '05', id: 'imc', part: 2, short: '계면 IMC', scale: '계면 · µm',
   title: '계면 IMC — 솔더와 금속 사이에는 무엇이 자랄까?',
   hook: '이어 주지만 금속을 먹는다',
-  one: '녹은 솔더 속 Sn은 맞닿은 금속과 만나 새 화합물(금속간 화합물, IMC)을 만듭니다. 베이스 다이 범프(Cu/Ni/Cu/SnAg)는 상부 Cu(Ni 위에 얇게 한 번 더 올린 Cu) 위에 Cu₆Sn₅가, 코어 다이 범프(Ni/SnAg)는 Ni 위에 Ni₃Sn₄가 자랍니다. 얇은 IMC는 단단히 이어졌다는 증거지만, 열을 받을수록 두꺼워지며 금속과 Sn을 먹습니다.',
+  one: '녹은 솔더 속 Sn은 맞닿은 금속과 만나 새 화합물(금속간 화합물, IMC)을 만듭니다. 베이스 다이 범프(Cu / Ni / Cu / SnAg)는 상부 Cu(Ni 위에 얇게 한 번 더 올린 Cu) 위에 Cu₆Sn₅가, 코어 다이 범프(Ni / SnAg)는 Ni 위에 Ni₃Sn₄가 자랍니다. 얇은 IMC는 단단히 이어졌다는 증거지만, 열을 받을수록 두꺼워지며 금속과 Sn을 먹습니다.',
   ana: '<b>쇠에 스는 녹</b> — 쇠와 산소가 만나는 자리에 녹 층이 생기며 쇠가 줄듯, 금속(상부 Cu · Ni)과 Sn이 만나는 자리에 IMC 층이 생기며 금속(과 Sn)이 줄어듭니다. <i>(비유의 한계: 쇠의 녹은 푸석해 공기 · 물이 스며들어 계속 자라고 아무것도 잇지 못하지만, IMC는 빽빽한 층이라 두꺼워질수록 원자가 건너기 어려워 점점 느리게 자랍니다. 또 IMC는 솔더와 금속을 이어 주는 꼭 필요한 층입니다 — 다만 너무 두꺼우면 단단하고 잘 깨지는 층이 됩니다.)</i>',
   steps: [
     {id: 'dissolve', t: '녹으면 반응이 시작된다', d: '솔더가 녹으면 맞닿은 금속(베이스 다이는 상부 Cu, 코어 다이는 Ni)이 조금 녹아들고, 곧 계면에 Sn과의 화합물이 생겨 덮습니다. Cu는 Ni보다 훨씬 빨리 녹아들고 반응해, 리플로우 한 번에 Ni 쪽 IMC가 보통 1 µm 안팎일 때 Cu 쪽은 그보다 두껍게 자랍니다.', viewN: VN},
@@ -191,7 +191,7 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
   body(K){
     const chips = h => h.replace('class="pl-seg"', 'class="pl-seg pl-chips"');
     return `<div class="pl-w"><div class="hd">직접 해 보기 — IMC 예산</div>
-      ${chips(K.seg('die', [['b', '베이스 다이 (Cu/Ni/Cu/SnAg)'], ['c', '코어 다이 (Ni/SnAg)']], DEF.die, '다이'))}
+      ${chips(K.seg('die', [['b', '베이스 다이 (Cu / Ni / Cu / SnAg)'], ['c', '코어 다이 (Ni / SnAg)']], DEF.die, '다이'))}
       ${K.ctl('n', '녹이는 횟수 (웨이퍼 리플로우 · 본딩 · 재작업)', 1, 10, 1, DEF.n)}${K.ctl('tl', '한 번에 녹아 있는 시간 (초)', 20, 180, 5, DEF.tl)}
       ${K.ctl('ht', '고체 상태 고온 시간 (캐리어 본딩 · 뒷면 공정 · 시험을 150 °C로 환산, 시간)', 0, 2000, 50, DEF.ht)}${K.ctl('ni', 'Ni 두께 (µm)', 1, 6, 0.5, DEF.ni)}${K.ctl('tc', '상부 Cu 두께 (µm, 베이스 다이)', 1, 5, 0.5, DEF.tc)}
       ${chips(K.seg('cu', [['0', '없음 (Ni 위 SnAg)'], ['lo', '조금 (0.4 % 미만)'], ['hi', '많이 (0.6 % 넘음)']], DEF.cu, '솔더 속 Cu (코어 다이)'))}

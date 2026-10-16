@@ -141,7 +141,7 @@ const tagS = (html, tg) => html.replace('</span>', ` ${TAG[tg]}</span>`);
       ${tagS(K.seg('shape', [['center', '가운데 두꺼움'], ['edge', '가장자리 두꺼움']], 'center', '두께 맵'), 'up')}
       ${tagC(K.ctl('rp', '장비 속도 맵 (− 가운데 · + 가장자리 빠름)', -10, 10, 0.5, 0), 'eq')}
       ${tagC(K.ctl('d', '빽빽한 블록 밀도 (블록 넓이 중 범프)', 0, 50, 1, 20), 'up')}
-      ${tagS(K.seg('die', [['base', '베이스 Cu/Ni/Cu/SnAg'], ['core', '코어 Ni/SnAg']], 'base', '다이'), 'up')}
+      ${tagS(K.seg('die', [['base', '베이스 Cu / Ni / Cu / SnAg'], ['core', '코어 Ni / SnAg']], 'base', '다이'), 'up')}
       ${tagC(K.ctl('oe', '과식각', 0, 100, 5, 30), 'cond')}
       ${K.seg('basis', [['blanket', '블랭킷 계산'], ['map', '패턴 맵 확인']], 'blanket', '시간 기준')}
       ${K.kpis([['레시피 시간', 'k-t', '<span data-o="k-tb">블랭킷 60 s × 1.30</span>'], ['잔여 다이', 'k-r', '레시피 끝에 덜 지워짐'], ['먼저 지워진 곳', 'k-e', '과식각 · <span data-o="k-sn">계면 홈(약할 때)</span> <span data-o="k-side">–</span>'], ['다이 안 차이', 'k-i', '빽빽한 블록 − 외톨이'], ['필요한 과식각', 'k-n', '블랭킷 기준 · 칸 10⁶개 5σ']])}

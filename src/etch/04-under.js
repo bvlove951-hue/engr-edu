@@ -148,7 +148,7 @@ function sideCore(K, A, U, yS, q, h){
   },
   body(K){
     return `<div class="pl-w et04-w"><div class="hd">직접 해 보기 — 과식각과 밑동</div>
-      ${K.seg('die', [['base', '베이스 Cu/Ni/Cu/SnAg'], ['core', '코어 Ni/SnAg']], 'base', '다이')}
+      ${K.seg('die', [['base', '베이스 Cu / Ni / Cu / SnAg'], ['core', '코어 Ni / SnAg']], 'base', '다이')}
       ${K.ctl('h', 'Cu 시드 두께', 100, 500, 10, 300)}${K.ctl('oe', '과식각 (블랭킷 지움 시간 기준)', 0, 150, 5, 30)}${K.ctl('kp', '도금 Cu 속도 (스퍼터 Cu 대비 배수, 예시 · 베이스만)', 0.8, 2.5, 0.05, 1.3)}${K.ctl('d', '범프 지름', 8, 40, 1, 25)}
       ${K.seg('itf', [['ok', '고름'], ['weak', '약함 (홈)']], 'ok', '기둥–시드 계면 (베이스만)')}
       ${K.kpis([['전체 시간', 'k-t', '지움 t₀ + 과식각'], ['옆면 깎임', 'k-sp', '한쪽'], ['밑동 깎임', 'k-sb', '밑동의 가장 깊은 곳'], ['남은 밑면적', 'k-a', '처음 대비 (92 · 85 % 경계, 예시)']])}
@@ -254,7 +254,7 @@ function sideCore(K, A, U, yS, q, h){
         g += T(cx, (b.ySn + b.yUc) / 2 + 7, 'SnAg', 'et04-on2') + T(cx, b.yCu + 30, 'Cu 기둥', 'et04-on2');
         g += lead(B - b.e - 3, (b.yUc + b.yNi) / 2, 1474, b.yUc - 12, '상부 Cu', 'start', 't-dim') + lead(B - 3, (b.yNi + b.yCu) / 2, 1474, b.yCu + 12, 'Ni', 'start', 't-dim');
         g += T(A, b.yT + 46, '높이 · 지름 비율 그대로', 't-dim', 'start') + T(A, b.yT + 70, '옆 깎임만 2배 과장', 't-dim', 'start');
-        const tl = ['Cu 두 층이 함께 깎인다', '· Cu 기둥: 옆면 얇아짐', '· 상부 Cu: 얇은 띠라', '\u00a0\u00a0Ni–SnAg 사이 홈(노치)', 'Ni · SnAg는 덜 녹아', '처마로 남는다.', '위에서 잰 지름(CD)엔', '안 보인다 → 기울인', 'SEM · 단면으로'];
+        const tl = ['Cu 두 층이 함께 깎인다', '· Cu 기둥: 옆면 얇아짐', '· 상부 Cu: 같이 파여', '\u00a0\u00a0Ni–SnAg 사이 홈(노치)', 'Ni · SnAg는 덜 녹아', '처마로 남는다.', '위에서 잰 지름(CD)엔', '안 보인다 → 기울인', 'SEM · 단면으로'];
         g += TT(1060, 236, tl, 't-sub', 'start', 28);
         g += T(1060, 530, `기둥 · 상부 Cu 옆 ${fmt(c.fin.sp)} nm`, 't-warn', 'start') + (c.fin.n > 0.5 ? T(1060, 560, `기둥–시드 계면 홈 ${fmt(c.fin.n)} nm`, 't-warn', 'start') : '');
         rt += G(LB(g), only('pillar'));
@@ -269,8 +269,8 @@ function sideCore(K, A, U, yS, q, h){
         g += lead(b.B - b.e - 3, (b.yUc + b.yNi) / 2, 1230, b.yUc - 12, '상부 Cu', 'start', 't-dim') + lead(b.B - 3, (b.yNi + b.yCu) / 2, 1230, b.yCu + 22, 'Ni', 'start', 't-dim');
         g += T(c2, (r.ySn + r.yNi) / 2 + 7, 'SnAg', 'et04-on2') + T(c2, (r.yNi + yS) / 2 + 7, 'Ni', 'et04-on2');
         g += lead(r.B - r.u / 2, yS + 2, 1486, yS - 30, '언더컷', 'start', 't-dim');
-        g += T(c1, 482, '베이스 다이', 't-sub') + T(c1, 506, 'Cu/Ni/Cu/SnAg 30 µm', 't-dim') + T(c1, 538, `옆면 ${fmt(cB.fin.sp)} nm`, 't-warn') + T(c1, 566, `밑동 ${fmt(cB.fin.sb)} nm`, 't-warn');
-        g += T(c2, 482, '코어 다이', 't-sub') + T(c2, 506, 'Ni/SnAg 17 µm', 't-dim') + T(c2, 538, '옆면 ≈ 0 nm', 't-warn') + T(c2, 566, `밑동 ${fmt(cC.fin.sb)} nm`, 't-warn');
+        g += T(c1, 482, '베이스 다이', 't-sub') + T(c1, 506, 'Cu / Ni / Cu / SnAg 30 µm', 't-dim') + T(c1, 538, `옆면 ${fmt(cB.fin.sp)} nm`, 't-warn') + T(c1, 566, `밑동 ${fmt(cB.fin.sb)} nm`, 't-warn');
+        g += T(c2, 482, '코어 다이', 't-sub') + T(c2, 506, 'Ni / SnAg 17 µm', 't-dim') + T(c2, 538, '옆면 ≈ 0 nm', 't-warn') + T(c2, 566, `밑동 ${fmt(cC.fin.sb)} nm`, 't-warn');
         rt += G(LB(g), only(core ? 'pillar core' : 'core'));
       }
       // area: 위에서 본 원 3개 (같은 크기로 그려 비율만 비교)
@@ -355,7 +355,7 @@ function sideCore(K, A, U, yS, q, h){
       ['블랭킷', '무늬 없이 웨이퍼 전체에 고르게 깔린 막. 블랭킷 속도 = 무늬 · 틈의 영향이 없는 기준 속도'],
       ['상부 Cu', 'Ni 위에 얇게 한 번 더 올린 Cu (베이스 다이, 예시 3 µm). 솔더가 처음 만나는 면이고 IMC를 Cu₆Sn₅ 쪽으로 이끈다. Cu 식각액에 옆이 파여 Ni와 SnAg 사이 홈이 될 수 있다'],
       ['처마', '식각 뒤 그 아래 Cu보다 넓게 남은 덜 녹는 층의 가장자리. 베이스 다이는 Cu 기둥 위의 Ni와 상부 Cu 위의 SnAg 두 곳, 코어 다이는 파인 시드 위의 Ni 발'],
-      ['계면 홈 · 노치', '좁고 깊게 파인 홈. 계면 홈 = 두 막이 만나는 경계가 먼저 파인 것 (여기서는 도금 Cu 기둥과 스퍼터 Cu 시드 사이, 위젯 \'약함\'). 상부 Cu 노치 = Ni와 SnAg 사이의 얇은 상부 Cu 띠가 옆으로 파인 것 (베이스 다이, 깊이는 기둥 옆면과 비슷해도 띠가 3 µm라 홈이 된다)'],
+      ['계면 홈 · 노치', '좁고 깊게 파인 홈. 계면 홈 = 두 막이 만나는 경계가 먼저 파인 것 (여기서는 도금 Cu 기둥과 스퍼터 Cu 시드 사이, 위젯 \'약함\'). 상부 Cu 노치 = Ni와 SnAg 사이의 얇은 상부 Cu 띠가 옆으로 파인 것 (베이스 다이. 깊이는 기둥 옆면과 비슷하지만, 위아래 Ni · SnAg는 덜 녹아 그대로 남으므로 파인 깊이가 그대로 홈이 된다)'],
       ['자기 풀림 (셀프 어닐)', '도금 Cu 결정이 상온에서 몇 시간~몇 주 사이 저절로 커지는 현상 (→ <a href="#go-plating-06">전해도금 06장</a>)']
     ]) + K.field([
       '언더컷과 기둥 얇아짐은 위에서 보면 SnAg 모자에 가려 거의 안 보입니다. 식각 뒤에는 모자가 Cu보다 조금 넓어지기 때문입니다(처마). 베이스 다이의 상부 Cu 홈도 Ni와 SnAg 사이에 숨어 있습니다. 표본을 골라 <b>기울인 SEM · FIB 단면</b>으로 층마다 따로 잽니다. 범프를 밀어 떼어 낸 자리에 남은 Ti 발자국으로도 봅니다. 위에서 본 지름(CD)은 모자 쪽 손상만 알려 줍니다.',

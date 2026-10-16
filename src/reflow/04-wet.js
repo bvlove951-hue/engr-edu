@@ -241,7 +241,7 @@ const tw = (t, fs) => [...String(t)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch)
   },
   body(K){
     return `<div class="pl-w"><div class="hd">직접 해 보기 — 돔 계산기</div>
-      ${K.seg('die', [['b', '베이스 다이 (Cu/Ni/Cu/SnAg)'], ['k', '코어 다이 (Ni/SnAg)']], 'b', '범프')}
+      ${K.seg('die', [['b', '베이스 다이 (Cu / Ni / Cu / SnAg)'], ['k', '코어 다이 (Ni / SnAg)']], 'b', '범프')}
       ${K.ctl('d', '범프 지름', 15, 40, 1, 25)}${K.ctl('hc', '도금한 SnAg 높이', 4, 25, 0.5, 12)}
       ${K.seg('sf', [['c', '깨끗함 (30°)'], ['o', '얇은 산화 (70°)'], ['x', '계면 산화 · 오염 (140°)']], 'c', '상부 Cu/SnAg 계면')}
       ${K.seg('sw', [['ox', '산화된 옆면'], ['cl', '깨끗한 옆면']], 'ox', 'Ni 옆면')}
