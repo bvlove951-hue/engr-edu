@@ -192,13 +192,15 @@ def bump():
             top = layers(ax, [(12, "m-cu"), (3, "m-ni"), (3, "m-cu"), (12, "m-sn")])
             g.text(ax, top - 8, "높이 30 µm", "mut", 11.5)
             # 리플로우 뒤: 상부 Cu 일부가 Cu₆Sn₅ 로 바뀌고, 그 위에 돔
-            top = layers(bx, [(12, "m-cu"), (3, "m-ni"), (2, "m-cu")])
-            g.rect(bx - bw / 2, top - 4, bw, 4, "m-imc", rx=1)
-            dome(bx, top - 4)
+            # 리플로우 1회 Cu₆Sn₅ 약 2 µm(리플로우 05장) → 상부 Cu 약 0.7 µm 소모 (Cu₆Sn₅ 1 µm에 Cu 0.36 µm)
+            top = layers(bx, [(12, "m-cu"), (3, "m-ni"), (2.3, "m-cu")])
+            ih = 2 * s
+            g.rect(bx - bw / 2, top - ih, bw, ih, "m-imc", rx=1)
+            dome(bx, top - ih)
             r = bx + bw / 2 + 2
             label(r - 8, top - 26, 100, "SnAg 솔더", "녹아서 붙는 접합재")
-            label(r, top - 2, 132, "IMC — Cu₆Sn₅", "상부 Cu와 솔더 사이")
-            label(r, top + 3, 164, "상부 Cu", "솔더가 처음 만나는 면")
+            label(r, top - ih / 2, 132, "IMC — Cu₆Sn₅", "상부 Cu와 솔더 사이")
+            label(r, top + 1.15 * s, 164, "상부 Cu", "솔더가 처음 만나는 면")
             label(r, yb - 13.5 * s, 196, "Ni", "Cu 기둥과 솔더 사이 방벽")
             label(r, yb - 6 * s, 228, "Cu 기둥", "높이 · 전기")
         else:

@@ -473,7 +473,7 @@ function drawStage(){
   s += R(20, 100, 400, 836, 'bp-panel', {rx: 16}) + R(445, 100, 420, 836, 'bp-panel', {rx: 16}) + R(888, 100, 694, 836, 'bp-panel', {rx: 16});
   s += T(40, 140, '① 웨이퍼 단위', 't-acc', 'start') + T(400, 140, '300 mm · 장비 안', 't-dim', 'end');
   s += T(465, 140, '② 다이 단위', 't-acc', 'start') + T(845, 140, '수 mm~1 cm대 · 위에서', 't-dim', 'end');
-  s += T(908, 140, '③ 범프 단위', 't-acc', 'start') + G(T(1562, 140, '베이스 다이 범프 (Cu/Ni/Cu/SnAg) · 단면 A–A′', 't-sub', 'end'), DD('base')) + G(T(1562, 140, '코어 다이 범프 (Ni/SnAg) · 단면 A–A′', 't-sub', 'end'), DD('core'));
+  s += T(908, 140, '③ 범프 단위', 't-acc', 'start') + G(T(1562, 140, '베이스 다이 범프 (Cu / Ni / Cu / SnAg) · 단면 A–A′', 't-sub', 'end'), DD('base')) + G(T(1562, 140, '코어 다이 범프 (Ni / SnAg) · 단면 A–A′', 't-sub', 'end'), DD('core'));
   s += drawTools() + drawWaferTop() + drawDie() + `<g id="bp-check"></g>` + drawBump();
   // 상세 연결선: 웨이퍼의 다이 → 다이 화면, 다이의 범프 → 범프 화면
   s += P(`M${DIE_AT.x + DIE_AT.s},${DIE_AT.y} L${DIE.x},${DIE.y} M${DIE_AT.x + DIE_AT.s},${DIE_AT.y + DIE_AT.s} L${DIE.x},${DIE.y + DIE.s}`, 'bp-conn');
@@ -485,7 +485,7 @@ function drawStage(){
 /* ---------------- 4. 카드 ---------------- */
 const chip = (b, t) => `<span class="chip"><b>${esc(b)}</b> ${esc(t)}</span>`;
 // 범프 구조 고르기 (무대 위 · 06 카드). 다이마다 다른 설명
-const DIE_NAME = {base: '베이스 다이 · Cu/Ni/Cu/SnAg', core: '코어 다이 · Ni/SnAg'};
+const DIE_NAME = {base: '베이스 다이 · Cu / Ni / Cu / SnAg', core: '코어 다이 · Ni / SnAg'};
 const dieBtns = cls => DIES.map(n => `<button${cls ? ` class="${cls}"` : ''} data-dsel="${n}" aria-pressed="${n === die}">${esc(DIE_NAME[n])}</button>`).join('');
 const DNOTE = {
   base: '<b>베이스 다이</b>(맨 아래 로직 · 인터페이스 다이)의 범프는 아래 인터포저 쪽에 붙습니다. Cu 기둥이 높이 · 전기 · 열을, Ni가 Cu 기둥과 솔더 사이 방벽을 맡고, <b>상부 Cu</b>(Ni 위에 얇게 한 번 더 올린 Cu)가 솔더가 처음 만나는 면이 됩니다 — 잘 젖고, 계면 IMC가 Ni₃Sn₄ 대신 Cu₆Sn₅ 쪽으로 갑니다 (흔히 드는 이유). 그래서 Cu 도금액을 두 번 씁니다(Cu 기둥 · 상부 Cu). 보통 한 장비 안에서 Ni를 헹군 뒤 마르지 않게 바로 상부 Cu 셀로 옮깁니다 — Ni 표면에는 금방 얇은 산화막(부동태)이 생겨 그 위 Cu의 밀착이 약해질 수 있기 때문입니다 (필요하면 산 담금으로 활성화).',

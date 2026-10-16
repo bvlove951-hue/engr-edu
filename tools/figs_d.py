@@ -179,7 +179,7 @@ def ecd_seq():
         if core:
             stack = [(5, "m-ni"), (12, "m-sn")]
         elif i == 8:
-            stack = [(12, "m-cu"), (3, "m-ni"), (2, "m-cu")]
+            stack = [(12, "m-cu"), (3, "m-ni"), (2.3, "m-cu")]   # 리플로우 1회 Cu₆Sn₅ 약 2 µm → 상부 Cu 약 0.7 µm 소모
         else:
             stack = base_stack[:max(0, min(i, 6) - 1)]
         y = base - 4
@@ -188,8 +188,8 @@ def ecd_seq():
             g.rect(cx - bw / 2, y - th * s, bw, th * s, "m-sn ed" if sn else cls, rx=1, sw=0.8 if sn else None)
             y -= th * s
         if i == 8:
-            g.rect(cx - bw / 2, y - 3, bw, 3, "m-imc", rx=1)
-            y -= 3
+            g.rect(cx - bw / 2, y - 2 * s, bw, 2 * s, "m-imc", rx=1)
+            y -= 2 * s
             yc = y - 15.7 * s / 0.75
             g.path(f"M{f(cx - bw / 2 - 1)},{f(y)} C{f(cx - bw / 2 - 4)},{f(yc)} {f(cx + bw / 2 + 4)},{f(yc)} {f(cx + bw / 2 + 1)},{f(y)} Z", "m-sn ed", sw=0.8)
         g.text(cx, py + 24, t, "ink", 13, weight=700, maxw=120)
