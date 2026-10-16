@@ -1,8 +1,10 @@
 /* 시드 식각 01 — 왜 지우나: 왜 시드를 지워야 할까? (웨이퍼 · 범프) */
 (function(){
-// 범프 단면(② 패널) — 지름 25 µm · 피치 55 µm · Cu 15 + Ni 3 + SnAg 12 µm (plans/shared.md (a)), 6.4 px/µm. 시드 두께만 크게 과장
+// 범프 단면(② 패널) — 베이스 다이 범프 (plans/stack.md): 지름 25 µm · 피치 55 µm · Cu 기둥 12 + Ni 3 + 상부 Cu 3 + SnAg 12 µm = 30 µm, 6.4 px/µm. 시드 두께만 크게 과장
+//  코어 다이 범프(Ni 5 + SnAg 12 µm, Cu 기둥 없음)는 stack 단계 이름표 · 노트에서 짚는다 (시드는 두 다이가 같은 예시)
 const BX = [708, 1060, 1412], HW = 80;                                    // 범프 중심 x, 반폭 (25 µm → 160 px)
-const Y_SN = 304, Y_NI = 381, Y_CU = 400, Y_SD = 496, Y_TI = 512, Y_PAS = 524, Y_PB = 560;   // SnAg 위 · Ni 위 · 기둥 위 · Cu 시드 위 · Ti 위 · 보호막 위 · 아래
+const Y_SN = 304, Y_UC = 381, Y_NI = 400, Y_CU = 419, Y_SD = 496, Y_TI = 512, Y_PAS = 524, Y_PB = 560;   // SnAg 위 · 상부 Cu 위 · Ni 위 · Cu 기둥 위 · Cu 시드 위 · Ti 위 · 보호막 위 · 아래
+const KE = 5;                                                             // keep 단계: Cu 기둥 · 상부 Cu 옆이 파인 폭 (px, 과장)
 const GAPS = [[788, 980], [1140, 1332]];                                  // 범프 사이 틈 (30 µm → 192 px)
 // 위젯 개념 모델 (예시 상수) — 기획 01장 · 사실 표 F33~F36 · F52
 const MET = {cu: {rho: 1.8e-8, l: 39, ox: 1, nm: 'Cu'}, ti: {rho: 5e-7, l: 5, ox: 3, nm: 'Ti'}};
@@ -43,9 +45,9 @@ const VKPI = {short: 'ng', leak: 'warn', open: 'ok', ox: 'warn', isl: 'ok', none
   ana: '<b>절취선 없는 우표 시트</b> — 우표(범프)가 모두 한 장의 종이(시드)에 붙어 있어서, 하나씩 쓰려면 우표 사이의 종이를 없애야 합니다. 다만 시드 식각은 가위가 아니라 \'녹이는 물\'이라, 우표 사이 종이를 다 녹이는 동안 우표 가장자리 밑도 조금 녹습니다(언더컷). <i>(비유의 한계: 우표와 달리 범프 밑 시드는 남아서 범프를 붙잡는 접착층이 되므로 다 떼면 안 됩니다. 또 종이 한 장이 아니라 Ti와 Cu 두 겹이라 두 번에 나눠 녹입니다.)</i>',
   steps: [
     {id: 'short', t: '시드는 하나의 전선', d: '도금할 때 시드는 웨이퍼 전체를 덮어, 가장자리 접점에서 모든 범프 자리까지 전류를 날랐습니다. PR을 벗긴 지금, 웨이퍼 한 장의 범프 수십만~수백만 개는 모두 이 막으로 이어져 전기로는 한 덩어리입니다.', viewN: VN_B},
-    {id: 'stack', t: '시드의 속 — Ti + Cu', d: '시드는 두 겹입니다. 아래 Ti(보통 50~200 nm)는 보호막 · 패드와 Cu를 붙이고 Cu가 번지는 것을 막고, 위 Cu(보통 100~500 nm)는 도금 전류의 길이자 도금이 붙는 바탕입니다. 예시 값(Ti 100 + Cu 300 nm)을 합쳐도 범프 높이(30 µm)의 약 1/75입니다.', view: {x: 596, y: 286, w: 446, h: 364}, viewN: {x: 596, y: 286, w: 446, h: 364}},
+    {id: 'stack', t: '시드의 속 — Ti + Cu', d: '시드는 두 겹입니다. 아래 Ti(보통 50~200 nm)는 보호막 · 패드와 Cu를 붙이고 Cu가 번지는 것을 막고, 위 Cu(보통 100~500 nm)는 도금 전류의 길이자 도금이 붙는 바탕입니다. 예시 값(Ti 100 + Cu 300 nm)을 합쳐도 베이스 다이 범프 높이(30 µm)의 약 1/75입니다.', view: {x: 596, y: 286, w: 446, h: 364}, viewN: {x: 596, y: 286, w: 446, h: 364}},
     {id: 'order', t: 'Cu 먼저, Ti 나중', d: '두 겹은 녹이는 약품이 다릅니다. 먼저 Cu 식각액으로 Cu를 지우면 Ti에서 거의 멈추고, 이어서 Ti 식각액으로 Ti를 지웁니다. 단계마다 물로 헹궈 멈추고, 마지막에 돌려 말립니다.', viewN: VN_B},
-    {id: 'keep', t: '남길 곳과 지울 곳', d: '범프 밑 시드는 남아 범프를 붙잡습니다. 범프 사이는 수~수십 nm 금속만 이어져 남아도 누설 · 단락이 됩니다. 덜 지우면 잔여, 더 지우면 밑동이 파이는 줄다리기 — 이 탭의 모든 이야기가 여기서 나옵니다.', viewN: VN_B}
+    {id: 'keep', t: '남길 곳과 지울 곳', d: '범프 밑 시드는 남아 범프를 붙잡습니다. 범프 사이는 수~수십 nm 금속만 이어져 남아도 누설 · 단락이 됩니다. 덜 지우면 잔여, 더 지우면 밑동이 파이는 줄다리기입니다. 베이스 다이는 시드와 같은 Cu인 Cu 기둥 · 상부 Cu(Ni 위에 얇게 한 번 더 올린 Cu) 옆도 조금 녹습니다. 이 탭의 모든 이야기가 여기서 나옵니다.', viewN: VN_B}
   ],
   css: `
 .pl-svg .et01-seedw{fill:rgba(224,144,79,.38);stroke:#f3b07a;stroke-width:1.5}
@@ -80,7 +82,9 @@ const VKPI = {short: 'ng', leak: 'warn', open: 'ok', ox: 'warn', isl: 'ok', none
 @media (max-width:520px){.jc .et01-w .kpi{flex:1 1 40%}}`,
   icon(K){
     const {R, P} = K;
-    return R(4, 40, 58, 8, 'f-pas') + R(4, 34, 58, 6, 'f-seed2') + R(10, 14, 14, 20, 'f-cu2') + R(42, 14, 14, 20, 'f-cu2') + R(10, 7, 14, 7, 'f-sn2') + R(42, 7, 14, 7, 'f-sn2') + P('M25,37 L41,37', 'et01-icl');
+    let s = R(4, 40, 58, 8, 'f-pas') + R(4, 34, 58, 6, 'f-seed2') + P('M25,37 L41,37', 'et01-icl');
+    [10, 42].forEach(x => { s += R(x, 24, 14, 10, 'f-cu2') + R(x, 21, 14, 3, 'f-ni') + R(x, 18, 14, 3, 'f-cu2') + R(x, 8, 14, 10, 'f-sn2'); });   // 베이스 다이 범프
+    return s;
   },
   draw(K){
     const {R, C, L, P, PG, T, TT, G, LB, tip, only, W, wrap} = K;
@@ -125,11 +129,15 @@ const VKPI = {short: 'ng', leak: 'warn', open: 'ok', ox: 'warn', isl: 'ok', none
       s += G(R(c - HW, Y_SD, 2 * HW, Y_TI - Y_SD, 'f-seed2') + R(c - HW, Y_TI, 2 * HW, Y_PAS - Y_TI, 'f-ti'), W(off('keep'), tip('범프 밑 시드 — 식각 뒤에도 남아 범프를 붙잡는다')));
       s += G(R(c - HW + 9, Y_SD, 2 * HW - 18, Y_TI - Y_SD, 'f-seed2') + R(c - HW + 13, Y_TI, 2 * HW - 26, Y_PAS - Y_TI, 'f-ti'), W(only('keep'), tip('범프 밑 시드 — 남아 범프를 붙잡는다. 가장자리가 조금 파였다(언더컷, 과장) → 04장')));
     });
-    const sn = c => `M${c - HW},${Y_NI} L${c - HW},${Y_SN + 10} Q${c - HW},${Y_SN} ${c - HW + 10},${Y_SN} L${c + HW - 10},${Y_SN} Q${c + HW},${Y_SN} ${c + HW},${Y_SN + 10} L${c + HW},${Y_NI} Z`;
+    const sn = c => `M${c - HW},${Y_UC} L${c - HW},${Y_SN + 10} Q${c - HW},${Y_SN} ${c - HW + 10},${Y_SN} L${c + HW - 10},${Y_SN} Q${c + HW},${Y_SN} ${c + HW},${Y_SN + 10} L${c + HW},${Y_UC} Z`;
+    const TIP_CU = 'Cu 기둥 — 높이 · 전기 (12 µm, 베이스 다이 예시)', TIP_UC = '상부 Cu — 솔더가 처음 만나는 면 · IMC를 Cu₆Sn₅ 쪽으로\n(Ni 위에 얇게 한 번 더 올린 Cu, 3 µm 예시)';
     BX.forEach(c => {
-      s += R(c - HW, Y_CU, 2 * HW, Y_SD - Y_CU, 'f-cu2', tip('Cu 기둥 — 15 µm (예시)'));
-      s += R(c - HW, Y_NI, 2 * HW, Y_CU - Y_NI, 'f-ni', tip('Ni 방벽 — 3 µm (예시)'));
-      s += P(sn(c), 'f-sn2', tip('SnAg 솔더 — 12 µm, 리플로우 전이라 원기둥 (예시)'));
+      // Cu 기둥 · 상부 Cu: keep 단계에서는 같은 Cu라 옆이 조금 파인 모습 (과장, → 04장)
+      s += G(R(c - HW, Y_CU, 2 * HW, Y_SD - Y_CU, 'f-cu2', tip(TIP_CU)) + R(c - HW, Y_UC, 2 * HW, Y_NI - Y_UC, 'f-cu2', tip(TIP_UC)), off('keep'));
+      s += G(R(c - HW + KE, Y_CU, 2 * HW - 2 * KE, Y_SD - Y_CU, 'f-cu2', tip(TIP_CU + '\n식각 뒤 — 시드와 같은 Cu라 옆면도 조금 얇아졌다 (과장) → 04장')) +
+        R(c - HW + KE, Y_UC, 2 * HW - 2 * KE, Y_NI - Y_UC, 'f-cu2', tip(TIP_UC + '\n식각 뒤 — 옆이 파여 Ni와 SnAg 사이에 홈(노치)이 생길 수 있다 (베이스 다이만, 과장) → 04장')), only('keep'));
+      s += R(c - HW, Y_NI, 2 * HW, Y_CU - Y_NI, 'f-ni', tip('Ni — Cu 기둥과 솔더 사이 방벽 (3 µm, 예시)'));
+      s += P(sn(c), 'f-sn2', tip('SnAg — 녹아서 붙는 솔더 (12 µm, 리플로우 전이라 원기둥, 예시)'));
       s += L(c - HW, Y_SD, c + HW, Y_SD, 'et01-ifc');
     });
     // 측정 칩: 둘째 · 셋째 범프 사이 저항 (위젯 값이 모든 단계에 보인다)
@@ -145,14 +153,15 @@ const VKPI = {short: 'ng', leak: 'warn', open: 'ok', ox: 'warn', isl: 'ok', none
     s += G(sh, W(only('short'), tip('시드를 따라 범프와 범프가 이어져 있다 — 단락')));
     // stack: 확대 이름표 (확대 단계용 작은 글)
     let st = L(800, Y_SN, 800, Y_SD, 's-axis') + L(794, Y_SN, 806, Y_SN, 's-axis') + L(794, Y_SD, 806, Y_SD, 's-axis');
-    st += T(810, 330, '범프 높이 ≈ 30 µm', 'pl-zt', 'start') + T(810, 347, '(Cu 15 + Ni 3 + SnAg 12)', 'pl-zt', 'start');
+    st += T(810, 324, '범프 높이 ≈ 30 µm', 'pl-zt', 'start') + T(810, 341, '(베이스 다이 · 예시)', 'pl-zt', 'start');
+    st += T(810, 364, '코어 다이 범프 17 µm', 'pl-zt', 'start') + T(810, 381, '(Ni 5 + SnAg 12)', 'pl-zt', 'start');
     st += TT(818, 404, ['Cu 시드', '보통 100~500 nm', '도금 전류의 길이자', '도금이 붙는 바탕'], 'pl-zt', 'start', 17);
     st += P(`M884,${Y_SD + 6} L862,470`, 's-lead') + C(884, Y_SD + 6, 2.5, 'k-lead');
     st += P(`M612,${Y_TI + 6} L612,575`, 's-lead') + C(612, Y_TI + 6, 2.5, 'k-lead');
-    st += T(BX[0], 346, 'SnAg 솔더', 'et01-zd') + T(BX[0], 395, 'Ni', 'pl-zt') + T(BX[0], 452, 'Cu 기둥 (도금)', 'pl-zt') + T(BX[0], 470, '시드 위에 쌓였다', 'pl-zt');
+    st += T(BX[0], 346, 'SnAg 솔더 · 12 µm', 'et01-zd') + T(BX[0], 395, '상부 Cu · 3 µm', 'pl-zt') + T(BX[0], 414, 'Ni · 3 µm', 'pl-zt') + T(BX[0], 456, 'Cu 기둥 (도금) · 12 µm', 'pl-zt') + T(BX[0], 474, '시드 위에 쌓였다', 'pl-zt');
     st += T(620, 580, 'Ti — 보통 50~200 nm · 접착 · Cu 확산 방지', 'pl-zt', 'start') + T(620, 597, 'Ti 100 nm 한 겹만 남아도 범프 사이 ≈ 6 Ω (금속이다)', 'pl-zt', 'start');
     st += T(796, 547, '보호막 — 패드 자리만 열려 있다', 'pl-zt', 'start') + T(708, 547, '패드', 'et01-zd');
-    st += T(620, 621, '그림의 시드 두께는 크게 과장 — 실제 Ti + Cu 약 0.4 µm', 'pl-zt', 'start') + T(620, 638, '= 범프 높이(30 µm)의 약 1/75', 'pl-zt', 'start');
+    st += T(620, 621, '그림의 시드 두께는 크게 과장 — 실제 Ti + Cu 약 0.4 µm', 'pl-zt', 'start') + T(620, 638, '= 베이스 다이 범프 높이(30 µm)의 약 1/75', 'pl-zt', 'start');
     s += G(st, only('stack'));
     // order: Cu를 지운 뒤 — Ti 를 따라 아직 이어짐
     let od = P(`M584,${Y_TI + 6} L1536,${Y_TI + 6}`, 's-flow2');
@@ -164,7 +173,8 @@ const VKPI = {short: 'ng', leak: 'warn', open: 'ok', ox: 'warn', isl: 'ok', none
     BX.forEach(c => { kp += R(c - HW - 4, Y_SD - 4, 2 * HW + 8, Y_PAS - Y_SD + 8, 'et01-keep', {rx: 4}) + T(c, Y_SD - 14, '남길 곳', 'pl-hdg3'); });
     [[584, 624], ...GAPS.map(([a, b]) => [a + 8, b - 8]), [1496, 1536]].forEach(([a, b]) => { kp += R(a, Y_SD - 4, b - a, Y_PAS - Y_SD + 8, 'et01-del', {rx: 4}); });
     GAPS.forEach(([a, b]) => { kp += T((a + b) / 2, Y_SD - 24, '지울 곳', 'pl-hdg2'); });
-    kp += K.lead(BX[1] + HW - 3, Y_SD + 8, BX[1] + HW + 22, 418, '밑동 파임 → 04장', 'start', 't-dim');
+    kp += K.lead(BX[1] + HW - 3, Y_SD + 8, BX[1] + HW + 16, 418, '밑동 파임 → 04장', 'start', 't-dim');
+    kp += K.lead(BX[1] + HW - KE + 1, (Y_UC + Y_NI) / 2, BX[1] + HW + 16, 354, '상부 Cu 홈 → 04장', 'start', 't-dim');
     kp += LB(T(580, 600, '덜 지우면 잔여 · 누설 ↔ 더 지우면 밑동이 파인다 (언더컷 → 04장)', 't-sub', 'start') + T(580, 632, '범프 밑 시드는 남아 범프를 붙잡는다 — 그림의 파임은 과장', 't-dim', 'start'));
     s += G(kp, W(only('keep'), tip('초록 = 남길 곳(범프 밑) · 빨간 점선 = 지울 곳(범프 사이)')));
     // ── ③ 아래 패널 (확대 단계에서는 흐리게)
@@ -177,7 +187,7 @@ const VKPI = {short: 'ng', leak: 'warn', open: 'ok', ox: 'warn', isl: 'ok', none
       if (kind !== 'open') m += R(x + 30, y, 400, 8, 'f-seed2') + R(x + 30, y + 8, 400, 6, 'f-ti');
       [c1, c2].forEach(c => {
         m += R(c - hw, y, 2 * hw, 8, 'f-seed2') + R(c - hw, y + 8, 2 * hw, 6, 'f-ti');
-        m += R(c - hw, y - 38, 2 * hw, 38, 'f-cu2') + R(c - hw, y - 46, 2 * hw, 8, 'f-ni') + R(c - hw, y - 77, 2 * hw, 31, 'f-sn2', {rx: 4});
+        m += R(c - hw, y - 32, 2 * hw, 32, 'f-cu2') + R(c - hw, y - 40, 2 * hw, 8, 'f-ni') + R(c - hw, y - 48, 2 * hw, 8, 'f-cu2') + R(c - hw, y - 80, 2 * hw, 32, 'f-sn2', {rx: 4});   // 베이스 다이 범프 (Ni · 상부 Cu는 과장)
       });
       if (kind === 'wire') m += R(x + 30, y - 2, 14, 18, 'f-contact') + P(`M${x + 48},${y + 4} L${x + 426},${y + 4}`, 's-flow') + T(x + 37, y - 12, '접점', 't-dim');
       if (kind === 'short') m += C((c1 + c2) / 2, y + 6, 13, 'et01-ring') + T((c1 + c2) / 2, y - 18, '단락', 'pl-warn');
@@ -196,7 +206,7 @@ const VKPI = {short: 'ng', leak: 'warn', open: 'ok', ox: 'warn', isl: 'ok', none
     [520, 1020].forEach(x0 => { cd += K.arrow(x0 + 6, 896, x0 + 34, 896, 's-arr2'); });
     s += G(cd, {'data-off': 'order'});
     // order: 3장면 — 스트립 뒤 → Cu 식각 → Ti 식각
-    // 3.84 px/µm: 지름 25 µm = 96 px, 피치 55 µm = 211 px, 높이 30 µm = 115 px (시드만 과장)
+    // 3.84 px/µm: 지름 25 µm = 96 px, 피치 55 µm = 211 px, 높이 30 µm = 115 px (베이스 다이: Cu 기둥 46 · Ni 12 · 상부 Cu 12 · SnAg 45 px, 시드만 과장)
     const scene = (x, kind) => {
       const y = 906, c1 = x + 105, c2 = x + 316, hw = 48, gc = (c1 + c2) / 2;
       let m = R(x + 16, y + 20, 388, 26, 'f-pas');
@@ -206,7 +216,7 @@ const VKPI = {short: 'ng', leak: 'warn', open: 'ok', ox: 'warn', isl: 'ok', none
       [c1, c2].forEach(c => {
         const n = kind === 2 ? 4 : 0;
         m += R(c - hw + n, y, 2 * hw - 2 * n, 12, 'f-seed2') + R(c - hw + n, y + 12, 2 * hw - 2 * n, 8, 'f-ti');
-        m += R(c - hw, y - 58, 2 * hw, 58, 'f-cu2') + R(c - hw, y - 70, 2 * hw, 12, 'f-ni') + R(c - hw, y - 115, 2 * hw, 45, 'f-sn2', {rx: 5}) + L(c - hw, y, c + hw, y, 'et01-ifc');
+        m += R(c - hw, y - 46, 2 * hw, 46, 'f-cu2') + R(c - hw, y - 58, 2 * hw, 12, 'f-ni') + R(c - hw, y - 70, 2 * hw, 12, 'f-cu2') + R(c - hw, y - 115, 2 * hw, 45, 'f-sn2', {rx: 5}) + L(c - hw, y, c + hw, y, 'et01-ifc');
       });
       m += T(gc, y - 14, ['Cu + Ti', 'Ti만 남음', '보호막'][kind], ['t-sub', 't-warn', 'pl-hdg3'][kind]);
       return m;
@@ -385,12 +395,12 @@ const VKPI = {short: 'ng', leak: 'warn', open: 'ok', ox: 'warn', isl: 'ok', none
   notes(K){
     return K.terms([
       ['시드 (시드층)', '도금 전에 PVD(스퍼터)로 웨이퍼 전체에 까는 얇은 금속막. 도금 전류의 길이자 도금이 붙는 바탕 (보통 Ti 50~200 nm + Cu 100~500 nm, 그림 · 위젯 예시 Ti 100 nm + Cu 300 nm)'],
-      ['Ti (접착 · 방벽층)', '보호막 · 패드와 Cu를 붙이고 Cu가 아래로 번지는 것을 막는 층. TiW(Ti–W 합금)를 쓰기도 한다'],
+      ['베이스 다이 · 코어 다이 범프', '이 탭 그림의 기준은 베이스 다이(맨 아래 로직 · 인터페이스 다이) 범프 = Cu 기둥 12 + Ni 3 + 상부 Cu 3 + SnAg 12 µm(상부 Cu = Ni 위에 얇게 한 번 더 올린 Cu). 코어 다이(쌓이는 DRAM 다이) 범프 = Ni 5 + SnAg 12 µm, Cu 기둥 없음. 모두 예시 값이고 시드(Ti + Cu)는 같은 예시'],
+      ['Ti (접착 · 방벽층 · 식각 멈춤층)', '보호막 · 패드와 Cu를 붙이고 Cu가 아래로 번지는 것을 막는 층. TiW(Ti–W 합금)를 쓰기도 한다. Cu 식각액에 잘 안 녹아 Cu 식각이 여기서 멈춘다 — 식각 멈춤층 = 위 막을 지우는 액에 잘 안 녹는 아래 막'],
       ['보호막 (패시베이션)', '칩 위를 덮는 절연막 — 산화막 · 질화막 · 폴리이미드 등. 패드 자리만 열려 있고, 시드 식각 뒤 범프 사이에 드러난다'],
       ['습식 식각', '액체 약품(식각액)으로 재료를 녹여 없애는 일 (↔ 건식: 플라즈마 · 이온빔)'],
       ['단락 · 누설', '단락 = 떨어져 있어야 할 두 전극이 낮은 저항으로 이어짐. 누설 = 저항은 크지만 무시 못 할 만큼 전류가 샘'],
       ['면저항 (Rs, Ω/□)', '막의 저항을 정사각형 한 칸 기준으로 나타낸 값 = 비저항 ÷ 두께. 정사각형 크기와 상관없다. 4탐침으로 잰다'],
-      ['식각 멈춤층', '위 막을 지우는 액에 잘 안 녹아 식각이 거기서 멈추게 해 주는 아래 막 (Cu 식각에서 Ti)'],
       ['언더컷', '범프 밑동 아래가 옆으로 파여 들어간 것 (→ <a data-go="under">04장</a>)']
     ]) + K.field([
       '시드 식각 뒤에는 <b>외관</b>(잔여 · 범프 손상)과 <b>전기</b>(테스트 패턴의 누설 · 절연)를 함께 봅니다. 몇 nm 잔여는 눈에도, 보통 SEM-EDS(전자 현미경에서 원소를 보는 분석 — 신호가 수백 nm 깊이에서 나와 몇 nm 막은 묻힘)에도 잘 안 잡혀 누설 시험 패턴으로 먼저 봅니다 → <a data-go="defects.resid">09장</a>.',

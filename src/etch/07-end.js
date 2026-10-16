@@ -1,14 +1,16 @@
 /* 시드 식각 07 — 끝점: 언제 멈춰야 할까? (웨이퍼 · 다이) */
 (function(){
 // 개념 모델 상수 (모두 예시): Cu 시드 두께 (nm), 기준 액 블랭킷 속도 (nm/분), 로딩 계수, 도금 Cu 배수 · 약한 계면 계수 (04장), 국부 산포, 꼬리 σ 배수 (칸 10⁶개)
-const H0 = 300, R0 = 300, LD = 1.0, KP = 1.3, NF = 1.5, SIG = 0.03, NZ = 5;
+//  로딩 계수: 베이스 다이(Cu / Ni / Cu / SnAg) 1.0 — 범프 사이 액 교환 + Cu 기둥 · 상부 Cu 옆면이 약품을 함께 씀,
+//            코어 다이(Ni / SnAg) 0.5 — 범프에 Cu가 없어 액 교환 몫만 남는다고 둔 이 장의 개념 예시 값 (구조는 plans/stack.md)
+const H0 = 300, R0 = 300, LD = 1.0, LDC = 0.5, KP = 1.3, NF = 1.5, SIG = 0.03, NZ = 5;
 const TB = H0 / R0 * 60;                                        // 블랭킷 지움 시간 60 s
 const MX = 370, MY = 478, MR = 270, PIT = 36, HW = 17;          // 웨이퍼 맵: 중심 · 반지름(= 150 mm) · 다이 피치 · 다이 반 폭 (px)
 const CX0 = 800, CX1 = 1520, CY0 = 520, CY1 = 250, CT = 120;    // 지움 곡선: 가로 0~120 s, 세로 0~100 %
 const GX0 = 830, GX1 = 1500, GY = 840, GH = 140, GR = 15;       // 단면 그래프: 가로 −150~+150 mm, 세로 ±15 %
 const BX0 = 800, BX1 = 1500, BT = 150;                           // 시간 쌓기 막대 0~150 s · 저울 0~100 %
 const SX0 = 800, SX1 = 1500;                                     // 반사율 그래프 0~120 s
-const DEF = {u: 5, shape: 'center', rp: 0, d: 20, oe: 30, basis: 'blanket'};
+const DEF = {u: 5, shape: 'center', rp: 0, d: 20, die: 'base', oe: 30, basis: 'blanket'};
 // 손대지 않았을 때 단계마다 보여 줄 값 (발표 모드 대비)
 const DEMO = {map: {u: 8, d: 0}, load: {d: 30}, time: {}, see: {basis: 'map'}};
 // 좁은 세로 화면 전용 확대
@@ -30,19 +32,20 @@ const sgn = v => v > 0 ? '+' : v < 0 ? '−' : '';
 const tw = (s, px) => [...String(s)].reduce((a, ch) => a + (/[ㄱ-힝]/.test(ch) ? 1 : /[A-Za-z0-9 .,:;'()\-+%]/.test(ch) ? 0.56 : 0.9), 0) * px;
 // 개념 모델 (기획 07장): h(ρ) = h₀(1 ± u(1 − 2ρ²)), r(ρ) = r₀(1 + a(2ρ² − 1)), 빽빽한 블록 r(1 − L·d) · 외톨이 r
 function calc(s){
-  const u = s.u / 100, sg = s.shape === 'center' ? 1 : -1, a = s.rp / 100, d = s.d / 100;
+  const u = s.u / 100, sg = s.shape === 'center' ? 1 : -1, a = s.rp / 100, d = s.d / 100, core = s.die === 'core', L = core ? LDC : LD;
   const hOf = rho => H0 * (1 + sg * u * (1 - 2 * rho * rho));
   const rOf = rho => R0 * (1 + a * (2 * rho * rho - 1));
-  const ds = DIES.map(D => { const h = hOf(D.rho), r = rOf(D.rho), dd = D.part ? d / 2 : d; return {D, h, r, tI: h / r * 60, tD: h / (r * (1 - LD * dd)) * 60}; });
+  const ds = DIES.map(D => { const h = hOf(D.rho), r = rOf(D.rho), dd = D.part ? d / 2 : d; return {D, h, r, tI: h / r * 60, tD: h / (r * (1 - L * dd)) * 60}; });
   let late = ds[0], first = ds[0];
   ds.forEach(o => { if (o.tD > late.tD + 1e-9) late = o; if (o.tI < first.tI - 1e-9) first = o; });
   const tmax = late.tD, tmin = first.tI;
   const tend = s.basis === 'map' ? tmax * (1 + s.oe / 100) : TB * (1 + s.oe / 100);
   const nres = ds.filter(o => o.tD > tend + 1e-9).length, resid = nres / ds.length * 100;
   // 기둥 옆면은 레시피 시간 내내 어디서나 녹는다(04장 s_p = k_p·r·t) — 먼저 지워진 곳에서만 더 자라는 것은 계면 홈(약할 때, 04장 n = f·k_p·r·(t − t₀))
-  const early = Math.max(0, tend - tmin), side = NF * KP * first.r / 60 * early;
+  // 코어 다이는 범프에 Cu가 없어 기둥 옆 · 계면 홈이 없다(04장 코어: s_p = n = 0) — Ni 발 밑 시드 언더컷만 레시피 내내 자란다
+  const early = Math.max(0, tend - tmin), side = core ? 0 : NF * KP * first.r / 60 * early;
   const tneed = tmax * (1 + NZ * SIG), need = (tneed / TB - 1) * 100, oeB = (tend / TB - 1) * 100;
-  return {ds, hOf, rOf, late, first, tmax, tmin, tend, nres, resid, early, side, indie: late.tD - late.tI, tneed, need, oeB};
+  return {core, ds, hOf, rOf, late, first, tmax, tmin, tend, nres, resid, early, side, indie: late.tD - late.tI, tneed, need, oeB};
 }
 // 다 지워진 다이 비율 (다이마다 지움 시간 ±국부 3 % 사이에서 차례로 지워진다고 보고 부드럽게, 가장자리 부분 다이는 넓이 ½)
 function cleared(c, t, key){
@@ -65,7 +68,7 @@ const tagS = (html, tg) => html.replace('</span>', ` ${TAG[tg]}</span>`);
   ana: '<b>단체 사진 기다리기</b> — 가장 늦게 오는 사람(가장 두껍고 빽빽한 곳)이 올 때까지 기다리는 동안, 먼저 온 사람들은 땡볕에 서 있습니다(먼저 지워진 곳의 밑동 · 계면 깎임). 늦게 오는 사람을 줄이는 것(두께 · 속도 맵 · 흐름 고르게)이 기다림을 줄이는 길입니다. <i>(비유의 한계: 사람과 달리 누가 얼마나 늦을지를 미리 잴 수 있고(시드 두께 맵 · 속도 측정), 다 왔는지는 빛 · 전기로 확인합니다. 또 몇 명이 늦는지가 아니라 \'한 명이라도 안 오면\' 불량입니다.)</i>',
   steps: [
     {id: 'map', viewN: VN_MAP, t: '시드 두께 맵 ÷ 장비 속도 맵', d: 'PVD 시드는 웨이퍼 안에서 보통 몇 % 두께 차이가 있고 고리 무늬가 흔합니다. 장비의 식각 속도도 노즐 · 팔 · 회전에 따라 가운데와 가장자리가 다릅니다. 지움 시간 맵(끝점 맵)은 두께 맵 ÷ 속도 맵이라, 둘을 맞추면 기다림이 줄어듭니다.'},
-    {id: 'load', viewN: VN_BR, t: '빽빽한 곳이 늦다 — 로딩', d: '범프가 빽빽한 곳은 범프 사이로 액이 덜 바뀌고, 범프 사이 시드와 비슷한 넓이의 Cu 기둥 옆면도 함께 녹아 약품을 빨리 씁니다. 그래서 빽빽한 곳이 늦게 지워집니다. 같은 다이의 외톨이 범프는 로딩이 없어 빨리 녹고 먼저 지워져, 기둥 옆과 밑동이 더 깎입니다.'},
+    {id: 'load', viewN: VN_BR, t: '빽빽한 곳이 늦다 — 로딩', d: '범프가 빽빽한 곳은 범프 사이로 액이 덜 바뀌고, 베이스 다이는 시드와 비슷한 넓이의 Cu 기둥 · 상부 Cu(Ni 위에 얇게 한 번 더 올린 Cu) 옆면도 녹아 약품을 빨리 씁니다. 그래서 빽빽한 곳이 늦게 지워집니다(범프에 Cu가 없는 코어 다이는 보통 덜함). 외톨이 범프는 먼저 지워져 밑동이 더 깎입니다.'},
     {id: 'time', viewN: VN_BR, t: '시간 = 가장 늦은 곳 × (1 + 과식각)', d: '레시피 시간은 가장 늦은 곳의 지움 시간에 여유를 더해 정합니다. 블랭킷 웨이퍼의 속도로만 계산하면 두께 · 로딩 차이만큼 잔여가 남을 수 있습니다. 과식각을 늘리면 잔여는 줄고 언더컷은 늘어납니다.'},
     {id: 'see', viewN: VN_BR, t: '다 지워졌는지 보기', d: 'Cu는 붉은 금속빛, Ti는 회색, 다 지우면 보호막 색이 드러납니다. 장비에 따라 반사율(빛) 변화로 끝점을 봅니다. 몇 nm 잔여는 눈에도, 전자 현미경 원소 분석(SEM-EDS)에도 잘 안 잡혀 누설 시험 패턴으로 먼저 보고, 표면 분석(AES · XPS)으로 성분을 확인합니다.'}
   ],
@@ -138,11 +141,12 @@ const tagS = (html, tg) => html.replace('</span>', ` ${TAG[tg]}</span>`);
       ${tagS(K.seg('shape', [['center', '가운데 두꺼움'], ['edge', '가장자리 두꺼움']], 'center', '두께 맵'), 'up')}
       ${tagC(K.ctl('rp', '장비 속도 맵 (− 가운데 · + 가장자리 빠름)', -10, 10, 0.5, 0), 'eq')}
       ${tagC(K.ctl('d', '빽빽한 블록 밀도 (블록 넓이 중 범프)', 0, 50, 1, 20), 'up')}
+      ${tagS(K.seg('die', [['base', '베이스 — Cu / Ni / Cu / SnAg'], ['core', '코어 — Ni / SnAg']], 'base', '다이'), 'up')}
       ${tagC(K.ctl('oe', '과식각', 0, 100, 5, 30), 'cond')}
       ${K.seg('basis', [['blanket', '블랭킷 계산'], ['map', '패턴 맵 확인']], 'blanket', '시간 기준')}
-      ${K.kpis([['레시피 시간', 'k-t', '<span data-o="k-tb">블랭킷 60 s × 1.30</span>'], ['잔여 다이', 'k-r', '레시피 끝에 덜 지워짐'], ['먼저 지워진 곳', 'k-e', '과식각 · 계면 홈(약할 때) <span data-o="k-side">–</span>'], ['다이 안 차이', 'k-i', '빽빽한 블록 − 외톨이'], ['필요한 과식각', 'k-n', '블랭킷 기준 · 칸 10⁶개 5σ']])}
+      ${K.kpis([['레시피 시간', 'k-t', '<span data-o="k-tb">블랭킷 60 s × 1.30</span>'], ['잔여 다이', 'k-r', '레시피 끝에 덜 지워짐'], ['먼저 지워진 곳', 'k-e', '과식각 · <span data-o="k-sn">계면 홈(약할 때)</span> <span data-o="k-side">–</span>'], ['다이 안 차이', 'k-i', '빽빽한 블록 − 외톨이'], ['필요한 과식각', 'k-n', '블랭킷 기준 · 칸 10⁶개 5σ']])}
       <p class="pl-msg et07-msg" data-o="msg"></p>
-      ${K.model('시드 두께 h(ρ) = 300 nm × (1 ± u(1 − 2ρ²)), 장비 속도 r(ρ) = 300 nm/분 × (1 + a(2ρ² − 1)) (기준 액 · 블랭킷, ρ = 반지름 ÷ 150 mm). 다이마다 두 점 — 빽빽한 블록은 r × (1 − 밀도)(로딩 계수 1, 가장자리 부분 다이는 밀도 ½), 외톨이 범프 옆은 r. 칸 색은 빽빽한 블록의 지움 시간입니다. 레시피 = 60 s × (1 + 과식각)(블랭킷 계산) 또는 가장 늦은 곳 × (1 + 과식각)(패턴 맵 확인). 기둥 옆면은 레시피 시간 내내 어디서나 녹으므로(04장) 먼저 지워진 곳에서 더 자라는 것만 셉니다 — 계면 홈(계면이 약할 때) = 1.5 × 1.3 × 그 자리 속도 × 먼저 지워진 곳의 과식각 시간(04장 식). 필요한 과식각 = 가장 늦은 곳 × (1 + 5 × 3 %) ÷ 60 s − 1 (국부 산포 3 % · 칸 10⁶개 → 약 5σ). 모든 상수는 예시이고, 실제 맵은 블랭킷 · 패턴 웨이퍼 측정으로 확인합니다.')}</div>`;
+      ${K.model('시드 두께 h(ρ) = 300 nm × (1 ± u(1 − 2ρ²)), 장비 속도 r(ρ) = 300 nm/분 × (1 + a(2ρ² − 1)) (기준 액 · 블랭킷, ρ = 반지름 ÷ 150 mm). 다이마다 두 점 — 빽빽한 블록은 r × (1 − L × 밀도)(로딩 계수 L: 베이스 다이 1 · 코어 다이 0.5 — 범프에 Cu가 없어 옆면이 약품을 안 쓴다고 둔 예시, 가장자리 부분 다이는 밀도 ½), 외톨이 범프 옆은 r. 칸 색은 빽빽한 블록의 지움 시간입니다. 레시피 = 60 s × (1 + 과식각)(블랭킷 계산) 또는 가장 늦은 곳 × (1 + 과식각)(패턴 맵 확인). 기둥 옆면은 레시피 시간 내내 어디서나 녹으므로(04장) 먼저 지워진 곳에서 더 자라는 것만 셉니다 — 계면 홈(계면이 약할 때) = 1.5 × 1.3 × 그 자리 속도 × 먼저 지워진 곳의 과식각 시간(04장 식) — 코어 다이는 범프에 Cu가 없어 0(Ni 발 밑 시드 언더컷은 레시피 내내 자란다). 필요한 과식각 = 가장 늦은 곳 × (1 + 5 × 3 %) ÷ 60 s − 1 (국부 산포 3 % · 칸 10⁶개 → 약 5σ). 모든 상수는 예시이고, 실제 맵은 블랭킷 · 패턴 웨이퍼 측정으로 확인합니다.')}</div>`;
   },
   mount(K, ctx){
     const {R, C, L, P, T, TT, G, LB, tip, only} = K;
@@ -194,7 +198,7 @@ const tagS = (html, tg) => html.replace('</span>', ` ${TAG[tg]}</span>`);
       const rows = [
         [`레시피 시간 (${st.basis === 'map' ? `가장 늦은 곳 ${f1(c.tmax)} s` : `블랭킷 ${TB} s`} × ${oeTxt})`, `${f0(c.tend)} s`, 'time see', ''],
         ['가장 늦은 곳 · 잔여 다이', `${f1(c.tmax)} s · ${f0(c.resid)} %`, 'map time', c.nres ? ' et07-ngt' : ''],
-        ['먼저 지워진 곳 과식각 → 계면 홈 (약할 때)', `${f0(c.early)} s → +${f0(c.side)} nm`, 'see', ''],
+        c.core ? ['먼저 지워진 곳 과식각 (계면 홈 없음 · 코어)', `${f0(c.early)} s`, 'see', ''] : ['먼저 지워진 곳 과식각 → 계면 홈 (약할 때)', `${f0(c.early)} s → +${f0(c.side)} nm`, 'see', ''],
         ['다이 안 차이 (빽빽한 블록 − 외톨이)', `${f0(c.indie)} s`, 'load', ''],
         ['필요한 과식각 (칸 10⁶개 · 5σ)', `${f0(c.need)} %`, 'time', c.oeB + 0.5 < c.need ? ' et07-wnt' : '']
       ];
@@ -210,7 +214,7 @@ const tagS = (html, tg) => html.replace('</span>', ` ${TAG[tg]}</span>`);
       const path = key => { let d = ''; for (let t = 0; t <= CT + 1e-9; t += 0.5) d += (d ? ' L' : 'M') + cx(t).toFixed(1) + ',' + cy(cleared(c, t, key)).toFixed(1); return d; };
       let cv = '';
       if (c.tend > c.tmin + 0.5){
-        cv += R(cx(c.tmin), CY1, cx(c.tend) - cx(c.tmin), CY0 - CY1, 'et07-band', tip('먼저 지워진 곳(외톨이 범프 옆)이 레시피 끝까지 과식각을 받는 시간 — 밑동 발이 사라진 뒤 밑동 · 계면 홈이 더 파이고 Ti가 산화제에 닿는다.\n기둥 옆면은 이 시간과 상관없이 레시피 내내 어디서나 녹는다 (04장)'));
+        cv += R(cx(c.tmin), CY1, cx(c.tend) - cx(c.tmin), CY0 - CY1, 'et07-band', tip(c.core ? '먼저 지워진 곳(외톨이 범프 옆)이 레시피 끝까지 과식각을 받는 시간 — Ni 발 밑 시드가 바닥 구석까지 파이고 Ti가 산화제에 닿는다.\n코어 다이는 범프에 Cu가 없어 기둥 옆 · 계면 홈이 없다 (04장)' : '먼저 지워진 곳(외톨이 범프 옆)이 레시피 끝까지 과식각을 받는 시간 — 밑동 발이 사라진 뒤 밑동 · 계면 홈이 더 파이고 Ti가 산화제에 닿는다.\n기둥 옆면은 이 시간과 상관없이 레시피 내내 어디서나 녹는다 (04장)'));
         const xa = cx(c.tmin), xb = cx(c.tend);
         cv += P(`M${xa.toFixed(1)},228 L${xa.toFixed(1)},242 M${xa.toFixed(1)},235 L${xb.toFixed(1)},235 M${xb.toFixed(1)},228 L${xb.toFixed(1)},242`, 'et07-brk');
         cv += LB(T(xa - 10, 242, `먼저 지워진 곳 과식각 ${f0(c.early)} s`, 't-warn', 'end'));
@@ -258,7 +262,7 @@ const tagS = (html, tg) => html.replace('</span>', ` ${TAG[tg]}</span>`);
         const d = st.d / 100, rb = 11, BCX = 950, BCY = 800, S = 216;
         const rr = K.rng(7);
         let g = '';
-        if (d > 0) g += K.E(BCX, BCY, 160, 128, 'et07-cloud', K.W({style: `opacity:${K.clamp(0.3 + d * 2.4, 0.3, 1).toFixed(2)}`}, tip('산화제 · 산이 모자란 곳 — 범프 사이로 액이 덜 바뀌고 기둥 옆면도 함께 녹아 약품을 빨리 쓴다.\n녹은 Cu²⁺가 길을 막는 것은 아니다 (잘 녹아 있다)')));
+        if (d > 0) g += K.E(BCX, BCY, 160, 128, 'et07-cloud', K.W({style: `opacity:${K.clamp(0.3 + d * 2.4, 0.3, 1).toFixed(2)}`}, tip(c.core ? '산화제 · 산이 모자란 곳 — 범프 사이로 액이 덜 바뀐다.\n코어 다이는 범프에 Cu가 없어 옆면이 약품을 쓰지 않는다 — 로딩이 약하다 (예시 L 0.5)' : '산화제 · 산이 모자란 곳 — 범프 사이로 액이 덜 바뀌고 Cu 기둥 · 상부 Cu 옆면도 함께 녹아 약품을 빨리 쓴다 (베이스 다이).\n녹은 Cu²⁺가 길을 막는 것은 아니다 (잘 녹아 있다)')));
         g += P('M770,690 C860,640 1040,640 1130,690', 's-flow') + P('M770,910 C860,948 1040,948 1130,910', 's-flow') + P(`M770,${BCY} L1130,${BCY}`, 's-flow et07-weak');
         // 블록 안 범프 자리 (블록 넓이 S×S 는 그대로, 밀도에 따라 개수가 바뀐다)
         const bp = [];
@@ -287,7 +291,8 @@ const tagS = (html, tg) => html.replace('</span>', ` ${TAG[tg]}</span>`);
         // 값 · 설명
         const L0 = c.late;
         g += LB(T(BCX, 976, d > 0 ? `빽빽한 블록 — ${f1(L0.tD)} s` : `블록 없음 — ${f1(L0.tD)} s`, 't-warn') + T(IX, 976, `외톨이 범프 옆 — ${f1(L0.tI)} s`, 't-acc'));
-        g += LB(TT(BCX, 1010, d > 0 ? ['액이 덜 바뀌고 기둥 옆면도 녹아', '약품을 빨리 씀 → 늦게 지워짐'] : ['밀도 0 % — 로딩이 없어', '외톨이와 같은 때 지워짐'], 't-sub', 'middle', 30) + TT(IX, 1010, ['로딩이 없어 빨리 녹고 먼저 지워짐', '→ 기둥 옆 · 밑동 깎임 ↑'], 't-sub', 'middle', 30));
+        g += LB(TT(BCX, 1010, d <= 0 ? ['밀도 0 % — 로딩이 없어', '외톨이와 같은 때 지워짐'] : c.core ? ['액이 덜 바뀜 (범프에 Cu 없음)', '로딩이 약함 → 조금 늦게 지워짐'] : ['액이 덜 바뀌고 Cu 옆면도 녹아', '약품을 빨리 씀 → 늦게 지워짐'], 't-sub', 'middle', 30) + TT(IX, 1010, ['로딩이 없어 빨리 녹고 먼저 지워짐', c.core ? '→ Ni 발 밑 언더컷 ↑' : '→ 기둥 옆 · 밑동 깎임 ↑'], 't-sub', 'middle', 30));
+        g += LB(T(1540, 702, c.core ? '코어 다이 (Ni / SnAg)' : '베이스 다이 (Cu / Ni / Cu / SnAg)', 't-dim', 'end'));
         g += G(C(1170, 662, 6, 'et07-mol') + LB(T(1184, 669, '산화제 · 산 (H₂O₂ · H⁺)', 't-dim', 'start')), tip('식각액의 산화제(과산화수소)와 산 — 녹이는 데 쓰인다'));
         br += G(g, only('load'));
       }
@@ -312,11 +317,20 @@ const tagS = (html, tg) => html.replace('</span>', ` ${TAG[tg]}</span>`);
         // 저울: 과식각 0~100 % (블랭킷 기준)
         const ox = v => BX0 + K.clamp(v / 100) * (BX1 - BX0), xn = ox(c.need), xo = ox(c.oeB);
         g += LB(T(BX0, 974, '← 잔여 위험', 't-dim', 'start') + T((BX0 + BX1) / 2, 974, '과식각 (블랭킷 기준 0 ~ 100 %)', 't-dim') + T(BX1, 974, '언더컷 ↑ →', 't-dim', 'end'));
-        g += R(BX0, 984, xn - BX0, 24, 'et07-zr', tip('이보다 짧으면 꼬리(가장 늦은 칸)가 남을 수 있다')) + R(xn, 984, BX1 - xn, 24, 'et07-zu', tip('이보다 길면 잔여는 없지만 기둥 옆 · 밑동 깎임(언더컷)이 늘어난다 — 먼저 지워진 곳일수록 더 (04장)')) + R(BX0, 984, BX1 - BX0, 24, 'et07-bar');
-        g += L(xn, 978, xn, 1014, 'et07-need') + LB(T(K.clamp(xn, 850, 1450), 1034, c.need > 100 ? `필요 ${f0(c.need)} % →` : `필요 ${f0(c.need)} %`, 'pl-pkt'));
+        g += R(BX0, 984, xn - BX0, 24, 'et07-zr', tip('이보다 짧으면 꼬리(가장 늦은 칸)가 남을 수 있다')) + R(xn, 984, BX1 - xn, 24, 'et07-zu', tip(c.core ? '이보다 길면 잔여는 없지만 Ni 발 밑 언더컷이 늘어난다 (코어 다이, 04장)' : '이보다 길면 잔여는 없지만 기둥 옆 · 밑동 깎임(언더컷)이 늘어난다 — 먼저 지워진 곳일수록 더 (04장)')) + R(BX0, 984, BX1 - BX0, 24, 'et07-bar');
+        // 필요 · 지금 표시가 가까우면 글을 서로 반대쪽으로 비켜 놓는다 (겹침 방지: 왼쪽 표시의 글은 왼쪽으로, 오른쪽 표시의 글은 오른쪽으로)
+        const tN = c.need > 100 ? `필요 ${f0(c.need)} % →` : `필요 ${f0(c.need)} %`, tO = `지금 ${f0(c.oeB)} %`;
+        let nx = K.clamp(xn, 850, 1450), na = 'middle', ox2 = K.clamp(xo, 850, 1450), oa = 'middle';
+        if (Math.abs(xn - xo) < 120){
+          const nl = xn <= xo, wl = nl ? tw(tN, 19) : tw(tO, 23), wr = nl ? tw(tO, 23) : tw(tN, 19);
+          let xl = Math.max(Math.min(xn, xo) + 6, 776 + wl), xr = Math.min(Math.max(xn, xo) - 6, 1540 - wr);
+          if (xr < xl + 12){ if (xr < 1540 - wr - 1) xr = xl + 12; else xl = xr - 12; }
+          if (nl){ nx = xl; na = 'end'; ox2 = xr; oa = 'start'; } else { ox2 = xl; oa = 'end'; nx = xr; na = 'start'; }
+        }
+        g += L(xn, 978, xn, 1014, 'et07-need') + LB(T(nx, 1034, tN, 'pl-pkt', na));
         g += P(`M${xo.toFixed(1)},1010 L${(xo - 9).toFixed(1)},1026 L${(xo + 9).toFixed(1)},1026 Z`, 'et07-mk');
-        g += LB(T(K.clamp(xo, 850, 1450), 1058, `지금 ${f0(c.oeB)} %`, 't-warn'));
-        g += LB(T(760, 1096, `→ 잔여 다이 ${f0(c.resid)} % · 먼저 지워진 곳 과식각 ${f0(c.early)} s (약한 계면 홈 +${f0(c.side)} nm)`, c.nres ? 'pl-warn' : 't-sub', 'start'));
+        g += LB(T(ox2, 1058, tO, 't-warn', oa));
+        g += LB(T(760, 1096, `→ 잔여 다이 ${f0(c.resid)} % · 먼저 지워진 곳 과식각 ${f0(c.early)} s ` + (c.core ? '(코어: Ni 발 밑 언더컷 쪽)' : `(약한 계면 홈 +${f0(c.side)} nm)`), c.nres ? 'pl-warn' : 't-sub', 'start'));
         br += G(g, only('time'));
       }
       // see: 반사율 (웨이퍼 평균, 개념) — 외톨이 쪽 · 빽빽한 블록 쪽이 지워지는 대로 떨어진다
@@ -344,7 +358,7 @@ const tagS = (html, tg) => html.replace('</span>', ` ${TAG[tg]}</span>`);
       ctx.out('k-t', `${f0(c.tend)} s`);
       ctx.out('k-tb', st.basis === 'map' ? `가장 늦은 곳 ${f1(c.tmax)} s × ${oeTxt}` : `블랭킷 ${TB} s × ${oeTxt}`);
       ctx.out('k-r', `${f0(c.resid)} %`); kls('k-r', c.nres ? 'ng' : 'ok');
-      ctx.out('k-e', `${f0(c.early)} s`); ctx.out('k-side', `+${f0(c.side)} nm`);
+      ctx.out('k-e', `${f0(c.early)} s`); ctx.out('k-sn', c.core ? '계면 홈 없음 (코어)' : '계면 홈(약할 때)'); ctx.out('k-side', c.core ? '' : `+${f0(c.side)} nm`);
       ctx.out('k-i', `${f0(c.indie)} s`);
       ctx.out('k-n', `${f0(c.need)} %`); kls('k-n', c.oeB + 0.5 >= c.need ? 'ok' : 'warn');
       let tmn = 9, tmx = -9;
@@ -359,18 +373,19 @@ const tagS = (html, tg) => html.replace('</span>', ` ${TAG[tg]}</span>`);
       if (!m) return;
       if (c.nres) m.innerHTML = `<b>블랭킷 계산 ${st.oe} %로는 ${lateAt} 쪽 다이 ${f0(c.resid)} %의 빽빽한 블록이 덜 지워집니다</b> — 필요한 과식각 약 ${f0(c.need)} %. ` + (flat ? '속도 맵은 이미 두께 맵을 상쇄했습니다 — 남은 차이는 로딩(빽빽한 블록)과 국부 산포입니다.' : st.u === 0 && st.rp === 0 ? '두께 · 속도 맵은 고릅니다 — 남은 차이는 로딩(빽빽한 블록)과 국부 산포입니다. 밀도를 고르게(더미 범프) 하거나 흐름을 세게 하는 것이 먼저입니다.' : dir);
       else if (flat) m.innerHTML = `<b>속도 맵이 두께 맵을 상쇄했습니다.</b> ${c.indie >= 0.5 ? `남은 차이는 로딩(빽빽한 블록 +${f0(c.indie)} s)과 국부 산포입니다` : '남은 것은 국부 산포뿐입니다'} — 필요한 과식각 약 ${f0(c.need)} %(블랭킷 기준 · 지금 ${f0(c.oeB)} %${tail ? ' — 꼬리가 남을 수 있음' : ''}).`;
-      else if (st.basis === 'map') m.innerHTML = tail ? `패턴 맵의 가장 늦은 곳 ${f1(c.tmax)} s × ${oeTxt} = ${f0(c.tend)} s — 맵에서는 다 지워지지만, <b>여유 ${st.oe} %로는 국부 산포의 꼬리(5σ ≈ 15 %)를 못 덮습니다</b>. 범프 사이 칸이 수십만 개라 드문 칸이 남을 수 있습니다.` : `패턴 맵의 가장 늦은 곳 ${f1(c.tmax)} s × ${oeTxt} = ${f0(c.tend)} s — <b>잔여는 없지만</b> 먼저 지워진 곳은 과식각을 ${f0(c.early)} s 받습니다. 기둥 옆면은 레시피 내내 어디서나 녹고(<a data-go="under.pillar">04장</a>), 그 자리는 밑동 발이 먼저 사라지고 계면이 약하면 홈이 약 +${f0(c.side)} nm 더 파이며 Ti가 산화제에 오래 닿습니다(<a data-go="ti.oxide">06장</a>). 늦은 곳을 줄이면(두께 · 속도 맵 · 밀도) 레시피도 이 시간도 줄어듭니다.`;
-      else m.innerHTML = tail ? `맵 기준으로는 다 지워집니다(가장 늦은 곳 ${f1(c.tmax)} s &lt; 레시피 ${f0(c.tend)} s). 다만 범프 사이 칸이 수십만 개라 국부 산포의 꼬리(5σ)까지 덮으려면 <b>약 ${f0(c.need)} %</b>가 필요합니다(지금 ${st.oe} %).` : `<b>꼬리(5σ)까지 덮습니다</b> — 잔여 없음. 대신 먼저 지워진 곳은 과식각을 ${f0(c.early)} s 받아, 계면이 약하면 홈이 약 +${f0(c.side)} nm 더 파이고 Ti가 산화제에 오래 닿습니다(<a data-go="under.pillar">04장</a> · <a data-go="ti.oxide">06장</a>). 기둥 옆면은 레시피 내내 어디서나 녹습니다.`;
+      else if (st.basis === 'map') m.innerHTML = tail ? `패턴 맵의 가장 늦은 곳 ${f1(c.tmax)} s × ${oeTxt} = ${f0(c.tend)} s — 맵에서는 다 지워지지만, <b>여유 ${st.oe} %로는 국부 산포의 꼬리(5σ ≈ 15 %)를 못 덮습니다</b>. 범프 사이 칸이 수십만 개라 드문 칸이 남을 수 있습니다.` : `패턴 맵의 가장 늦은 곳 ${f1(c.tmax)} s × ${oeTxt} = ${f0(c.tend)} s — <b>잔여는 없지만</b> 먼저 지워진 곳은 과식각을 ${f0(c.early)} s 받습니다. ` + (c.core ? '코어 다이는 범프에 Cu가 없어 기둥 옆 · 계면 홈은 없고, 그 자리는 Ni 발 밑 시드가 바닥 구석까지 파이며 Ti가 산화제에 오래 닿습니다(<a data-go="under.core">04장</a> · <a data-go="ti.oxide">06장</a>).' : `Cu 기둥 · 상부 Cu 옆면은 레시피 내내 어디서나 녹고(<a data-go="under.pillar">04장</a>), 그 자리는 밑동 발이 먼저 사라지고 계면이 약하면 홈이 약 +${f0(c.side)} nm 더 파이며 Ti가 산화제에 오래 닿습니다(<a data-go="ti.oxide">06장</a>).`) + ' 늦은 곳을 줄이면(두께 · 속도 맵 · 밀도) 레시피도 이 시간도 줄어듭니다.';
+      else m.innerHTML = tail ? `맵 기준으로는 다 지워집니다(가장 늦은 곳 ${f1(c.tmax)} s &lt; 레시피 ${f0(c.tend)} s). 다만 범프 사이 칸이 수십만 개라 국부 산포의 꼬리(5σ)까지 덮으려면 <b>약 ${f0(c.need)} %</b>가 필요합니다(지금 ${st.oe} %).` : `<b>꼬리(5σ)까지 덮습니다</b> — 잔여 없음. 대신 먼저 지워진 곳은 과식각을 ${f0(c.early)} s 받아, ` + (c.core ? 'Ni 발 밑 시드 언더컷이 커지고 Ti가 산화제에 오래 닿습니다(<a data-go="under.core">04장</a> · <a data-go="ti.oxide">06장</a>). 코어 다이는 범프에 Cu가 없어 기둥 옆 · 계면 홈은 없습니다.' : `계면이 약하면 홈이 약 +${f0(c.side)} nm 더 파이고 Ti가 산화제에 오래 닿습니다(<a data-go="under.pillar">04장</a> · <a data-go="ti.oxide">06장</a>). Cu 기둥 · 상부 Cu 옆면은 레시피 내내 어디서나 녹습니다.`);
     }
     IDS.forEach(id => ctx.range(id, v => { st[id] = v; render(); return FMT[id](v); }));
     ctx.seg('shape', (v, user) => { st.shape = v; if (user) touched = true; render(); });
     ctx.seg('basis', (v, user) => { st.basis = v; if (user) touched = true; render(); });
+    ctx.seg('die', (v, user) => { st.die = v; if (user) touched = true; render(); });
     IDS.forEach(id => { const i = inp(id); if (i) i.addEventListener('input', () => { touched = true; }); });
     ctx.demo = sid => {
       if (touched) return ctx.refresh();
       Object.assign(st, DEF, DEMO[sid] || {});
       IDS.forEach(id => { const i = inp(id); if (i) i.value = st[id]; ctx.out(id, FMT[id](st[id])); });
-      setSeg('shape', st.shape); setSeg('basis', st.basis);
+      setSeg('shape', st.shape); setSeg('basis', st.basis); setSeg('die', st.die);
       render();
     };
   },
@@ -393,13 +408,13 @@ const tagS = (html, tg) => html.replace('</span>', ` ${TAG[tg]}</span>`);
       '\'눈으로 다 지워졌다\'는 시작점입니다. 몇 nm 잔여는 보통 SEM-EDS에도 잘 안 잡히므로 누설 시험 패턴으로 먼저 보고, 성분은 AES · XPS로 확인합니다 → <a data-go="defects.resid">09장</a>.'
     ]) + K.deep(`<p>이 장 위젯의 식 (개념 모델, ρ = 반지름 ÷ 150 mm, d = 빽빽한 블록 밀도, L = 로딩 계수):</p>
       ${K.eq('h(ρ) = h₀ (1 ± u (1 − 2ρ²))')}${K.eq('r(ρ) = r₀ (1 + a (2ρ² − 1))')}${K.eq('t_블록 = h ÷ [r (1 − L·d)]')}${K.eq('t_외톨이 = h ÷ r')}${K.eq('t_레시피 = t_b × (1 + OE)')}${K.eq('    또는 max t_블록 × (1 + OE)')}${K.eq('필요 OE = max t_블록 × 1.15 ÷ t_b − 1')}${K.eq('  1.15 = 1 + 5σ (국부 산포 σ 3 %) · 블랭킷 기준')}${K.eq('n = 1.5 · k_p · r · (t_레시피 − min t_외톨이)')}${K.eq('  먼저 지워진 곳의 계면 홈 (약할 때 · 04장 식)')}
-      <ul><li><b>시간과 언더컷</b> — 이미 지워진 곳의 과식각 시간 = t_레시피 − min t_외톨이. 두께 맵 h와 속도 맵 r이 같은 모양이면 지움 시간 맵이 평평해집니다. 이 모델에서는 가운데 두꺼움 u %에 속도 맵 a = −u를 주면 h ÷ r = h₀ ÷ r₀로 정확히 상쇄됩니다(실제 두 맵은 모양이 완전히 같지 않아 일부만 상쇄). 남는 차이는 로딩(1 − L·d)과 국부 산포입니다. 예: 기본값에서 가장 늦은 곳 78.8 s, 외톨이 범프 옆이 가장 먼저 57.5 s → 과식각 30 %(78 s)에서 잔여 다이 약 12 %, 먼저 지워진 곳은 약 21 s 과식각을 더 받습니다. 기둥 옆 깎임은 레시피 시간이 정해 어디서나 생기고(04장 s_p = k_p · r · t, 기본값 약 507 nm), 그 자리에서 더 커지는 것은 밑동 발이 사라진 뒤의 밑동 · 계면 홈(계면이 약하면 1.5 × 1.3 × 300 nm/분 × 20.6 s ≈ +200 nm, 04장 식) · Ti 노출(<a data-go="ti.oxide">06장</a>)입니다. 외톨이 범프는 로딩이 없어 국부 속도가 빨라 기둥 옆도 빽빽한 블록보다 약 100 nm 더 깎입니다(1.3 × 300 nm/분 × 20 % × 78 s).</li>
+      <ul><li><b>시간과 언더컷</b> — 이미 지워진 곳의 과식각 시간 = t_레시피 − min t_외톨이. 두께 맵 h와 속도 맵 r이 같은 모양이면 지움 시간 맵이 평평해집니다. 이 모델에서는 가운데 두꺼움 u %에 속도 맵 a = −u를 주면 h ÷ r = h₀ ÷ r₀로 정확히 상쇄됩니다(실제 두 맵은 모양이 완전히 같지 않아 일부만 상쇄). 남는 차이는 로딩(1 − L·d)과 국부 산포입니다. 예: 기본값에서 가장 늦은 곳 78.8 s, 외톨이 범프 옆이 가장 먼저 57.5 s → 과식각 30 %(78 s)에서 잔여 다이 약 12 %, 먼저 지워진 곳은 약 21 s 과식각을 더 받습니다. 기둥 옆 깎임은 레시피 시간이 정해 어디서나 생기고(04장 s_p = k_p · r · t, 기본값 약 507 nm), 그 자리에서 더 커지는 것은 밑동 발이 사라진 뒤의 밑동 · 계면 홈(계면이 약하면 1.5 × 1.3 × 300 nm/분 × 20.6 s ≈ +200 nm, 04장 식) · Ti 노출(<a data-go="ti.oxide">06장</a>)입니다. 외톨이 범프는 로딩이 없어 국부 속도가 빨라 기둥 옆도 빽빽한 블록보다 약 100 nm 더 깎입니다(1.3 × 300 nm/분 × 20 % × 78 s). 여기까지는 베이스 다이(Cu / Ni / Cu / SnAg) 이야기이고, 코어 다이(Ni / SnAg)는 범프에 Cu가 없어 기둥 옆 · 계면 홈이 없으며 과식각은 Ni 발 밑 시드 언더컷으로 갑니다(<a data-go="under.core">04장</a>).</li>
       <li><b>꼬리가 시간을 정한다</b> — 범프 사이 칸이 N 개이고 칸마다 국부 산포 σ가 정규분포를 따르면, 가장 늦은 칸은 평균보다 약 √(2 ln N) σ 늦습니다. N = 10⁶ 이면 √27.6 ≈ 5.3 → 약 5σ, 국부 산포 3 %면 15 % 여유가 더 필요합니다. 300 mm 웨이퍼 한 장에 범프가 수십만~수백만 개라 평균으로 정한 시간은 늘 모자랍니다. 기본값의 '필요한 과식각 51 %'는 맵 · 로딩(×1.31)과 꼬리(×1.15)를 곱한 값입니다.</li>
-      <li><b>로딩의 진짜 원인</b> — 빽빽한 곳은 범프 사이 시드 넓이는 적지만 Cu 기둥 옆면이 넓습니다. 블록의 범프 밀도 d, 지름 D, Cu 기둥 높이 H이면 옆면 넓이 ÷ 블록 넓이 = d·4H/D (d 20 % · D 25 µm · H 15 µm → 약 0.5, 범프 사이 시드 넓이 1 − d = 0.8과 같은 자릿수; d 30 %면 0.72 대 0.70으로 거의 같음). 옆면도 수백 nm 녹으므로 산화제 · 산 수요가 범프 사이 시드만큼 큽니다. 여기에 범프 사이로 액이 덜 바뀌어 공급이 줄어듭니다(→ <a data-go="rate.which">03장</a>). 녹은 Cu²⁺는 잘 녹아 있어(황산구리는 물에 1 mol/L 넘게 녹음) 그 자체로 길을 막지는 않습니다.</li>
+      <li><b>로딩의 진짜 원인</b> — 빽빽한 곳은 범프 사이 시드 넓이는 적지만 베이스 다이는 Cu 옆면이 넓습니다. 블록의 범프 밀도 d, 지름 D, 옆면에 드러난 Cu 높이 H(베이스 다이: Cu 기둥 12 + 상부 Cu 3 = 15 µm, 예시)이면 옆면 넓이 ÷ 블록 넓이 = d·4H/D (d 20 % · D 25 µm · H 15 µm → 약 0.5, 범프 사이 시드 넓이 1 − d = 0.8과 같은 자릿수; d 30 %면 0.72 대 0.70으로 거의 같음). 옆면도 수백 nm 녹으므로 산화제 · 산 수요가 범프 사이 시드만큼 큽니다. 코어 다이(Ni / SnAg)는 범프에 Cu가 없어(H = 0) 이 몫이 없고, 범프가 낮아(17 대 30 µm) 같은 피치라면 범프 사이 액도 더 잘 바뀝니다 — 위젯의 코어 다이 L 0.5는 이를 나타낸 예시 값입니다. 여기에 범프 사이로 액이 덜 바뀌어 공급이 줄어듭니다(→ <a data-go="rate.which">03장</a>). 녹은 Cu²⁺는 잘 녹아 있어(황산구리는 물에 1 mol/L 넘게 녹음) 그 자체로 길을 막지는 않습니다.</li>
       <li><b>공개 보고</b> — 묽은 황산 + 과산화수소로 Cu 시드를 지운 연구에서 빽빽한 패턴 구역은 과식각이 더 필요했다는 보고가 있습니다. 재배선 공정의 과식각 사례(눈으로 다 지워진 뒤 50~200 %)는 <a data-go="under.over">04장</a> 「한 걸음 더」에 있습니다.</li>
       <li><b>끝점 보기</b> — 광학(반사율 · 색) 센서, 블랭킷 모니터 웨이퍼의 정기 속도 · 속도 맵 측정, 시험 패턴 저항. 센서가 보는 자리가 가장 늦은 곳이 아닐 수 있어 끝점 신호 뒤에도 여유를 둡니다. 끝점을 인식해 과식각 시간을 줄여 언더컷을 줄이는 장치가 공개 특허에 있습니다. SEM-EDS는 신호 깊이가 수백 nm~1 µm라 몇 nm 잔여가 아래 보호막 신호에 묻히기 쉽습니다(낮은 가속 전압으로도 한계).</li>
       <li><b>시드 면저항 맵</b> — Rs = ρ ÷ t 이므로 두께 맵 대용입니다(Cu 300 nm · 1.9×10⁻⁸ Ω·m → 약 0.063 Ω/□; 아래 Ti 100 nm는 약 5 Ω/□라 병렬로 1 % 남짓만 보탭니다). 도금 전에 잰 맵이 식각 끝점 맵의 첫 단서이고, 도금 두께 맵(터미널 효과)과도 이어집니다(→ <a href="#go-plating-07">전해도금 07장</a>).</li>
-      <li><b>위젯 상수</b> — h₀ 300 nm, r₀ 300 nm/분(기준 액), L 1.0, 가장자리 부분 다이 밀도 ½, 국부 산포 3 %, 칸 10⁶ 개(5σ), 도금 Cu 배수 1.3 · 약한 계면 계수 1.5(04장), 속도 맵 ±10 %, 다이 ${DIES.length}개(그중 가장자리 부분 다이 ${DIES.filter(D => D.part).length}개) — 모두 예시입니다.</li></ul>`);
+      <li><b>위젯 상수</b> — h₀ 300 nm, r₀ 300 nm/분(기준 액), L 1.0(베이스 다이) · 0.5(코어 다이), 가장자리 부분 다이 밀도 ½, 국부 산포 3 %, 칸 10⁶ 개(5σ), 도금 Cu 배수 1.3 · 약한 계면 계수 1.5(04장), 속도 맵 ±10 %, 다이 ${DIES.length}개(그중 가장자리 부분 다이 ${DIES.filter(D => D.part).length}개) — 모두 예시입니다.</li></ul>`);
   },
   css: `.et07-late{fill:#f59e0b}
 .et07-early{fill:none;stroke:#38bdf8;stroke-width:3;opacity:.6}
