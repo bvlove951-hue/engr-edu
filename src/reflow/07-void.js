@@ -110,7 +110,7 @@ const VN = {x: 40, y: 128, w: 940, h: 992}, VN_W = {x: 50, y: 140, w: 920, h: 44
         }
       } else if (i === 1){
         pic += R(x + 20, 228, 240, 88, 'f-sn2', W({rx: 6}, tip('SnAg 솔더')));
-        pic += R(x + 20, 316, 240, 26, 'f-cu2', tip('상부 Cu 3 µm (베이스 다이) — Ni 위에 얇게 한 번 더 올린 Cu. 이 위에 SnAg를 바로 도금한다\n코어 다이(Ni / SnAg)는 Ni 위에 바로 SnAg'));
+        pic += R(x + 20, 316, 240, 26, 'f-cu2', tip('상부 Cu 3 µm (베이스 다이, Ni 위에 얇게 한 번 더 올린 Cu) — 솔더가 처음 만나는 면 · IMC를 Cu₆Sn₅ 쪽으로. 이 위에 SnAg를 바로 도금한다\n코어 다이(Ni / SnAg)는 Ni 위에 바로 SnAg'));
         pic += R(x + 20, 342, 240, 26, 'f-ni', tip('Ni 3 µm — Cu 기둥과 솔더 사이 방벽'));
         pic += T(x + 140, 336, '상부 Cu', 'rf07-dk2') + T(x + 140, 362, 'Ni', 'rf07-dk2');
         const g = K.rng(41);
@@ -202,9 +202,9 @@ const VN = {x: 40, y: 128, w: 940, h: 992}, VN_W = {x: 50, y: 140, w: 920, h: 44
       if (i === 0){
         k += R(x + 20, 292, 240, 38, 'f-sn2', tip('SnAg 솔더')) + P(scal(x + 20, x + 260, 330, 12, 6), 'f-imc', tip('Cu₆Sn₅ (가리비 모양 IMC)'));
         k += R(x + 20, 330, 240, 30, 'pl-imc3', tip('Cu₃Sn — Cu가 계속 올라와 두꺼워지는 층'));
-        for (let j = 0; j < 13; j++) k += C(x + 31 + j * 18.2, 357, 3.2, 'f-void', tip('커켄달 보이드 줄 — Cu가 Sn보다 빨리 빠져나가 남은 빈자리 (Cu/Cu₃Sn 계면 쪽)'));
+        for (let j = 0; j < 13; j++) k += C(x + 31 + j * 18.2, 360, 3.2, 'f-void', tip('커켄달 보이드 줄 — Cu가 Sn보다 빨리 빠져나가 남은 빈자리 (Cu/Cu₃Sn 계면 쪽)'));
         k += R(x + 20, 360, 240, 32, 'f-cu2', tip('Ni 방벽이 없는 두꺼운 Cu — Cu 기둥 옆면(솔더가 타고 내려온 곳) · 상대 Cu 패드'));
-        k += T(x + 140, 314, 'SnAg', 'rf07-dk2') + T(x + 140, 350, 'Cu₃Sn', 'rf07-dk2') + T(x + 140, 384, 'Cu', 'rf07-dk2');
+        k += T(x + 80, 314, 'SnAg', 'rf07-dk2') + T(x + 206, 313, 'Cu₆Sn₅', 'rf07-dk3') + T(x + 140, 346, 'Cu₃Sn', 'rf07-dk2') + T(x + 140, 386, 'Cu', 'rf07-dk2');
       } else if (i === 1){
         // 층 이름표를 넣으려고 얇은 층을 키움 (상부 Cu 24 · Ni 26 px — 리플로우 뒤라 상부 Cu가 조금 쓰여 Ni보다 얇다)
         const mini = (x0, aged) => {

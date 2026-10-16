@@ -223,7 +223,7 @@ function hatch(K, th, cx, cy, n, clip){
   },
   body(K){
     return `<div class="pl-w"><div class="hd">직접 해 보기 — 굳는 순서</div>
-      ${K.ctl('ag', '도금한 솔더 Ag (wt%)', 0.5, 4, 0.1, DEF.ag)}${K.ctl('sn', 'Sn 소모 — 여러 번 녹여 IMC로 빠진 몫 (%, 05장)', 0, 40, 1, DEF.sn)}
+      ${K.ctl('ag', '도금한 솔더 Ag (wt%)', 0.5, 4, 0.1, DEF.ag)}${K.ctl('sn', 'Sn 소모 — 여러 번 녹여 IMC로 빠진 몫 (%, 05장 — 베이스 다이는 상부 Cu 몫만 약 48 %)', 0, 65, 1, DEF.sn)}
       ${K.ctl('cr', '냉각 속도 (°C/초)', 0, 100, 1, DEF.cr)}${K.ctl('d', '솔더 크기 (지름 µm)', 0, 100, 1, DEF.d)}
       ${K.seg('g', [['1', '① 하나 · c축 세로'], ['3', '② 셋 (쌍정)'], ['h', '③ 하나 · c축 가로']], DEF.g, '다시 굳혀 보기 (결정 모양 예)')}
       ${K.kpis([['과냉', 'k-dt', 'β-Sn 굳기 시작까지'], ['판이 자라는 창', 'k-w', '실효 Ag <span data-o="k-c">2.5</span> % 기준'], ['판이 자랄 수 있는 길이', 'k-l', '추정'], ['β-Sn 결정', 'k-g', '보통 1~몇 개']])}
@@ -343,8 +343,8 @@ function hatch(K, th, cx, cy, n, clip){
       const dy = g === '3' ? 932 : 912;
       s += G(K.lead(524, 936, 584, dy, '미세 Ag₃Sn', 'start', 't-dim') + LB(T(592, dy + 31, '그물 (정상)', 't-dim', 'start')), K.on('grain'));
       s += G(K.lead(556, 970, 584, 1004, 'Cu₆Sn₅ 알갱이', 'start', 't-dim') + LB(T(592, 1035, '(상부 Cu에서)', 't-dim', 'start')), K.on('grain'));
-      if (m.L >= 1){ const ex = 425 - len / 2 * Math.cos(15 * Math.PI / 180), ey = 958 + len / 2 * Math.sin(15 * Math.PI / 180); s += G(K.lead(ex + 4, ey - 1, 250, 922, 'Ag₃Sn 판', 'end', 'rf06-lab rf06-lta') + LB(T(242, 954, `약 ${f1(m.L)} µm`, 'rf06-lab rf06-lta', 'end')), K.on('ag3sn')); }
-      else s += G(LB(T(242, 928, 'Ag₃Sn 판 없음', 't-dim', 'end') + T(242, 954, '(작은 알갱이만)', 't-dim', 'end')), K.on('ag3sn'));
+      if (m.L >= 1){ const ex = 425 - len / 2 * Math.cos(15 * Math.PI / 180), ey = 958 + len / 2 * Math.sin(15 * Math.PI / 180); s += G(K.lead(ex + 4, ey - 1, 250, 912, 'Ag₃Sn 판', 'end', 'rf06-lab rf06-lta') + LB(T(242, 944, `약 ${f1(m.L)} µm`, 'rf06-lab rf06-lta', 'end')), K.on('ag3sn')); }
+      else s += G(LB(T(242, 918, 'Ag₃Sn 판 없음', 't-dim', 'end') + T(242, 944, '(작은 알갱이만)', 't-dim', 'end')), K.on('ag3sn'));
       return s;
     }
     // ── under 패널: 크기별 과냉 막대 + 지금 설정

@@ -143,7 +143,7 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
         }
         if (i === 2) f += P(b ? scallop(K, x, x + FW, yI, 22, 33, -1, 26, 10).d : facet(K, x, x + FW, yI, 12, 1, 34).d, b ? TYPE.cu.cls : TYPE['0'].cls);
         f += R(x, y, FW, FH, 'rf05-frame');
-        const tp = b ? ['도금 직후 — 상부 Cu 위에 반응층이 거의 없다', '녹고 몇 초 — Cu가 빨리 녹아들고, 계면에 Cu₆Sn₅ 알갱이(핵)가 생긴다', '약 1분 뒤(250 °C) — Cu₆Sn₅ 가리비 층 약 2 µm (위젯 예시)']
+        const tp = b ? ['도금 직후 — 상부 Cu 위에는 실온에서 자란 아주 얇은 Cu₆Sn₅ 정도 (Ni 위는 거의 없음)', '녹고 몇 초 — Cu가 빨리 녹아들고, 계면에 Cu₆Sn₅ 알갱이(핵)가 생긴다', '약 1분 뒤(250 °C) — Cu₆Sn₅ 가리비 층 약 2 µm (위젯 예시)']
           : ['도금 직후 — Ni 위에 반응층이 거의 없다', '녹고 몇 초 — Ni가 조금 녹아들고, 계면에 Ni₃Sn₄ 조각(핵)이 생긴다', '약 1분 뒤(250 °C) — Ni₃Sn₄ 층 보통 1 µm 안팎 (위젯: 1회 · 60초 → 1.00 µm)'];
         dz += G(f, tip(tp[i]));
       });
@@ -192,13 +192,13 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
     const chips = h => h.replace('class="pl-seg"', 'class="pl-seg pl-chips"');
     return `<div class="pl-w"><div class="hd">직접 해 보기 — IMC 예산</div>
       ${chips(K.seg('die', [['b', '베이스 다이 (Cu/Ni/Cu/SnAg)'], ['c', '코어 다이 (Ni/SnAg)']], DEF.die, '다이'))}
-      ${K.ctl('n', '녹이는 횟수 (웨이퍼 리플로우 · 적층 본딩 · 재작업)', 1, 10, 1, DEF.n)}${K.ctl('tl', '한 번에 녹아 있는 시간 (초)', 20, 180, 5, DEF.tl)}
+      ${K.ctl('n', '녹이는 횟수 (웨이퍼 리플로우 · 본딩(코어 적층 · 베이스 → 인터포저) · 재작업)', 1, 10, 1, DEF.n)}${K.ctl('tl', '한 번에 녹아 있는 시간 (초)', 20, 180, 5, DEF.tl)}
       ${K.ctl('ht', '고체 상태 고온 시간 (캐리어 본딩 · 뒷면 공정 · 시험을 150 °C로 환산, 시간)', 0, 2000, 50, DEF.ht)}${K.ctl('ni', 'Ni 두께 (µm)', 1, 6, 0.5, DEF.ni)}${K.ctl('tc', '상부 Cu 두께 (µm, 베이스 다이)', 1, 5, 0.5, DEF.tc)}
       ${chips(K.seg('cu', [['0', '없음 (Ni 위 SnAg)'], ['lo', '조금 (0.4 % 미만)'], ['hi', '많이 (0.6 % 넘음)']], DEF.cu, '솔더 속 Cu (코어 다이)'))}
       ${chips(K.seg('side', [['1', '웨이퍼 리플로우만 (계면 1개)'], ['2', '본딩 뒤 (아래 · 위 계면 2개)']], DEF.side, '계면 수'))}
       ${K.kpis([['IMC 두께', 'k-x', '이 칩 계면'], ['Ni 소모', 'k-ni', '남은 <span data-o="k-nil">–</span>'], ['Sn 소모', 'k-sn', '도금 솔더 대비 · 계면 수만큼 합'], ['IMC 종류', 'k-t', '']])}
       <p class="pl-msg" data-o="msg"></p>
-      ${K.model('녹은 동안 x³ ∝ 시간, 굳은 뒤 x² − x₀² ∝ 시간인 개념 모델입니다. 코어 다이(Ni 위)의 속도 상수(250 °C 60초 → 1 µm — 보고값의 낮은 쪽, 150 °C 1,000시간 → +1 µm)와 솔더 속 Cu 배수(조금 ×1.3 · 많이 ×2)는 가정값입니다. 베이스 다이(상부 Cu 위 Cu₆Sn₅)는 250 °C 60초 → 2 µm, 굳은 뒤 Ni 쪽의 10배로 가정했고, 소모는 Cu₆Sn₅ 비율로만 셉니다(얇은 Cu₃Sn 몫은 무시). 상부 Cu가 다 쓰이면 그 뒤로는 Ni 위 (Cu,Ni)₆Sn₅ 속도로 아주 천천히 자란다고 봅니다. 본딩 뒤에는 위 계면(상대 패드, Ni로 가정)도 본딩부터 자라고, 베이스 다이는 솔더에 녹아든 Cu 때문에 (Cu,Ni)₆Sn₅ 속도로 셉니다. 다이를 바꾸면 Ni 두께가 그 다이의 예시 값(베이스 3 · 코어 5 µm)으로 바뀝니다. 보고된 속도 · 활성화 에너지는 금속 종류 · 솔더 양 · 측정법에 따라 크게 흩어집니다. 소모 비율은 Ni₃Sn₄ · Cu₆Sn₅ 밀도로 계산했고, Cu가 섞인 IMC의 Ni 몫((Cu,Ni)₆Sn₅에서 금속 자리의 약 20 % 등)은 가정값입니다.')}</div>`;
+      ${K.model('녹은 동안 x³ ∝ 시간, 굳은 뒤 x² − x₀² ∝ 시간인 개념 모델입니다. 코어 다이(Ni 위)의 속도 상수(250 °C 60초 → 1 µm — 보고값의 낮은 쪽, 150 °C 1,000시간 → +1 µm)와 솔더 속 Cu 배수(조금 ×1.3 · 많이 ×2)는 가정값입니다. 베이스 다이(상부 Cu 위 Cu₆Sn₅)는 250 °C 60초 → 2 µm, 굳은 뒤 Ni 쪽의 10배로 가정했고, 소모는 Cu₆Sn₅ 비율로만 셉니다(얇은 Cu₃Sn 몫은 무시). 상부 Cu가 다 쓰이면 그 뒤로는 Ni 위 (Cu,Ni)₆Sn₅ 속도로 아주 천천히 자란다고 봅니다. 본딩 뒤에는 위 계면(상대 패드, Ni로 가정)도 본딩부터 자라고, 베이스 다이는 솔더에 녹아든 Cu 때문에 (Cu,Ni)₆Sn₅ 속도로 셉니다. 다이를 바꾸면 Ni 두께가 그 다이의 예시 값(베이스 3 · 코어 5 µm)으로 바뀝니다. 보고된 속도 · 활성화 에너지는 금속 종류 · 솔더 양 · 측정법에 따라 크게 흩어집니다. 소모 비율은 Ni₃Sn₄ · Cu₆Sn₅ 밀도로 계산했고, Cu가 섞인 IMC의 Ni 몫((Cu,Ni)₆Sn₅에서 금속 자리의 약 20 % 등)은 가정값입니다. Sn 소모 경고선(코어 30 % · 베이스 60 %)도 예시입니다 — 베이스는 상부 Cu 몫(약 48 %)을 설계에서 미리 세는 양으로 보고, 코어는 Ni₃Sn₄가 Cu₆Sn₅보다 잘 깨지는 편이라는 보고가 많아 낮게 잡았습니다.')}</div>`;
   },
   mount(K, ctx){
     const {R, C, L, P, T, G, LB, tip, only, on, W} = K;
@@ -246,7 +246,8 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
     function section(sid, m){
       const b = m.b, sc = m.ty.shape === 'scallop', dis = sid === 'dissolve';
       // 배율: 1 µm = 50 px, 층 · IMC가 두꺼우면 창 안에 들어가게 줄인다 (1 µm 자도 함께)
-      const PX = Math.min(50, 640 / Math.max(1, Math.max(0, m.niLeft) + m.cuLeft + (sc ? 1.4 : 1.6) * m.x));
+      //   budget 단계는 왼쪽 위 상자(y 266~606) 아래에 IMC 윗면이 오게 더 줄인다
+      const PX = Math.min(50, (sid === 'budget' ? 430 : 640) / Math.max(1, Math.max(0, m.niLeft) + m.cuLeft + (sc ? 1.4 : 1.6) * m.x));
       const yNi0 = YC - st.ni * PX, yN0 = yNi0 - (b ? st.tc * PX : 0);
       const yN = Math.min(YC, b && !m.used ? yNi0 - m.cuLeft * PX : yNi0 + m.niUsed * PX), X = m.x * PX;
       // 굳은 뒤 고온에 오래 두면 조각 · 가리비가 뭉툭해지며 층이 고르게 된다(보고된 경향) → 리플로우 몫 비율만큼만 각지게 · 둥글게
@@ -515,7 +516,7 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
       msg += `솔더 Sn의 <b>${pc(m.snPct)}</b>가 IMC로`;
       msg += m.two && m.x2 > 0.005 ? `(위 계면 ${f2(m.x2)} µm 몫 ${pc(m.snUp)} 포함).` : '.';
       if (m.b) msg += ` 상부 Cu를 다 쓰면 그것만으로 Sn 약 ${pc(m.share)}가 IMC가 되므로, 솔더 양은 이 몫을 미리 셉니다.`;
-      if (m.b && m.share > 60) msg += ' 상부 Cu가 두꺼우면 다 쓰이기까지 Sn이 더 들고 오래 걸려, 그동안 Cu₃Sn이 계속 자라 커켄달 보이드 쪽으로 기울 수 있습니다(<a data-go="void.where">07장</a>).';
+      if (m.b && m.share > 60) msg += ' 상부 Cu가 두꺼우면 다 쓰이기까지 Sn이 더 들고 오래 걸려, 그동안 Cu₃Sn이 계속 자라 커켄달 보이드 쪽으로 기울 수 있습니다(<a data-go="void.kirk">07장</a>).';
       if (m.snPct > 15) msg += ` 남은 솔더의 Ag가 진해집니다(실효 Ag = Ag₀ ÷ (1 − 소모): 2.5 % → ${f1(2.5 / Math.max(0.01, 1 - m.snPct / 100))} %) → <a data-go="solid.ag3sn">06장</a>.`;
       if (!m.b && st.cu === 'hi') msg += ' Cu가 섞이면 IMC는 빨리 자라지만 Ni는 덜 먹는 경향이 보고됩니다.';
       if (m.two && st.n === 1) msg += ' (녹이는 횟수 1회 = 본딩에서는 녹지 않았다고 봅니다 — 위 계면은 고온 시간만큼만 자랍니다.)';
@@ -567,7 +568,7 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
       <li><b>녹은 상태 성장</b> — 순수 Sn · Sn-2Ag가 전해 Ni와 250 °C에서 1분 닿으면 각진 Ni₃Sn₄가 평균 약 1.35~3.6 µm 생긴다는 보고가 있습니다(Ni 종류 · 솔더 양 · 측정법에 따라 크게 흩어집니다. 위젯은 낮은 쪽인 1 µm를 씁니다). Sn-3.5Ag에서는 활성화 에너지가 전해 Ni 25 kJ/mol · 무전해 Ni(P) 38 kJ/mol로 보고되었고, 같은 조건에서 전해 Ni 위 IMC가 더 느리게 자랐으며 240 °C 20분 뒤에도 계면 미세 보이드가 없었다는 보고가 있습니다. Cu는 녹은 Sn에 Ni보다 훨씬 빨리 녹아들고 반응해, 같은 조건이면 Cu 위 IMC가 보통 더 두껍습니다(위젯 가정: 250 °C 60초 → Cu₆Sn₅ 2 µm). 시간 지수는 약 1/3(결정 커짐 · 녹아 나감과 겹침)이 흔히 보고됩니다.</li>
       <li><b>굳은 상태 성장</b> — x² = x₀² + k·t, k = k₀·exp(−Q/RT). Sn-3.5Ag/Ni 150~200 °C 보관에서 지수 약 0.5(확산 지배)가 보고되었지만, Q는 연구마다 16~172 kJ/mol로 넓게 흩어집니다(시편 · Ni 종류 · 솔더 양). Q 70 kJ/mol이면 150 °C 근처에서 10 °C마다 약 1.6배 빨라지고, 125 °C는 150 °C의 약 0.29배입니다(위젯 점선). Cu 위 Cu₆Sn₅ + Cu₃Sn은 보통 Ni 위 Ni₃Sn₄보다 빨리 자랍니다(위젯은 10배로 가정).</li>
       <li><b>Cu 임계</b> — 솔더 Cu가 약 0.4 wt% 아래면 (Ni,Cu)₃Sn₄ 연속층, 약 0.6 wt% 넘으면 (Cu,Ni)₆Sn₅ 연속층이 생긴다는 보고가 있습니다. (Cu,Ni)₆Sn₅ 층이 생기면 Ni 소모가 줄어드는 경향이 있지만, 성장 · 계면 모양 · 떨어져 나감(스폴링) 거동이 달라집니다. 베이스 다이는 상부 Cu가 녹아들어 솔더 속 Cu가 늘 넉넉한 쪽입니다.</li>
-      <li><b>상부 Cu를 다 쓰게 하는 설계 · 커켄달</b> — 두꺼운 Cu 위에서는 Cu₃Sn이 계속 자라며 Cu/Cu₃Sn 계면에 커켄달 보이드가 생길 수 있습니다(Cu가 Sn보다 빨리 빠져나가 빈자리가 모임, 도금 Cu 속 S(촉진제 유래)가 키움 — <a href="#go-plating-06">전해도금 6장</a> · <a data-go="void.where">07장</a>). 얇은 Cu 약 3 µm를 SnAg가 다 써 버리도록 설계한 Cu/Ni/Cu/Sn-1.8Ag 마이크로범프가 고온 보관에서 계면 보이드가 거의 없었다는 공개 연구가 있습니다 — 상부 Cu가 다 쓰이면 IMC는 Ni 위 (Cu,Ni)₆Sn₅로 안정되고, Ni가 Cu 기둥의 Cu를 막아 Cu₃Sn이 더 자랄 Cu가 없기 때문으로 설명됩니다(보통 드는 이유). 그래서 Ni 방벽 범프의 커켄달 이야기는 주로 Ni가 없는 Cu 옆면 · 상대 Cu 패드 · 두껍게 남은 Cu 쪽입니다.</li>
+      <li><b>상부 Cu를 다 쓰게 하는 설계 · 커켄달</b> — 두꺼운 Cu 위에서는 Cu₃Sn이 계속 자라며 Cu/Cu₃Sn 계면에 커켄달 보이드가 생길 수 있습니다(Cu가 Sn보다 빨리 빠져나가 빈자리가 모임, 도금 Cu 속 S(촉진제 유래)가 키움 — <a href="#go-plating-06">전해도금 6장</a> · <a data-go="void.kirk">07장</a>). 얇은 Cu 약 3 µm를 SnAg가 다 써 버리도록 설계한 Cu/Ni/Cu/Sn-1.8Ag 마이크로범프가 고온 보관에서 계면 보이드가 거의 없었다는 공개 연구가 있습니다 — 상부 Cu가 다 쓰이면 IMC는 Ni 위 (Cu,Ni)₆Sn₅로 안정되고, Ni가 Cu 기둥의 Cu를 막아 Cu₃Sn이 더 자랄 Cu가 없기 때문으로 설명됩니다(보통 드는 이유). 그래서 Ni 방벽 범프의 커켄달 이야기는 주로 Ni가 없는 Cu 옆면 · 상대 Cu 패드 · 두껍게 남은 Cu 쪽입니다.</li>
       <li><b>마이크로범프의 솔더 소진</b> — Ni/Sn-2.5Ag/Ni 마이크로범프를 150 °C에 오래 두면 솔더가 모두 Ni₃Sn₄로 바뀌었다는 보고가 있습니다(포물선 법칙, 그 시편 Q 약 172 kJ/mol). 이 시편은 <b>위 · 아래 두 Ni 계면</b>에서 동시에 먹는 구조라, 계면 하나로 계산하면 위험을 절반으로 봅니다(위젯 코어 다이 · Ni 5 µm: 8회 + 1,000 h → 계면 1개 약 20 %, 2개 약 39 %). 상대가 Cu 패드면 그쪽에 Cu₆Sn₅ + Cu₃Sn이 더 빨리 자라고 커켄달 보이드도 생길 수 있습니다. 접합이 IMC로만 이어지면 녹는점은 높아지지만 단단하고 잘 깨집니다.</li>
       <li><b>Ag의 행방</b> — Ag는 IMC에 거의 들어가지 않고 솔더 속 Ag₃Sn으로 남습니다. Sn이 IMC로 빠지면 남은 솔더의 Ag 농도가 높아져(실효 Ag = Ag₀ ÷ (1 − 소모)), 처음 2.5 %였어도 큰 Ag₃Sn 판이 생길 수 있습니다(<a data-go="solid.ag3sn">06장</a>). 베이스 다이는 상부 Cu 몫만큼 Sn이 IMC로 가므로 이 효과를 함께 셉니다.</li></ul>`);
   },
@@ -595,11 +596,11 @@ function tagN(K, x, y, lines, a = 'start', lh = 27){
 .pl-svg .rf05-bar0{fill:rgba(15,23,42,.6);stroke:rgba(148,163,184,.35);stroke-width:1}
 .pl-svg .rf05-thr{stroke:#f87171;stroke-width:2.4;stroke-dasharray:5 4}
 .pl-svg .rf05-mk{stroke:#fbbf24;stroke-width:2.4;stroke-dasharray:5 4}
-.pl-svg .rf05-cap{stroke:#fbbf24;stroke-width:2;stroke-dasharray:9 6}
+.pl-svg .rf05-cap{stroke:#34d399;stroke-width:2.4;stroke-dasharray:2 6;stroke-linecap:round}
 .pl-svg .rf05-grid{stroke:rgba(143,166,198,.16);stroke-width:1}
 .pl-svg .rf05-thrt{font-size:18px;font-weight:700;fill:#fca5a5 !important;text-anchor:middle}
 .pl-svg .rf05-mkt{font-size:18px;font-weight:700;fill:#fcd34d !important;text-anchor:middle}
-.pl-svg .rf05-capt{font-size:18px;font-weight:700;fill:#fcd34d !important}
+.pl-svg .rf05-capt{font-size:18px;font-weight:700;fill:#6ee7b7 !important}
 .pl-svg .rf05-bt{font-size:18px;font-weight:800;fill:#0b1222 !important;stroke:none !important}
 .pl-svg .rf05-snt{font-size:19px;font-weight:800;fill:#fbbf24 !important}
 .pl-svg .rf05-ng{font-size:20px;font-weight:800;fill:#fca5a5 !important}
