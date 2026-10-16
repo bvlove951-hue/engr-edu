@@ -3,9 +3,9 @@
 const F = 96485;
 // 금속별 상수: 몰질량 M(g/mol), 이온 전하수 n, 밀도 ρ(g/cm³), 효율 기본값(예시 %), 소모량 g/Ah
 const MET = {
-  cu: {nm: 'Cu', ion: 'Cu²⁺', M: 63.55, n: 2, rho: 8.96, cls: 'f-cu2', e0: 100, gAh: 1.19, eff: '산성 Cu: 보통 98~100 %'},
-  ni: {nm: 'Ni', ion: 'Ni²⁺', M: 58.69, n: 2, rho: 8.91, cls: 'f-ni', e0: 96, gAh: 1.10, eff: 'Ni(설파민산): 보통 95~99 % — 수소가 조금씩 함께 나옵니다'},
-  sn: {nm: 'SnAg', ion: 'Sn²⁺', M: 118.71, n: 2, rho: 7.29, cls: 'f-sn2', e0: 95, gAh: 2.21, eff: 'SnAg(MSA): 보통 90 % 이상 — Sn 기준으로 계산 (Ag 1.5~2.5 wt%에 쓰이는 전기는 약 0.8~1.4 %)'}
+  cu: {nm: 'Cu', ion: 'Cu²⁺', M: 63.55, n: 2, rho: 8.96, cls: 'f-cu2', e0: 100, gAh: 1.19, eff: '산성 Cu: 보통 98~100 %', ex: '베이스 다이에서만 두 번 — Cu 기둥 12 µm · 상부 Cu(Ni 위에 얇게 한 번 더 올린 Cu) 3 µm (코어 다이는 Cu 도금 없음)'},
+  ni: {nm: 'Ni', ion: 'Ni²⁺', M: 58.69, n: 2, rho: 8.91, cls: 'f-ni', e0: 96, gAh: 1.10, eff: 'Ni(설파민산): 보통 95~99 % — 수소가 조금씩 함께 나옵니다', ex: '베이스 다이 3 µm(방벽) · 코어 다이 5 µm(몸통)'},
+  sn: {nm: 'SnAg', ion: 'Sn²⁺', M: 118.71, n: 2, rho: 7.29, cls: 'f-sn2', e0: 95, gAh: 2.21, eff: 'SnAg(MSA): 보통 90 % 이상 — Sn 기준으로 계산 (Ag 1.5~2.5 wt%에 쓰이는 전기는 약 0.8~1.4 %)', ex: '두 다이 모두 12 µm'}
 };
 const PR_UM = 60, PX = 10;                 // PR 높이(예시) 60 µm, 1 µm = 10 px
 const OX = 1270, OW = 250, BASE = 1000, PRT = BASE - PR_UM * PX;
@@ -113,18 +113,19 @@ const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor
     rc += TT(636, 880, ['튄 물(수소)', '= 높이에 안 보탬'], 't-dim', 'start', 26);
     rc += T(420, 1098, '컵 바닥 = PR이 열린 면적 · 물 = 전기량', 't-dim');
     // ④ 레시피는 보통 여러 단계 (예시 · Cu)
-    rc += R(830, 570, 730, 542, 'pl-panel', {rx: 16}) + T(856, 612, '레시피는 보통 여러 단계 (예시 · Cu)', 't-acc', 'start');
-    const AX0 = 900, AX1 = 1520, AY0 = 920, AY1 = 660, mx = m => AX0 + m / 14 * (AX1 - AX0), my = j => AY0 - j / 10 * (AY0 - AY1);
+    rc += R(830, 570, 730, 542, 'pl-panel', {rx: 16}) + T(856, 612, '레시피는 보통 여러 단계 (예시 · 베이스 다이 Cu 기둥)', 't-acc', 'start');
+    const AX0 = 900, AX1 = 1520, AY0 = 880, AY1 = 664, mx = m => AX0 + m / 12 * (AX1 - AX0), my = j => AY0 - j / 11 * (AY0 - AY1);
     rc += L(AX0, AY0, AX1, AY0, 's-axis') + L(AX0, AY0, AX0, AY1, 's-axis');
     rc += T(AX0 - 10, AY1 + 6, 'ASD', 't-dim', 'end');
-    [0, 3, 13].forEach(m => { rc += L(mx(m), AY0, mx(m), AY0 + 8, 's-axis') + T(mx(m), AY0 + 30, m ? m + '분' : '0', 't-dim'); });
-    [1, 8].forEach(j => { rc += L(AX0 - 8, my(j), AX0, my(j), 's-axis') + T(AX0 - 14, my(j) + 7, String(j), 't-dim', 'end'); });
-    rc += R(mx(0), my(1), mx(3) - mx(0), AY0 - my(1), 'pl-bar', tip('① 낮은 전류로 시작 — 바닥을 고르게 덮는다'));
-    rc += R(mx(3), my(8), mx(13) - mx(3), AY0 - my(8), 'pl-bar', tip('② 본 전류 — 빠르게 쌓는다'));
-    rc += T(mx(1.5), my(1) - 14, '①', 't-lbl') + T(mx(8), my(8) + 40, '② 본 전류 8 ASD × 10분', 't-sub');
-    rc += TT(856, 980, ['① 0.22 µm/분 × 1 ASD × 3분 = 0.66 µm', '② 0.22 µm/분 × 8 ASD × 10분 = 17.6 µm'], 't-sub', 'start', 30);
-    rc += T(856, 1046, '합 ≈ 18.3 µm (효율 100 %) — 단계마다 전류 × 시간을 더한다', 't-warn', 'start');
-    rc += T(856, 1080, '흔히 처음은 낮은 전류로 고르게 덮고, 다음에 본 전류로 빠르게', 't-dim', 'start');
+    [0, 5, 10].forEach(m => { rc += L(mx(m), AY0, mx(m), AY0 + 8, 's-axis') + T(mx(m), AY0 + 30, m ? m + '분' : '0', 't-dim'); });
+    [1, 10].forEach(j => { rc += L(AX0 - 8, my(j), AX0, my(j), 's-axis') + T(AX0 - 14, my(j) + 7, String(j), 't-dim', 'end'); });
+    rc += R(mx(0), my(1), mx(5) - mx(0), AY0 - my(1), 'pl-bar', tip('① 낮은 전류로 시작 — 바닥을 고르게 덮는다'));
+    rc += R(mx(5), my(10), mx(10) - mx(5), AY0 - my(10), 'pl-bar', tip('② 본 전류 — 빠르게 쌓는다'));
+    rc += T(mx(2.5), my(1) - 14, '①', 't-lbl') + T(mx(7.5), my(10) + 40, '② 본 전류 10 ASD × 5분', 't-sub');
+    rc += TT(856, 950, ['① 0.22 µm/분 × 1 ASD × 5분 = 1.1 µm', '② 0.22 µm/분 × 10 ASD × 5분 = 11.0 µm'], 't-sub', 'start', 30);
+    rc += T(856, 1014, '합 ≈ 12.1 µm ≈ Cu 기둥 12 µm (효율 100 %)', 't-warn', 'start');
+    rc += T(856, 1050, '상부 Cu 3 µm(Ni 위, 같은 Cu 액): 5 ASD면 약 2.7분', 't-sub', 'start');
+    rc += T(856, 1082, '짧은 단계일수록 입수 · 램프업 몇 초가 두께 %로 크게 보인다', 't-dim', 'start');
     s += G(rc, only('recipe'));
     return s;
   },
@@ -172,7 +173,7 @@ const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor
       for (let k = 0; k < 9; k++) ctx.$(`[data-v="b${k}"]`).style.display = k < nb ? '' : 'none';
       ctx.$('[data-v="warn"]').textContent = over > 0 ? `⚠ PR 높이를 넘었습니다 → 옆으로 퍼진 버섯 모양 (오버 도금)` : `범프 높이 ${real.toFixed(1)} µm / PR ${PR_UM} µm`;
       const v1 = 1 / 100 * 60 / F / M.n * M.M / M.rho * 1e4;           // 1 ASD, 효율 100 %일 때 µm/분
-      ctx.q('[data-o=msg]').innerHTML = `${M.eff}. 1 ASD당 ${v1.toFixed(3)} µm/분 (효율 100 %). 1 Ah마다 ${M.nm === 'SnAg' ? 'Sn' : M.nm} 약 <b>${M.gAh.toFixed(2)} g</b>이 웨이퍼에 쌓입니다. 가용성 양극(애노드, +)이면 양극이 그만큼 녹아 채우고, 불용성이면 약품으로 보충합니다.`;
+      ctx.q('[data-o=msg]').innerHTML = `${M.eff}. 예시 두께: ${M.ex}. 1 ASD당 ${v1.toFixed(3)} µm/분 (효율 100 %). 1 Ah마다 ${M.nm === 'SnAg' ? 'Sn' : M.nm} 약 <b>${M.gAh.toFixed(2)} g</b>이 웨이퍼에 쌓입니다. 가용성 양극(애노드, +)이면 양극이 그만큼 녹아 채우고, 불용성이면 약품으로 보충합니다.`;
       // 레시피: 전류 = 목표 전류밀도 × 열린 면적
       const F0 = st.f || 20, half = F0 % 2 ? (F0 / 2).toFixed(1) : String(F0 / 2);
       const f = F0 / 100, A = WAF * f, I = J * A, ah = I * tm / 60, grams = ah * M.gAh * eff;
@@ -223,11 +224,12 @@ const sci = v => { if (!isFinite(v) || v === 0) return '0'; const e = Math.floor
     ]) + K.field([
       '<b>레시피 전류 = 목표 전류밀도 × 열린 면적</b>입니다. 실측 두께가 계산보다 작으면, 효율을 의심하기 전에 <b>면적 정보(마스크 · 개구율)</b>부터 확인합니다.',
       '<b>효율 추세 (µm/Ah)</b> — lot마다 "실측 두께 ÷ 계산 두께(패러데이 예측)"를 기록해 추세로 봅니다(같은 제품 · 같은 열린 면적이면 Ah당 µm로 봐도 같은 뜻입니다). 이 값이 움직이면 효율 변화(Sn⁴⁺ 증가, Ni pH 변화), 열린 면적 입력 오류, 계측 이상 중 하나입니다. 한 번만 다르면 계측부터 다시 봅니다.',
-      '레시피는 보통 <b>여러 단계 전류</b>로 짭니다. 흔히 처음은 낮은 전류로 고르게 덮고, 다음에 본 전류로 빠르게 쌓습니다. 단계마다 전류 × 시간을 더하면 전체 두께입니다.',
+      '레시피는 보통 <b>여러 단계 전류</b>로 짭니다. 흔히 처음은 낮은 전류로 고르게 덮고, 다음에 본 전류로 빠르게 쌓습니다. 단계마다 전류 × 시간을 더하면 전체 두께입니다. 베이스 다이는 같은 Cu 액으로 두 번(Cu 기둥 12 µm · 상부 Cu(Ni 위에 얇게 한 번 더 올린 Cu) 3 µm, 예시) 쌓으므로 레시피 · 목표 두께 · 계측을 단계마다 따로 봅니다. 상부 Cu처럼 얇고 짧은 단계는 시간 · 전류의 작은 차이가 두께 비율로 크게 나타납니다.',
       '단위 실수가 가장 흔합니다. "1분에 22 µm" 같은 값이 나오면 ASD와 A/cm²를 섞었는지 먼저 봅니다 (<a href="#go-edu-1">01 엔지니어의 마인드</a> 원칙 2).'
     ]) + K.deep(`<p>한 줄 공식: <b>두께 = J · t · M · 효율 / (n · F · ρ)</b>, 속도 v = J·M/(n·F·ρ).</p>
       ${K.eq('Cu: 100 × 63.55 ÷ (2 × 96485 × 8.96×10⁶)')}${K.eq('  ≈ 3.7×10⁻⁹ m/s ≈ 0.22 µm/분 (1 ASD)')}
       <ul><li>같은 ASD라도 속도는 같지 않습니다. 1 ASD에서 Cu ≈ 0.22, Ni ≈ 0.20, SnAg ≈ 0.51 µm/분(효율 100 %). Sn은 원자 하나가 차지하는 부피가 크고 전자는 똑같이 2개라서, SnAg는 Cu보다 약 2.3배 빨리 자랍니다.</li>
+      <li><b>예시 두께로 시간 감 잡기</b> (비교용으로 모두 5 ASD · 효율 100 %): 베이스 다이 Cu 기둥 12 µm 약 11분 · Ni 3 µm 약 2.9분 · 상부 Cu 3 µm 약 2.7분 · SnAg 12 µm 약 4.7분, 코어 다이 Ni 5 µm 약 4.9분 · SnAg 12 µm 약 4.7분. 실제로는 금속마다 쓰는 전류밀도가 달라 시간도 다릅니다.</li>
       <li><b>합금(SnAg)</b>은 금속마다 몫(부분 전류)을 나눠 계산합니다: i = i(Sn) + i(Ag). Ag 2.5 wt%는 전기의 약 1.4 %만 씁니다. 그래서 Ag 함량은 전기량보다 Ag 공급(확산)에 좌우됩니다 (→ <a data-go="chem.comp">10장</a>).</li>
       <li><b>전기량당 금속 소모량</b> — Cu 1.19 · Ni 1.10 · Sn 2.21 · Ag 4.03 g/Ah (= M ÷ (n × 26.8 Ah/mol)). 가용성 양극이면 양극이 이만큼 닳고, 불용성 양극이면 이만큼을 약품으로 보충합니다 (→ <a data-go="bath.metal">11장</a>).</li>
       <li>효율을 깎는 것은 수소만이 아닙니다. 액에 녹은 산소의 환원, Sn⁴⁺ → Sn²⁺처럼 한 단계만 일어나는 반응도 전기를 조금 씁니다.</li>

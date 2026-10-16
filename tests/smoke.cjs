@@ -340,7 +340,7 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
   await page.waitForSelector('#view-bump.active .bp-svg');
   ok(await page.evaluate(() => window.EngrEdu.state.tab) === 'bump', '05 모듈의 링크로 범프 공정 탭 열기');
   const bp = await page.evaluate(() => ({ chips: document.querySelectorAll('#view-bump .bp-line button').length, beats: window.EngrBump.state.beats, panels: document.querySelectorAll('#view-bump .bp-panel').length }));
-  ok(bp.chips === 12 && bp.panels === 3 && bp.beats === 18, `공정 12개 · 웨이퍼/다이/범프 3화면 · 단계 ${bp.beats}개`);
+  ok(bp.chips === 12 && bp.panels === 3 && bp.beats === 19, `공정 12개 · 웨이퍼/다이/범프 3화면 · 단계 ${bp.beats}개`);
   // 각 상태로 스크롤해서 그 상태가 되는지, 보이는 층이 맞는지
   const bpAt = async s => {
     await page.evaluate(s => { const b = window.EngrBump.blocks().find(x => x.states.includes(s)); const V = document.getElementById('view-bump'); V.scrollTop = b.top + (b.states.indexOf(s) + 0.5) / b.n * b.h - V.clientHeight * 0.5; }, s);
