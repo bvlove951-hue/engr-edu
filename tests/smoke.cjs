@@ -485,7 +485,9 @@ const ok = (cond, msg) => { console.log((cond ? '  ✔ ' : '  ✘ ') + msg); if 
     let reached = 0, scene = 0, vis = 0;
     for (const s of order){
       await page.evaluate(([t, s]) => { document.getElementById('view-' + t).scrollTop = window.EngrTheatres[t].pos(s); }, [tab, s]);
-      await page.waitForTimeout(110);
+      // 장 위젯이 다시 붙는 동안 상태가 늦게 따라올 수 있다 — 고정 대기 대신 그 상태가 될 때까지 (최대 1.5초) 기다린다
+      await page.waitForFunction(([t, s]) => window.EngrTheatres[t].state.state === s, [tab, s], { timeout: 1500 }).catch(() => {});
+      await page.waitForTimeout(60);
       const r = await page.evaluate(t => { const a = window.EngrTheatres[t], V = document.getElementById('view-' + t).getBoundingClientRect(), li = document.querySelector(`#view-${t} .jc.active .steps li.on`);
         const lr = li && li.getBoundingClientRect();
         return { st: a.state.state, cur: [...document.querySelectorAll(`#view-${t} .pl-scene.cur`)].map(g => g.dataset.ch).join(), vis: !!lr && lr.top >= V.top - 1 && lr.bottom <= V.bottom + 1 }; }, tab);
