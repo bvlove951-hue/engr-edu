@@ -1,4 +1,5 @@
-/* 리플로우 06 — 굳기: 식으면서 솔더 속은 어떻게 짜일까? (과냉 · β-Sn 결정 · Ag₃Sn 판 · 냉각 속도 — 솔더 속 · µm) */
+/* 리플로우 06 — 굳기: 식으면서 솔더 속은 어떻게 짜일까? (과냉 · β-Sn 결정 · Ag₃Sn 판 · 냉각 속도 — 솔더 속 · µm)
+   그림은 베이스 다이 범프(Cu 기둥 / Ni / 상부 Cu / SnAg): 상부 Cu에서 녹아든 Cu가 식으며 솔더 속 Cu₆Sn₅ 알갱이가 된다. 코어 다이(Ni / SnAg)는 거의 없다 */
 (function(){
 // ── 개념 모델 (기획 rev.2 · 모두 가정값 — 공개 보고의 경향에 맞춘 것)
 //  실효 Ag  c = Ag₀ / (1 − Sn 소모)               Ag는 IMC에 거의 안 들어가 Sn이 빠진 만큼 남은 솔더에서 진해진다
@@ -34,6 +35,10 @@ const TENDS = [[5, 1], [10, 2], [15, 5], [20, 5], [30, 5], [40, 10], [60, 10], [
 const BX = 420, BY = 1000, BA = 150, BH = 189;                                    // 범프 단면: 12 px/µm, 지름 25 µm 돔 (그림 크기 고정)
 const cap = (cx, y0, a, h) => { const R = (a * a + h * h) / (2 * h); return `M${cx - a},${y0} A${R.toFixed(1)},${R.toFixed(1)} 0 ${h > a ? 1 : 0} 1 ${cx + a},${y0} Z`; };
 const DOME = cap(BX, BY, BA, BH);
+// 가리비 줄 (Cu₆Sn₅ — 상부 Cu 위 계면 IMC): 바닥 yb, 높이 h, n개
+const scal = (x0, x1, yb, h, n) => { const w = (x1 - x0) / n; let d = `M${x0},${yb}`; for (let k = 0; k < n; k++) d += ` A${(w / 2).toFixed(1)},${h} 0 0 1 ${(x0 + (k + 1) * w).toFixed(1)},${yb}`; return d + ' Z'; };
+// 베이스 다이 범프 아래쪽 (위에서부터 상부 Cu · Ni · Cu 기둥): 상부 Cu와 Ni는 같은 두께 t, 기둥은 cu px만
+const stack = (K, cx, y0, a, t, cu) => K.R(cx - a, y0, 2 * a, t, 'f-cu2') + K.R(cx - a, y0 + t, 2 * a, t, 'f-ni') + K.R(cx - a, y0 + 2 * t, 2 * a, cu, 'f-cu2');
 // 쌍정 셋(②): 한 점 J에서 120°씩 갈라지는 세 영역, c축은 60°씩 돌아감
 const J = [420, 930], PLp = [304.4, 863.2], PRp = [535.6, 863.2];
 const SECT = [
@@ -79,7 +84,7 @@ function hatch(K, th, cx, cy, n, clip){
   steps: [
     {id: 'under', t: '과냉 — 녹는점 아래에서도 액체', d: 'β-Sn 결정은 씨앗(핵)이 생기기 어려워 보통 액상선보다 수십 °C 낮아져야 굳기 시작합니다. 범프가 작을수록 씨앗이 생길 기회가 적어 과냉이 커집니다. 한번 씨앗이 생기면 범프 전체가 순식간에 굳습니다.', viewN: VN_L},
     {id: 'grain', t: 'β-Sn 결정 — 몇 개뿐, 방향이 중요', d: '과냉 뒤 씨앗 하나에서 순식간에 굳기 때문에, 마이크로범프 하나는 보통 하나~몇 개의 큰 β-Sn 결정이 됩니다(약 60°씩 돌아간 짝 결정 — 쌍정 — 도 흔합니다). 결정의 한 방향(c축)과 다른 방향 사이에 열팽창은 약 2배, Ni가 퍼지는 빠르기는 수만 배(Cu는 수십~수백 배) 다릅니다.', viewN: VN_R},
-    {id: 'ag3sn', t: 'Ag₃Sn 판 — 굳기 전에 먼저 자란다', d: 'Ag₃Sn은 씨앗이 쉽게 생겨, β-Sn이 과냉으로 머뭇거리는 동안 액체 속에서 판 모양으로 먼저 자랄 수 있습니다. Ag가 많을수록 · 과냉이 클수록, 여러 번 녹여 남은 솔더의 Ag가 진해질수록(<a data-go="imc.budget">05장</a>) 판이 커집니다. 큰 판은 균열 길이 됩니다.', viewN: VN_R},
+    {id: 'ag3sn', t: 'Ag₃Sn 판 — 굳기 전에 먼저 자란다', d: 'Ag₃Sn은 씨앗이 쉽게 생겨, β-Sn이 과냉으로 머뭇거리는 동안 액체 속에서 판 모양으로 먼저 자랄 수 있습니다. Ag가 많을수록 · 과냉이 클수록, 여러 번 녹여 남은 솔더의 Ag가 진해질수록(<a data-go="imc.budget">05장</a> — Sn을 더 먹는 베이스 다이가 보통 더 빠름) 판이 커집니다. 큰 판은 균열 길이 됩니다.', viewN: VN_R},
     {id: 'rate', t: '냉각 속도 — 무엇이 바뀌나', d: '빨리 식히면 판이 짧아지지만, 판이 자랄 수 있는 온도 구간(창)은 남습니다. 냉각판(<a data-go="tool.plate">08장</a>)으로 더 빨리 식힐 수는 있어도 휨 · 열 응력이 커지고, 작은 범프에서는 빠른 냉각의 효과가 작았다는 보고도 있습니다. 그래서 Ag를 공정점(共晶, 3.5 %)보다 충분히 낮게(보통 1.5~2.5 %, 범프가 작을수록 낮은 쪽) 잡는 것이 더 확실합니다.', viewN: VN_R}
   ],
   icon(K){
@@ -103,11 +108,13 @@ function hatch(K, th, cx, cy, n, clip){
 
     // ── 왼쪽 아래: 범프 단면 (12 px/µm, 그림 크기 고정)
     s += R(70, 660, 700, 450, 'pl-box', {rx: 12}) + R(70, 660, 700, 450, 'pl-hlbox', W({rx: 12}, only('grain')));
-    s += R(BX - BA, BY + 36, BA * 2, 60, 'f-cu2', tip('Cu 기둥 (일부만)')) + R(BX - BA, BY, BA * 2, 36, 'f-ni', tip('Ni 3 µm — 솔더와 Cu 사이 방벽'));
+    // 베이스 다이 범프 (12 px/µm 그대로): 상부 Cu 3 µm · Ni 3 µm · Cu 기둥(위쪽 3 µm만)
+    s += R(BX - BA, BY, BA * 2, 36, 'f-cu2', tip('상부 Cu 3 µm — Ni 위에 얇게 한 번 더 올린 Cu. 솔더가 처음 만나는 면 · IMC를 Cu₆Sn₅ 쪽으로\n녹은 동안 조금 녹아들어, 굳을 때 솔더 속 Cu₆Sn₅ 알갱이가 된다'));
+    s += R(BX - BA, BY + 36, BA * 2, 36, 'f-ni', tip('Ni 3 µm — Cu 기둥과 솔더 사이 방벽')) + R(BX - BA, BY + 72, BA * 2, 36, 'f-cu2', tip('Cu 기둥 — 높이 · 전기 (위쪽 일부만 그림)'));
     s += P(DOME, 'f-sn2', tip('SnAg 솔더 (리플로우 뒤 돔, 지름 25 µm · 꼭대기 약 15.7 µm)'));
     s += '<g data-v="bump"></g>';
-    s += P(DOME, 'rf06-dome') + R(BX - BA, BY - 8, BA * 2, 8, 'f-imc', tip('Ni₃Sn₄ (IMC) — 05장. 리플로우 한 번에 약 1 µm'));
-    s += K.lead(BX - BA + 12, BY - 4, 256, 990, 'Ni₃Sn₄ (05장)', 'end', 't-dim') + K.lead(BX - BA + 12, BY + 18, 256, 1032, 'Ni', 'end', 't-dim') + K.lead(BX - BA + 12, BY + 66, 256, 1078, 'Cu 기둥', 'end', 't-dim');
+    s += P(DOME, 'rf06-dome') + P(scal(BX - BA, BX + BA, BY, 15, 9), 'f-imc', tip('Cu₆Sn₅ (IMC) — 상부 Cu 위 둥근 가리비 층 (05장). 리플로우 한 번에 보통 1~2 µm\n코어 다이(Ni / SnAg)는 Ni 위 Ni₃Sn₄'));
+    s += K.lead(BX - BA + 14, BY - 6, 256, 974, 'Cu₆Sn₅ (05장)', 'end', 't-dim') + K.lead(BX - BA + 12, BY + 18, 256, 1012, '상부 Cu', 'end', 't-dim') + K.lead(BX - BA + 12, BY + 54, 256, 1048, 'Ni', 'end', 't-dim') + K.lead(BX - BA + 12, BY + 90, 256, 1084, 'Cu 기둥', 'end', 't-dim');
 
     // ── 오른쪽 패널
     s += R(800, 130, 760, 970, 'pl-panel', {rx: 16});
@@ -125,14 +132,14 @@ function hatch(K, th, cx, cy, n, clip){
         g += P(`M${x0 + 22},784 L${x0 + 150},880 L${x0 + 160},836 L${x0 + 216},840 L${x0 + 300},912`, 's-curve', tip('큰 시편(DSC, mg 크기): 과냉 뒤 한꺼번에 굳으며 나온 열로 온도가 잠깐 튀어 오른다'));
         g += C(x0 + 150, 880, 6, 'k-ng') + K.arrow(x0 + 176, 892, x0 + 160, 846, 's-arr2') + T(x0 + 186, 902, '튀어 오름', 't-dim', 'start');
       } else {
-        g += P(`M${x0 + 22},784 L${x0 + 300},912`, 's-curve', tip('웨이퍼 위 범프: 굳는 열(약 2.4 µJ)이 Cu 기둥 · 웨이퍼로 바로 퍼져 약 0.06 °C — 곡선에 거의 안 보인다'));
+        g += P(`M${x0 + 22},784 L${x0 + 300},912`, 's-curve', tip('웨이퍼 위 범프: 굳는 열(약 2.4 µJ)이 아래 금속 · 웨이퍼로 바로 퍼져 약 0.06 °C — 곡선에 거의 안 보인다'));
         g += L(x0 + 150, 828, x0 + 150, 858, 'rf06-tk') + C(x0 + 150, 843, 6, 'k-ng') + C(x0 + 150, 843, 14, 'co-ring') + T(x0 + 164, 820, '거의 그대로', 't-dim', 'start');
       }
       return g;
     };
     un += mini(840, 'DSC 시편 (mg 덩어리)', false) + mini(1200, '웨이퍼 위 범프 (약 41 ng)', true);
     un += T(840, 962, '굳는 열로 잠깐 튀어 오른다', 't-dim', 'start') + T(1200, 962, '열 약 2.4 µJ → 바로 퍼져 약 0.06 °C', 't-dim', 'start');
-    un += TT(830, 1016, wr(K, '범프는 열이 Cu 기둥 · 웨이퍼로 바로 빠져 튀어 오름이 거의 없다 — 그래서 왼쪽 곡선에도 그리지 않았다. 재료 자료의 DSC 과냉은 큰 시편 값이라 범프보다 작다.', 33), 't-sub', 'start', 28);
+    un += TT(830, 1016, wr(K, '범프는 열이 아래 금속(Cu 기둥 · Ni) · 웨이퍼로 바로 빠져 튀어 오름이 거의 없다 — 그래서 왼쪽 곡선에도 그리지 않았다. 재료 자료의 DSC 과냉은 큰 시편 값이라 범프보다 작다.', 33), 't-sub', 'start', 28);
     s += G(un, only('under'));
 
     // grain: 정방 단위 칸 + 방향별 성질 + 전류와 c축
@@ -162,7 +169,7 @@ function hatch(K, th, cx, cy, n, clip){
     gp += T(830, 606, 'Ni · Cu 원자는 Sn 원자 사이 틈으로 움직인다 — c축 방향으로 통로가 열려 있다', 't-dim', 'start');
     gp += C(1052, 640, 6, 'k-e') + T(1066, 647, '전자', 't-dim', 'start') + C(1140, 640, 6, 'rf06-nid') + T(1154, 647, 'Ni · Cu 원자 (그림 예)', 't-dim', 'start') + L(1392, 640, 1432, 640, 'rf06-cx2') + T(1444, 647, 'c축', 't-dim', 'start');
     [[1010, 0, 'rf06-m1', true], [1370, 90, 'rf06-m2', false]].forEach(([cx, th, clip, fast]) => {
-      let b = R(cx - 95, 872, 190, 70, 'f-cu2') + R(cx - 95, 856, 190, 16, 'f-ni') + P(cap(cx, 856, 95, 120), 'f-sn2');
+      let b = stack(K, cx, 856, 95, 14, 58) + P(cap(cx, 856, 95, 120), 'f-sn2');
       b += hatch(K, th, cx, 800, 9, clip) + cax(K, cx, 800, th, 44, 'rf06-cx');
       for (let k = 0; k < 3; k++) b += K.mover(cx - 50 + k * 50, 944, cx - 50 + k * 50, 724, 6, 'k-e', 2.6, k * 0.85);
       b += fast ? K.mover(cx + 22, 852, cx + 22, 752, 6, 'rf06-nid', 1.6, 0) + K.mover(cx - 26, 852, cx - 26, 762, 6, 'rf06-nid', 1.6, 0.8) : K.mover(cx + 22, 852, cx + 22, 840, 6, 'rf06-nid', 2.4, 0);
@@ -203,7 +210,7 @@ function hatch(K, th, cx, cy, n, clip){
       const m = model(ag, 0, r, 25), cx = x + RW / 2, cls = {ok: 'rf06-cok', warn: 'rf06-cwarn', ng: 'rf06-cng'}[m.lv];
       let c = R(x, y, RW, RH, cls, {rx: 12});
       c += T(cx, y + 36, m.W > 0 ? `창 ${f1(m.W)} °C · ${f1(m.tw)}초` : '창 닫힘 — β-Sn이 먼저', 't-dim') + T(cx, y + 62, `과냉 ${f0(m.dT)} °C`, 't-dim');
-      c += R(cx - 60, y + 200, 120, 36, 'f-cu2') + R(cx - 60, y + 190, 120, 10, 'f-ni') + P(cap(cx, y + 190, 60, 75), 'f-sn2');
+      c += stack(K, cx, y + 190, 60, 10, 26) + P(cap(cx, y + 190, 60, 75), 'f-sn2');
       for (let k = 0; k < 12; k++){ const a = rr() * Math.PI, rad = 18 + rr() * 34; c += C(cx + Math.cos(a) * rad * 1.15, y + 186 - Math.sin(a) * rad * 0.95, 2.4, 'pl-ag3 rf06-dot'); }
       if (m.L >= 0.5){ const len = Math.max(6, m.L * 4.8), th = Math.max(3.5, len / 12); c += R(cx + 2 - len / 2, y + 166 - th / 2, len, th, 'pl-ag3 rf06-plate', {transform: `rotate(-15 ${cx + 2} ${y + 166})`}); }
       c += T(cx, y + 262, cellTxt(m), {ok: 't-sub', warn: 'rf06-vwarn2', ng: 'rf06-vng2'}[m.lv]);
@@ -221,7 +228,7 @@ function hatch(K, th, cx, cy, n, clip){
       ${K.seg('g', [['1', '① 하나 · c축 세로'], ['3', '② 셋 (쌍정)'], ['h', '③ 하나 · c축 가로']], DEF.g, '다시 굳혀 보기 (결정 모양 예)')}
       ${K.kpis([['과냉', 'k-dt', 'β-Sn 굳기 시작까지'], ['판이 자라는 창', 'k-w', '실효 Ag <span data-o="k-c">2.5</span> % 기준'], ['판이 자랄 수 있는 길이', 'k-l', '추정'], ['β-Sn 결정', 'k-g', '보통 1~몇 개']])}
       <p class="pl-msg" data-o="msg"></p>
-      ${K.model('과냉 식 · Ag₃Sn 선 · 유효 성장 속도(1 µm/초)는 공개 보고의 경향(작을수록 과냉↑, 50 µm 아래 범프 과냉 31~55 °C, 판이 생기면 5 µm/초 넘게 자람, SnAg2.5 마이크로범프의 큰 판은 긴 액상 시간 · 여러 번 녹임으로 Ag가 진해진 뒤 보고)에 맞춘 가정값입니다. 길이는 \'자랄 수 있는 길이\'의 대략입니다. 성장 속도를 일정하게 두어 빠른 냉각의 효과를 실제보다 크게 보일 수 있습니다 — 작은 Cu 기둥 범프에서는 Ag를 낮추는 것은 효과가 있었고 빠른 냉각은 효과가 작았다는 보고가 있습니다. 실제 판 크기는 Ni · IMC 표면 · 미량 원소 · 다시 녹인 횟수에 따라 달라집니다.')}</div>`;
+      ${K.model('과냉 식 · Ag₃Sn 선 · 유효 성장 속도(1 µm/초)는 공개 보고의 경향(작을수록 과냉↑, 50 µm 아래 범프 과냉 31~55 °C, 판이 생기면 5 µm/초 넘게 자람, SnAg2.5 마이크로범프의 큰 판은 긴 액상 시간 · 여러 번 녹임으로 Ag가 진해진 뒤 보고)에 맞춘 가정값입니다. 길이는 \'자랄 수 있는 길이\'의 대략입니다. 성장 속도를 일정하게 두어 빠른 냉각의 효과를 실제보다 크게 보일 수 있습니다 — 작은 Cu 기둥 범프에서는 Ag를 낮추는 것은 효과가 있었고 빠른 냉각은 효과가 작았다는 보고가 있습니다. 실제 판 크기는 바닥 금속 · IMC 표면 · 미량 원소 · 다시 녹인 횟수에 따라 달라집니다. 베이스 다이 솔더는 상부 Cu(Ni 위에 얇게 한 번 더 올린 Cu)에서 녹아든 Cu로 Sn–Ag–Cu에 가까워져 녹기 시작하는 온도가 몇 °C 낮아질 수 있지만(3원 공정점(共晶) 약 217 °C), 위젯은 Sn–Ag 두 원소만 셉니다.')}</div>`;
   },
   mount(K, ctx){
     const {R, C, L, P, T, TT, G, LB, tip, W, wrap, PG} = K;
@@ -233,9 +240,10 @@ function hatch(K, th, cx, cy, n, clip){
     const DOTS = [];
     {
       const r = K.rng(17);
-      while (DOTS.length < 30){ const x = 285 + r() * 270, y = 830 + r() * 160; if (Math.hypot(x - BX, y - (BY - BH + (BA * BA + BH * BH) / (2 * BH))) < 140 && y < 988) DOTS.push([x, y]); }
+      while (DOTS.length < 30){ const x = 285 + r() * 270, y = 830 + r() * 160; if (Math.hypot(x - BX, y - (BY - BH + (BA * BA + BH * BH) / (2 * BH))) < 140 && y < 978) DOTS.push([x, y]); }
       DOTS.push([524, 936]);                                                             // 지시선이 가리키는 점
     }
+    const CU65 = [[318, 962, -20], [372, 948, 35], [462, 966, -40], [548, 968, 15], [404, 900, 70]];   // Cu₆Sn₅ 알갱이 자리 · 기울기
     // ── 냉각 곡선
     function graph(m, showA){
       const [tEnd, tStep] = TENDS.find(([t]) => t >= 100 / m.r - 1e-9) || TENDS[TENDS.length - 1];
@@ -304,12 +312,14 @@ function hatch(K, th, cx, cy, n, clip){
     function bump(m, g, sid){
       let cl = '';                                                                       // 돔 모양으로 자르는 묶음
       // under: 과냉 액체 + 씨앗 하나에서 번지는 굳는 앞면
-      cl += G(P(DOME, 'rf06-liq') + `<circle cx="500" cy="990" r="0" class="rf06-front"><animate attributeName="r" values="0;0;300;300" keyTimes="0;.3;.72;1" dur="4.5s" repeatCount="indefinite"/></circle>`, K.only('under'));
+      cl += G(P(DOME, 'rf06-liq') + `<circle cx="500" cy="974" r="0" class="rf06-front"><animate attributeName="r" values="0;0;300;300" keyTimes="0;.3;.72;1" dur="4.5s" repeatCount="indefinite"/></circle>`, K.only('under'));
       // grain~: 결정 (색 = 방향, 결 = c축 방향)
       let gr = '';
       GRAINS[g].forEach(q => { gr += R(260, 790, 320, 220, 'rf06-tint', W({style: 'fill:' + q.col}, q.clip ? {'clip-path': K.url(q.clip)} : null)) + hatch(K, q.th, q.cx, q.cy, 14, q.clip); });
       cl += G(gr, K.on('grain'));
       cl += G(DOTS.map(([x, y]) => C(x, y, 3.4, 'pl-ag3 rf06-dot')).join(''), W(K.on('grain'), tip('미세 Ag₃Sn 그물 — 공정(共晶) 조직. β-Sn 사이의 아주 작은 Ag₃Sn. 정상 모습')));
+      // Cu₆Sn₅ 알갱이 · 짧은 막대 (베이스 다이: 상부 Cu에서 녹아든 Cu가 식으며 석출 — 계면 가까이 조금 더)
+      cl += G(CU65.map(([x, y, a]) => R(x - 9, y - 3, 18, 6, 'f-imc rf06-c65', {transform: `rotate(${a} ${x} ${y})`})).join(''), W(K.on('grain'), tip('Cu₆Sn₅ 알갱이 · 짧은 막대 — 상부 Cu에서 녹아든 Cu가 식으며 솔더 속에 생긴 것 (베이스 다이, 정상)\n코어 다이(Ni / SnAg)는 Ni가 훨씬 적게 녹아 드물다')));
       // ag3sn~: Ag₃Sn 판 (길이 = 위젯, 지름 대비 비율)
       const len = m.L * 2 * BA / m.D, th = Math.max(4, len / 12);
       if (m.L >= 1) cl += G(R(425 - len / 2, 958 - th / 2, len, th, 'pl-ag3 rf06-plate', W({transform: 'rotate(-15 425 958)'}, tip(`Ag₃Sn 판 약 ${f1(m.L)} µm (추정) — 굳기 전에 액체 속에서 자랐다. 균열이 지나가기 쉬운 길`))), K.on('ag3sn'));
@@ -320,18 +330,19 @@ function hatch(K, th, cx, cy, n, clip){
       GRAINS[g].forEach(q => { const a = q.th * Math.PI / 180; gb += cax(K, q.cx, q.cy, q.th, q.hl, 'rf06-cx') + T(q.cx + Math.sin(a) * (q.hl + 15), q.cy - Math.cos(a) * (q.hl + 15) + 7, 'c', 'rf06-ct'); });
       s += G(gb, K.on('grain'));
       // 씨앗 (under)
-      s += G(C(500, 990, 6, 'k-ng') + C(500, 990, 16, 'co-ring'), K.only('under'));
+      s += G(C(500, 974, 6, 'k-ng') + C(500, 974, 16, 'co-ring'), K.only('under'));
       // 머리글 · 지시선
       s += T(94, 696, '범프 단면 — 솔더 속', 't-acc', 'start') + T(750, 696, `지름 ${m.D} µm (그림 크기 고정)`, 't-dim', 'end');
       s += G(T(94, 726, `씨앗 하나가 생기면 굳는 앞면이 범프 전체를 휩쓴다`, 't-dim', 'start'), K.only('under'));
       s += G(T(94, 726, GNAME[g], 't-dim', 'start'), K.only('grain'));
       s += G(T(94, 726, '회색 판 = Ag₃Sn 판 (지름 대비 비율로 그림)', 't-dim', 'start'), K.on('ag3sn'));
       s += G(K.lead(330, 900, 250, 866, '과냉 액체', 'end', 't-sub') + LB(T(242, 900, `${f0(m.TN)} °C까지`, 't-dim', 'end')), K.only('under'));
-      s += G(K.lead(500, 990, 592, 948, '씨앗 (핵)', 'start', 't-sub'), K.only('under'));
+      s += G(K.lead(500, 974, 592, 948, '씨앗 (핵)', 'start', 't-sub'), K.only('under'));
       s += G(K.lead(g === '3' ? 325 : 360, g === '3' ? 945 : 880, 250, 866, 'β-Sn 결정', 'end', 't-sub'), K.on('grain'));
       if (g === '3') s += G(K.lead(480, 895, 584, 866, '결정 경계', 'start', 't-sub'), K.on('grain'));
       const dy = g === '3' ? 932 : 912;
       s += G(K.lead(524, 936, 584, dy, '미세 Ag₃Sn', 'start', 't-dim') + LB(T(592, dy + 31, '그물 (정상)', 't-dim', 'start')), K.on('grain'));
+      s += G(K.lead(556, 970, 584, 1004, 'Cu₆Sn₅ 알갱이', 'start', 't-dim') + LB(T(592, 1035, '(상부 Cu에서)', 't-dim', 'start')), K.on('grain'));
       if (m.L >= 1){ const ex = 425 - len / 2 * Math.cos(15 * Math.PI / 180), ey = 958 + len / 2 * Math.sin(15 * Math.PI / 180); s += G(K.lead(ex + 4, ey - 1, 250, 922, 'Ag₃Sn 판', 'end', 'rf06-lab rf06-lta') + LB(T(242, 954, `약 ${f1(m.L)} µm`, 'rf06-lab rf06-lta', 'end')), K.on('ag3sn')); }
       else s += G(LB(T(242, 928, 'Ag₃Sn 판 없음', 't-dim', 'end') + T(242, 954, '(작은 알갱이만)', 't-dim', 'end')), K.on('ag3sn'));
       return s;
@@ -448,7 +459,7 @@ function hatch(K, th, cx, cy, n, clip){
       let msg = `<b>${verd(m)}.</b> β-Sn은 <b>${f0(m.TN)} °C</b>에서 굳기 시작합니다(과냉 ${f0(m.dT)} °C). `;
       msg += m.W > 0 ? `Ag₃Sn은 ${f1(m.TA)} °C부터 생길 수 있어, 그 사이 <b>${f1(m.W)} °C · ${f1(m.tw)}초</b> 동안 판이 자랄 수 있습니다 → 약 <b>${f1(m.L)} µm</b>(추정).` : `Ag₃Sn이 생길 온도(${f1(m.TA)} °C)보다 β-Sn이 먼저 굳어 큰 판이 자랄 틈이 없습니다.`;
       if (m.ag0 >= 1.5 - 1e-9 && m.ag0 <= 2.5 + 1e-9 && m.W > 0) msg += ' 보통 목표 범위 안이지만 이 크기 · 냉각에서는 판이 자랄 수 있는 창이 열립니다. 작은 범프일수록 범위의 낮은 쪽이 안전하고, 실제 판은 단면으로 확인합니다(<a href="#go-plating-10">전해도금 10장</a>의 \'목표\'는 공정점(共晶)보다 낮게라는 뜻).';
-      if (m.sn > 0) msg += ` Sn이 IMC로 ${m.sn} % 빠져 남은 솔더의 Ag가 ${f1(m.ag0)} → <b>${f1(m.c)} %</b>로 진해졌습니다.`;
+      if (m.sn > 0) msg += ` Sn이 IMC로 ${m.sn} % 빠져 남은 솔더의 Ag가 ${f1(m.ag0)} → <b>${f1(m.c)} %</b>로 진해졌습니다. 같은 열 이력이면 상부 Cu 위 Cu₆Sn₅가 Sn을 더 먹는 베이스 다이가 보통 코어 다이보다 이 몫이 큽니다(<a data-go="imc.budget">05장</a> 위젯에서 다이별로).`;
       ctx.q('[data-o=msg]').innerHTML = msg;
       ctx.refresh();
     }
@@ -482,11 +493,11 @@ function hatch(K, th, cx, cy, n, clip){
       ['β-Sn', '실온 · 사용 온도에서의 주석 결정(체심 정방). 방향에 따라 성질이 다르다'],
       ['c축', '정방 결정에서 길이가 다른 한 축(β-Sn은 짧은 축). 열팽창 · 단단함 · 확산이 이 방향에서 크게 다르다'],
       ['쌍정', '한 결정이 일정한 각도(β-Sn은 약 60°)로 돌아간 이웃 결정과 짝을 이룬 것. 셋이 모이면 단면이 비치볼처럼 보인다'],
-      ['Ag₃Sn 판 · 공정(共晶) 조직', '판 = 굳기 전에 액체 속에서 판 모양으로 길게 자란 Ag₃Sn. 정상 모습은 공정(共晶) 조직 — β-Sn 사이에 아주 작은 Ag₃Sn이 그물처럼 흩어진 것'],
-      ['굳는 열', '액체가 굳을 때 나오는 열. 큰 시편(DSC — 열 출입을 재며 데우고 식히는 시험)에서는 온도가 잠깐 튀어 오르지만, 웨이퍼 위 범프는 열이 바로 Cu 기둥 · 웨이퍼로 빠져 거의 보이지 않는다'],
+      ['Ag₃Sn 판 · 공정(共晶) 조직', '판 = 굳기 전에 액체 속에서 판 모양으로 길게 자란 Ag₃Sn. 정상 모습은 공정(共晶) 조직 — β-Sn 사이에 아주 작은 Ag₃Sn이 그물처럼 흩어진 것. 베이스 다이 솔더에는 상부 Cu(Ni 위에 얇게 한 번 더 올린 Cu)에서 녹아든 Cu가 만든 Cu₆Sn₅ 알갱이도 섞인다'],
+      ['굳는 열', '액체가 굳을 때 나오는 열. 큰 시편(DSC — 열 출입을 재며 데우고 식히는 시험)에서는 온도가 잠깐 튀어 오르지만, 웨이퍼 위 범프는 열이 바로 아래 금속 · 웨이퍼로 빠져 거의 보이지 않는다'],
       ['전자이동', '큰 전류가 흐를 때 전자가 원자를 밀어 옮기는 현상. Sn 속 Ni · Cu는 c축을 따라 빨리 옮겨 간다']
     ]) + K.field([
-      '큰 Ag₃Sn 판이 보이면 <span class="pl-tag up">앞 공정</span> Ag %(XRF — X선 형광으로 잰 조성) 맵, <span class="pl-tag rf06-cond">리플로우-조건</span> 냉각 속도 · 녹아 있던 시간, <span class="pl-tag dn">뒤 공정</span> 다시 녹인 횟수(적층 본딩)를 함께 봅니다. 여러 번 · 오래 녹이면 Sn이 IMC로 빠져 남은 솔더의 Ag가 진해집니다(위 · 아래 두 계면이면 두 배 빨리) → <a data-go="imc.budget">05장</a> · <a href="#go-plating-10">전해도금 10장</a>.',
+      '큰 Ag₃Sn 판이 보이면 <span class="pl-tag up">앞 공정</span> Ag %(XRF — X선 형광으로 잰 조성) 맵, <span class="pl-tag rf06-cond">리플로우-조건</span> 냉각 속도 · 녹아 있던 시간, <span class="pl-tag dn">뒤 공정</span> 다시 녹인 횟수(적층 본딩)를 함께 봅니다. 여러 번 · 오래 녹이면 Sn이 IMC로 빠져 남은 솔더의 Ag가 진해집니다(위 · 아래 두 계면이면 두 배 빨리, 상부 Cu 위 Cu₆Sn₅가 Sn을 더 먹는 베이스 다이가 보통 더 빨리) → <a data-go="imc.budget">05장</a> · <a href="#go-plating-10">전해도금 10장</a>.',
       '같은 조건에서도 범프마다 결정 방향이 달라 신뢰성 시험(열 순환 · 전자이동) 결과가 흩어집니다. 표본 수를 넉넉히 잡고, 불량 범프의 결정 방향(EBSD — 전자선으로 결정 방향을 재는 분석)을 함께 봅니다.',
       '냉각 장치(냉각판 · 질소 바람 · 이송 속도)가 바뀌면 냉각 속도가 바뀝니다. 측정용 웨이퍼로 냉각 구간도 잽니다 → <a data-go="profile.cool">02장</a>. 다만 작은 범프에서는 냉각보다 Ag가 판을 더 크게 좌우한다는 보고가 있어, 냉각만으로 판을 잡으려 하지 않습니다.',
       '재료 자료의 DSC 과냉 값은 mg 크기 시편이라 마이크로범프보다 작게 나옵니다. 범프는 그보다 더 낮은 온도까지 액체로 남을 수 있다고 생각하고, Ag₃Sn 판은 실제 범프 단면(연마 · 가벼운 식각 · 전자 현미경)으로 확인합니다.'
@@ -497,6 +508,7 @@ function hatch(K, th, cx, cy, n, clip){
       <li><b>Ag₃Sn 판의 순서</b> — Ag₃Sn은 거의 과냉 없이 생기고 β-Sn은 15~30 °C 과냉이 필요해, 그 사이 액체 속에서 판이 자라 천천히 식히면 접합 단면 전체를 가로지른다는 고전 보고가 있습니다(공정점(共晶)에 가까운 조성의 SAC). 공정점(共晶, 3.5 %)보다 Ag가 적어도, 과냉이 크면 늘인 Ag₃Sn 선(T_A) 아래로 내려가 판이 생길 수 있습니다 — 작은 범프에서 '3 % 미만이면 안전'이라는 일반 기준이 맞지 않는 이유입니다.</li>
       <li><b>작은 범프 대책 보고</b> — 50 µm 아래 Cu 기둥 범프에서 리플로우 냉각을 빠르게 하는 것보다 Ag 함량을 낮추는 것이 판 억제에 효과적이었다는 보고가 있습니다. 더 큰 Sn-3.5Ag 접합에서는 수랭에서만 판이 없었다는 보고도 있어, 크기에 따라 냉각의 효과가 다릅니다.</li>
       <li><b>여러 번 녹인 뒤의 큰 판</b> — Ni 위 SnAg2.5 마이크로범프(솔더 4 µm)를 10분 리플로우하면 큰 Ag₃Sn이 생겼고, Sn이 Ni와 반응해 남은 솔더의 Ag가 진해진 것이 주원인으로 제시되었습니다(같은 조건의 플립칩 범프에는 없음). Cu 위 얇은 솔더(2 µm)에서는 약 1.5~2분 만에 남은 솔더의 Ag가 공정점(共晶) 조성(3.5 %)에 이른다는 추정도 있습니다. 위젯의 'Sn 소모'가 이 경로입니다.</li>
+      <li><b>두 다이의 솔더 속</b> — 베이스 다이(Cu/Ni/Cu/SnAg)는 녹은 솔더가 상부 Cu를 조금 녹여 Cu가 섞입니다(Cu–Sn 상태도로 250 °C 녹은 Sn에 Cu는 약 1~1.5 wt%까지 녹고, 작은 범프는 상부 Cu 0.1 µm 남짓만 녹아도 그만큼 찹니다). 그래서 굳은 솔더는 β-Sn + Ag₃Sn에 Cu₆Sn₅ 알갱이 · 막대가 더해진 Sn–Ag–Cu 꼴이 되고, 녹기 시작하는 온도도 3원 공정점(共晶) 약 217 °C 쪽으로 몇 °C 내려갈 수 있습니다. 코어 다이(Ni/SnAg)는 Ni가 Cu보다 훨씬 적게 · 느리게 녹아 β-Sn + Ag₃Sn에 가깝습니다. 또 상부 Cu 위 Cu₆Sn₅는 Ni₃Sn₄보다 보통 빨리 자라 Sn을 더 먹으므로(상부 Cu 3 µm가 다 쓰이면 Sn 약 5.7 µm — 12 µm의 절반 가까이), 같은 열 이력에서 베이스 다이 솔더의 실효 Ag가 더 빨리 진해집니다 — <a data-go="imc.budget">05장</a> 위젯에서 다이를 바꿔 Sn 소모를 보고 이 장의 'Sn 소모'에 넣어 봅니다.</li>
       <li><b>위젯 식</b> (모두 가정값) — ${K.eq('c = Ag₀ / (1 − s)')}${K.eq('ΔT = 15 + 12·log(500/D) + 8·log(r)')}${K.eq('T_N = T_L,Sn(c) − ΔT')}${K.eq('T_A = 221 + 15.6·(c − 3.5)')}${K.eq('L = min(0.9·D, 1 µm/초 × W / r)')} (s = Sn 소모 비율, D = 지름 µm, r = 냉각 °C/초, log = 상용로그, W = T_A − T_N) 예: 25 µm · 2 °C/초 · Ag 2.5 % → 과냉 33 °C, T_N 191 °C, T_A 205.4 °C, 창 14.4 °C · 7.2초 → 약 7.2 µm(경계). Ag 2.0 % → 2.6 µm, 1.5 % → 창 없음, Sn 소모 20 % → 실효 3.1 % → 약 13 µm. 25 µm 범프 솔더는 약 41 ng, 굳는 열 약 2.4 µJ(Sn 약 59 J/g)이라 곡선에 튀어 오름을 그리지 않았습니다.</li></ul>`);
   },
   css: `.pl-svg .rf06-tn{fill:none;stroke:#f87171;stroke-width:2.6;stroke-dasharray:3 5}
@@ -516,6 +528,7 @@ function hatch(K, th, cx, cy, n, clip){
 .pl-svg .rf06-front{fill:var(--th-sn);stroke:#f87171;stroke-width:3}
 .pl-svg .rf06-plate{stroke:#1e293b;stroke-width:1.4}
 .pl-svg .rf06-dot{stroke:none}
+.pl-svg .rf06-c65{stroke:#3b2410;stroke-width:1}
 .pl-svg .rf06-cx{fill:none;stroke:#5b21b6;stroke-width:3.2}
 .pl-svg .rf06-cxh{fill:#5b21b6}
 .pl-svg .rf06-cx2{fill:none;stroke:#a78bfa;stroke-width:3}
